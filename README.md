@@ -1,42 +1,48 @@
 # TEI Dialogue Editor
 
-A web-based tool for annotating dialogue in TEI XML novels.
+An AI-assisted tool for annotating dialogue in TEI XML documents.
 
 ## Features
 
-- **Upload and Edit TEI XML Files**: Import TEI documents and edit them in a browser-based interface
-- **Tag Dialogue with TEI Elements**: Add `<said>` and `<q>` elements to mark dialogue passages
-- **AI-Assisted Dialogue Detection**: Leverage OpenAI GPT models to automatically identify and tag dialogue
-- **Character Management**: Define and manage character roster for consistent attribution
-- **Visualization and Statistics**: View dialogue distribution and character interaction statistics
-- **Export to TEI or HTML**: Generate annotated TEI XML or styled HTML output
+- Manual dialogue annotation with TEI markup (`<said>`, `<q>`)
+- AI-assisted dialogue detection (Ax framework with NLP fallback)
+- Pattern learning from user corrections for improved accuracy
+- Character network visualization
+- Bulk operations for batch processing
+- Sample gallery with annotated examples
+- Quick search with regex support
+- Recent documents tracking
+
+## Current Status
+
+**Version:** 0.2.0-alpha
+
+**Ready for:** Development/testing
+
+**Not ready for:** Production deployment
+
+**AI Detection Accuracy:** F1 ~11.9% (improving with pattern learning)
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for setup instructions and known limitations.
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 18+ and npm
-
-### Installation
+Quick setup:
 
 ```bash
+# Install dependencies
 npm install
-```
 
-### Development
+# Set up environment variables (optional)
+cp .env.local.example .env.local
 
-```bash
+# Run development server
 npm run dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to use the application.
 
-### Production Build
-
-```bash
-npm run build
-npm start
-```
+For detailed setup instructions, including API key configuration and WASM compilation, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Testing
 
