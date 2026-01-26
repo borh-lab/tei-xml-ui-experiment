@@ -18,5 +18,15 @@
     "characters": 4,
     "patterns": ["third-person", "direct-speech", "dialogue-heavy"],
     "difficulty": "intermediate"
+  },
+  {
+    "title": "The Tell-Tale Heart",
+    "author": "Edgar Allan Poe",
+    "year": 1843,
+    "wordCount": 2000,
+    "dialogueCount": 8,
+    "characters": 3,
+    "patterns": ["first-person", "unreliable-narrator", "internal-monologue"],
+    "difficulty": "advanced"
   }
 ]
