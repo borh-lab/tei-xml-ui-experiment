@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# test fixtures
+/tests/fixtures/Wright-American-Fiction
