@@ -2,10 +2,12 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { loadSample as loadSampleContent } from '@/lib/samples/sampleLoader';
 
 interface DocumentContextType {
   document: TEIDocument | null;
   loadDocument: (xml: string) => void;
+  loadSample: (sampleId: string) => Promise<void>;
   updateDocument: (xml: string) => void;
 }
 
@@ -18,12 +20,22 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     setDocument(new TEIDocument(xml));
   };
 
+  const loadSample = async (sampleId: string) => {
+    try {
+      const content = await loadSampleContent(sampleId);
+      setDocument(new TEIDocument(content));
+    } catch (error) {
+      console.error('Failed to load sample:', error);
+      throw error;
+    }
+  };
+
   const updateDocument = (xml: string) => {
     setDocument(new TEIDocument(xml));
   };
 
   return (
-    <DocumentContext.Provider value={{ document, loadDocument, updateDocument }}>
+    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument }}>
       {children}
     </DocumentContext.Provider>
   );
