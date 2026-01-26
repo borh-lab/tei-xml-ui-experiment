@@ -1,4 +1,4 @@
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 
 export interface TEINode {
   [key: string]: any;
@@ -21,7 +21,12 @@ export class TEIDocument {
   }
 
   serialize(): string {
-    return this.rawXML;
+    const builder = new XMLBuilder({
+      ignoreAttributes: false,
+      attributeNamePrefix: '@_',
+      format: true
+    });
+    return builder.build(this.parsed);
   }
 
   getDivisions(): any[] {
