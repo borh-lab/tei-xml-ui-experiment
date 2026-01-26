@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>An Occurrence at Owl Creek Bridge</title>
+        <author>Ambrose Bierce</author>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Public Domain</publisher>
+        <date>1890</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>First published in The San Francisco Examiner, 1890</p>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <editorialDecl>
+        <p>Dialogue tagged with &lt;said&gt; elements. Speaker attribution based on narrative context.</p>
+      </editorialDecl>
+    </encodingDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <titlePage>
+        <titlePart>An Occurrence at Owl Creek Bridge</titlePart>
+        <docAuthor>Ambrose Bierce</docAuthor>
+      </titlePage>
+    </front>
+    <body>
+      <p>
+        A man stood upon a railroad bridge in northern Alabama, looking down into the swift water twenty feet below. The man's hands were behind his back, the wrists bound with a cord. A rope closely encircled his neck. It was attached to a stout cross-timber above his head and the slack fell to the level of his knees. Some loose boards laid upon the sleepers supporting the metals of the railway supplied a footing for him and his executioners—two private soldiers of the Federal army, directed by a sergeant who in civil life may have been a deputy sheriff. At a short remove upon a temporary platform, also upon the railroad track, and in the rear of the condemned man, stood a captain in the uniform of the Federal service, armed and armed. He was a captain. Beside him stood another officer, also in Federal uniform, and this also was a captain.
+      </p>
+      <p>
+        The two captains, the sergeant, and the private soldiers all faced the bridge, looking down into the water. The condemned man looked at the water also, but with a different gaze. He closed his eyes in order to fix his last thoughts upon his wife and children. The water, touched to gold by the early sun, the brooding mists under the banks at some distance down the stream, the fort, the soldiers, the piece of timber—all were distinct. He could have cursed the minute attention to detail that characterized these preparations for death. He became conscious of a new disturbance. This was a distinct pain, sharp and severe. He gave it no thought.
+      </p>
+      <p>
+        <said who="#captain" rend="plain">"What is it?"</said>
+        asked the captain of the Federal army suddenly, addressing the condemned man.
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"I suppose,"</said>
+        replied the condemned man, <said who="#peyton" rend="plain">"that I might ask the same question."</said>
+      </p>
+      <p>
+        <said who="#captain" rend="plain">"You are Peyton Farquhar?"</said>
+        said the captain.
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"I am,"</said>
+        was the answer.
+      </p>
+      <p>
+        <said who="#captain" rend="plain">"You are about to be hanged."</said>
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"I am."</said>
+      </p>
+      <p>
+        <said who="#captain" rend="plain">"Any last words?"</said>
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"I thank you,"</said>
+        said Peyton Farquhar, <said who="#peyton" rend="plain">"whatever you do."</said>
+      </p>
+      <p>
+        The sergeant stepped aside. The two private soldiers withdrew a few paces and stood at attention. The captain made a movement with his sword. The sergeant turned to the condemned man and said: <said who="#sergeant" rend="plain">"Forward!"</said>
+      </p>
+      <p>
+        Peyton Farquhar stepped forward. He was a planter, a gentleman. He was about thirty-five years old. He wore a mustache and pointed beard, but no whiskers. His eyes were large and dark gray. He had a straight nose, firm mouth, broad forehead, from which his long, dark hair was combed straight back. His features were good—a straight nose, firm mouth, broad forehead. He was a slave owner, and like other slave owners a politician. He was naturally an original secessionist, and he was ardently devoted to the Southern cause.
+      </p>
+      <p>
+        Circumstances of an imperious nature, which it is unnecessary to relate here, had prevented him from taking service with the gallant army that had fought the disastrous campaigns ending with the fall of Corinth. He was confident that he could yet serve the cause. He had heard of a great movement of troops, a concentration of forces somewhere to the north, and he had burned with desire to join it. He had tried to join it, but had been refused. He knew that the Northern army had penetrated into Alabama, and he hoped to fall in with it. He had heard of the bridge, and he hoped to find it in possession of the Federal forces.
+      </p>
+      <p>
+        He was at the bridge. He looked at the bridge. It was a single span, a plank footbridge. He saw that it was guarded by two sentries. He saw that the sentries were armed. He saw that they were alert. He concluded that the bridge was in possession of the enemy. He turned away. He walked slowly back to his home.
+      </p>
+      <p>
+        As he was about to pass the gate, a horseman approached. It was a soldier in the uniform of the Federal army. The horseman drew rein and addressed him.
+      </p>
+      <p>
+        <said who="#scout" rend="plain">"You are Peyton Farquhar?"</said>
+        asked the soldier.
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"I am,"</said>
+        replied Peyton.
+      </p>
+      <p>
+        <said who="#scout" rend="plain">"You are a planter?"</said>
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"I am."</said>
+      </p>
+      <p>
+        <said who="#scout" rend="plain">"You own slaves?"</said>
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"I do."</said>
+      </p>
+      <p>
+        The soldier seemed satisfied. He leaned forward and said confidentially: <said who="#scout" rend="plain">"The Yanks are repairing the railroads,"</said>
+        he said, <said who="#scout" rend="plain">"and are getting ready for another advance. They have reached the Owl Creek bridge, put it in order and built a stockade on the north bank. The commandant has issued an order, which is posted everywhere, declaring that any civilian caught interfering with the railroad, its bridges, tunnels or trains will be summarily hanged. I saw the order."</said>
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"How far is it to the bridge?"</said>
+        asked Farquhar.
+      </p>
+      <p>
+        <said who="#scout" rend="plain">"About thirty miles."</said>
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"Is there no force on this side the creek?"</said>
+      </p>
+      <p>
+        <said who="#scout" rend="plain">"Only a picket post half a mile out, on the railroad, and a single sentinel at this end of the bridge."</said>
+      </p>
+      <p>
+        <said who="#peyton" rend="plain">"Suppose a man—a civilian and student of hanging—should elude the picket post and perhaps get the better of the sentinel,"</said>
+        said Farquhar, smiling, <said who="#peyton" rend="plain">"what could he accomplish?"</said>
+      </p>
+      <p>
+        The soldier reflected. <said who="#scout" rend="plain">"I was there a month ago,"</said>
+        he replied. <said who="#scout" rend="plain">"I observed that the flood of last winter had lodged a great quantity of driftwood against the wooden pier at this end of the bridge. It is now dry and would burn like tow."</said>
+      </p>
+      <p>
+        The lady had now brought the water, which the soldier drank. He thanked her ceremoniously, bowed to her husband and rode away. An hour later, after nightfall, he repassed the plantation, going northward in the direction from which he had come. He was a Federal scout.
+      </p>
+      <p>
+        Peyton Farquhar was dead; his body, with a broken neck, swung gently from side to side beneath the timbers of the Owl Creek bridge.
+      </p>
+    </body>
+  </text>
+  <standOff>
+    <listPerson>
+      <person xml:id="narrator">
+        <persName>Third-Person Narrator</persName>
+        <note>Anonymous narrator observing the story</note>
+      </person>
+      <person xml:id="peyton">
+        <persName>Peyton Farquhar</persName>
+        <sex value="M"/>
+        <age value="35"/>
+        <role>Protagonist</role>
+        <note>A Confederate sympathizer and plantation owner who is hanged</note>
+      </person>
+      <person xml:id="captain">
+        <persName>Federal Captain</persName>
+        <sex value="M"/>
+        <role>Minor character</role>
+        <note>The officer in charge of the execution</note>
+      </person>
+      <person xml:id="sergeant">
+        <persName>Sergeant</persName>
+        <sex value="M"/>
+        <role>Minor character</role>
+        <note>The sergeant who oversees the execution</note>
+      </person>
+      <person xml:id="scout">
+        <persName>Federal Scout</persName>
+        <sex value="M"/>
+        <role>Minor character</role>
+        <note>A Union soldier disguised as a Confederate who tricks Farquhar</note>
+      </person>
+    </listPerson>
+  </standOff>
+</TEI>

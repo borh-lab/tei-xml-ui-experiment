@@ -28,5 +28,15 @@
     "characters": 3,
     "patterns": ["first-person", "unreliable-narrator", "internal-monologue"],
     "difficulty": "advanced"
+  },
+  {
+    "title": "An Occurrence at Owl Creek Bridge",
+    "author": "Ambrose Bierce",
+    "year": 1890,
+    "wordCount": 3000,
+    "dialogueCount": 10,
+    "characters": 5,
+    "patterns": ["third-person", "direct-speech", "narrative-shift"],
+    "difficulty": "intermediate"
   }
 ]
