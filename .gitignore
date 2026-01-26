@@ -42,3 +42,7 @@ next-env.d.ts
 
 # test fixtures
 /tests/fixtures/Wright-American-Fiction
+
+# submodules and working docs
+TEI/
+docs/

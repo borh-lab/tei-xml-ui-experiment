@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-const projectDir = '/home/bor/Projects/tei-xml/.worktrees/tei-dialogue-editor';
+const projectDir = '/home/bor/Projects/tei-xml';
 
 describe('Next.js Project Setup', () => {
   describe('Package.json Configuration', () => {
