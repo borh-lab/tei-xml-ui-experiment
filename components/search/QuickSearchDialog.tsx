@@ -7,6 +7,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { QuickSearch, SearchResult, SearchState } from '@/lib/search/QuickSearch';
 import { Search, ChevronUp, ChevronDown, X } from 'lucide-react';
+import { sanitizeHTML } from '@/lib/utils/sanitizer';
 
 interface QuickSearchDialogProps {
   open: boolean;
@@ -206,7 +207,7 @@ export function QuickSearchDialog({
                     <div
                       className="text-sm"
                       dangerouslySetInnerHTML={{
-                        __html: QuickSearch.highlightMatches(context, query)
+                        __html: sanitizeHTML(QuickSearch.highlightMatches(context, query))
                       }}
                     />
                   </div>

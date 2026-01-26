@@ -239,3 +239,27 @@ describe('QuickSearch', () => {
     });
   });
 });
+
+// XSS Sanitization Tests
+import { sanitizeHTML } from '@/lib/utils/sanitizer';
+
+describe('XSS Sanitization', () => {
+  test('should sanitize malicious scripts', () => {
+    const malicious = '<script>alert("XSS")</script>Hello';
+    const sanitized = sanitizeHTML(malicious);
+    expect(sanitized).not.toContain('<script>');
+    expect(sanitized).toContain('Hello');
+  });
+
+  test('should sanitize img onerror', () => {
+    const malicious = '<img src="x" onerror="alert(1)">';
+    const sanitized = sanitizeHTML(malicious);
+    expect(sanitized).not.toContain('onerror');
+  });
+
+  test('should allow safe HTML', () => {
+    const safe = '<mark>highlighted</mark> text';
+    const sanitized = sanitizeHTML(safe);
+    expect(sanitized).toContain('<mark>');
+  });
+});
