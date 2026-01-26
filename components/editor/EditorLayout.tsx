@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Card } from '@/components/ui/card';
+import { FileUpload } from './FileUpload';
 
 export function EditorLayout() {
   const { document } = useDocumentContext();
@@ -17,32 +18,35 @@ export function EditorLayout() {
   }
 
   return (
-    <div className="h-screen flex">
-      {/* Left pane - Rendered view */}
-      <Card className="flex-1 m-2 overflow-auto">
-        <div className="p-4">
-          <h2 className="text-lg font-semibold mb-2">Rendered View</h2>
-          <div id="rendered-view" className="prose">
-            <p>{document.parsed.TEI.text.body.p}</p>
+    <div className="h-screen flex flex-col">
+      <FileUpload />
+      <div className="flex-1 flex">
+        {/* Left pane - Rendered view */}
+        <Card className="flex-1 m-2 overflow-auto">
+          <div className="p-4">
+            <h2 className="text-lg font-semibold mb-2">Rendered View</h2>
+            <div id="rendered-view" className="prose">
+              <p>{document.parsed.TEI.text.body.p}</p>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
-      {/* Resizer */}
-      <div
-        className="w-1 bg-border cursor-col-resize hover:bg-primary"
-        style={{ left: `${splitPosition}%` }}
-      />
+        {/* Resizer */}
+        <div
+          className="w-1 bg-border cursor-col-resize hover:bg-primary"
+          style={{ left: `${splitPosition}%` }}
+        />
 
-      {/* Right pane - Source view */}
-      <Card className="flex-1 m-2 overflow-auto">
-        <div className="p-4">
-          <h2 className="text-lg font-semibold mb-2">TEI Source</h2>
-          <pre className="text-sm bg-muted p-2 rounded">
-            {document.serialize()}
-          </pre>
-        </div>
-      </Card>
+        {/* Right pane - Source view */}
+        <Card className="flex-1 m-2 overflow-auto">
+          <div className="p-4">
+            <h2 className="text-lg font-semibold mb-2">TEI Source</h2>
+            <pre className="text-sm bg-muted p-2 rounded">
+              {document.serialize()}
+            </pre>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
