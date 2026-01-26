@@ -157,6 +157,13 @@ export function EditorLayout() {
           Bulk Operations ({selectedPassages.length})
           <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘B</kbd>
         </Button>
+        <Button
+          variant={vizPanelOpen ? "default" : "outline"}
+          size="sm"
+          onClick={() => setVizPanelOpen(!vizPanelOpen)}
+        >
+          Visualizations
+        </Button>
       </div>
       <div className="flex-1 flex overflow-hidden">
         {/* Left pane - Rendered view with AI suggestions */}
@@ -200,6 +207,14 @@ export function EditorLayout() {
             </pre>
           </div>
         </Card>
+
+        {/* Visualization Panel (toggleable sidebar) */}
+        {vizPanelOpen && (
+          <>
+            <div className="w-1 bg-border" />
+            <VisualizationPanel />
+          </>
+        )}
       </div>
     </div>
   );
