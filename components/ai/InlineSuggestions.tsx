@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DialogueSpan } from '@/lib/ai/providers';
 import { db } from '@/lib/db/PatternDB';
-import { determinePosition } from '@/lib/learning/PatternExtractor';
+import { extract, determinePosition } from '@/lib/learning/PatternExtractor';
+import { logger } from '@/lib/utils/logger';
 
 export interface InlineSuggestionsProps {
   suggestions: DialogueSpan[];
@@ -40,21 +41,27 @@ export const InlineSuggestions = React.memo(({
 
   const handleAccept = async (suggestion: DialogueSpan) => {
     try {
-      // Record the accepted pattern in the database
-      // Note: speaker info should be passed with the suggestion
-      // For now, we'll store the pattern without specific speaker attribution
-      await db.logCorrection(
+      // Extract and store patterns
+      const patterns = extract(
         suggestion.text,
-        '', // speaker ID will be filled by parent component
-        [],
-        suggestion.confidence,
+        (suggestion as any).speaker || '',
         position
       );
+
+      await db.storeLearnedPattern(
+        (suggestion as any).speaker || '',
+        patterns
+      );
+
+      logger.info('Pattern learned', {
+        speaker: (suggestion as any).speaker,
+        patternCount: patterns.phrases.size
+      });
 
       // Call parent's onAccept handler
       onAccept(suggestion);
     } catch (error) {
-      console.error('Failed to record pattern:', error);
+      logger.error('Failed to record pattern:', error);
       // Still call onAccept even if recording fails
       onAccept(suggestion);
     }
@@ -62,19 +69,24 @@ export const InlineSuggestions = React.memo(({
 
   const handleReject = async (suggestion: DialogueSpan) => {
     try {
-      // Record the rejection for learning
+      // Log rejection for learning
       await db.logCorrection(
         suggestion.text,
-        '',
-        [suggestion.text], // rejected suggestions
+        '', // No speaker selected
+        [], // No speaker selected
         suggestion.confidence,
         position
       );
 
+      logger.debug('Suggestion rejected', {
+        text: suggestion.text,
+        confidence: suggestion.confidence
+      });
+
       // Call parent's onReject handler
       onReject(suggestion);
     } catch (error) {
-      console.error('Failed to record rejection:', error);
+      logger.error('Failed to record rejection:', error);
       // Still call onReject even if recording fails
       onReject(suggestion);
     }

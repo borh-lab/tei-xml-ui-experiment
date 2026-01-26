@@ -5,6 +5,13 @@
  * Builds a knowledge base of speaker-specific patterns to improve detection accuracy.
  */
 
+export interface ExtractedPattern {
+  phrases: Map<string, number>;
+  dialogueLength: number;
+  position: 'beginning' | 'middle' | 'end';
+  contextWords: string[];
+}
+
 export interface SpeakerPatternData {
   xmlId: string;
   commonPhrases: Map<string, number>; // phrase -> frequency
@@ -31,6 +38,38 @@ export interface LearningContext {
     after?: string;
   };
   sectionContext?: string; // chapter/scene identifier
+}
+
+/**
+ * Extract patterns from dialogue text (simplified version for UI integration)
+ * This matches the interface expected by the InlineSuggestions component
+ */
+export function extract(
+  text: string,
+  speakerId: string,
+  position: 'beginning' | 'middle' | 'end'
+): ExtractedPattern {
+  // Extract phrases (2-4 word n-grams)
+  const words = text.toLowerCase().split(/\s+/);
+  const phrases = new Map<string, number>();
+
+  for (let i = 0; i < words.length - 1; i++) {
+    for (let j = i + 2; j <= Math.min(i + 4, words.length); j++) {
+      const phrase = words.slice(i, j).join(' ');
+      phrases.set(phrase, (phrases.get(phrase) || 0) + 1);
+    }
+  }
+
+  // Extract context words (excluding common stop words)
+  const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for']);
+  const contextWords = words.filter(w => !stopWords.has(w));
+
+  return {
+    phrases,
+    dialogueLength: words.length,
+    position,
+    contextWords
+  };
 }
 
 /**

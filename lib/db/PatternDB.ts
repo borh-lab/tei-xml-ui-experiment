@@ -1,4 +1,5 @@
 import Dexie, { Table } from 'dexie';
+import { ExtractedPattern } from '@/lib/learning/PatternExtractor';
 
 export interface SpeakerPattern {
   id?: number;
@@ -116,9 +117,19 @@ export class PatternDB extends Dexie {
    */
   async storeLearnedPattern(
     speaker: string,
-    pattern: string,
+    pattern: string | ExtractedPattern,
     frequency: number = 1
   ): Promise<void> {
+    // If pattern is an ExtractedPattern object, store all phrases
+    if (typeof pattern === 'object' && 'phrases' in pattern) {
+      // Store each phrase in the pattern
+      for (const [phrase, count] of pattern.phrases.entries()) {
+        await this.storeLearnedPattern(speaker, phrase, count);
+      }
+      return;
+    }
+
+    // Original logic for string patterns
     const existing = await this.learnedPatterns
       .where('[speaker+pattern]')
       .equals([speaker, pattern])
