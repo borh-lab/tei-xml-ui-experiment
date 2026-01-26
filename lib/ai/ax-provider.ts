@@ -43,41 +43,44 @@ export class AxProvider implements AIProvider {
     return envVars[providerName] || `${providerName.toUpperCase()}_API_KEY`;
   }
 
-  async detectDialogue(text: string): Promise<DialogueSpan[]> {
+  async detectDialogue(textToAnalyze: string): Promise<DialogueSpan[]> {
     // Handle empty text
-    if (!text || text.trim().length === 0) {
+    if (!textToAnalyze || textToAnalyze.trim().length === 0) {
       return [];
     }
 
     try {
-      const signature = ax(`
-        text:string ->
-        passages:array({
-          start:number,
-          end:number,
-          text:string,
-          isDialogue:boolean,
-          confidence:number
+      // Improved signature with descriptive parameter names
+      const dialogueDetectionSignature = ax(`
+        novelText:string ->
+        detectedPassages:array({
+          passageStartIndex:number,
+          passageEndIndex:number,
+          extractedText:string,
+          isDialoguePassage:boolean,
+          detectionConfidence:number
         })
       `);
 
-      const result = await signature.forward(this.llm, { text });
+      const analysisResult = await dialogueDetectionSignature.forward(this.llm, {
+        novelText: textToAnalyze
+      });
 
-      // Filter to only dialogue passages and map to DialogueSpan format
-      const dialogueSpans: DialogueSpan[] = result.passages
-        .filter((p: any) => p.isDialogue)
-        .map((p: any) => ({
-          start: p.start,
-          end: p.end,
-          text: p.text,
-          confidence: p.confidence || 0.8
+      // Map result to DialogueSpan format with clear variable names
+      const dialogueSpans: DialogueSpan[] = analysisResult.detectedPassages
+        .filter((passage: any) => passage.isDialoguePassage)
+        .map((passage: any) => ({
+          start: passage.passageStartIndex,
+          end: passage.passageEndIndex,
+          text: passage.extractedText,
+          confidence: passage.detectionConfidence || 0.8
         }));
 
       return dialogueSpans;
     } catch (error) {
       // Fallback to NLP-based detection on error
       console.warn('Ax detection failed, using NLP fallback:', error);
-      return nlpDetectDialogue(text);
+      return nlpDetectDialogue(textToAnalyze);
     }
   }
 
@@ -130,41 +133,42 @@ export class AxProvider implements AIProvider {
     return spans;
   }
 
-  async attributeSpeaker(context: string, characters: Character[]): Promise<string> {
+  async attributeSpeaker(dialoguePassage: string, availableCharacters: Character[]): Promise<string> {
     // Handle edge cases
-    if (!characters || characters.length === 0) {
+    if (!availableCharacters || availableCharacters.length === 0) {
       return '';
     }
 
     try {
-      const signature = ax(`
-        passage:string,
-        context:string,
-        knownSpeakers:array({
-          id:string,
-          name:string,
-          description:string
+      // Improved signature with descriptive parameter names
+      const speakerAttributionSignature = ax(`
+        dialogueContent:string,
+        narrativeContext:string,
+        candidateSpeakers:array({
+          speakerIdentifier:string,
+          speakerName:string,
+          speakerDescription:string
         }) ->
-        speakerId:string,
-        confidence:number,
-        reasoning:string
+        attributedSpeakerId:string,
+        attributionConfidence:number,
+        attributionReasoning:string
       `);
 
-      const result = await signature.forward(this.llm, {
-        passage: context,
-        context,
-        knownSpeakers: characters.map(c => ({
-          id: c.xmlId,
-          name: c.name,
-          description: c.description || ''
+      const attributionResult = await speakerAttributionSignature.forward(this.llm, {
+        dialogueContent: dialoguePassage,
+        narrativeContext: dialoguePassage,
+        candidateSpeakers: availableCharacters.map(character => ({
+          speakerIdentifier: character.xmlId,
+          speakerName: character.name,
+          speakerDescription: character.description || ''
         }))
       });
 
-      return result.speakerId;
+      return attributionResult.attributedSpeakerId;
     } catch (error) {
       // Fallback to heuristic-based attribution
       console.warn('Ax attribution failed, using heuristic fallback:', error);
-      return this.heuristicAttributeSpeaker(context, characters);
+      return this.heuristicAttributeSpeaker(dialoguePassage, availableCharacters);
     }
   }
 
