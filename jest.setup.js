@@ -32,3 +32,8 @@ global.IDBKeyRange = fakeIndexedDB.IDBKeyRange
 global.IDBCursor = fakeIndexedDB.IDBCursor
 global.IDBObjectStore = fakeIndexedDB.IDBObjectStore
 global.IDBIndex = fakeIndexedDB.IDBIndex
+
+// Mock react-hotkeys-hook
+jest.mock('react-hotkeys-hook', () => ({
+  useHotkeys: jest.fn(),
+}))
