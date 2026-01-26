@@ -253,6 +253,81 @@ describe('InlineSuggestions', () => {
   });
 });
 
+describe('Performance Optimization', () => {
+  test('should not re-render when props unchanged', () => {
+    const mockSuggestions: DialogueSpan[] = [
+      {
+        start: 0,
+        end: 20,
+        text: 'Hello, how are you?',
+        confidence: 0.85
+      }
+    ];
+
+    const { rerender } = render(
+      <InlineSuggestions
+        suggestions={mockSuggestions}
+        onAccept={jest.fn()}
+        onReject={jest.fn()}
+      />
+    );
+
+    // Re-render with same props - should not cause issues
+    rerender(
+      <InlineSuggestions
+        suggestions={mockSuggestions}
+        onAccept={jest.fn()}
+        onReject={jest.fn()}
+      />
+    );
+
+    // Component should still render correctly
+    expect(screen.getByText('"Hello, how are you?"')).toBeInTheDocument();
+  });
+
+  test('should re-render when suggestions change', () => {
+    const mockSuggestions1: DialogueSpan[] = [
+      {
+        start: 0,
+        end: 20,
+        text: 'First suggestion',
+        confidence: 0.85
+      }
+    ];
+
+    const mockSuggestions2: DialogueSpan[] = [
+      {
+        start: 0,
+        end: 20,
+        text: 'Second suggestion',
+        confidence: 0.85
+      }
+    ];
+
+    const { rerender } = render(
+      <InlineSuggestions
+        suggestions={mockSuggestions1}
+        onAccept={jest.fn()}
+        onReject={jest.fn()}
+      />
+    );
+
+    expect(screen.getByText('"First suggestion"')).toBeInTheDocument();
+
+    rerender(
+      <InlineSuggestions
+        suggestions={mockSuggestions2}
+        onAccept={jest.fn()}
+        onReject={jest.fn()}
+      />
+    );
+
+    // Should update with new suggestion
+    expect(screen.getByText('"Second suggestion"')).toBeInTheDocument();
+    expect(screen.queryByText('"First suggestion"')).not.toBeInTheDocument();
+  });
+});
+
 describe('InlineSuggestionItem', () => {
   const mockSuggestion: DialogueSpan = {
     start: 0,

@@ -18,12 +18,12 @@ interface RenderedViewProps {
   onPassageClick?: (passageId: string) => void;
 }
 
-export function RenderedView({
+export const RenderedView = React.memo(({
   isBulkMode = false,
   selectedPassages,
   onSelectionChange,
   onPassageClick
-}: RenderedViewProps) {
+}: RenderedViewProps) => {
   const { document } = useDocumentContext();
   const [passages, setPassages] = useState<Passage[]>([]);
   const lastSelectedIndex = useRef<number | null>(null);
@@ -221,4 +221,12 @@ export function RenderedView({
       )}
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.isBulkMode === nextProps.isBulkMode &&
+    prevProps.selectedPassages.length === nextProps.selectedPassages.length &&
+    prevProps.selectedPassages.every((id, index) => id === nextProps.selectedPassages[index])
+  );
+});
+
+RenderedView.displayName = 'RenderedView';

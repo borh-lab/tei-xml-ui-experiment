@@ -23,14 +23,14 @@ export interface InlineSuggestionsProps {
  * Displays AI-detected dialogue with confidence scores and accept/reject actions.
  * Shows suggested text highlighting and provides keyboard shortcuts for quick actions.
  */
-export function InlineSuggestions({
+export const InlineSuggestions = React.memo(({
   suggestions,
   onAccept,
   onReject,
   highlightedText,
   currentPosition = 0,
   totalPositions = 1
-}: InlineSuggestionsProps) {
+}: InlineSuggestionsProps) => {
   if (suggestions.length === 0) {
     return null;
   }
@@ -152,7 +152,22 @@ export function InlineSuggestions({
       ))}
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison for suggestions array
+  if (prevProps.suggestions.length !== nextProps.suggestions.length) {
+    return false;
+  }
+
+  return prevProps.suggestions.every((suggestion, index) => {
+    const next = nextProps.suggestions[index];
+    return (
+      suggestion.text === next.text &&
+      suggestion.confidence === next.confidence
+    );
+  });
+});
+
+InlineSuggestions.displayName = 'InlineSuggestions';
 
 /**
  * InlineSuggestionItem Component
