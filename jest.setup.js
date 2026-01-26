@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom'
 
+// Polyfill for structuredClone (required by fake-indexeddb)
+if (typeof global.structuredClone === 'undefined') {
+  global.structuredClone = (val) => JSON.parse(JSON.stringify(val))
+}
+
 // Polyfill for ResizeObserver (required by cmdk)
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -17,16 +22,13 @@ if (typeof global.TransformStream === 'undefined') {
 }
 
 // Polyfill for IndexedDB (required by Dexie)
-const FDBFactory = require('fake-indexeddb/lib/FDBFactory')
-const idb = new FDBFactory()
-
-// Set up all the IndexedDB globals
-global.indexedDB = idb
-global.IDBDatabase = idb.IDBDatabase
-global.IDBTransaction = idb.IDBTransaction
-global.IDBRequest = idb.IDBRequest
-global.IDBOpenDBRequest = idb.IDBOpenDBRequest
-global.IDBKeyRange = idb.IDBKeyRange
-global.IDBCursor = idb.IDBCursor
-global.IDBObjectStore = idb.IDBObjectStore
-global.IDBIndex = idb.IDBIndex
+const fakeIndexedDB = require('fake-indexeddb')
+global.indexedDB = fakeIndexedDB.indexedDB
+global.IDBDatabase = fakeIndexedDB.IDBDatabase
+global.IDBTransaction = fakeIndexedDB.IDBTransaction
+global.IDBRequest = fakeIndexedDB.IDBRequest
+global.IDBOpenDBRequest = fakeIndexedDB.IDBOpenDBRequest
+global.IDBKeyRange = fakeIndexedDB.IDBKeyRange
+global.IDBCursor = fakeIndexedDB.IDBCursor
+global.IDBObjectStore = fakeIndexedDB.IDBObjectStore
+global.IDBIndex = fakeIndexedDB.IDBIndex
