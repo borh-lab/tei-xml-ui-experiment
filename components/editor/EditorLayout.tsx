@@ -4,10 +4,16 @@ import React, { useState } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Card } from '@/components/ui/card';
 import { FileUpload } from './FileUpload';
+import { TagToolbar } from './TagToolbar';
 
 export function EditorLayout() {
   const { document } = useDocumentContext();
   const [splitPosition, setSplitPosition] = useState(50);
+
+  const handleApplyTag = (tag: string, attrs?: Record<string, string>) => {
+    console.log('Apply tag:', tag, attrs);
+    // TODO: Implement actual TEI tagging in future task
+  };
 
   if (!document) {
     return (
@@ -20,6 +26,7 @@ export function EditorLayout() {
   return (
     <div className="h-screen flex flex-col">
       <FileUpload />
+      <TagToolbar onApplyTag={handleApplyTag} />
       <div className="flex-1 flex">
         {/* Left pane - Rendered view */}
         <Card className="flex-1 m-2 overflow-auto">
