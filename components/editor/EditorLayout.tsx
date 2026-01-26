@@ -15,9 +15,16 @@ import type { AIMode } from '@/components/ai/AIModeSwitcher';
 import { DialogueSpan } from '@/lib/ai/providers';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/button';
+import { db } from '@/lib/db/PatternDB';
+
+interface Issue {
+  type: 'error' | 'warning';
+  message: string;
+  location: { index: number; dialogueIndex?: number };
+}
 
 export function EditorLayout() {
-  const { document } = useDocumentContext();
+  const { document, updateDocument } = useDocumentContext();
   const [splitPosition, setSplitPosition] = useState(50);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
@@ -38,14 +45,51 @@ export function EditorLayout() {
     setBulkPanelOpen(!bulkPanelOpen);
   });
 
-  const handleTagAll = (speakerId: string) => {
-    console.log('Tagging all passages with speaker:', speakerId);
-    // TODO: Implement actual tagging logic
+  const handleTagAll = async (speakerId: string) => {
+    if (!document) return;
+
+    const newDoc = { ...document };
+    const paragraphs = newDoc.parsed.TEI.text.body.p;
+    const passagesToTag = [...selectedPassages]; // Copy before clearing
+
+    selectedPassages.forEach(index => {
+      if (paragraphs[index] && paragraphs[index].said) {
+        paragraphs[index].said = paragraphs[index].said.map(s => ({
+          ...s,
+          '@who': speakerId
+        }));
+      }
+    });
+
+    // Serialize and update document
+    const updatedXML = newDoc.serialize();
+    updateDocument(updatedXML);
+    setSelectedPassages([]);
+
+    // Log to pattern database
+    await db.logCorrection(
+      'bulk_tag',
+      speakerId,
+      passagesToTag,
+      1.0,
+      'bulk'
+    );
   };
 
   const handleSelectAllUntagged = () => {
-    console.log('Selecting all untagged passages');
-    // TODO: Implement selection logic
+    if (!document) return;
+
+    const untaggedIndices = new Set<number>();
+    const paragraphs = document.parsed.TEI.text.body.p;
+
+    paragraphs.forEach((para, index) => {
+      const hasUntagged = para.said?.some(s => !s['@who'] || s['@who'] === '');
+      if (hasUntagged) {
+        untaggedIndices.add(index);
+      }
+    });
+
+    setSelectedPassages(Array.from(untaggedIndices).map(String));
   };
 
   const handleSelectLowConfidence = () => {
@@ -54,13 +98,55 @@ export function EditorLayout() {
   };
 
   const handleExportSelection = () => {
-    console.log('Exporting selected passages');
-    // TODO: Implement export logic
+    if (!document || selectedPassages.length === 0) return;
+
+    const selectedParagraphs = selectedPassages.map(
+      index => document.parsed.TEI.text.body.p[Number(index)]
+    );
+
+    const data = JSON.stringify(selectedParagraphs, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tei-export-${Date.now()}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
   };
 
-  const handleValidate = () => {
-    console.log('Validating selected passages');
-    // TODO: Implement validation logic
+  const handleValidateSelection = async () => {
+    if (!document || selectedPassages.length === 0) return;
+
+    const issues: Issue[] = [];
+    const paragraphs = document.parsed.TEI.text.body.p;
+
+    selectedPassages.forEach(indexStr => {
+      const index = Number(indexStr);
+      const para = paragraphs[index];
+      if (!para.said) {
+        issues.push({
+          type: 'warning',
+          message: `Paragraph ${index + 1}: No dialogue found`,
+          location: { index }
+        });
+      } else {
+        para.said.forEach((s, i) => {
+          if (!s['@who'] || s['@who'] === '') {
+            issues.push({
+              type: 'error',
+              message: `Paragraph ${index + 1}, dialogue ${i + 1}: Untagged speaker`,
+              location: { index, dialogueIndex: i }
+            });
+          }
+        });
+      }
+    });
+
+    // Show issues in UI
+    console.log('Validation issues:', issues);
+    return issues;
   };
 
   const handleConvert = () => {
@@ -144,7 +230,7 @@ export function EditorLayout() {
         onSelectAllUntagged={handleSelectAllUntagged}
         onSelectLowConfidence={handleSelectLowConfidence}
         onExportSelection={handleExportSelection}
-        onValidate={handleValidate}
+        onValidate={handleValidateSelection}
         onConvert={handleConvert}
       />
       <FileUpload />
