@@ -1,10 +1,22 @@
-{
-  "title": "The Yellow Wallpaper",
-  "author": "Charlotte Perkins Gilman",
-  "year": 1892,
-  "wordCount": 6000,
-  "dialogueCount": 15,
-  "characters": 3,
-  "patterns": ["first-person", "indirect-speech", "internal-monologue"],
-  "difficulty": "intermediate"
-}
+[
+  {
+    "title": "The Yellow Wallpaper",
+    "author": "Charlotte Perkins Gilman",
+    "year": 1892,
+    "wordCount": 6000,
+    "dialogueCount": 15,
+    "characters": 3,
+    "patterns": ["first-person", "indirect-speech", "internal-monologue"],
+    "difficulty": "intermediate"
+  },
+  {
+    "title": "The Gift of the Magi",
+    "author": "O. Henry",
+    "year": 1905,
+    "wordCount": 3000,
+    "dialogueCount": 12,
+    "characters": 4,
+    "patterns": ["third-person", "direct-speech", "dialogue-heavy"],
+    "difficulty": "intermediate"
+  }
+]
