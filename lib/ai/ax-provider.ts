@@ -8,18 +8,38 @@ export class AxProvider implements AIProvider {
   private apiKey: string;
   private llm: any;
 
-  constructor(providerName: string, apiKey: string) {
+  constructor(providerName: string, apiKey?: string) {
     this.providerName = providerName;
-    this.apiKey = apiKey;
+
+    // Validate and get API key
+    const key = apiKey || this.getEnvApiKey(providerName);
+
+    if (!key || key.trim() === '') {
+      throw new Error(`API key not provided for ${providerName}. Set ${this.getEnvVarName(providerName)} environment variable or pass apiKey parameter.`);
+    }
+
+    this.apiKey = key;
 
     // Initialize LLM based on provider name
     if (providerName === 'openai') {
-      this.llm = ai({ name: 'openai', apiKey });
+      this.llm = ai({ name: 'openai', apiKey: this.apiKey });
     } else if (providerName === 'anthropic') {
-      this.llm = ai({ name: 'anthropic', apiKey });
+      this.llm = ai({ name: 'anthropic', apiKey: this.apiKey });
     } else {
       throw new Error(`Unsupported provider: ${providerName}`);
     }
+  }
+
+  private getEnvApiKey(providerName: string): string | undefined {
+    return process.env[this.getEnvVarName(providerName)];
+  }
+
+  private getEnvVarName(providerName: string): string {
+    const envVars = {
+      'openai': 'OPENAI_API_KEY',
+      'anthropic': 'ANTHROPIC_API_KEY'
+    };
+    return envVars[providerName] || `${providerName.toUpperCase()}_API_KEY`;
   }
 
   async detectDialogue(text: string): Promise<DialogueSpan[]> {

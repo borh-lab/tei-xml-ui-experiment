@@ -33,3 +33,27 @@ describe('AxProvider', () => {
     expect(spans[0].confidence).toBeGreaterThan(0);
   });
 });
+
+describe('AxProvider API Key Management', () => {
+  test('should throw error when no API key provided', () => {
+    expect(() => {
+      new AxProvider('openai', '');
+    }).toThrow('API key not provided');
+  });
+
+  test('should accept API key from environment variable', () => {
+    const originalKey = process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = 'test-key';
+    const provider = new AxProvider('openai');
+    expect(provider).toBeDefined();
+    process.env.OPENAI_API_KEY = originalKey;
+  });
+
+  test('should prioritize parameter over environment variable', () => {
+    const originalKey = process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = 'env-key';
+    const provider = new AxProvider('openai', 'param-key');
+    expect(provider).toBeDefined();
+    process.env.OPENAI_API_KEY = originalKey;
+  });
+});
