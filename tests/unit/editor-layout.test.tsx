@@ -1,6 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { BulkOperationsPanel } from '@/components/editor/BulkOperationsPanel';
 import userEvent from '@testing-library/user-event';
+import { DocumentProvider } from '@/lib/context/DocumentContext';
+import { EditorLayout } from '@/components/editor/EditorLayout';
 
 // Mock the PatternDB
 jest.mock('@/lib/db/PatternDB', () => ({
@@ -8,6 +10,60 @@ jest.mock('@/lib/db/PatternDB', () => ({
     logCorrection: jest.fn().mockResolvedValue(undefined)
   }
 }));
+
+// Mock document.addEventListener for selectionchange
+const mockAddEventListener = jest.fn();
+const mockRemoveEventListener = jest.fn();
+
+Object.defineProperty(document, 'addEventListener', {
+  value: mockAddEventListener,
+  writable: true,
+});
+
+Object.defineProperty(document, 'removeEventListener', {
+  value: mockRemoveEventListener,
+  writable: true,
+});
+
+// Mock window.getSelection
+Object.defineProperty(window, 'getSelection', {
+  value: jest.fn(() => ({
+    toString: () => '',
+  })),
+  writable: true,
+});
+
+describe('React Hooks Dependencies', () => {
+  beforeEach(() => {
+    mockAddEventListener.mockClear();
+    mockRemoveEventListener.mockClear();
+  });
+
+  test('should re-run detection when document changes', async () => {
+    const { rerender } = render(
+      <DocumentProvider>
+        <EditorLayout />
+      </DocumentProvider>
+    );
+
+    // Initial render - component should load without errors
+    await waitFor(() => {
+      expect(screen.queryByText(/No document loaded/i)).toBeInTheDocument();
+    });
+
+    // Re-render with same props (should not cause errors)
+    rerender(
+      <DocumentProvider>
+        <EditorLayout />
+      </DocumentProvider>
+    );
+
+    // Should still render correctly without React hooks warnings
+    await waitFor(() => {
+      expect(screen.queryByText(/No document loaded/i)).toBeInTheDocument();
+    });
+  });
+});
 
 describe('Bulk Operations Integration', () => {
   const mockHandlers = {

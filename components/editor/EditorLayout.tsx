@@ -176,7 +176,11 @@ export function EditorLayout() {
 
   // Simulate AI detection when in suggest or auto mode
   useEffect(() => {
-    if (document && (aiMode === 'suggest' || aiMode === 'auto')) {
+    let isMounted = true;
+
+    async function detectDialogue() {
+      if (!document || aiMode === 'manual') return;
+
       const text = document.parsed.TEI.text.body.p || '';
 
       // Simulate AI dialogue detection (placeholder until Task 13)
@@ -193,14 +197,25 @@ export function EditorLayout() {
         });
       }
 
-      setSuggestions(detectedSpans);
-    } else {
-      setSuggestions([]);
+      if (isMounted) {
+        setSuggestions(detectedSpans);
+      }
     }
-  }, [document, aiMode]);
+
+    detectDialogue();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [aiMode, document]); // Include document in dependencies
 
   // Track text selection for highlighting
   useEffect(() => {
+    // Guard for SSR/test environment
+    if (typeof window === 'undefined' || typeof document === 'undefined' || !document?.addEventListener) {
+      return;
+    }
+
     const handleSelection = () => {
       const selection = window.getSelection();
       const text = selection?.toString() || '';
@@ -208,8 +223,10 @@ export function EditorLayout() {
     };
 
     document.addEventListener('selectionchange', handleSelection);
-    return () => document.removeEventListener('selectionchange', handleSelection);
-  }, []);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelection);
+    };
+  }, []); // No dependencies needed
 
   if (!document) {
     return (
