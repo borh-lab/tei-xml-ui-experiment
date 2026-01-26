@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Pride and Prejudice - Chapter 1</title>
+        <author>Jane Austen</author>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Public Domain</publisher>
+        <date>1813</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>First published in 1813, Chapter 1 of the novel</p>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <editorialDecl>
+        <p>Dialogue tagged with &lt;said&gt; elements. Speaker attribution based on narrative context.</p>
+      </editorialDecl>
+    </encodingDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <titlePage>
+        <titlePart>Pride and Prejudice</titlePart>
+        <titlePart type="chapter">Chapter I</titlePart>
+        <docAuthor>Jane Austen</docAuthor>
+      </titlePage>
+    </front>
+    <body>
+      <p>
+        It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.
+      </p>
+      <p>
+        However little known the feelings or views of such a man may be on his first entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that he is considered the rightful property of some one or other of their daughters.
+      </p>
+      <p>
+        <said who="#narrator" rend="plain">"My dear Mr. Bennet,"</said>
+        said his lady to him one day, <said who="#mrsbennet" rend="plain">"have you heard that Netherfield Park is let at last?"</said>
+      </p>
+      <p>
+        Mr. Bennet replied that he had not.
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"But it is,"</said>
+        returned she; <said who="#mrsbennet" rend="plain">"for Mrs. Long has just been here, and she told me all about it."</said>
+      </p>
+      <p>
+        Mr. Bennet made no answer.
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Do you not want to know who has taken it?"</said>
+        cried his wife impatiently.
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"You want to tell me, and I have no objection to hearing it."</said>
+      </p>
+      <p>
+        This was invitation enough.
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Why, my dear, you must know, Mrs. Long says that Netherfield is taken by a young man of large fortune from the north of England; that he came down on Monday in a chaise and four to see the place, and was so much delighted with it, that he agreed with Mr. Morris immediately; that he is to take possession before Michaelmas, and some of his servants are to be in the house by the end of next week."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"What is his name?"</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Bingley."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Is he married or single?"</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Oh! Single, my dear, to be sure! A single man of large fortune; four or five thousand a year. What a fine thing for our girls!"</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"How so? How can it affect them?"</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"My dear Mr. Bennet,"</said>
+        replied his wife, <said who="#mrsbennet" rend="plain">"how can you be so tiresome! You must know that I am thinking of his marrying one of them."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Is that his design in settling here?"</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Design! Nonsense, how can you talk so! But it is very likely that he may fall in love with one of them, and therefore you must visit him as soon as he comes."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"I see no occasion for that. You and the girls may go, or you may send them by themselves, which perhaps will be still better, for as you are as handsome as any of them, Mr. Bingley might like you the best of the party."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"My dear, you flatter me. I certainly have had my share of beauty, but I do not pretend to be anything extraordinary now. When a woman has five grown-up daughters, she ought to give over thinking of her own beauty."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"In such cases, a woman has not often much beauty to think of."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"But, my dear, you must indeed go and see Mr. Bingley when he comes into the neighbourhood."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"It is more than I engage for, I assure you."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"But consider your daughters. Only think what an establishment it would be for one of them. Sir William and Lady Lucas are determined to go, merely on that account, for in general, you know, they visit no newcomers. Indeed you must go, for it will be impossible for us to visit him if you do not."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"You are over-scrupulous, surely. I dare say Mr. Bingley will be very glad to see you; and I will send a few lines by you to assure him of my hearty consent to his marrying whichever he chooses of the girls; though I must throw in a good word for my little Lizzy."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"I desire you will do no such thing. Lizzy is not a bit better than the others; and I am sure she is not half so handsome as Jane, nor half so good-humoured as Lydia. But you are always giving her the preference."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"They have none of them much to recommend them,"</said>
+        he replied; <said who="#mrbennet" rend="plain">"they are all silly and ignorant like other girls; but Lizzy has something more of quickness than her sisters."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Mr. Bennet, how can you abuse your own children in such a way? You take delight in vexing me. You have no compassion for my poor nerves."</said>
+      </p>
+      <p>
+        <said who="#mrbennet" rend="plain">"You mistake me, my dear. I have a high respect for your nerves. They are my old friends. I have heard you mention them with consideration these twenty years at least."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"Ah, you do not know what I suffer."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"But I hope you will get over it, and live to see many young men of four thousand a year come into the neighbourhood."</said>
+      </p>
+      <p>
+        <said who="#mrsbennet" rend="plain">"It will be no use to us, if twenty such should come, since you will not visit them."</said>
+      </p>
+      <p>
+        <said who="#mrbennet" rend="plain">"You may depend upon it, my dear, that when there are twenty, I will visit them all."</said>
+      </p>
+      <p>
+        Mr. Bennet was so odd a mixture of quick parts, sarcastic humour, reserve, and caprice, that the experience of three-and-twenty years had been insufficient to make his wife understand his character. Her mind was less difficult to develop. She was a woman of mean understanding, little information, and uncertain temper. When she was discontented, she fancied herself nervous. The business of her life was to get her daughters married; its solace was visiting and news.
+      </p>
+    </body>
+  </text>
+  <standOff>
+    <listPerson>
+      <person xml:id="narrator">
+        <persName>Third-Person Narrator</persName>
+        <note>Anonymous narrator observing the story</note>
+      </person>
+      <person xml:id="mrsbennet">
+        <persName>Mrs. Bennet</persName>
+        <sex value="F"/>
+        <age value="45"/>
+        <role>Major character</role>
+        <note>Mother of the five Bennet sisters, obsessed with marrying them well</note>
+      </person>
+      <person xml:id="mrbennet">
+        <persName>Mr. Bennet</persName>
+        <sex value="M"/>
+        <age value="50"/>
+        <role>Major character</role>
+        <note>Father of the Bennet sisters, sarcastic and detached</note>
+      </person>
+      <person xml:id="bingley">
+        <persName>Mr. Bingley</persName>
+        <sex value="M"/>
+        <age value="22"/>
+        <role>Mentioned character</role>
+        <note>Wealthy bachelor who rents Netherfield Park</note>
+      </person>
+    </listPerson>
+  </standOff>
+</TEI>

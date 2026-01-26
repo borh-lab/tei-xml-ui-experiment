@@ -38,5 +38,15 @@
     "characters": 5,
     "patterns": ["third-person", "direct-speech", "narrative-shift"],
     "difficulty": "intermediate"
+  },
+  {
+    "title": "Pride and Prejudice - Chapter 1",
+    "author": "Jane Austen",
+    "year": 1813,
+    "wordCount": 5000,
+    "dialogueCount": 20,
+    "characters": 3,
+    "patterns": ["third-person", "direct-speech", "dialogue-heavy", "wit"],
+    "difficulty": "intermediate"
   }
 ]
