@@ -6,6 +6,18 @@ export interface SpeakerPattern {
   name: string;
   lastUsed: number;
   chapterAffinity: Record<string, number>;
+  commonPhrases?: Record<string, number>; // phrase -> frequency
+  dialogueLengthStats?: {
+    average: number;
+    min: number;
+    max: number;
+    stdDev: number;
+  };
+  positionPatterns?: {
+    beginning: number;
+    middle: number;
+    end: number;
+  };
 }
 
 export interface PatternCorrection {
@@ -15,11 +27,25 @@ export interface PatternCorrection {
   accepted: string;
   rejected: string[];
   confidence: number;
+  position?: 'beginning' | 'middle' | 'end';
+  surroundingText?: {
+    before?: string;
+    after?: string;
+  };
+}
+
+export interface LearnedPattern {
+  id?: number;
+  speaker: string;
+  pattern: string;
+  frequency: number;
+  lastSeen: number;
 }
 
 export class PatternDB extends Dexie {
   speakers!: Table<SpeakerPattern>;
   corrections!: Table<PatternCorrection>;
+  learnedPatterns!: Table<LearnedPattern>;
 
   constructor() {
     super('TEIDialogueEditorDB', 1);
@@ -28,7 +54,8 @@ export class PatternDB extends Dexie {
   async init() {
     await this.version(1).stores({
       speakers: '++xmlId, name',
-      corrections: '++id, timestamp'
+      corrections: '++id, timestamp',
+      learnedPatterns: '++id, speaker, pattern, [speaker+pattern], lastSeen'
     });
     await this.open();
   }
@@ -60,6 +87,84 @@ export class PatternDB extends Dexie {
         ...updates
       });
     }
+  }
+
+  /**
+   * Log a correction for pattern learning
+   */
+  async logCorrection(
+    passage: string,
+    accepted: string,
+    rejected: string[],
+    confidence: number,
+    position?: 'beginning' | 'middle' | 'end',
+    surroundingText?: { before?: string; after?: string }
+  ): Promise<void> {
+    await this.corrections.add({
+      timestamp: Date.now(),
+      passage,
+      accepted,
+      rejected,
+      confidence,
+      position,
+      surroundingText
+    });
+  }
+
+  /**
+   * Store a learned pattern for a speaker
+   */
+  async storeLearnedPattern(
+    speaker: string,
+    pattern: string,
+    frequency: number = 1
+  ): Promise<void> {
+    const existing = await this.learnedPatterns
+      .where('[speaker+pattern]')
+      .equals([speaker, pattern])
+      .first();
+
+    if (existing) {
+      await this.learnedPatterns.update(existing.id!, {
+        frequency: existing.frequency + frequency,
+        lastSeen: Date.now()
+      });
+    } else {
+      await this.learnedPatterns.add({
+        speaker,
+        pattern,
+        frequency,
+        lastSeen: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Get learned patterns for a specific speaker
+   */
+  async getLearnedPatterns(speaker: string): Promise<LearnedPattern[]> {
+    return await this.learnedPatterns
+      .where('speaker')
+      .equals(speaker)
+      .toArray();
+  }
+
+  /**
+   * Get all learned patterns (for prediction)
+   */
+  async getAllLearnedPatterns(): Promise<LearnedPattern[]> {
+    return await this.learnedPatterns.toArray();
+  }
+
+  /**
+   * Get recent corrections for learning
+   */
+  async getRecentCorrections(limit: number = 100): Promise<PatternCorrection[]> {
+    return await this.corrections
+      .orderBy('timestamp')
+      .reverse()
+      .limit(limit)
+      .toArray();
   }
 }
 

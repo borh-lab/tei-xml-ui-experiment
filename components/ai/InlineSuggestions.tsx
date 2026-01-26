@@ -5,12 +5,16 @@ import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DialogueSpan } from '@/lib/ai/providers';
+import { db } from '@/lib/db/PatternDB';
+import { determinePosition } from '@/lib/learning/PatternExtractor';
 
 export interface InlineSuggestionsProps {
   suggestions: DialogueSpan[];
   onAccept: (suggestion: DialogueSpan) => void;
   onReject: (suggestion: DialogueSpan) => void;
   highlightedText?: string;
+  currentPosition?: number;
+  totalPositions?: number;
 }
 
 /**
@@ -23,11 +27,58 @@ export function InlineSuggestions({
   suggestions,
   onAccept,
   onReject,
-  highlightedText
+  highlightedText,
+  currentPosition = 0,
+  totalPositions = 1
 }: InlineSuggestionsProps) {
   if (suggestions.length === 0) {
     return null;
   }
+
+  // Determine position in section for pattern learning
+  const position = determinePosition(currentPosition, totalPositions);
+
+  const handleAccept = async (suggestion: DialogueSpan) => {
+    try {
+      // Record the accepted pattern in the database
+      // Note: speaker info should be passed with the suggestion
+      // For now, we'll store the pattern without specific speaker attribution
+      await db.logCorrection(
+        suggestion.text,
+        '', // speaker ID will be filled by parent component
+        [],
+        suggestion.confidence,
+        position
+      );
+
+      // Call parent's onAccept handler
+      onAccept(suggestion);
+    } catch (error) {
+      console.error('Failed to record pattern:', error);
+      // Still call onAccept even if recording fails
+      onAccept(suggestion);
+    }
+  };
+
+  const handleReject = async (suggestion: DialogueSpan) => {
+    try {
+      // Record the rejection for learning
+      await db.logCorrection(
+        suggestion.text,
+        '',
+        [suggestion.text], // rejected suggestions
+        suggestion.confidence,
+        position
+      );
+
+      // Call parent's onReject handler
+      onReject(suggestion);
+    } catch (error) {
+      console.error('Failed to record rejection:', error);
+      // Still call onReject even if recording fails
+      onReject(suggestion);
+    }
+  };
 
   const getConfidenceColor = (confidence: number): string => {
     if (confidence >= 0.8) return 'bg-green-100 text-green-800 border-green-300';
@@ -77,7 +128,7 @@ export function InlineSuggestions({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onAccept(suggestion)}
+              onClick={() => handleAccept(suggestion)}
               className="text-green-600 hover:text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-950/30"
               aria-label={`Accept suggestion: ${suggestion.text}`}
               title="Accept (A)"
@@ -88,7 +139,7 @@ export function InlineSuggestions({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onReject(suggestion)}
+              onClick={() => handleReject(suggestion)}
               className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-950/30"
               aria-label={`Reject suggestion: ${suggestion.text}`}
               title="Reject (X)"
