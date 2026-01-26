@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Sample Wright American Fiction TEI Document</title>
+        <author>Sample Author</author>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Harvard Library</publisher>
+        <date>2024</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Sample TEI document for testing</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <titlePage>
+        <docTitle>
+          <titlePart>Sample Novel Title</titlePart>
+        </docTitle>
+        <docAuthor>By Sample Author</docAuthor>
+      </titlePage>
+    </front>
+    <body>
+      <div type="chapter">
+        <head>Chapter I</head>
+        <p>
+          <said who="#speaker1" aloud="true">"Hello," said the first character.</said>
+        </p>
+        <p>
+          <said who="#speaker2" aloud="true">"Good morning," replied the second character.</said>
+        </p>
+        <p>
+          <said who="#speaker1" aloud="true">"How are you today?" asked the first.</said>
+        </p>
+        <p>
+          <said who="#speaker2" aloud="true">"I am quite well, thank you," was the answer.</said>
+        </p>
+      </div>
+    </body>
+  </text>
+</TEI>
