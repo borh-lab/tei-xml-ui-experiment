@@ -2,6 +2,7 @@
 import { ax, ai } from "@ax-llm/ax";
 import { createOpenAI } from "@ax-llm/ax-ai-sdk-provider";
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
+import { nlpDetectDialogue } from './nlp-provider';
 
 export class AxProvider implements AIProvider {
   public providerName: string;
@@ -74,9 +75,9 @@ export class AxProvider implements AIProvider {
 
       return dialogueSpans;
     } catch (error) {
-      // Fallback to regex on error
-      console.warn('Ax detection failed, using regex fallback:', error);
-      return this.regexDetectDialogue(text);
+      // Fallback to NLP-based detection on error
+      console.warn('Ax detection failed, using NLP fallback:', error);
+      return nlpDetectDialogue(text);
     }
   }
 
