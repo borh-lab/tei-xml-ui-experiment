@@ -1,0 +1,13 @@
+# Rust build artifacts
+/target
+**/*.rs.bk
+*.pdb
+
+# WASM build artifacts
+pkg
+*.wasm
+*.js
+*.d.ts
+
+# Cargo lock file (optional - uncomment if you don't want to commit it)
+# Cargo.lock

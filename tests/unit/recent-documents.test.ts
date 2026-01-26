@@ -300,7 +300,7 @@ describe('Recent Documents Storage', () => {
 
       expect(stats.total).toBe(4);
       expect(stats.completed).toBe(1);
-      expect(stats.inProgress).toBe(3);
+      expect(stats.inProgress).toBe(2); // doc2 (50%) and doc4 (25%)
       expect(stats.notStarted).toBe(1);
       expect(stats.averageProgress).toBe(43.75);
     });
