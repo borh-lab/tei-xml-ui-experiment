@@ -5,10 +5,18 @@ import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Card } from '@/components/ui/card';
 import { FileUpload } from './FileUpload';
 import { TagToolbar } from './TagToolbar';
+import { CommandPalette } from '@/components/keyboard/CommandPalette';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export function EditorLayout() {
   const { document } = useDocumentContext();
   const [splitPosition, setSplitPosition] = useState(50);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  useHotkeys('mod+k', (e) => {
+    e.preventDefault();
+    setCommandPaletteOpen(true);
+  });
 
   const handleApplyTag = (tag: string, attrs?: Record<string, string>) => {
     console.log('Apply tag:', tag, attrs);
@@ -25,6 +33,7 @@ export function EditorLayout() {
 
   return (
     <div className="h-screen flex flex-col">
+      <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
       <FileUpload />
       <TagToolbar onApplyTag={handleApplyTag} />
       <div className="flex-1 flex">
