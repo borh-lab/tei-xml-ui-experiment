@@ -8,9 +8,12 @@ import { TagToolbar } from './TagToolbar';
 import { CommandPalette } from '@/components/keyboard/CommandPalette';
 import { AIModeSwitcher } from '@/components/ai/AIModeSwitcher';
 import { InlineSuggestions } from '@/components/ai/InlineSuggestions';
+import { BulkOperationsPanel } from './BulkOperationsPanel';
+import { VisualizationPanel } from '@/components/visualization/VisualizationPanel';
 import type { AIMode } from '@/components/ai/AIModeSwitcher';
 import { DialogueSpan } from '@/lib/ai/providers';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { Button } from '@/components/ui/button';
 
 export function EditorLayout() {
   const { document } = useDocumentContext();
@@ -19,11 +22,49 @@ export function EditorLayout() {
   const [aiMode, setAIMode] = useState<AIMode>('manual');
   const [suggestions, setSuggestions] = useState<DialogueSpan[]>([]);
   const [selectedText, setSelectedText] = useState<string>('');
+  const [bulkPanelOpen, setBulkPanelOpen] = useState(false);
+  const [vizPanelOpen, setVizPanelOpen] = useState(false);
+  const [selectedPassages, setSelectedPassages] = useState<string[]>([]);
 
   useHotkeys('mod+k', (e) => {
     e.preventDefault();
     setCommandPaletteOpen(true);
   });
+
+  useHotkeys('mod+b', (e) => {
+    e.preventDefault();
+    setBulkPanelOpen(!bulkPanelOpen);
+  });
+
+  const handleTagAll = (speakerId: string) => {
+    console.log('Tagging all passages with speaker:', speakerId);
+    // TODO: Implement actual tagging logic
+  };
+
+  const handleSelectAllUntagged = () => {
+    console.log('Selecting all untagged passages');
+    // TODO: Implement selection logic
+  };
+
+  const handleSelectLowConfidence = () => {
+    console.log('Selecting low confidence passages');
+    // TODO: Implement selection logic
+  };
+
+  const handleExportSelection = () => {
+    console.log('Exporting selected passages');
+    // TODO: Implement export logic
+  };
+
+  const handleValidate = () => {
+    console.log('Validating selected passages');
+    // TODO: Implement validation logic
+  };
+
+  const handleConvert = () => {
+    console.log('Converting selected passages to dialogue');
+    // TODO: Implement conversion logic
+  };
 
   const handleApplyTag = (tag: string, attrs?: Record<string, string>) => {
     console.log('Apply tag:', tag, attrs);
@@ -93,10 +134,29 @@ export function EditorLayout() {
   return (
     <div className="h-screen flex flex-col">
       <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
+      <BulkOperationsPanel
+        isOpen={bulkPanelOpen}
+        onClose={() => setBulkPanelOpen(false)}
+        selectedPassages={selectedPassages}
+        onTagAll={handleTagAll}
+        onSelectAllUntagged={handleSelectAllUntagged}
+        onSelectLowConfidence={handleSelectLowConfidence}
+        onExportSelection={handleExportSelection}
+        onValidate={handleValidate}
+        onConvert={handleConvert}
+      />
       <FileUpload />
       <div className="flex items-center gap-2 p-2 border-b">
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
         <TagToolbar onApplyTag={handleApplyTag} />
+        <Button
+          variant={bulkPanelOpen ? "default" : "outline"}
+          size="sm"
+          onClick={() => setBulkPanelOpen(!bulkPanelOpen)}
+        >
+          Bulk Operations ({selectedPassages.length})
+          <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘B</kbd>
+        </Button>
       </div>
       <div className="flex-1 flex overflow-hidden">
         {/* Left pane - Rendered view with AI suggestions */}
