@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SampleGallery } from '@/components/samples/SampleGallery';
 
@@ -87,5 +87,29 @@ describe('SampleGallery', () => {
 
     expect(screen.getByText(/Want to use your own documents?/i)).toBeInTheDocument();
     expect(screen.getByText(/You can upload your own TEI XML files/i)).toBeInTheDocument();
+  });
+
+  it('should show error message when sample load fails', async () => {
+    const user = userEvent.setup();
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const mockLoadSample = jest.fn().mockRejectedValue(new Error('Network error'));
+
+    const { getAllByText, queryByText } = render(
+      <SampleGallery
+        onSelect={jest.fn()}
+        onLoadSample={mockLoadSample}
+      />
+    );
+
+    const buttons = getAllByText('Load Sample');
+    await user.click(buttons[0]);
+
+    // Check if error appears
+    await waitFor(() => {
+      expect(queryByText(/Failed to load sample/i)).toBeInTheDocument();
+      expect(queryByText(/Network error/i)).toBeInTheDocument();
+    });
+
+    consoleSpy.mockRestore();
   });
 });

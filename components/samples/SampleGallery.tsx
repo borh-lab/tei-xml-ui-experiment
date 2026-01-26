@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -88,11 +88,39 @@ function getDifficultyColor(difficulty: Sample['difficulty']): string {
 
 interface SampleGalleryProps {
   onSelect: (sampleId: string) => void;
+  onLoadSample?: (sampleId: string) => Promise<void>;
 }
 
-export function SampleGallery({ onSelect }: SampleGalleryProps) {
+export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleLoadSample = async (sampleId: string) => {
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (onLoadSample) {
+        await onLoadSample(sampleId);
+      }
+      // Call the onSelect callback
+      onSelect(sampleId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load sample');
+      console.error('Failed to load sample:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="max-w-7xl mx-auto p-8">
+      {error && (
+        <div className="mb-4 bg-destructive text-destructive-foreground p-4 rounded">
+          <p className="font-semibold">Failed to load sample</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
+
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4">Welcome to TEI Dialogue Editor</h1>
         <p className="text-lg text-muted-foreground mb-6">
@@ -161,10 +189,11 @@ export function SampleGallery({ onSelect }: SampleGalleryProps) {
               </div>
 
               <Button
-                onClick={() => onSelect(sample.id)}
+                onClick={() => handleLoadSample(sample.id)}
+                disabled={loading}
                 className="w-full"
               >
-                Load Sample
+                {loading ? 'Loading...' : 'Load Sample'}
               </Button>
             </CardContent>
           </Card>
