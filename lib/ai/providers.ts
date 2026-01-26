@@ -21,6 +21,7 @@ export interface DialogueSpan {
 export interface Character {
   xmlId: string;
   name: string;
+  description?: string;
 }
 
 /**

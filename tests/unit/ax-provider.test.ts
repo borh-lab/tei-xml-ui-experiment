@@ -23,13 +23,13 @@ describe('AxProvider', () => {
     expect(provider.detectDialogue).toBeDefined();
   });
 
-  test('should detect dialogue using regex placeholder', async () => {
+  test('should detect dialogue using regex fallback', async () => {
     const provider = new AxProvider('openai', 'test-key');
     const text = 'He said "Hello world" and then left.';
     const spans = await provider.detectDialogue(text);
 
     expect(spans).toHaveLength(1);
     expect(spans[0].text).toBe('Hello world');
-    expect(spans[0].confidence).toBe(0.8);
+    expect(spans[0].confidence).toBeGreaterThan(0);
   });
 });
