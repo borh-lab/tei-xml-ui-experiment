@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>The Yellow Wallpaper</title>
+        <author>Charlotte Perkins Gilman</author>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Public Domain</publisher>
+        <date>1892</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>First published in The New England Magazine, 1892</p>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <editorialDecl>
+        <p>Dialogue tagged with &lt;said&gt; elements. Speaker attribution based on narrative context.</p>
+      </editorialDecl>
+    </encodingDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <titlePage>
+        <titlePart>The Yellow Wallpaper</titlePart>
+        <docAuthor>Charlotte Perkins Gilman</docAuthor>
+      </titlePage>
+    </front>
+    <body>
+      <p>
+        <said who="#narrator" rend="plain">"John laughs at me, of course, but one expects that in marriage."</said>
+        John is practical in the extreme. He has no patience with faith, an intense horror of superstition, and he scoffs openly at any talk of things not to be felt and seen and put down in figures.
+      </p>
+      <p>
+        John is a physician, and <said who="#john" rend="plain">"perhaps—"</said>
+        (I would not say it to a living soul, of course, but this is dead paper and a great relief to my mind)—<said who="#narrator" rend="plain">"perhaps that is one reason I do not get well faster."</said>
+      </p>
+      <p>
+        You see he does not believe I am sick! And what can one do? If a physician of high standing, and one's own husband, assures friends and relatives that there is really nothing the matter with one but temporary nervous depression—a slight hysterical tendency—what is one to do?
+      </p>
+      <p>
+        My brother is also a physician, and also of high standing, and he says the same thing. So I take phosphates or phosphites—whichever it is, and tonics, and journeys, and air, and exercise, and am absolutely forbidden to <said who="#john" rend="plain">"work"</said>
+        until I am well again. Personally, I disagree with their ideas. Personally, I believe that congenial work, with excitement and change, would do me good.
+      </p>
+      <p>
+        But what is one to do? I did write for a while in spite of them; but it does exhaust me a good deal—having to be so sly about it, or else meet with heavy opposition. I sometimes fancy that in my condition if I had less opposition and more society and stimulus—but John says the very worst thing I can do is to think about my condition, and I confess it always makes me feel bad.
+      </p>
+      <p>
+        So I will let it alone and talk about the house. The most beautiful place! It is quite alone, standing well back from the road, quite three miles from the village. It makes me think of English places that you read about, for there are hedges and walls and gates that lock, and lots of separate little houses for the gardeners and people.
+      </p>
+      <p>
+        There is a delicious garden! I never saw such a garden—large and shady, full of box-bordered paths, and lined with long grape-covered arbors with seats under them. There were greenhouses, too, but they are all broken now.
+      </p>
+      <p>
+        There was some legal trouble, I believe, something about the heirs and coheirs; anyhow, the place has been empty for years. That spoils my ghostliness, I am afraid, but I don't care—there is something strange about the house—I can feel it.
+      </p>
+      <p>
+        I even said so to John one moonlight evening, but he said what I felt was a <said who="#narrator" rend="plain">"draught,"</said>
+        and shut the window. I get a nicer view in a better room, but John wanted to have one room that looked out on the road, and he said I seemed to be getting a little <said who="#john" rend="plain">"fanciful"</said>
+        and <said who="#john" rend="plain">"nervous."</said>
+      </p>
+      <p>
+        I don't know why I should write this. I don't want to. I don't feel able. And I know John would think it absurd. But I must say what I feel and think in some way—it is such a relief! But the effort is getting to be greater than the relief.
+      </p>
+      <p>
+        John does not know how much I really suffer. He knows there is no reason to suffer, and that satisfies him. Of course it is only nervousness. It does weigh on me so not to do my duty in any way! I meant to be such a help to John, such a real rest and comfort, and here I am a comparative burden already!
+      </p>
+      <p>
+        Nobody would believe what an effort it is to do what little I am able—to dress and entertain, and order things. It is fortunate Mary is so good with the baby. Such a dear baby! And yet I cannot be with him, it makes me so nervous.
+      </p>
+      <p>
+        I suppose John never was nervous in his life. He laughs at me so about this wallpaper! At first he meant to repaper the room, but afterwards he said that I was letting it get the better of me, and that nothing was worse for a nervous patient than to give way to such fancies.
+      </p>
+      <p>
+        He said that after the wallpaper was changed it would be the heavy bedstead, and then the barred windows, and then that gate at the head of the stairs, and so on. <said who="#john" rend="plain">"You know the place is doing you good,"</said>
+        he said, <said who="#john" rend="plain">"and really, dear, I don't care to renovate the house just for a three months' rental."</said>
+      </p>
+      <p>
+        <said who="#narrator" rend="plain">"Then do let us go downstairs,"</said>
+        I said, <said who="#narrator" rend="plain">"there are such pretty rooms there."</said>
+      </p>
+      <p>
+        Then he took me in his arms and called me a <said who="#john" rend="plain">"blessed little goose,"</said>
+        and said he would go down to the cellar, if I wished, and have it whitewashed into the bargain.
+      </p>
+      <p>
+        But he is right enough about the beds and windows and things. It is an airy and comfortable room as any one need wish, and, of course, I would not be so silly as to make him uncomfortable just for a whim.
+      </p>
+      <p>
+        I'm really getting quite fond of the room in spite of the wallpaper. Perhaps because of the wallpaper. It dwells in my mind so! I lie here on this great immovable bed—it is nailed down, I believe—and follow that pattern about by the hour. It is as good as gymnastics, I assure you. I start, we'll say, at the bottom, down in the corner over there where it has not been touched, and I determine for the thousandth time that I will follow that pointless pattern to some sort of a conclusion.
+      </p>
+      <p>
+        I know a little of the principle of design, and I know this thing was not arranged on any laws of radiation, or alternation, or repetition, or symmetry, or anything else that I ever heard of. It is repeated, of course, by the breadths, but not otherwise.
+      </p>
+      <p>
+        Looked at in one way, each breadth stands alone, the bloated curves and flourishes—a kind of <said who="#narrator" rend="plain">"debased Romanesque"</said>
+        with delirium tremens—go waddling up and down in isolated columns of fatuity. But, on the other hand, they connect diagonally, and the sprawling outlines run off in great slanting waves of optic horror, like a lot of wallowing seaweeds in full chase.
+      </p>
+      <p>
+        The front pattern does move—and no wonder! The woman behind shakes it! Sometimes I think there are a great many women behind, and sometimes only one, and she crawls around fast, and her crawling shakes it all over.
+      </p>
+      <p>
+        I think that woman gets out in the daytime! And I'll tell you why—privately—I've seen her! You may think I'm a bit <said who="#narrator" rend="plain">"loony"</said>
+        if you like, but I've seen her!
+      </p>
+      <p>
+        She is always creeping about, and I can see her out of every one of my windows! It is the same woman, I know, for she is always creeping, and most women do not creep by daylight. I see her in that long shaded lane, creeping up and down. I see her in those dark grape arbors, creeping all around the garden. I see her on that long road under the trees, creeping along, and when a carriage comes she hides under the blackberry vines. I don't blame her a bit. It must be very humiliating to be caught creeping by daylight! I always lock the door when I creep by daylight. I can't do it at night, for I know John would suspect something at once.
+      </p>
+      <p>
+        Well, the day is over! I've got out at last, in spite of you and Jane! And I've pulled off most of the paper, so you can't put me back! Now why should that man have fainted? But he did, and right across my path by the wall, so that I had to creep over him every time!
+      </p>
+    </body>
+  </text>
+  <standOff>
+    <listPerson>
+      <person xml:id="narrator">
+        <persName>The Narrator</persName>
+        <sex value="F"/>
+        <age value="30"/>
+        <note>A woman suffering from postpartum depression, confined by her physician husband</note>
+      </person>
+      <person xml:id="john">
+        <persName>John</persName>
+        <sex value="M"/>
+        <role>Physician, husband</role>
+        <note>The narrator's husband, a practical physician who dismisses his wife's concerns</note>
+      </person>
+      <person xml:id="jennie">
+        <persName>Jennie</persName>
+        <sex value="F"/>
+        <role>Housekeeper, sister-in-law</role>
+        <note>John's sister who helps care for the narrator</note>
+      </person>
+    </listPerson>
+  </standOff>
+</TEI>

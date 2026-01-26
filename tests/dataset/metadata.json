@@ -1,0 +1,10 @@
+{
+  "title": "The Yellow Wallpaper",
+  "author": "Charlotte Perkins Gilman",
+  "year": 1892,
+  "wordCount": 6000,
+  "dialogueCount": 15,
+  "characters": 3,
+  "patterns": ["first-person", "indirect-speech", "internal-monologue"],
+  "difficulty": "intermediate"
+}
