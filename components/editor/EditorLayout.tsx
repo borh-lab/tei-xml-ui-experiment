@@ -9,6 +9,7 @@ import { CommandPalette } from '@/components/keyboard/CommandPalette';
 import { AIModeSwitcher } from '@/components/ai/AIModeSwitcher';
 import { InlineSuggestions } from '@/components/ai/InlineSuggestions';
 import { BulkOperationsPanel } from './BulkOperationsPanel';
+import { RenderedView } from './RenderedView';
 import { VisualizationPanel } from '@/components/visualization/VisualizationPanel';
 import type { AIMode } from '@/components/ai/AIModeSwitcher';
 import { DialogueSpan } from '@/lib/ai/providers';
@@ -25,6 +26,7 @@ export function EditorLayout() {
   const [bulkPanelOpen, setBulkPanelOpen] = useState(false);
   const [vizPanelOpen, setVizPanelOpen] = useState(false);
   const [selectedPassages, setSelectedPassages] = useState<string[]>([]);
+  const [isBulkMode, setIsBulkMode] = useState(false);
 
   useHotkeys('mod+k', (e) => {
     e.preventDefault();
@@ -152,7 +154,10 @@ export function EditorLayout() {
         <Button
           variant={bulkPanelOpen ? "default" : "outline"}
           size="sm"
-          onClick={() => setBulkPanelOpen(!bulkPanelOpen)}
+          onClick={() => {
+            setBulkPanelOpen(!bulkPanelOpen);
+            setIsBulkMode(!bulkPanelOpen);
+          }}
         >
           Bulk Operations ({selectedPassages.length})
           <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘B</kbd>
@@ -185,10 +190,13 @@ export function EditorLayout() {
           )}
 
           {/* Rendered content */}
-          <div className="flex-1 px-4 pb-4 overflow-auto">
-            <div id="rendered-view" className="prose">
-              <p>{document.parsed.TEI.text.body.p}</p>
-            </div>
+          <div className="flex-1 overflow-auto">
+            <RenderedView
+              isBulkMode={isBulkMode}
+              selectedPassages={selectedPassages}
+              onSelectionChange={setSelectedPassages}
+              onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
+            />
           </div>
         </Card>
 
