@@ -3,14 +3,17 @@ import { ax, ai } from "@ax-llm/ax";
 import { createOpenAI } from "@ax-llm/ax-ai-sdk-provider";
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 import { nlpDetectDialogue } from './nlp-provider';
+import { logger } from '@/lib/utils/logger';
 
 export class AxProvider implements AIProvider {
   public providerName: string;
   private apiKey: string;
   private llm: any;
+  private log;
 
   constructor(providerName: string, apiKey?: string) {
     this.providerName = providerName;
+    this.log = logger.withContext({ module: 'AxProvider', provider: providerName });
 
     // Validate and get API key
     const key = apiKey || this.getEnvApiKey(providerName);
@@ -24,8 +27,10 @@ export class AxProvider implements AIProvider {
     // Initialize LLM based on provider name
     if (providerName === 'openai') {
       this.llm = ai({ name: 'openai', apiKey: this.apiKey });
+      this.log.debug('OpenAI provider initialized');
     } else if (providerName === 'anthropic') {
       this.llm = ai({ name: 'anthropic', apiKey: this.apiKey });
+      this.log.debug('Anthropic provider initialized');
     } else {
       throw new Error(`Unsupported provider: ${providerName}`);
     }
@@ -79,7 +84,7 @@ export class AxProvider implements AIProvider {
       return dialogueSpans;
     } catch (error) {
       // Fallback to NLP-based detection on error
-      console.warn('Ax detection failed, using NLP fallback:', error);
+      this.log.warn('Ax detection failed, using NLP fallback', { error: error instanceof Error ? error.message : String(error) });
       return nlpDetectDialogue(textToAnalyze);
     }
   }
@@ -167,7 +172,7 @@ export class AxProvider implements AIProvider {
       return attributionResult.attributedSpeakerId;
     } catch (error) {
       // Fallback to heuristic-based attribution
-      console.warn('Ax attribution failed, using heuristic fallback:', error);
+      this.log.warn('Ax attribution failed, using heuristic fallback', { error: error instanceof Error ? error.message : String(error) });
       return this.heuristicAttributeSpeaker(dialoguePassage, availableCharacters);
     }
   }
