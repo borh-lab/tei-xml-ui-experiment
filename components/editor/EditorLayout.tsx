@@ -25,7 +25,6 @@ interface Issue {
 
 export function EditorLayout() {
   const { document, updateDocument } = useDocumentContext();
-  const [splitPosition, setSplitPosition] = useState(50);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
   const [suggestions, setSuggestions] = useState<DialogueSpan[]>([]);
