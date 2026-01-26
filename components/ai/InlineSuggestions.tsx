@@ -126,7 +126,7 @@ export const InlineSuggestions = React.memo(({
               AI suggests dialogue:
             </p>
             <p className="text-sm text-muted-foreground italic line-clamp-2">
-              "{suggestion.text}"
+              {`"${suggestion.text}"`}
             </p>
             {highlightedText && suggestion.text.includes(highlightedText) && (
               <span className="inline-block mt-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded">
@@ -213,7 +213,7 @@ export function InlineSuggestionItem({
 
       {showFullText && (
         <span className="flex-1 text-sm text-muted-foreground italic truncate">
-          "{suggestion.text}"
+          {`"${suggestion.text}"`}
         </span>
       )}
 
