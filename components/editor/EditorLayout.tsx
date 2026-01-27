@@ -5,6 +5,7 @@ import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Card } from '@/components/ui/card';
 import { FileUpload } from './FileUpload';
 import { TagToolbar } from './TagToolbar';
+import { ExportButton } from './ExportButton';
 import { CommandPalette } from '@/components/keyboard/CommandPalette';
 import { AIModeSwitcher } from '@/components/ai/AIModeSwitcher';
 import { InlineSuggestions } from '@/components/ai/InlineSuggestions';
@@ -16,6 +17,9 @@ import { DialogueSpan } from '@/lib/ai/providers';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/db/PatternDB';
+import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle2, X, Navigation } from 'lucide-react';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -33,6 +37,11 @@ export function EditorLayout() {
   const [vizPanelOpen, setVizPanelOpen] = useState(false);
   const [selectedPassages, setSelectedPassages] = useState<string[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
+  const [highlightedPassageId, setHighlightedPassageId] = useState<string | null>(null);
+  const [currentPassageId, setCurrentPassageId] = useState<string | null>(null);
+  const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
 
   useHotkeys('mod+k', (e) => {
     e.preventDefault();
@@ -44,6 +53,151 @@ export function EditorLayout() {
     setBulkPanelOpen(!bulkPanelOpen);
   });
 
+  // Helper function to show toast messages
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // Helper function to check if user is in an input field
+  const isInputFocused = () => {
+    const activeElement = window.document?.activeElement;
+    if (!activeElement) return false;
+    return activeElement instanceof HTMLInputElement ||
+           activeElement instanceof HTMLTextAreaElement ||
+           activeElement.getAttribute('contenteditable') === 'true';
+  };
+
+  // Helper function to get all passage IDs from the document
+  const getPassageIds = () => {
+    if (!document) return [];
+    const p = document.parsed.TEI.text.body.p;
+    const paragraphs = Array.isArray(p) ? p : (p ? [p] : []);
+    return paragraphs.map((_, idx) => `passage-${idx}`);
+  };
+
+  // Keyboard shortcut: ? (Shift+/) - Show keyboard shortcuts help
+  useHotkeys('shift+/', (e) => {
+    if (isInputFocused()) return;
+    e.preventDefault();
+    setShortcutHelpOpen(true);
+    showToast('Keyboard shortcuts help opened', 'info');
+  }, [isInputFocused]);
+
+  // Keyboard shortcut: J - Navigate to next passage
+  useHotkeys('j', (e) => {
+    if (isInputFocused()) return;
+    e.preventDefault();
+
+    const passages = getPassageIds();
+    if (passages.length === 0) {
+      showToast('No passages to navigate', 'error');
+      return;
+    }
+
+    const nextIndex = Math.min(activePassageIndex + 1, passages.length - 1);
+    const passageId = passages[nextIndex];
+
+    setActivePassageIndex(nextIndex);
+    setCurrentPassageId(passageId);
+    setHighlightedPassageId(passageId);
+
+    setTimeout(() => {
+      const element = globalThis.document?.getElementById(passageId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => setHighlightedPassageId(null), 3000);
+      }
+    }, 100);
+
+    showToast(`Passage ${nextIndex + 1}/${passages.length}`, 'info');
+  }, [isInputFocused, activePassageIndex, document]);
+
+  // Keyboard shortcut: K - Navigate to previous passage
+  useHotkeys('k', (e) => {
+    if (isInputFocused()) return;
+    e.preventDefault();
+
+    const passages = getPassageIds();
+    if (passages.length === 0) {
+      showToast('No passages to navigate', 'error');
+      return;
+    }
+
+    const prevIndex = Math.max(activePassageIndex - 1, 0);
+    const passageId = passages[prevIndex];
+
+    setActivePassageIndex(prevIndex);
+    setCurrentPassageId(passageId);
+    setHighlightedPassageId(passageId);
+
+    setTimeout(() => {
+      const element = globalThis.document?.getElementById(passageId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => setHighlightedPassageId(null), 3000);
+      }
+    }, 100);
+
+    showToast(`Passage ${prevIndex + 1}/${passages.length}`, 'info');
+  }, [isInputFocused, activePassageIndex, document]);
+
+  // Keyboard shortcuts: 1-9 - Quick tag as speaker 1-9
+  for (let i = 1; i <= 9; i++) {
+    useHotkeys(
+      String(i),
+      (e) => {
+        if (isInputFocused()) return;
+        e.preventDefault();
+
+        const speakerId = `speaker${i}`;
+        const selection = window.getSelection();
+        const selectedText = selection?.toString() || '';
+
+        if (!selectedText || selectedText.trim().length === 0) {
+          showToast(`No text selected - Select text first, then press ${i}`, 'error');
+          return;
+        }
+
+        handleApplyTag('said', { '@who': speakerId });
+        showToast(`Tagged as ${speakerId}`, 'success');
+      },
+      [isInputFocused]
+    );
+  }
+
+  // Keyboard shortcut: A - Accept first AI suggestion
+  useHotkeys('a', (e) => {
+    if (isInputFocused()) return;
+    e.preventDefault();
+
+    if (suggestions.length === 0) {
+      showToast('No AI suggestions to accept', 'error');
+      return;
+    }
+
+    // Accept the first suggestion
+    const suggestion = suggestions[0];
+    handleAcceptSuggestion(suggestion);
+    showToast('AI suggestion accepted', 'success');
+  }, [isInputFocused, suggestions]);
+
+  // Keyboard shortcut: X - Reject first AI suggestion
+  useHotkeys('x', (e) => {
+    if (isInputFocused()) return;
+    e.preventDefault();
+
+    if (suggestions.length === 0) {
+      showToast('No AI suggestions to reject', 'error');
+      return;
+    }
+
+    // Reject the first suggestion
+    const suggestion = suggestions[0];
+    handleRejectSuggestion(suggestion);
+    showToast('AI suggestion rejected', 'info');
+  }, [isInputFocused, suggestions]);
+
   const handleTagAll = async (speakerId: string) => {
     if (!document) return;
 
@@ -53,7 +207,7 @@ export function EditorLayout() {
 
     selectedPassages.forEach(index => {
       if (paragraphs[index] && paragraphs[index].said) {
-        paragraphs[index].said = paragraphs[index].said.map(s => ({
+        paragraphs[index].said = paragraphs[index].said.map((s: any) => ({
           ...s,
           '@who': speakerId
         }));
@@ -61,7 +215,7 @@ export function EditorLayout() {
     });
 
     // Serialize and update document
-    const updatedXML = newDoc.serialize();
+    const updatedXML = document.serialize();
     updateDocument(updatedXML);
     setSelectedPassages([]);
 
@@ -71,7 +225,7 @@ export function EditorLayout() {
       speakerId,
       passagesToTag,
       1.0,
-      'bulk'
+      'middle'
     );
   };
 
@@ -81,8 +235,8 @@ export function EditorLayout() {
     const untaggedIndices = new Set<number>();
     const paragraphs = document.parsed.TEI.text.body.p;
 
-    paragraphs.forEach((para, index) => {
-      const hasUntagged = para.said?.some(s => !s['@who'] || s['@who'] === '');
+    paragraphs.forEach((para: any, index: number) => {
+      const hasUntagged = para.said?.some((s: any) => !s['@who'] || s['@who'] === '');
       if (hasUntagged) {
         untaggedIndices.add(index);
       }
@@ -107,7 +261,7 @@ export function EditorLayout() {
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
+    const a = globalThis.document.createElement('a');
     a.href = url;
     a.download = `tei-export-${Date.now()}.json`;
     a.click();
@@ -131,7 +285,7 @@ export function EditorLayout() {
           location: { index }
         });
       } else {
-        para.said.forEach((s, i) => {
+        para.said.forEach((s: any, i: number) => {
           if (!s['@who'] || s['@who'] === '') {
             issues.push({
               type: 'error',
@@ -211,7 +365,7 @@ export function EditorLayout() {
   // Track text selection for highlighting
   useEffect(() => {
     // Guard for SSR/test environment
-    if (typeof window === 'undefined' || typeof document === 'undefined' || !document?.addEventListener) {
+    if (typeof window === 'undefined' || typeof globalThis.document === 'undefined' || !globalThis.document?.addEventListener) {
       return;
     }
 
@@ -221,9 +375,9 @@ export function EditorLayout() {
       setSelectedText(text);
     };
 
-    document.addEventListener('selectionchange', handleSelection);
+    globalThis.document.addEventListener('selectionchange', handleSelection);
     return () => {
-      document.removeEventListener('selectionchange', handleSelection);
+      globalThis.document.removeEventListener('selectionchange', handleSelection);
     };
   }, []); // No dependencies needed
 
@@ -249,6 +403,10 @@ export function EditorLayout() {
         onValidate={handleValidateSelection}
         onConvert={handleConvert}
       />
+      <KeyboardShortcutHelp
+        open={shortcutHelpOpen}
+        onClose={() => setShortcutHelpOpen(false)}
+      />
       <FileUpload />
       <div className="flex items-center gap-2 p-2 border-b">
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
@@ -271,6 +429,7 @@ export function EditorLayout() {
         >
           Visualizations
         </Button>
+        <ExportButton />
       </div>
       <div className="flex-1 flex overflow-hidden">
         {/* Left pane - Rendered view with AI suggestions */}
@@ -298,6 +457,7 @@ export function EditorLayout() {
               selectedPassages={selectedPassages}
               onSelectionChange={setSelectedPassages}
               onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
+              highlightedPassageId={highlightedPassageId}
             />
           </div>
         </Card>
@@ -305,7 +465,6 @@ export function EditorLayout() {
         {/* Resizer */}
         <div
           className="w-1 bg-border cursor-col-resize hover:bg-primary"
-          style={{ left: `${splitPosition}%` }}
         />
 
         {/* Right pane - Source view */}
@@ -326,6 +485,24 @@ export function EditorLayout() {
           </>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      {toast && (
+        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5">
+          <Alert className={`shadow-lg ${
+            toast.type === 'success' ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' :
+            toast.type === 'error' ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900' :
+            'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
+          }`}>
+            {toast.type === 'success' && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+            {toast.type === 'error' && <X className="h-4 w-4 text-red-600" />}
+            {toast.type === 'info' && <Navigation className="h-4 w-4 text-blue-600" />}
+            <AlertDescription className="text-sm ml-2">
+              {toast.message}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
     </div>
   );
 }

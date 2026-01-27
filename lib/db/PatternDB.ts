@@ -49,7 +49,7 @@ export class PatternDB extends Dexie {
   learnedPatterns!: Table<LearnedPattern>;
 
   constructor() {
-    super('TEIDialogueEditorDB', 1);
+    super('TEIDialogueEditorDB');
   }
 
   async init() {

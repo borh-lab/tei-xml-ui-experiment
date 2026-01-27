@@ -16,23 +16,36 @@ interface RenderedViewProps {
   selectedPassages: string[];
   onSelectionChange: (passageIds: string[]) => void;
   onPassageClick?: (passageId: string) => void;
+  highlightedPassageId?: string | null;
 }
 
 export const RenderedView = React.memo(({
   isBulkMode = false,
   selectedPassages,
   onSelectionChange,
-  onPassageClick
+  onPassageClick,
+  highlightedPassageId
 }: RenderedViewProps) => {
   const { document } = useDocumentContext();
   const [passages, setPassages] = useState<Passage[]>([]);
+  const [activePassageId, setActivePassageId] = useState<string | null>(null);
   const lastSelectedIndex = useRef<number | null>(null);
+  const passageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extract passages from document
   useEffect(() => {
     if (!document) return;
 
-    const text = document.parsed.TEI.text.body.p || '';
+    const p = document.parsed.TEI.text.body.p;
+
+    // Handle both array and single paragraph cases
+    const paragraphs = Array.isArray(p) ? p : (p ? [p] : []);
+
+    // Extract text content from each paragraph
+    const text = paragraphs
+      .map(para => typeof para === 'string' ? para : (para['#text'] || ''))
+      .join(' ');
 
     // For now, split by sentences to create passages
     // In a real implementation, this would parse actual <said> tags
@@ -47,13 +60,68 @@ export const RenderedView = React.memo(({
     }));
 
     setPassages(extractedPassages);
+    setActivePassageId(null); // Reset active passage when passages change
   }, [document]);
+
+  // Cleanup passage refs when passages change
+  useEffect(() => {
+    return () => {
+      passageRefs.current.clear();
+      // Clear any pending highlight timeout
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+        highlightTimeoutRef.current = null;
+      }
+    };
+  }, [passages]);
+
+  // Handle external highlight (from search result click)
+  useEffect(() => {
+    if (highlightedPassageId) {
+      setActivePassageId(highlightedPassageId);
+
+      // Scroll to the highlighted passage
+      setTimeout(() => {
+        const passageElement = passageRefs.current.get(highlightedPassageId);
+        if (passageElement) {
+          passageElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
+          });
+        }
+      }, 100);
+    }
+  }, [highlightedPassageId]);
 
   // Handle passage click with multi-select support
   const handlePassageClick = useCallback((passageId: string, index: number, event: React.MouseEvent) => {
     if (!isBulkMode) {
-      // Single selection mode
+      // Single selection mode: scroll to and highlight passage
+      setActivePassageId(passageId);
       onPassageClick?.(passageId);
+
+      // Scroll the passage into view smoothly
+      const passageElement = passageRefs.current.get(passageId);
+      if (passageElement) {
+        passageElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+
+      // Clear any existing timeout and set new one
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+
+      // Clear highlight after 3 seconds
+      highlightTimeoutRef.current = setTimeout(() => {
+        setActivePassageId(null);
+        highlightTimeoutRef.current = null;
+      }, 3000);
+
       return;
     }
 
@@ -148,19 +216,29 @@ export const RenderedView = React.memo(({
         <div className="space-y-3">
           {passages.map((passage, index) => {
             const isSelected = selectedPassages.includes(passage.id);
+            const isActive = activePassageId === passage.id;
 
             return (
               <div
                 key={passage.id}
+                id={passage.id}
+                ref={(el) => {
+                  if (el) passageRefs.current.set(passage.id, el);
+                }}
                 onClick={(e) => handlePassageClick(passage.id, index, e)}
                 className={`
                   relative p-3 rounded-lg border transition-all cursor-pointer
-                  ${isSelected
-                    ? 'bg-primary/10 border-primary shadow-sm'
-                    : 'bg-background border-border hover:bg-muted/50 hover:border-muted-foreground/50'
+                  ${isActive
+                    ? 'bg-primary/20 border-primary shadow-md ring-2 ring-primary/50 scale-[1.02]'
+                    : isSelected
+                      ? 'bg-primary/10 border-primary shadow-sm'
+                      : 'bg-background border-border hover:bg-muted/50 hover:border-muted-foreground/50'
                   }
                   ${isBulkMode ? 'cursor-pointer' : ''}
                 `}
+                style={{
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
               >
                 {/* Selection checkbox in bulk mode */}
                 {isBulkMode && (

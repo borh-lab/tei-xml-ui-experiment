@@ -16,11 +16,14 @@ interface ShortcutHelpProps {
 export function KeyboardShortcutHelp({ open, onClose }: ShortcutHelpProps) {
   const shortcuts = [
     { keys: 'Cmd+K', description: 'Open command palette' },
-    { keys: 'J / K', description: 'Next / previous passage' },
-    { keys: '1-9', description: 'Tag as speaker 1-9' },
-    { keys: 'A', description: 'Accept AI suggestion' },
-    { keys: 'X', description: 'Reject AI suggestion' },
-    { keys: '?', description: 'Show keyboard shortcuts' },
+    { keys: 'Cmd+F', description: 'Open search dialog' },
+    { keys: 'Cmd+B', description: 'Toggle bulk operations panel' },
+    { keys: 'Cmd+O', description: 'Toggle dialogue outline' },
+    { keys: 'J / K', description: 'Navigate to next / previous passage with highlight' },
+    { keys: '1-9', description: 'Quick tag selected text as speaker 1-9' },
+    { keys: 'A', description: 'Accept first AI suggestion (if available)' },
+    { keys: 'X', description: 'Reject first AI suggestion (if available)' },
+    { keys: '?', description: 'Show this keyboard shortcuts help' },
   ];
 
   return (

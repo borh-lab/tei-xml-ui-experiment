@@ -101,4 +101,58 @@ describe('RenderedView', () => {
       expect(screen.getByText('2 selected')).toBeInTheDocument();
     });
   });
+
+  describe('Passage Navigation and Highlighting', () => {
+    test('should call onPassageClick when clicking a passage in normal mode', async () => {
+      const user = userEvent.setup();
+
+      render(<RenderedView {...mockProps} isBulkMode={false} />);
+
+      const passageElement = screen.getByText('ID: passage-0').closest('div');
+      await user.click(passageElement!);
+
+      expect(mockProps.onPassageClick).toHaveBeenCalledWith('passage-0');
+    });
+
+    test('should not call onPassageClick in bulk mode', async () => {
+      const user = userEvent.setup();
+
+      render(<RenderedView {...mockProps} isBulkMode={true} />);
+
+      const passageElement = screen.getByText('ID: passage-0').closest('div');
+      await user.click(passageElement!);
+
+      expect(mockProps.onPassageClick).not.toHaveBeenCalled();
+      expect(mockProps.onSelectionChange).toHaveBeenCalled();
+    });
+
+    test('should highlight active passage in normal mode', async () => {
+      const user = userEvent.setup();
+
+      const { container } = render(<RenderedView {...mockProps} isBulkMode={false} />);
+
+      // Click a passage to activate it
+      const passageElement = screen.getByText('ID: passage-0').closest('div');
+      await user.click(passageElement!);
+
+      // Check that the onPassageClick callback was called
+      expect(mockProps.onPassageClick).toHaveBeenCalledWith('passage-0');
+    });
+
+    test('should handle rapid clicks without errors', async () => {
+      const user = userEvent.setup();
+
+      render(<RenderedView {...mockProps} isBulkMode={false} />);
+
+      const passage0 = screen.getByText('ID: passage-0').closest('div');
+      const passage1 = screen.getByText('ID: passage-1').closest('div');
+
+      // Rapidly click different passages
+      await user.click(passage0!);
+      await user.click(passage1!);
+      await user.click(passage0!);
+
+      expect(mockProps.onPassageClick).toHaveBeenCalledTimes(3);
+    });
+  });
 });

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import useHotkeys from 'react-hotkeys-hook';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export interface ShortcutAction {
   key: string;

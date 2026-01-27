@@ -18,46 +18,46 @@ interface CorpusBrowserProps {
 }
 
 export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
-  const { setDocument } = useDocumentContext();
+  const { loadDocument } = useDocumentContext();
   const [novels, setNovels] = useState<Novel[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchNovels = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        'https://api.github.com/repos/iulibdcs/Wright-American-Fiction/contents/'
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const files = await response.json();
+
+      const novels: Novel[] = files
+        .filter((f: any) => f.name?.endsWith('.xml'))
+        .map((f: any) => ({
+          title: f.name.replace('.xml', ''),
+          author: 'Various',
+          path: f.download_url
+        }))
+        .slice(0, 20); // Limit to 20 for now
+
+      setNovels(novels);
+    } catch (err) {
+      console.error('Failed to fetch corpus:', err);
+      setError('Failed to load corpus. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Fetch from Wright American Fiction GitHub API
-    const fetchNovels = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(
-          'https://api.github.com/repos/iulibdcs/Wright-American-Fiction/contents/'
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const files = await response.json();
-
-        const novels: Novel[] = files
-          .filter((f: any) => f.name?.endsWith('.xml'))
-          .map((f: any) => ({
-            title: f.name.replace('.xml', ''),
-            author: 'Various',
-            path: f.download_url
-          }))
-          .slice(0, 20); // Limit to 20 for now
-
-        setNovels(novels);
-      } catch (err) {
-        console.error('Failed to fetch corpus:', err);
-        setError('Failed to load corpus. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchNovels();
   }, []);
 
@@ -66,20 +66,31 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
   );
 
   const loadNovel = async (path: string, title: string) => {
+    setError(null);
     try {
       const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const teiContent = await response.text();
 
-      // Create a new TEIDocument with the loaded content
+      // Validate XML before loading
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(teiContent, 'text/xml');
-      const teiDocument = new TEIDocument(xmlDoc);
 
-      setDocument(teiDocument);
+      // Check for parsing errors
+      const parseError = xmlDoc.querySelector('parsererror');
+      if (parseError) {
+        throw new Error('Failed to parse XML file. The file may be corrupted or invalid.');
+      }
+
+      // Load the document using the XML string
+      loadDocument(teiContent);
       onLoadNovel?.(title);
     } catch (err) {
       console.error('Failed to load novel:', err);
-      setError('Failed to load novel. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load novel. Please try again.';
+      setError(`${errorMessage} Please check your internet connection and try again.`);
     }
   };
 
@@ -101,7 +112,14 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
 
         {error ? (
           <div className="text-destructive p-4 border border-destructive rounded">
-            {error}
+            <p className="mb-2">{error}</p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={fetchNovels}
+            >
+              Retry
+            </Button>
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center py-8">

@@ -16,6 +16,7 @@ export interface InlineSuggestionsProps {
   highlightedText?: string;
   currentPosition?: number;
   totalPositions?: number;
+  aiMode?: 'manual' | 'suggest' | 'auto';
 }
 
 /**
@@ -30,7 +31,8 @@ export const InlineSuggestions = React.memo(({
   onReject,
   highlightedText,
   currentPosition = 0,
-  totalPositions = 1
+  totalPositions = 1,
+  aiMode = 'manual'
 }: InlineSuggestionsProps) => {
   if (suggestions.length === 0) {
     return null;
@@ -131,6 +133,16 @@ export const InlineSuggestions = React.memo(({
             {highlightedText && suggestion.text.includes(highlightedText) && (
               <span className="inline-block mt-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded">
                 Matched selection
+              </span>
+            )}
+            {aiMode === 'auto' && suggestion.confidence >= 0.8 && (
+              <span className="inline-block mt-1 px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded">
+                Will be auto-applied
+              </span>
+            )}
+            {aiMode === 'auto' && suggestion.confidence < 0.8 && (
+              <span className="inline-block mt-1 px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 text-xs rounded">
+                Requires review
               </span>
             )}
           </div>

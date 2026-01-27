@@ -1,6 +1,5 @@
 // lib/ai/ax-provider.ts
 import { ax, ai } from "@ax-llm/ax";
-import { createOpenAI } from "@ax-llm/ax-ai-sdk-provider";
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 import { nlpDetectDialogue } from './nlp-provider';
 import { logger } from '@/lib/utils/logger';
@@ -41,7 +40,7 @@ export class AxProvider implements AIProvider {
   }
 
   private getEnvVarName(providerName: string): string {
-    const envVars = {
+    const envVars: Record<string, string> = {
       'openai': 'OPENAI_API_KEY',
       'anthropic': 'ANTHROPIC_API_KEY'
     };

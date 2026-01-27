@@ -30,6 +30,7 @@ export async function loadPatternEngine() {
   try {
     // Try to load the WASM module
     // Note: This will only work if the WASM has been built
+    // @ts-ignore - WASM module is optional, fallback provided below
     const module = await import('/wasm/pattern_engine.js');
 
     // Initialize the WASM module
@@ -536,6 +537,7 @@ function getJavaScriptFallback() {
  */
 export async function isWasmAvailable(): Promise<boolean> {
   try {
+    // @ts-ignore - WASM module is optional
     await import('/wasm/pattern_engine.js');
     return true;
   } catch {

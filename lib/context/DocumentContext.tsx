@@ -9,6 +9,7 @@ interface DocumentContextType {
   loadDocument: (xml: string) => void;
   loadSample: (sampleId: string) => Promise<void>;
   updateDocument: (xml: string) => void;
+  clearDocument: () => void;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
@@ -34,8 +35,12 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     setDocument(new TEIDocument(xml));
   };
 
+  const clearDocument = () => {
+    setDocument(null);
+  };
+
   return (
-    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument }}>
+    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument }}>
       {children}
     </DocumentContext.Provider>
   );

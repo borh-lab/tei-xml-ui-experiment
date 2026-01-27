@@ -52,6 +52,11 @@ export async function loadSample(sampleId: string): Promise<string> {
  */
 export async function loadSampleWithMetadata(sampleId: string): Promise<Sample> {
   const metadata = getSampleMetadata(sampleId);
+
+  if (!metadata) {
+    throw new Error(`Sample not found: ${sampleId}`);
+  }
+
   const content = await loadSample(sampleId);
   const document = new TEIDocument(content);
 

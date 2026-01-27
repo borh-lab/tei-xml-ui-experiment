@@ -25,7 +25,7 @@ let currentLogLevel: LogLevel = 'info';
  * Set the global log level
  * @param level - The minimum log level to display
  */
-export function setLogLevel(level: LogLevel): void {
+function setLogLevel(level: LogLevel): void {
   if (LOG_LEVELS[level] !== undefined) {
     currentLogLevel = level;
   }
@@ -35,7 +35,7 @@ export function setLogLevel(level: LogLevel): void {
  * Get the current log level
  * @returns Current log level
  */
-export function getLogLevel(): LogLevel {
+function getLogLevel(): LogLevel {
   return currentLogLevel;
 }
 
