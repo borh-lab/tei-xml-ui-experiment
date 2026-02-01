@@ -24,7 +24,7 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       setDocument(new TEIDocument(xml));
     } catch (error) {
       console.error('Failed to load document:', error);
-      const errorInfo = categorizeError(error as Error);
+      const errorInfo = categorizeError(error as Error, () => loadDocument(xml));
       toast.error(errorInfo.message, {
         description: errorInfo.description,
         action: errorInfo.action,
@@ -39,9 +39,10 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       setDocument(new TEIDocument(content));
     } catch (error) {
       console.error('Failed to load sample:', error);
-      const errorInfo = categorizeError(error as Error);
+      const errorInfo = categorizeError(error as Error, () => loadSample(sampleId));
       toast.error('Failed to load sample', {
         description: errorInfo.description,
+        action: errorInfo.action,
       });
       throw error;
     }
