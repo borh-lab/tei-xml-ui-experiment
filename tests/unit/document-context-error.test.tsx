@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import { DocumentProvider, useDocumentContext } from '@/lib/context/DocumentContext'
+import { ErrorProvider } from '@/lib/context/ErrorContext'
 import { toast } from '@/components/ui/use-toast'
 
 jest.mock('@/lib/samples/sampleLoader', () => ({
@@ -24,7 +25,9 @@ describe('DocumentContext error handling', () => {
     jest.mocked(loadSample).mockRejectedValue(new Error('Failed to fetch sample'))
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <DocumentProvider>{children}</DocumentProvider>
+      <ErrorProvider>
+        <DocumentProvider>{children}</DocumentProvider>
+      </ErrorProvider>
     )
 
     const { result } = renderHook(() => useDocumentContext(), { wrapper })

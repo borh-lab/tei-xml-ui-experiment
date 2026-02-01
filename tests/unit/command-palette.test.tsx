@@ -1,10 +1,13 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CommandPalette } from '@/components/keyboard/CommandPalette';
 import { DocumentProvider } from '@/lib/context/DocumentContext';
+import { ErrorProvider } from '@/lib/context/ErrorContext';
 
 describe('CommandPalette', () => {
   test('should render command palette with all command groups', () => {
     render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <CommandPalette
           open={true}
@@ -15,6 +18,8 @@ describe('CommandPalette', () => {
           isVizPanelOpen={false}
         />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     expect(screen.getByPlaceholderText('Type a command or search...')).toBeInTheDocument();
@@ -40,6 +45,8 @@ describe('CommandPalette', () => {
 
   test('should show keyboard shortcuts for commands', () => {
     render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <CommandPalette
           open={true}
@@ -50,6 +57,8 @@ describe('CommandPalette', () => {
           isVizPanelOpen={false}
         />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Check for keyboard shortcut hints
@@ -59,6 +68,8 @@ describe('CommandPalette', () => {
 
   test('should show status indicators for active features', () => {
     render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <CommandPalette
           open={true}
@@ -69,6 +80,8 @@ describe('CommandPalette', () => {
           isVizPanelOpen={true}
         />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Should show "Active" badge for bulk mode
@@ -82,6 +95,8 @@ describe('CommandPalette', () => {
 
   test('should disable commands when no document is loaded', () => {
     render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <CommandPalette
           open={true}
@@ -92,6 +107,8 @@ describe('CommandPalette', () => {
           isVizPanelOpen={false}
         />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // All document-related commands should show "(No doc)" indicator
@@ -101,6 +118,8 @@ describe('CommandPalette', () => {
 
   test('should show sample metadata', () => {
     render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <CommandPalette
           open={true}
@@ -111,6 +130,8 @@ describe('CommandPalette', () => {
           isVizPanelOpen={false}
         />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Check that sample titles are displayed

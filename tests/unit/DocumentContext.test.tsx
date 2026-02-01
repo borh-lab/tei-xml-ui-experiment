@@ -1,9 +1,14 @@
 import { renderHook, act } from '@testing-library/react';
 import { useDocumentContext, DocumentProvider } from '@/lib/context/DocumentContext';
+import { ErrorProvider } from '@/lib/context/ErrorContext';
 
 describe('DocumentContext', () => {
   test('should provide document to consumers', () => {
-    const wrapper = ({ children }) => <DocumentProvider>{children}</DocumentProvider>;
+    const wrapper = ({ children }) => (
+      <ErrorProvider>
+        <DocumentProvider>{children}</DocumentProvider>
+      </ErrorProvider>
+    );
 
     const { result } = renderHook(() => useDocumentContext(), { wrapper });
 
@@ -12,7 +17,11 @@ describe('DocumentContext', () => {
   });
 
   test('should load document', () => {
-    const wrapper = ({ children }) => <DocumentProvider>{children}</DocumentProvider>;
+    const wrapper = ({ children }) => (
+      <ErrorProvider>
+        <DocumentProvider>{children}</DocumentProvider>
+      </ErrorProvider>
+    );
     const tei = `<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><p>Test</p></body></text></TEI>`;
 
     const { result } = renderHook(() => useDocumentContext(), { wrapper });

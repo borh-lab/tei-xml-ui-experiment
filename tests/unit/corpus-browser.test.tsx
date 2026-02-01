@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { CorpusBrowser } from '@/components/samples/CorpusBrowser';
 import { DocumentProvider } from '@/lib/context/DocumentContext';
+import { ErrorProvider } from '@/lib/context/ErrorContext';
 
 // Mock fetch
 global.fetch = jest.fn();
@@ -14,9 +15,11 @@ describe('CorpusBrowser', () => {
     (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
 
     render(
-      <DocumentProvider>
-        <CorpusBrowser />
-      </DocumentProvider>
+      <ErrorProvider>
+        <DocumentProvider>
+          <CorpusBrowser />
+        </DocumentProvider>
+      </ErrorProvider>
     );
 
     expect(screen.getByText('Loading corpus...')).toBeInTheDocument();
@@ -29,9 +32,11 @@ describe('CorpusBrowser', () => {
     });
 
     render(
-      <DocumentProvider>
-        <CorpusBrowser />
-      </DocumentProvider>
+      <ErrorProvider>
+        <DocumentProvider>
+          <CorpusBrowser />
+        </DocumentProvider>
+      </ErrorProvider>
     );
 
     expect(screen.getByText('Browse Wright American Fiction Corpus')).toBeInTheDocument();
@@ -50,9 +55,11 @@ describe('CorpusBrowser', () => {
     });
 
     render(
-      <DocumentProvider>
-        <CorpusBrowser />
-      </DocumentProvider>
+      <ErrorProvider>
+        <DocumentProvider>
+          <CorpusBrowser />
+        </DocumentProvider>
+      </ErrorProvider>
     );
 
     await waitFor(() => {
@@ -72,9 +79,11 @@ describe('CorpusBrowser', () => {
     (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
 
     render(
-      <DocumentProvider>
-        <CorpusBrowser />
-      </DocumentProvider>
+      <ErrorProvider>
+        <DocumentProvider>
+          <CorpusBrowser />
+        </DocumentProvider>
+      </ErrorProvider>
     );
 
     await waitFor(() => {
@@ -89,9 +98,11 @@ describe('CorpusBrowser', () => {
     });
 
     render(
-      <DocumentProvider>
-        <CorpusBrowser />
-      </DocumentProvider>
+      <ErrorProvider>
+        <DocumentProvider>
+          <CorpusBrowser />
+        </DocumentProvider>
+      </ErrorProvider>
     );
 
     await waitFor(() => {

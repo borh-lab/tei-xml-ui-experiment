@@ -2,6 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { BulkOperationsPanel } from '@/components/editor/BulkOperationsPanel';
 import userEvent from '@testing-library/user-event';
 import { DocumentProvider } from '@/lib/context/DocumentContext';
+import { ErrorProvider } from '@/lib/context/ErrorContext';
 import { EditorLayout } from '@/components/editor/EditorLayout';
 import { QuickSearchDialog } from '@/components/search/QuickSearchDialog';
 
@@ -42,9 +43,13 @@ describe('React Hooks Dependencies', () => {
 
   test('should re-run detection when document changes', async () => {
     const { rerender } = render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Initial render - component should load without errors
@@ -55,9 +60,13 @@ describe('React Hooks Dependencies', () => {
 
     // Re-render with same props (should not cause errors)
     rerender(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Should still render correctly without React hooks warnings
@@ -157,6 +166,8 @@ describe('QuickSearchDialog Integration', () => {
     // Should not throw when rendering
     expect(() => {
       render(
+        <ErrorProvider>
+
         <DocumentProvider>
           <QuickSearchDialog
             open={false}
@@ -164,15 +175,21 @@ describe('QuickSearchDialog Integration', () => {
             onResultClick={onResultClick}
           />
         </DocumentProvider>
+
+        </ErrorProvider>
       );
     }).not.toThrow();
   });
 
   test('should have search dialog state in EditorLayout', async () => {
     render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Wait for the component to mount
@@ -186,9 +203,13 @@ describe('QuickSearchDialog Integration', () => {
 
   test('should have keyboard shortcut handler', async () => {
     render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Wait for initial render
@@ -208,9 +229,13 @@ describe('AI Auto Mode', () => {
 
   test('should render auto-application progress when in auto mode', async () => {
     const { container } = render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Wait for component to mount
@@ -227,9 +252,13 @@ describe('AI Auto Mode', () => {
 
   test('should show undo toast after auto-applying suggestions', async () => {
     const { container } = render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Wait for component to mount
@@ -245,9 +274,13 @@ describe('AI Auto Mode', () => {
 describe('Split Pane Resizing', () => {
   test('should render without split pane errors', async () => {
     const { container } = render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     // Wait for component to mount
@@ -261,9 +294,13 @@ describe('Split Pane Resizing', () => {
 
   test('should have split position state defined', async () => {
     const { container } = render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     await waitFor(() => {
@@ -276,9 +313,13 @@ describe('Split Pane Resizing', () => {
 
   test('should not throw errors with drag state management', async () => {
     const { container } = render(
+      <ErrorProvider>
+
       <DocumentProvider>
         <EditorLayout />
       </DocumentProvider>
+
+      </ErrorProvider>
     );
 
     await waitFor(() => {
