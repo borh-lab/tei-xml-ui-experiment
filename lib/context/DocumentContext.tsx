@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { TEIDocument } from '@/lib/tei/TEIDocument';
 import { loadSample as loadSampleContent } from '@/lib/samples/sampleLoader';
+import { toast } from '@/components/ui/use-toast';
+import { categorizeError } from '@/lib/utils/error-categorization';
 
 interface DocumentContextType {
   document: TEIDocument | null;
@@ -18,7 +20,17 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
   const [document, setDocument] = useState<TEIDocument | null>(null);
 
   const loadDocument = (xml: string) => {
-    setDocument(new TEIDocument(xml));
+    try {
+      setDocument(new TEIDocument(xml));
+    } catch (error) {
+      console.error('Failed to load document:', error);
+      const errorInfo = categorizeError(error as Error);
+      toast.error(errorInfo.message, {
+        description: errorInfo.description,
+        action: errorInfo.action,
+      });
+      throw error;
+    }
   };
 
   const loadSample = async (sampleId: string) => {
@@ -27,6 +39,10 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       setDocument(new TEIDocument(content));
     } catch (error) {
       console.error('Failed to load sample:', error);
+      const errorInfo = categorizeError(error as Error);
+      toast.error('Failed to load sample', {
+        description: errorInfo.description,
+      });
       throw error;
     }
   };
