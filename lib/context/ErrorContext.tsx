@@ -84,6 +84,12 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
     setErrors([]);
   };
 
+  // Expose debug endpoint for E2E testing
+  if (typeof window !== 'undefined') {
+    (window as any).__getErrorStats = getStats;
+    (window as any).__getErrorHistory = getHistory;
+  }
+
   return (
     <ErrorContext.Provider value={{ logError, getStats, getHistory, clearHistory }}>
       {children}
