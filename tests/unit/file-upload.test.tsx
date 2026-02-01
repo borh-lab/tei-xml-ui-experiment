@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { FileUpload } from '@/components/editor/FileUpload'
 import { DocumentProvider } from '@/lib/context/DocumentContext'
+import { ErrorProvider } from '@/lib/context/ErrorContext'
 import { toast } from '@/components/ui/use-toast'
 
 // Mock the toast function
@@ -18,9 +19,11 @@ describe('FileUpload', () => {
 
   const renderWithProvider = () => {
     return render(
-      <DocumentProvider>
-        <FileUpload />
-      </DocumentProvider>
+      <ErrorProvider>
+        <DocumentProvider>
+          <FileUpload />
+        </DocumentProvider>
+      </ErrorProvider>
     )
   }
 

@@ -3,11 +3,13 @@
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useErrorContext } from '@/lib/context/ErrorContext';
 import { toast } from '@/components/ui/use-toast';
 import { categorizeError } from '@/lib/utils/error-categorization';
 
 export function FileUpload() {
   const { loadDocument } = useDocumentContext();
+  const { logError } = useErrorContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,6 +21,12 @@ export function FileUpload() {
       loadDocument(text);
       toast.success('Document uploaded successfully');
     } catch (error) {
+      logError(error as Error, 'FileUpload', {
+        action: 'upload',
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+      });
       const errorInfo = categorizeError(error as Error, () => handleFileUpload(event));
       toast.error(errorInfo.message, {
         description: errorInfo.description,
