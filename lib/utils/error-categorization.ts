@@ -16,7 +16,7 @@ export interface ErrorInfo {
   }
 }
 
-export function categorizeError(error: Error): ErrorInfo {
+export function categorizeError(error: Error, retryCallback?: () => void): ErrorInfo {
   const message = (error.message || '').toLowerCase()
 
   // Parse errors (most specific - check first)
@@ -42,13 +42,10 @@ export function categorizeError(error: Error): ErrorInfo {
       type: ErrorType.NETWORK_ERROR,
       message: 'Connection failed',
       description: 'Please check your internet connection and try again.',
-      action: {
+      action: retryCallback ? {
         label: 'Retry',
-        onClick: () => {
-          // Retry logic will be implemented by caller
-          console.log('Retry action clicked')
-        },
-      },
+        onClick: retryCallback
+      } : undefined,
     }
   }
 
