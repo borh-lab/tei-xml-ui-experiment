@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Card } from '@/components/ui/card';
-import { FileUpload } from './FileUpload';
 import { TagToolbar } from './TagToolbar';
 import { ExportButton } from './ExportButton';
 import { CommandPalette } from '@/components/keyboard/CommandPalette';
@@ -407,7 +406,6 @@ export function EditorLayout() {
         open={shortcutHelpOpen}
         onClose={() => setShortcutHelpOpen(false)}
       />
-      <FileUpload />
       <div className="flex items-center gap-2 p-2 border-b">
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
         <TagToolbar onApplyTag={handleApplyTag} />
