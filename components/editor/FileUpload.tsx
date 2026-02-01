@@ -19,7 +19,7 @@ export function FileUpload() {
       loadDocument(text);
       toast.success('Document uploaded successfully');
     } catch (error) {
-      const errorInfo = categorizeError(error as Error);
+      const errorInfo = categorizeError(error as Error, () => handleFileUpload(event));
       toast.error(errorInfo.message, {
         description: errorInfo.description,
         action: errorInfo.action,
