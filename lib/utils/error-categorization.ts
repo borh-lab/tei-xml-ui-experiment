@@ -17,9 +17,9 @@ export interface ErrorInfo {
 }
 
 export function categorizeError(error: Error): ErrorInfo {
-  const message = error.message.toLowerCase()
+  const message = (error.message || '').toLowerCase()
 
-  // Parse errors
+  // Parse errors (most specific - check first)
   if (
     message.includes('xml') ||
     message.includes('parse') ||
@@ -32,7 +32,7 @@ export function categorizeError(error: Error): ErrorInfo {
     }
   }
 
-  // Network errors
+  // Network errors (check before file errors to avoid misclassification)
   if (
     message.includes('network') ||
     message.includes('fetch') ||
@@ -52,11 +52,11 @@ export function categorizeError(error: Error): ErrorInfo {
     }
   }
 
-  // File errors
+  // File errors (more specific - after network check)
   if (
     message.includes('file') ||
-    message.includes('read') ||
-    message.includes('encoding')
+    message.includes('encoding') ||
+    (message.includes('read') && message.includes('file'))
   ) {
     return {
       type: ErrorType.FILE_ERROR,

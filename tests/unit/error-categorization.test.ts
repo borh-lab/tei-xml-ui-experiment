@@ -27,11 +27,28 @@ describe('categorizeError', () => {
     expect(result.message).toBe('Failed to read file')
   })
 
+  test('categorizes validation errors', () => {
+    const error = new Error('Validation failed: missing required tags')
+    const result = categorizeError(error)
+
+    expect(result.type).toBe(ErrorType.VALIDATION_ERROR)
+    expect(result.message).toBe('Invalid document')
+  })
+
   test('returns unknown error for unrecognized types', () => {
     const error = new Error('Something unexpected happened')
     const result = categorizeError(error)
 
     expect(result.type).toBe(ErrorType.UNKNOWN_ERROR)
     expect(result.message).toBe('An error occurred')
+  })
+
+  test('handles errors with undefined message', () => {
+    const error = new Error()
+    const result = categorizeError(error)
+
+    expect(result.type).toBe(ErrorType.UNKNOWN_ERROR)
+    expect(result.message).toBe('An error occurred')
+    expect(result.description).toBe('Please try again.')
   })
 })
