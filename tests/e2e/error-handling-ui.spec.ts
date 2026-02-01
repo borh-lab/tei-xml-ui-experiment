@@ -4,10 +4,26 @@ import { join } from 'path'
 import { uploadTestDocument, generateTestDocument } from './fixtures/test-helpers'
 
 test.describe('Error Handling UI', () => {
-  test('shows toast notification on invalid file upload', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
+    // Load a valid sample first to initialize the editor and make FileUpload available
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
+    const validXml = generateTestDocument({
+      speakers: ['speaker1'],
+      passages: 2
+    })
+
+    await uploadTestDocument(page, {
+      name: 'initial.tei.xml',
+      content: validXml
+    })
+
+    await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(500)
+  })
+
+  test('shows toast notification on invalid file upload', async ({ page }) => {
     const invalidXml = 'invalid {{{ xml'
     const tempPath = join(process.cwd(), 'invalid-test.xml')
     writeFileSync(tempPath, invalidXml)
@@ -23,9 +39,6 @@ test.describe('Error Handling UI', () => {
   })
 
   test('toast auto-dismisses after 5 seconds', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-
     const invalidXml = 'invalid {{{ xml'
     const tempPath = join(process.cwd(), 'invalid-auto.xml')
     writeFileSync(tempPath, invalidXml)
@@ -42,12 +55,9 @@ test.describe('Error Handling UI', () => {
   })
 
   test('shows success toast on valid document upload', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-
     const validXml = generateTestDocument({
-      speakers: ['speaker1'],
-      passages: 2
+      speakers: ['speaker2'],
+      passages: 3
     })
 
     await uploadTestDocument(page, {
@@ -61,9 +71,6 @@ test.describe('Error Handling UI', () => {
   })
 
   test('dismissible toasts can be closed manually', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-
     const invalidXml = 'invalid {{{ xml'
     const tempPath = join(process.cwd(), 'invalid-close.xml')
     writeFileSync(tempPath, invalidXml)
@@ -82,9 +89,6 @@ test.describe('Error Handling UI', () => {
   })
 
   test('multiple toasts stack correctly', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-
     const fileInput = page.locator('input[type="file"]')
 
     for (let i = 0; i < 3; i++) {
