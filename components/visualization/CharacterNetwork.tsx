@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -15,6 +15,16 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ProximityAnalyzer, ProximityConfig, ProximityMethod, EdgeDirection } from '@/lib/visualization/ProximityAnalyzer';
 
 interface CharacterNetworkProps {
   onNodeClick?: (nodeId: string) => void;
@@ -37,73 +47,30 @@ const nodeTypes: NodeTypes = {
 export function CharacterNetwork({ onNodeClick }: CharacterNetworkProps) {
   const { document } = useDocumentContext();
 
-  // Extract character interaction data from TEI document
+  // Network configuration state
+  const [proximityMethod, setProximityMethod] = useState<ProximityMethod>('dialogue');
+  const [maxDistance, setMaxDistance] = useState(3);
+  const [edgeDirection, setEdgeDirection] = useState<EdgeDirection>('undirected');
+  const [edgeThreshold, setEdgeThreshold] = useState(1);
+
+  // Build proximity config
+  const config: ProximityConfig = useMemo(
+    () => ({
+      method: proximityMethod,
+      maxDistance,
+      edgeDirection,
+      edgeThreshold,
+    }),
+    [proximityMethod, maxDistance, edgeDirection, edgeThreshold]
+  );
+
+  // Extract character interaction data from TEI document using ProximityAnalyzer
   const { initialNodes, initialEdges } = useMemo(() => {
     if (!document) return { initialNodes: [], initialEdges: [] };
 
-    const dialogue = document.getDialogue();
-    const speakerMap = new Map<string, number>();
-    const interactions = new Map<string, number>();
-
-    // Count dialogue per speaker
-    dialogue.forEach((d) => {
-      if (d.who) {
-        const count = speakerMap.get(d.who) || 0;
-        speakerMap.set(d.who, count + 1);
-      }
-    });
-
-    // Track interactions between speakers
-    for (let i = 0; i < dialogue.length - 1; i++) {
-      const current = dialogue[i];
-      const next = dialogue[i + 1];
-
-      if (current.who && next.who && current.who !== next.who) {
-        const key = `${current.who}-${next.who}`;
-        const count = interactions.get(key) || 0;
-        interactions.set(key, count + 1);
-      }
-    }
-
-    // Create nodes
-    const nodes: Node[] = Array.from(speakerMap.entries()).map(([id, count]) => ({
-      id,
-      type: 'character',
-      position: { x: 0, y: 0 },
-      data: {
-        label: id.replace(/^#/, ''),
-        value: count,
-      },
-    }));
-
-    // Create edges based on interactions
-    const edges: Edge[] = Array.from(interactions.entries()).map(([key, count]) => {
-      const [source, target] = key.split('-');
-      return {
-        source,
-        target,
-        id: key,
-        label: `${count} interactions`,
-        data: { value: count },
-        animated: true,
-        style: { stroke: '#b1b1b7', strokeWidth: Math.min(count, 5) },
-      };
-    });
-
-    // Layout nodes in a circle for better visualization
-    const angleStep = (2 * Math.PI) / nodes.length;
-    const radius = Math.max(150, nodes.length * 30);
-
-    nodes.forEach((node, i) => {
-      const angle = i * angleStep;
-      node.position = {
-        x: 250 + radius * Math.cos(angle) - 75,
-        y: 250 + radius * Math.sin(angle) - 40,
-      };
-    });
-
-    return { initialNodes: nodes, initialEdges: edges };
-  }, [document]);
+    const analyzer = new ProximityAnalyzer(document);
+    return analyzer.analyze(config);
+  }, [document, config]);
 
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
@@ -136,6 +103,91 @@ export function CharacterNetwork({ onNodeClick }: CharacterNetworkProps) {
         <CardTitle>Character Network</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Configuration Panel */}
+        <div className="mb-6 space-y-6 p-4 bg-muted rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Proximity Method Selector */}
+            <div className="space-y-2">
+              <Label htmlFor="proximity-method">Proximity Method</Label>
+              <Select
+                value={proximityMethod}
+                onValueChange={(value: ProximityMethod) => setProximityMethod(value)}
+              >
+                <SelectTrigger id="proximity-method">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="paragraph">Paragraph (Same Paragraph)</SelectItem>
+                  <SelectItem value="dialogue">Dialogue (Sequential Turns)</SelectItem>
+                  <SelectItem value="word">Word Distance (Within X Words)</SelectItem>
+                  <SelectItem value="combined">Combined (Multiple Methods)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                How character relationships are detected
+              </p>
+            </div>
+
+            {/* Edge Direction Selector */}
+            <div className="space-y-2">
+              <Label htmlFor="edge-direction">Edge Direction</Label>
+              <Select
+                value={edgeDirection}
+                onValueChange={(value: EdgeDirection) => setEdgeDirection(value)}
+              >
+                <SelectTrigger id="edge-direction">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="undirected">Undirected (Relationships)</SelectItem>
+                  <SelectItem value="directed">Directed (Dialogue Flow)</SelectItem>
+                  <SelectItem value="both">Both (Combined)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                How edges are displayed in the graph
+              </p>
+            </div>
+
+            {/* Max Distance Slider */}
+            <div className="space-y-2">
+              <Label htmlFor="max-distance">
+                Max Distance: {maxDistance} {proximityMethod === 'word' ? 'words' : 'turns'}
+              </Label>
+              <Slider
+                id="max-distance"
+                min={1}
+                max={proximityMethod === 'word' ? 100 : 10}
+                step={1}
+                value={[maxDistance]}
+                onValueChange={(value) => setMaxDistance(value[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                {proximityMethod === 'word'
+                  ? 'Maximum word distance for character proximity'
+                  : 'Maximum dialogue turns between characters'}
+              </p>
+            </div>
+
+            {/* Edge Threshold Slider */}
+            <div className="space-y-2">
+              <Label htmlFor="edge-threshold">Min Strength: {edgeThreshold}</Label>
+              <Slider
+                id="edge-threshold"
+                min={1}
+                max={10}
+                step={1}
+                value={[edgeThreshold]}
+                onValueChange={(value) => setEdgeThreshold(value[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                Minimum connection strength to display edge
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ReactFlow Graph */}
         <div style={{ width: '100%', height: '500px' }}>
           <ReactFlow
             nodes={nodes}
@@ -157,10 +209,17 @@ export function CharacterNetwork({ onNodeClick }: CharacterNetworkProps) {
             />
           </ReactFlow>
         </div>
+
+        {/* Statistics */}
         <div className="mt-4 text-sm text-muted-foreground">
           <p>
             <strong>Nodes:</strong> {initialNodes.length} characters |{' '}
-            <strong>Edges:</strong> {initialEdges.length} interactions
+            <strong>Edges:</strong> {initialEdges.length} connections
+          </p>
+          <p className="mt-1">
+            <strong>Method:</strong> {proximityMethod} |{' '}
+            <strong>Direction:</strong> {edgeDirection} |{' '}
+            <strong>Threshold:</strong> {edgeThreshold}
           </p>
           <p className="mt-1">
             Drag nodes to rearrange. Scroll to zoom. Click on a character to see details.
