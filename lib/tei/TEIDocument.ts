@@ -146,6 +146,140 @@ export class TEIDocument {
     }
   }
 
+  /**
+   * Wrap a range of text in a generic tag
+   * @param passageIndex Index of the paragraph
+   * @param start Start character offset
+   * @param end End character offset
+   * @param tagName Name of the tag to wrap
+   * @param attrs Optional attributes for the tag
+   */
+  wrapTextInTag(
+    passageIndex: number,
+    start: number,
+    end: number,
+    tagName: string,
+    attrs?: Record<string, string>
+  ): void {
+    const p = this.parsed.TEI?.text?.body?.p;
+    if (!p) return;
+
+    // Handle case where p is a single paragraph (not an array)
+    const paragraphs = Array.isArray(p) ? p : [p];
+    const passage = paragraphs[passageIndex];
+    if (!passage) return;
+
+    // Get the full text content of the passage
+    const passageText = this.getPassageText(passage);
+
+    if (start >= end || end > passageText.length) {
+      return; // Invalid range
+    }
+
+    const before = passageText.substring(0, start);
+    const selected = passageText.substring(start, end);
+    const after = passageText.substring(end);
+
+    // Build the tag element with attributes
+    const tagElement: any = {
+      '#text': selected
+    };
+
+    if (attrs) {
+      for (const [key, value] of Object.entries(attrs)) {
+        tagElement[`@_${key}`] = value;
+      }
+    }
+
+    // Build new passage with mixed content
+    const newPassage: any = {};
+
+    // Add the tag
+    newPassage[tagName] = tagElement;
+
+    // Add text before if exists
+    if (before) {
+      newPassage['#text'] = before;
+    }
+
+    // Add text after if exists (uses special key for fast-xml-parser)
+    if (after) {
+      newPassage['#text_2'] = after;
+    }
+
+    // Preserve any other elements from the passage
+    this.preservePassageElements(passage, newPassage, [tagName]);
+
+    // Replace passage content
+    if (Array.isArray(this.parsed.TEI.text.body.p)) {
+      this.parsed.TEI.text.body.p[passageIndex] = newPassage;
+    } else {
+      this.parsed.TEI.text.body.p = newPassage;
+    }
+  }
+
+  /**
+   * Get full text content of a passage (including nested tags)
+   */
+  private getPassageText(passage: any): string {
+    if (typeof passage === 'string') {
+      return passage;
+    }
+
+    let text = '';
+
+    // Add #text if exists (text before first element)
+    if (passage['#text']) {
+      text += passage['#text'];
+    }
+
+    // Collect all elements in order, but we need to be careful about the order
+    // fast-xml-parser maintains order through special keys
+    // Elements are stored in insertion order in JS objects
+    const elementKeys: string[] = [];
+    for (const key in passage) {
+      if (!key.startsWith('#') && !key.startsWith('@_')) {
+        elementKeys.push(key);
+      }
+    }
+
+    // Process elements in order
+    for (const key of elementKeys) {
+      const element = passage[key];
+      const elements = Array.isArray(element) ? element : [element];
+
+      for (const el of elements) {
+        if (typeof el === 'string') {
+          text += el;
+        } else if (el['#text']) {
+          text += el['#text'];
+        }
+      }
+    }
+
+    // Add #text_2, #text_3, etc. if exists (text after elements)
+    let i = 2;
+    while (passage[`#text_${i}`]) {
+      text += passage[`#text_${i}`];
+      i++;
+    }
+
+    return text;
+  }
+
+  /**
+   * Preserve non-text elements from passage when rebuilding
+   */
+  private preservePassageElements(oldPassage: any, newPassage: any, excludeTags: string[]): void {
+    for (const key in oldPassage) {
+      if (key.startsWith('#')) continue;
+      if (key.startsWith('@_')) continue;
+      if (excludeTags.includes(key)) continue; // Skip the tag we just added
+
+      newPassage[key] = oldPassage[key];
+    }
+  }
+
   updateSpeaker(passageIndex: number, dialogueIndex: number, speakerId: string): void {
     const p = this.parsed.TEI?.text?.body?.p;
     if (!p) return;
