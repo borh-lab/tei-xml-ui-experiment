@@ -39,3 +39,46 @@ describe('TEIDocument - addSaidTag', () => {
     expect(serialized).toContain('<said who="#speaker1">');
   });
 });
+
+describe('TEIDocument - updateSpeaker', () => {
+  test('updates @who attribute on existing <said> element', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>
+        <said who="#speaker1">Hello</said>
+      </p>
+    </body>
+  </text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.updateSpeaker(0, 0, 'speaker2');
+
+    const serialized = doc.serialize();
+    expect(serialized).toContain('who="#speaker2"');
+    expect(serialized).not.toContain('who="#speaker1"');
+  });
+
+  test('handles multiple <said> elements in passage', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>
+        <said who="#speaker1">First</said>
+        <said who="#speaker1">Second</said>
+      </p>
+    </body>
+  </text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.updateSpeaker(0, 1, 'speaker2');
+
+    const serialized = doc.serialize();
+    expect(serialized).toContain('who="#speaker1">First');
+    expect(serialized).toContain('who="#speaker2">Second');
+  });
+});

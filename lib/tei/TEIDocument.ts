@@ -150,5 +150,29 @@ export class TEIDocument {
     }
   }
 
+  updateSpeaker(passageIndex: number, dialogueIndex: number, speakerId: string): void {
+    const p = this.parsed.TEI?.text?.body?.p;
+    if (!p) return;
+
+    const paragraphs = Array.isArray(p) ? p : [p];
+    const passage = paragraphs[passageIndex];
+    if (!passage) return;
+
+    // Get <said> elements from passage
+    let saidElements = passage['said'];
+    if (!saidElements) return;
+
+    // Convert to array if single element
+    const saidArray = Array.isArray(saidElements) ? saidElements : [saidElements];
+
+    // Update the specified dialogue
+    if (saidArray[dialogueIndex]) {
+      saidArray[dialogueIndex]['@_who'] = `#${speakerId}`;
+    }
+
+    // Restore to passage
+    passage['said'] = saidArray.length === 1 ? saidArray[0] : saidArray;
+  }
+
   getCharacters() { return []; }
 }
