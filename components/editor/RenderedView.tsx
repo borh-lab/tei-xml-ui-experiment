@@ -42,22 +42,38 @@ export const RenderedView = React.memo(({
     // Handle both array and single paragraph cases
     const paragraphs = Array.isArray(p) ? p : (p ? [p] : []);
 
-    // Extract text content from each paragraph
-    const text = paragraphs
-      .map(para => typeof para === 'string' ? para : (para['#text'] || ''))
-      .join(' ');
+    const extractedPassages: Passage[] = paragraphs.map((para, idx) => {
+      let content = '';
+      let speaker: string | undefined;
 
-    // For now, split by sentences to create passages
-    // In a real implementation, this would parse actual <said> tags
-    const sentenceRegex = /[^.!?]+[.!?]+/g;
-    const matches = text.match(sentenceRegex) || [];
+      if (typeof para === 'string') {
+        content = para;
+      } else {
+        // Extract text content from paragraph with <said> tags
+        content = para['#text'] || '';
 
-    const extractedPassages: Passage[] = matches.map((content, idx) => ({
-      id: `passage-${idx}`,
-      content: content.trim(),
-      speaker: undefined, // Would be populated from <said> who attribute
-      confidence: undefined // Would be populated from AI detection
-    }));
+        if (para['said']) {
+          const saidElements = Array.isArray(para['said']) ? para['said'] : [para['said']];
+
+          saidElements.forEach((said: any) => {
+            const saidText = said['#text'] || '';
+            speaker = said['@_who']?.replace('#', '');
+            content += `<span data-speaker="${speaker}">${saidText}</span>`;
+          });
+
+          if (para['#text_2']) {
+            content += para['#text_2'];
+          }
+        }
+      }
+
+      return {
+        id: `passage-${idx}`,
+        content: content.trim(),
+        speaker,
+        confidence: undefined
+      };
+    });
 
     setPassages(extractedPassages);
     setActivePassageId(null); // Reset active passage when passages change
@@ -255,15 +271,16 @@ export const RenderedView = React.memo(({
 
                 {/* Passage content */}
                 <div className={isBulkMode ? 'pl-8' : ''}>
-                  <p className="text-sm leading-relaxed">
-                    {passage.content}
-                  </p>
+                  <p
+                    className="text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: passage.content }}
+                  />
 
                   {/* Metadata */}
                   <div className="flex items-center gap-2 mt-2">
                     {passage.speaker && (
                       <Badge variant="outline" className="text-xs">
-                        {passage.speaker}
+                        Speaker: {passage.speaker}
                       </Badge>
                     )}
                     {passage.confidence !== undefined && (

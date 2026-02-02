@@ -155,4 +155,33 @@ describe('RenderedView', () => {
       expect(mockProps.onPassageClick).toHaveBeenCalledTimes(3);
     });
   });
+
+  describe('TEI Tag Rendering', () => {
+    test('renders <said> tags as styled spans', () => {
+      // Create a document with <said> tags
+      const mockDocumentWithSaid = {
+        parsed: {
+          TEI: {
+            text: {
+              body: {
+                p: {
+                  '#text': 'Before ',
+                  'said': [{ '@_who': '#darcy', '#text': 'Hello' }],
+                  '#text_2': ' World'
+                }
+              }
+            }
+          }
+        }
+      };
+
+      jest.spyOn(require('@/lib/context/DocumentContext'), 'useDocumentContext').mockReturnValue({
+        document: mockDocumentWithSaid
+      });
+
+      const { container } = render(<RenderedView {...mockProps} isBulkMode={false} />);
+
+      expect(container.querySelector('[data-speaker="darcy"]')).toBeInTheDocument();
+    });
+  });
 });
