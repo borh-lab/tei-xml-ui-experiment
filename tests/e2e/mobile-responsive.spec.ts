@@ -56,7 +56,7 @@ test.describe('Mobile Viewports', () => {
       await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
       // Verify editor loads
-      await expect(page.locator('.passage').first()).toBeVisible();
+      await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
 
       // Verify no horizontal overflow in editor
       const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -75,7 +75,7 @@ test.describe('Touch Interactions', () => {
   test('should tap to select passages', async ({ page }) => {
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
-    const firstPassage = page.locator('.passage').first();
+    const firstPassage = page.locator('[id^="passage-"]').first();
 
     // Tap to select
     await firstPassage.tap();
@@ -87,7 +87,7 @@ test.describe('Touch Interactions', () => {
   test('should swipe for navigation', async ({ page }) => {
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
-    const initialPassage = page.locator('.passage').first();
+    const initialPassage = page.locator('[id^="passage-"]').first();
     const boundingBox = await initialPassage.boundingBox();
 
     if (boundingBox) {
@@ -100,7 +100,7 @@ test.describe('Touch Interactions', () => {
       await page.mouse.up();
 
       // Verify some interaction occurred
-      await expect(page.locator('.passage').first()).toBeVisible();
+      await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
     }
   });
 
@@ -136,7 +136,7 @@ test.describe('Touch Interactions', () => {
   test('should handle long-press interactions', async ({ page }) => {
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
-    const firstPassage = page.locator('.passage').first();
+    const firstPassage = page.locator('[id^="passage-"]').first();
 
     // Long press on passage
     await firstPassage.click({ button: 'right', delay: 1000 });
@@ -154,7 +154,7 @@ test.describe('Orientation Changes', () => {
     await loadSample(page, SAMPLES.GIFT_OF_THE_MAGI);
 
     // Get initial state
-    const initialPassageCount = await page.locator('.passage').count();
+    const initialPassageCount = await page.locator('[id^="passage-"]').count();
 
     // Rotate to landscape
     await page.setViewportSize({ width: 844, height: 390 });
@@ -163,10 +163,10 @@ test.describe('Orientation Changes', () => {
     await page.waitForTimeout(500);
 
     // Verify content is still visible
-    await expect(page.locator('.passage').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
 
     // Verify passage count is preserved
-    const finalPassageCount = await page.locator('.passage').count();
+    const finalPassageCount = await page.locator('[id^="passage-"]').count();
     expect(finalPassageCount).toBe(initialPassageCount);
   });
 
@@ -177,7 +177,7 @@ test.describe('Orientation Changes', () => {
     await loadSample(page, SAMPLES.GIFT_OF_THE_MAGI);
 
     // Get initial state
-    const initialPassageCount = await page.locator('.passage').count();
+    const initialPassageCount = await page.locator('[id^="passage-"]').count();
 
     // Rotate to portrait
     await page.setViewportSize({ width: 390, height: 844 });
@@ -186,10 +186,10 @@ test.describe('Orientation Changes', () => {
     await page.waitForTimeout(500);
 
     // Verify content is still visible
-    await expect(page.locator('.passage').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
 
     // Verify passage count is preserved
-    const finalPassageCount = await page.locator('.passage').count();
+    const finalPassageCount = await page.locator('[id^="passage-"]').count();
     expect(finalPassageCount).toBe(initialPassageCount);
   });
 
@@ -223,7 +223,7 @@ test.describe('Orientation Changes', () => {
     await page.waitForTimeout(500);
 
     // Verify content adapts to landscape
-    await expect(page.locator('.passage').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
 
     // Verify no overflow
     const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -268,7 +268,7 @@ test.describe('Responsive Breakpoints', () => {
       await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
       // Verify editor loads
-      await expect(page.locator('.passage').first()).toBeVisible();
+      await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
 
       // Verify no horizontal overflow
       const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -441,7 +441,7 @@ test.describe('Mobile Performance', () => {
     // Measure tap response time
     const startTime = Date.now();
 
-    const firstPassage = page.locator('.passage').first();
+    const firstPassage = page.locator('[id^="passage-"]').first();
     await firstPassage.tap();
 
     const responseTime = Date.now() - startTime;
@@ -467,7 +467,7 @@ test.describe('Mobile Performance', () => {
     await page.waitForTimeout(1000);
 
     // Verify app is still responsive
-    await expect(page.locator('.passage').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
 
     // Check for memory issues (no crashes or extreme slowdown)
     const isResponsive = await page.evaluate(() => {
@@ -529,7 +529,7 @@ test.describe('Mobile Edge Cases', () => {
     await loadSample(page, SAMPLES.PRID_E_AND_PREJUDICE);
 
     // Verify content is properly spaced
-    const firstPassage = page.locator('.passage').first();
+    const firstPassage = page.locator('[id^="passage-"]').first();
     await expect(firstPassage).toBeVisible();
 
     // Verify no horizontal overflow
@@ -555,7 +555,7 @@ test.describe('Mobile Edge Cases', () => {
     await page.waitForTimeout(100);
 
     // Verify app is still functional
-    await expect(page.locator('.passage').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
   });
 });
 

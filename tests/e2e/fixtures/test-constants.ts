@@ -7,7 +7,7 @@ export const URLS = {
 
 /** Common selectors */
 export const SELECTORS = {
-  PASSAGE: '.passage',
+  PASSAGE: '[id^="passage-"]',
   SAMPLE_GALLERY: '[data-testid="sample-gallery"]',
   COMMAND_PALETTE: '[data-testid="command-palette"]',
   BULK_PANEL: '[data-testid="bulk-operations"]',

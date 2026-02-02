@@ -51,7 +51,7 @@ export async function verifyTEIExport(page: Page, expectedContent: string[]): Pr
  */
 export async function waitForEditorReady(page: Page): Promise<void> {
   await page.waitForLoadState('networkidle');
-  await page.waitForSelector('.passage', { timeout: 10000 });
+  await page.waitForSelector('[id^="passage-"]', { timeout: 10000 });
 }
 
 /**
@@ -140,7 +140,7 @@ export async function loadSample(page: Page, sampleName: string): Promise<void> 
  * Annotates a passage with a speaker
  */
 export async function annotatePassage(page: Page, index: number, speaker: string): Promise<void> {
-  const passage = page.locator('.passage').nth(index);
+  const passage = page.locator('[id^="passage-"]').nth(index);
   await passage.click();
 
   // Press the number key corresponding to speaker index

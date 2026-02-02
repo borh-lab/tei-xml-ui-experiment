@@ -1,0 +1,816 @@
+
+> tei-dialogue-editor@0.1.0 test:e2e
+> playwright test tests/e2e/export-validation.spec.ts
+
+
+Running 29 tests using 1 worker
+
+[1A[2K[1/29] [chromium] › tests/e2e/export-validation.spec.ts:37:7 › Export Validation - Basic Export Functionality › should download actual file, not just show success message
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:37:7 › Export Validation - Basic Export Functionality › should download actual file, not just show success message
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  1) [chromium] › tests/e2e/export-validation.spec.ts:37:7 › Export Validation - Basic Export Functionality › should download actual file, not just show success message 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.waitForSelector: Target page, context or browser has been closed
+
+       at fixtures/test-helpers.ts:139
+
+      137 |   }).catch(() => {
+      138 |     // If the check fails, try the legacy selector as fallback
+    > 139 |     return page.waitForSelector('.passage, .editor-container, main', {
+          |                 ^
+      140 |       timeout: TIMEOUTS.QUICK
+      141 |     });
+      142 |   });
+        at /home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:139:17
+        at waitForEditorReady (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:130:3)
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:9:5)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:39:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/export-validation-Export-V-da9e0-t-just-show-success-message-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/export-validation-Export-V-da9e0-t-just-show-success-message-chromium/error-context.md
+
+
+[1A[2K[2/29] [chromium] › tests/e2e/export-validation.spec.ts:57:7 › Export Validation - Basic Export Functionality › should verify correct file extension (.tei, .xml, .txt)
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:57:7 › Export Validation - Basic Export Functionality › should verify correct file extension (.tei, .xml, .txt)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  2) [chromium] › tests/e2e/export-validation.spec.ts:57:7 › Export Validation - Basic Export Functionality › should verify correct file extension (.tei, .xml, .txt) 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.waitForSelector: Target page, context or browser has been closed
+
+       at fixtures/test-helpers.ts:139
+
+      137 |   }).catch(() => {
+      138 |     // If the check fails, try the legacy selector as fallback
+    > 139 |     return page.waitForSelector('.passage, .editor-container, main', {
+          |                 ^
+      140 |       timeout: TIMEOUTS.QUICK
+      141 |     });
+      142 |   });
+        at /home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:139:17
+        at waitForEditorReady (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:130:3)
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:9:5)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:59:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/export-validation-Export-V-b3a6c-file-extension-tei-xml-txt--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/export-validation-Export-V-b3a6c-file-extension-tei-xml-txt--chromium/error-context.md
+
+
+[1A[2K[3/29] [chromium] › tests/e2e/export-validation.spec.ts:70:7 › Export Validation - Basic Export Functionality › should validate TEI XML structure
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:70:7 › Export Validation - Basic Export Functionality › should validate TEI XML structure
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  3) [chromium] › tests/e2e/export-validation.spec.ts:70:7 › Export Validation - Basic Export Functionality › should validate TEI XML structure 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.waitForSelector: Target page, context or browser has been closed
+
+       at fixtures/test-helpers.ts:139
+
+      137 |   }).catch(() => {
+      138 |     // If the check fails, try the legacy selector as fallback
+    > 139 |     return page.waitForSelector('.passage, .editor-container, main', {
+          |                 ^
+      140 |       timeout: TIMEOUTS.QUICK
+      141 |     });
+      142 |   });
+        at /home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:139:17
+        at waitForEditorReady (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:130:3)
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:9:5)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:72:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/export-validation-Export-V-c8400--validate-TEI-XML-structure-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/export-validation-Export-V-c8400--validate-TEI-XML-structure-chromium/error-context.md
+
+
+[1A[2K[4/29] [chromium] › tests/e2e/export-validation.spec.ts:95:7 › Export Validation - Basic Export Functionality › should verify XML declaration format
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:95:7 › Export Validation - Basic Export Functionality › should verify XML declaration format
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  4) [chromium] › tests/e2e/export-validation.spec.ts:95:7 › Export Validation - Basic Export Functionality › should verify XML declaration format 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: page.waitForSelector: Target page, context or browser has been closed
+
+       at fixtures/test-helpers.ts:139
+
+      137 |   }).catch(() => {
+      138 |     // If the check fails, try the legacy selector as fallback
+    > 139 |     return page.waitForSelector('.passage, .editor-container, main', {
+          |                 ^
+      140 |       timeout: TIMEOUTS.QUICK
+      141 |     });
+      142 |   });
+        at /home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:139:17
+        at waitForEditorReady (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:130:3)
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:9:5)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:97:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/export-validation-Export-V-66729-rify-XML-declaration-format-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/export-validation-Export-V-66729-rify-XML-declaration-format-chromium/error-context.md
+
+
+[1A[2K[5/29] [chromium] › tests/e2e/export-validation.spec.ts:118:7 › Export Validation - Annotation Preservation › should include speaker annotations (@who attributes)
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:118:7 › Export Validation - Annotation Preservation › should include speaker annotations (@who attributes)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  5) [chromium] › tests/e2e/export-validation.spec.ts:118:7 › Export Validation - Annotation Preservation › should include speaker annotations (@who attributes) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:114:23
+
+    Error Context: test-results/export-validation-Export-V-34762-annotations-who-attributes--chromium/error-context.md
+
+
+[1A[2K[6/29] [chromium] › tests/e2e/export-validation.spec.ts:134:7 › Export Validation - Annotation Preservation › should export all passage annotations
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:134:7 › Export Validation - Annotation Preservation › should export all passage annotations
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  6) [chromium] › tests/e2e/export-validation.spec.ts:134:7 › Export Validation - Annotation Preservation › should export all passage annotations 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:114:23
+
+    Error Context: test-results/export-validation-Export-V-03aa7-ort-all-passage-annotations-chromium/error-context.md
+
+
+[1A[2K[7/29] [chromium] › tests/e2e/export-validation.spec.ts:152:7 › Export Validation - Annotation Preservation › should verify <sp> element count matches annotations
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:152:7 › Export Validation - Annotation Preservation › should verify <sp> element count matches annotations
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  7) [chromium] › tests/e2e/export-validation.spec.ts:152:7 › Export Validation - Annotation Preservation › should verify <sp> element count matches annotations 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:114:23
+
+    Error Context: test-results/export-validation-Export-V-2b200-t-count-matches-annotations-chromium/error-context.md
+
+
+[1A[2K[8/29] [chromium] › tests/e2e/export-validation.spec.ts:170:7 › Export Validation - Annotation Preservation › should preserve speaker definitions in <castList>
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:170:7 › Export Validation - Annotation Preservation › should preserve speaker definitions in <castList>
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  8) [chromium] › tests/e2e/export-validation.spec.ts:170:7 › Export Validation - Annotation Preservation › should preserve speaker definitions in <castList> 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:114:23
+
+    Error Context: test-results/export-validation-Export-V-48f35-er-definitions-in-castList--chromium/error-context.md
+
+
+[1A[2K[9/29] [chromium] › tests/e2e/export-validation.spec.ts:193:7 › Export Validation - Export Format Variants › should export with TEI header metadata
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:193:7 › Export Validation - Export Format Variants › should export with TEI header metadata
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  9) [chromium] › tests/e2e/export-validation.spec.ts:193:7 › Export Validation - Export Format Variants › should export with TEI header metadata 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:195:23
+
+    Error Context: test-results/export-validation-Export-V-d0996-rt-with-TEI-header-metadata-chromium/error-context.md
+
+
+[1A[2K[10/29] [chromium] › tests/e2e/export-validation.spec.ts:215:7 › Export Validation - Export Format Variants › should include author information in export
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:215:7 › Export Validation - Export Format Variants › should include author information in export
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  10) [chromium] › tests/e2e/export-validation.spec.ts:215:7 › Export Validation - Export Format Variants › should include author information in export 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:217:23
+
+    Error Context: test-results/export-validation-Export-V-d79c4-uthor-information-in-export-chromium/error-context.md
+
+
+[1A[2K[11/29] [chromium] › tests/e2e/export-validation.spec.ts:229:7 › Export Validation - Export Format Variants › should export plain text option if available
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:229:7 › Export Validation - Export Format Variants › should export plain text option if available
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  11) [chromium] › tests/e2e/export-validation.spec.ts:229:7 › Export Validation - Export Format Variants › should export plain text option if available 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:231:22
+
+    Error Context: test-results/export-validation-Export-V-e6e1d-in-text-option-if-available-chromium/error-context.md
+
+
+[1A[2K[12/29] [chromium] › tests/e2e/export-validation.spec.ts:254:7 › Export Validation - Export Format Variants › should preserve XML formatting in export
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:254:7 › Export Validation - Export Format Variants › should preserve XML formatting in export
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  12) [chromium] › tests/e2e/export-validation.spec.ts:254:7 › Export Validation - Export Format Variants › should preserve XML formatting in export 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:256:22
+
+    Error Context: test-results/export-validation-Export-V-0de34-ve-XML-formatting-in-export-chromium/error-context.md
+
+
+[1A[2K[13/29] [chromium] › tests/e2e/export-validation.spec.ts:276:7 › Export Validation - Incremental Exports › should preserve annotations across multiple exports
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:276:7 › Export Validation - Incremental Exports › should preserve annotations across multiple exports
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  13) [chromium] › tests/e2e/export-validation.spec.ts:276:7 › Export Validation - Incremental Exports › should preserve annotations across multiple exports 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:278:22
+
+    Error Context: test-results/export-validation-Export-V-46f42-ons-across-multiple-exports-chromium/error-context.md
+
+
+[1A[2K[14/29] [chromium] › tests/e2e/export-validation.spec.ts:302:7 › Export Validation - Incremental Exports › should handle new annotations added between exports
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:302:7 › Export Validation - Incremental Exports › should handle new annotations added between exports
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  14) [chromium] › tests/e2e/export-validation.spec.ts:302:7 › Export Validation - Incremental Exports › should handle new annotations added between exports 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:304:22
+
+    Error Context: test-results/export-validation-Export-V-38faa-tions-added-between-exports-chromium/error-context.md
+
+
+[1A[2K[15/29] [chromium] › tests/e2e/export-validation.spec.ts:331:7 › Export Validation - Incremental Exports › should handle modified annotations
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:331:7 › Export Validation - Incremental Exports › should handle modified annotations
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  15) [chromium] › tests/e2e/export-validation.spec.ts:331:7 › Export Validation - Incremental Exports › should handle modified annotations 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:333:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/export-validation-Export-V-082e0-handle-modified-annotations-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/export-validation-Export-V-082e0-handle-modified-annotations-chromium/error-context.md
+
+
+[1A[2K[16/29] [chromium] › tests/e2e/export-validation.spec.ts:358:7 › Export Validation - Incremental Exports › should export with no annotations (minimal TEI)
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:358:7 › Export Validation - Incremental Exports › should export with no annotations (minimal TEI)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  16) [chromium] › tests/e2e/export-validation.spec.ts:358:7 › Export Validation - Incremental Exports › should export with no annotations (minimal TEI) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:360:22
+
+    Error Context: test-results/export-validation-Export-V-904d2-no-annotations-minimal-TEI--chromium/error-context.md
+
+
+[1A[2K[17/29] [chromium] › tests/e2e/export-validation.spec.ts:380:7 › Export Validation - Error Handling › should handle export failure gracefully
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:380:7 › Export Validation - Error Handling › should handle export failure gracefully
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  17) [chromium] › tests/e2e/export-validation.spec.ts:380:7 › Export Validation - Error Handling › should handle export failure gracefully 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+      382 |
+      383 |     // Navigate to editor without loading document
+    > 384 |     await page.goto('/editor');
+          |                ^
+      385 |
+      386 |     // Try to export with no document
+      387 |     const exportButton = page.getByRole('button', { name: /export/i });
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:384:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/export-validation-Export-V-a71b9-e-export-failure-gracefully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/export-validation-Export-V-a71b9-e-export-failure-gracefully-chromium/error-context.md
+
+
+[1A[2K[18/29] [chromium] › tests/e2e/export-validation.spec.ts:394:7 › Export Validation - Error Handling › should show error message, not crash
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:394:7 › Export Validation - Error Handling › should show error message, not crash
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  18) [chromium] › tests/e2e/export-validation.spec.ts:394:7 › Export Validation - Error Handling › should show error message, not crash 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:396:22
+
+    Error Context: test-results/export-validation-Export-V-bb451-how-error-message-not-crash-chromium/error-context.md
+
+
+[1A[2K[19/29] [chromium] › tests/e2e/export-validation.spec.ts:413:7 › Export Validation - Error Handling › should provide retry option after failure
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:413:7 › Export Validation - Error Handling › should provide retry option after failure
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  19) [chromium] › tests/e2e/export-validation.spec.ts:413:7 › Export Validation - Error Handling › should provide retry option after failure 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:415:22
+
+    Error Context: test-results/export-validation-Export-V-214d1--retry-option-after-failure-chromium/error-context.md
+
+
+[1A[2K[20/29] [chromium] › tests/e2e/export-validation.spec.ts:433:7 › Export Validation - Error Handling › should handle browser download restrictions
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:433:7 › Export Validation - Error Handling › should handle browser download restrictions
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  20) [chromium] › tests/e2e/export-validation.spec.ts:433:7 › Export Validation - Error Handling › should handle browser download restrictions 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:435:22
+
+    Error Context: test-results/export-validation-Export-V-d6b56-owser-download-restrictions-chromium/error-context.md
+
+
+[1A[2K[21/29] [chromium] › tests/e2e/export-validation.spec.ts:463:7 › Export Validation - Edge Cases › should handle very long document export
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:463:7 › Export Validation - Edge Cases › should handle very long document export
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  21) [chromium] › tests/e2e/export-validation.spec.ts:463:7 › Export Validation - Edge Cases › should handle very long document export 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:465:23
+
+    Error Context: test-results/export-validation-Export-V-1c49c-e-very-long-document-export-chromium/error-context.md
+
+
+[1A[2K[22/29] [chromium] › tests/e2e/export-validation.spec.ts:487:7 › Export Validation - Edge Cases › should handle special characters in annotations
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:487:7 › Export Validation - Edge Cases › should handle special characters in annotations
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  22) [chromium] › tests/e2e/export-validation.spec.ts:487:7 › Export Validation - Edge Cases › should handle special characters in annotations 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:489:22
+
+    Error Context: test-results/export-validation-Export-V-0bb5f-l-characters-in-annotations-chromium/error-context.md
+
+
+[1A[2K[23/29] [chromium] › tests/e2e/export-validation.spec.ts:502:7 › Export Validation - Edge Cases › should handle unicode characters in export
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:502:7 › Export Validation - Edge Cases › should handle unicode characters in export
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  23) [chromium] › tests/e2e/export-validation.spec.ts:502:7 › Export Validation - Edge Cases › should handle unicode characters in export 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:504:23
+
+    Error Context: test-results/export-validation-Export-V-1d610-nicode-characters-in-export-chromium/error-context.md
+
+
+[1A[2K[24/29] [chromium] › tests/e2e/export-validation.spec.ts:518:7 › Export Validation - Edge Cases › should export with consistent formatting
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:518:7 › Export Validation - Edge Cases › should export with consistent formatting
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  24) [chromium] › tests/e2e/export-validation.spec.ts:518:7 › Export Validation - Edge Cases › should export with consistent formatting 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:520:22
+
+    Error Context: test-results/export-validation-Export-V-595c9--with-consistent-formatting-chromium/error-context.md
+
+
+[1A[2K[25/29] [chromium] › tests/e2e/export-validation.spec.ts:543:7 › Export Validation - Content Verification › should verify passage content in export
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:543:7 › Export Validation - Content Verification › should verify passage content in export
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  25) [chromium] › tests/e2e/export-validation.spec.ts:543:7 › Export Validation - Content Verification › should verify passage content in export 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:545:23
+
+    Error Context: test-results/export-validation-Export-V-65e0d-y-passage-content-in-export-chromium/error-context.md
+
+
+[1A[2K[26/29] [chromium] › tests/e2e/export-validation.spec.ts:565:7 › Export Validation - Content Verification › should verify document structure completeness
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:565:7 › Export Validation - Content Verification › should verify document structure completeness
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  26) [chromium] › tests/e2e/export-validation.spec.ts:565:7 › Export Validation - Content Verification › should verify document structure completeness 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:567:22
+
+    Error Context: test-results/export-validation-Export-V-64b0f-ment-structure-completeness-chromium/error-context.md
+
+
+[1A[2K[27/29] [chromium] › tests/e2e/export-validation.spec.ts:593:7 › Export Validation - Content Verification › should verify export file size is reasonable
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:593:7 › Export Validation - Content Verification › should verify export file size is reasonable
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  27) [chromium] › tests/e2e/export-validation.spec.ts:593:7 › Export Validation - Content Verification › should verify export file size is reasonable 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:595:22
+
+    Error Context: test-results/export-validation-Export-V-36e02-ort-file-size-is-reasonable-chromium/error-context.md
+
+
+[1A[2K[28/29] [chromium] › tests/e2e/export-validation.spec.ts:607:7 › Export Validation - Integration Tests › should complete full annotation to export workflow
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:607:7 › Export Validation - Integration Tests › should complete full annotation to export workflow
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  28) [chromium] › tests/e2e/export-validation.spec.ts:607:7 › Export Validation - Integration Tests › should complete full annotation to export workflow 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       at pages/WelcomePage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto(URLS.HOME);
+         |                     ^
+       9 |     await this.page.waitForLoadState('networkidle');
+      10 |   }
+      11 |
+        at WelcomePage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/WelcomePage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:609:23
+
+    Error Context: test-results/export-validation-Export-V-ff793-notation-to-export-workflow-chromium/error-context.md
+
+
+[1A[2K[29/29] [chromium] › tests/e2e/export-validation.spec.ts:638:7 › Export Validation - Integration Tests › should handle rapid successive exports
+[1A[2K[chromium] › tests/e2e/export-validation.spec.ts:638:7 › Export Validation - Integration Tests › should handle rapid successive exports
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  29) [chromium] › tests/e2e/export-validation.spec.ts:638:7 › Export Validation - Integration Tests › should handle rapid successive exports 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/editor
+    Call log:
+    [2m  - navigating to "http://localhost:3000/editor", waiting until "load"[22m
+
+
+       at pages/EditorPage.ts:8
+
+       6 |
+       7 |   async goto() {
+    >  8 |     await this.page.goto('/editor');
+         |                     ^
+       9 |     await waitForEditorReady(this.page);
+      10 |   }
+      11 |
+        at EditorPage.goto (/home/bor/Projects/tei-xml/tests/e2e/pages/EditorPage.ts:8:21)
+        at /home/bor/Projects/tei-xml/tests/e2e/export-validation.spec.ts:640:22
+
+    Error Context: test-results/export-validation-Export-V-386bc-le-rapid-successive-exports-chromium/error-context.md
+
+
+[1A[2K  29 failed
+    [chromium] › tests/e2e/export-validation.spec.ts:37:7 › Export Validation - Basic Export Functionality › should download actual file, not just show success message 
+    [chromium] › tests/e2e/export-validation.spec.ts:57:7 › Export Validation - Basic Export Functionality › should verify correct file extension (.tei, .xml, .txt) 
+    [chromium] › tests/e2e/export-validation.spec.ts:70:7 › Export Validation - Basic Export Functionality › should validate TEI XML structure 
+    [chromium] › tests/e2e/export-validation.spec.ts:95:7 › Export Validation - Basic Export Functionality › should verify XML declaration format 
+    [chromium] › tests/e2e/export-validation.spec.ts:118:7 › Export Validation - Annotation Preservation › should include speaker annotations (@who attributes) 
+    [chromium] › tests/e2e/export-validation.spec.ts:134:7 › Export Validation - Annotation Preservation › should export all passage annotations 
+    [chromium] › tests/e2e/export-validation.spec.ts:152:7 › Export Validation - Annotation Preservation › should verify <sp> element count matches annotations 
+    [chromium] › tests/e2e/export-validation.spec.ts:170:7 › Export Validation - Annotation Preservation › should preserve speaker definitions in <castList> 
+    [chromium] › tests/e2e/export-validation.spec.ts:193:7 › Export Validation - Export Format Variants › should export with TEI header metadata 
+    [chromium] › tests/e2e/export-validation.spec.ts:215:7 › Export Validation - Export Format Variants › should include author information in export 
+    [chromium] › tests/e2e/export-validation.spec.ts:229:7 › Export Validation - Export Format Variants › should export plain text option if available 
+    [chromium] › tests/e2e/export-validation.spec.ts:254:7 › Export Validation - Export Format Variants › should preserve XML formatting in export 
+    [chromium] › tests/e2e/export-validation.spec.ts:276:7 › Export Validation - Incremental Exports › should preserve annotations across multiple exports 
+    [chromium] › tests/e2e/export-validation.spec.ts:302:7 › Export Validation - Incremental Exports › should handle new annotations added between exports 
+    [chromium] › tests/e2e/export-validation.spec.ts:331:7 › Export Validation - Incremental Exports › should handle modified annotations 
+    [chromium] › tests/e2e/export-validation.spec.ts:358:7 › Export Validation - Incremental Exports › should export with no annotations (minimal TEI) 
+    [chromium] › tests/e2e/export-validation.spec.ts:380:7 › Export Validation - Error Handling › should handle export failure gracefully 
+    [chromium] › tests/e2e/export-validation.spec.ts:394:7 › Export Validation - Error Handling › should show error message, not crash 
+    [chromium] › tests/e2e/export-validation.spec.ts:413:7 › Export Validation - Error Handling › should provide retry option after failure 
+    [chromium] › tests/e2e/export-validation.spec.ts:433:7 › Export Validation - Error Handling › should handle browser download restrictions 
+    [chromium] › tests/e2e/export-validation.spec.ts:463:7 › Export Validation - Edge Cases › should handle very long document export 
+    [chromium] › tests/e2e/export-validation.spec.ts:487:7 › Export Validation - Edge Cases › should handle special characters in annotations 
+    [chromium] › tests/e2e/export-validation.spec.ts:502:7 › Export Validation - Edge Cases › should handle unicode characters in export 
+    [chromium] › tests/e2e/export-validation.spec.ts:518:7 › Export Validation - Edge Cases › should export with consistent formatting 
+    [chromium] › tests/e2e/export-validation.spec.ts:543:7 › Export Validation - Content Verification › should verify passage content in export 
+    [chromium] › tests/e2e/export-validation.spec.ts:565:7 › Export Validation - Content Verification › should verify document structure completeness 
+    [chromium] › tests/e2e/export-validation.spec.ts:593:7 › Export Validation - Content Verification › should verify export file size is reasonable 
+    [chromium] › tests/e2e/export-validation.spec.ts:607:7 › Export Validation - Integration Tests › should complete full annotation to export workflow 
+    [chromium] › tests/e2e/export-validation.spec.ts:638:7 › Export Validation - Integration Tests › should handle rapid successive exports 

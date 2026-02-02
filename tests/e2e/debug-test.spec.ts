@@ -37,7 +37,7 @@ test('debug - what is on the page', async ({ page }) => {
   console.log('Has "Magi":', hasMagi);
 
   // Check for passages
-  const passages = await page.locator('.passage').count();
+  const passages = await page.locator('[id^="passage-"]').count();
   console.log('Number of passages:', passages);
 
   // Take screenshot

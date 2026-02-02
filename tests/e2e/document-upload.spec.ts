@@ -52,8 +52,8 @@ test.describe('Document Upload - Basic Operations', () => {
     await page.waitForTimeout(1000);
 
     // Verify document loaded successfully
-    await expect(page.locator('.passage').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
-    const passages = page.locator('.passage');
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(5);
   });
 
@@ -69,7 +69,7 @@ test.describe('Document Upload - Basic Operations', () => {
     unlinkSync(tempPath);
 
     // Should not show passages (document not loaded)
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should reject non-XML file (.json)', async ({ page }) => {
@@ -82,7 +82,7 @@ test.describe('Document Upload - Basic Operations', () => {
     await page.waitForTimeout(500);
     unlinkSync(tempPath);
 
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should reject binary file (.jpg)', async ({ page }) => {
@@ -97,7 +97,7 @@ test.describe('Document Upload - Basic Operations', () => {
       unlinkSync(tempPath);
     }
 
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should show loading indicator during upload', async ({ page }) => {
@@ -136,12 +136,12 @@ test.describe('Document Upload - Basic Operations', () => {
     // Upload first file
     await fileInput.setInputFiles(tempPath1);
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage')).toHaveCount(3);
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(3);
 
     // Upload second file immediately after
     await fileInput.setInputFiles(tempPath2);
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage')).toHaveCount(5);
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(5);
 
     // Cleanup
     unlinkSync(tempPath1);
@@ -169,8 +169,8 @@ test.describe('TEI Format Variants', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).toBeVisible();
-    const passages = page.locator('.passage');
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(5);
   });
 
@@ -188,8 +188,8 @@ test.describe('TEI Format Variants', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).toBeVisible();
-    const passages = page.locator('.passage');
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(5);
   });
 
@@ -207,8 +207,8 @@ test.describe('TEI Format Variants', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).toBeVisible();
-    await expect(page.locator('.passage')).toHaveCount(3);
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(3);
   });
 
   test('should handle TEI with custom header metadata', async ({ page }) => {
@@ -235,8 +235,8 @@ test.describe('TEI Format Variants', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).toBeVisible();
-    await expect(page.locator('.passage')).toHaveCount(1);
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(1);
   });
 
   test('should handle different TEI versions', async ({ page }) => {
@@ -253,7 +253,7 @@ test.describe('TEI Format Variants', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
   });
 });
 
@@ -273,7 +273,7 @@ test.describe('Edge Cases', () => {
 
     await page.waitForLoadState('networkidle');
     // Should load but show no passages or empty state
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should handle document with only speakers (no dialogue)', async ({ page }) => {
@@ -305,7 +305,7 @@ test.describe('Edge Cases', () => {
 
     await page.waitForLoadState('networkidle');
     // Should load successfully with no dialogue passages
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should handle large document (>100KB)', async ({ page }) => {
@@ -335,7 +335,7 @@ test.describe('Edge Cases', () => {
     await page.waitForTimeout(2000); // Additional wait for processing
 
     // Verify some passages are rendered (may not show all for performance)
-    const firstPassage = page.locator('.passage').first();
+    const firstPassage = page.locator('[id^="passage-"]').first();
     await expect(firstPassage).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
 
     unlinkSync(tempPath);
@@ -357,7 +357,7 @@ test.describe('Edge Cases', () => {
     await page.waitForTimeout(3000);
 
     // At minimum, should show first passage
-    await expect(page.locator('.passage').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
   });
 
   test('should handle documents with Unicode characters', async ({ page }) => {
@@ -377,11 +377,11 @@ test.describe('Edge Cases', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    const passages = page.locator('.passage');
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(3);
 
     // Verify Unicode content is visible
-    await expect(page.locator('.passage').first()).toContainText(/世界/);
+    await expect(page.locator('[id^="passage-"]').first()).toContainText(/世界/);
   });
 
   test('should handle documents with emoji characters', async ({ page }) => {
@@ -400,11 +400,11 @@ test.describe('Edge Cases', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    const passages = page.locator('.passage');
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(2);
 
     // Verify emoji content is visible
-    await expect(page.locator('.passage').first()).toContainText(/😊/);
+    await expect(page.locator('[id^="passage-"]').first()).toContainText(/😊/);
   });
 
   test('should handle documents with special XML characters', async ({ page }) => {
@@ -423,7 +423,7 @@ test.describe('Edge Cases', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    const passages = page.locator('.passage');
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(2);
   });
 
@@ -445,7 +445,7 @@ test.describe('Edge Cases', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
   });
 
   test('should handle document with multiple paragraphs per passage', async ({ page }) => {
@@ -465,7 +465,7 @@ test.describe('Edge Cases', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    const passages = page.locator('.passage');
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(3);
   });
 });
@@ -486,7 +486,7 @@ test.describe('Validation and Error Handling', () => {
 
     // Should not crash or show content
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should detect malformed XML with invalid entities', async ({ page }) => {
@@ -498,7 +498,7 @@ test.describe('Validation and Error Handling', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should detect missing root element', async ({ page }) => {
@@ -510,7 +510,7 @@ test.describe('Validation and Error Handling', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should reject completely empty file', async ({ page }) => {
@@ -523,7 +523,7 @@ test.describe('Validation and Error Handling', () => {
     await page.waitForTimeout(500);
     unlinkSync(tempPath);
 
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should reject file with only whitespace', async ({ page }) => {
@@ -536,7 +536,7 @@ test.describe('Validation and Error Handling', () => {
     await page.waitForTimeout(500);
     unlinkSync(tempPath);
 
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should validate required TEI elements', async ({ page }) => {
@@ -570,7 +570,7 @@ test.describe('Validation and Error Handling', () => {
     unlinkSync(tempPath);
 
     // Browser should handle encoding gracefully
-    await expect(page.locator('.passage').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[id^="passage-"]').first()).not.toBeVisible({ timeout: 2000 });
   });
 });
 
@@ -593,7 +593,7 @@ test.describe('Upload UI Interactions', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage')).toHaveCount(3);
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(3);
 
     // Try to upload invalid file
     const tempPath = join(process.cwd(), 'invalid.xml');
@@ -606,7 +606,7 @@ test.describe('Upload UI Interactions', () => {
     unlinkSync(tempPath);
 
     // Original document should still be visible
-    await expect(page.locator('.passage')).toHaveCount(3);
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(3);
   });
 
   test('should allow re-uploading different documents', async ({ page }) => {
@@ -627,7 +627,7 @@ test.describe('Upload UI Interactions', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage')).toHaveCount(2);
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(2);
 
     // Upload second document (should replace first)
     await uploadTestDocument(page, {
@@ -636,7 +636,7 @@ test.describe('Upload UI Interactions', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.passage')).toHaveCount(4);
+    await expect(page.locator('[id^="passage-"]')).toHaveCount(4);
   });
 });
 
@@ -668,7 +668,7 @@ test.describe('Performance and Stress Tests', () => {
     expect(loadTime).toBeLessThan(30000);
 
     // Should at least render first passage
-    await expect(page.locator('.passage').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
   });
 
   test('should handle multiple rapid uploads without memory issues', async ({ page }) => {
@@ -691,7 +691,7 @@ test.describe('Performance and Stress Tests', () => {
     }
 
     // Final document should be loaded correctly
-    const passages = page.locator('.passage');
+    const passages = page.locator('[id^="passage-"]');
     await expect(passages.first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
   });
 });

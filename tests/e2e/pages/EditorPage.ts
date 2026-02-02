@@ -32,10 +32,10 @@ export class EditorPage {
   }
 
   getPassage(index: number) {
-    return this.page.locator('.passage').nth(index);
+    return this.page.locator('[id^="passage-"]').nth(index);
   }
 
   getPassages() {
-    return this.page.locator('.passage');
+    return this.page.locator('[id^="passage-"]');
   }
 }

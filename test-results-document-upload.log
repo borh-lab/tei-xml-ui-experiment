@@ -1,0 +1,935 @@
+
+> tei-dialogue-editor@0.1.0 test:e2e
+> playwright test tests/e2e/document-upload.spec.ts
+
+[1A[2K[2m[WebServer] [22mReceived `true` for a non-boolean attribute `shrink-0`.
+[2m[WebServer] [22m
+[2m[WebServer] [22mIf you want to write it to the DOM, pass a string instead: shrink-0="true" or shrink-0={value.toString()}.
+
+
+Running 31 tests using 1 worker
+
+[1A[2K[1/31] [chromium] › tests/e2e/document-upload.spec.ts:37:7 › Document Upload - Basic Operations › should upload valid TEI document
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:37:7 › Document Upload - Basic Operations › should upload valid TEI document
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  1) [chromium] › tests/e2e/document-upload.spec.ts:37:7 › Document Upload - Basic Operations › should upload valid TEI document 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:45:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Document-U-febb5-d-upload-valid-TEI-document-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Document-U-febb5-d-upload-valid-TEI-document-chromium/error-context.md
+
+
+[1A[2K[2/31] [chromium] › tests/e2e/document-upload.spec.ts:60:7 › Document Upload - Basic Operations › should reject non-XML file (.txt)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:60:7 › Document Upload - Basic Operations › should reject non-XML file (.txt)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  2) [chromium] › tests/e2e/document-upload.spec.ts:60:7 › Document Upload - Basic Operations › should reject non-XML file (.txt) 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      63 |
+      64 |     const fileInput = page.locator('input[type="file"]').first();
+    > 65 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+         |                     ^
+      66 |     await fileInput.setInputFiles(tempPath);
+      67 |
+      68 |     // File input should reject the file or show no content
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:65:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Document-U-cdd7f-ld-reject-non-XML-file-txt--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Document-U-cdd7f-ld-reject-non-XML-file-txt--chromium/error-context.md
+
+
+[1A[2K[3/31] [chromium] › tests/e2e/document-upload.spec.ts:76:7 › Document Upload - Basic Operations › should reject non-XML file (.json)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:76:7 › Document Upload - Basic Operations › should reject non-XML file (.json)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  3) [chromium] › tests/e2e/document-upload.spec.ts:76:7 › Document Upload - Basic Operations › should reject non-XML file (.json) 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      79 |
+      80 |     const fileInput = page.locator('input[type="file"]').first();
+    > 81 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+         |                     ^
+      82 |     await fileInput.setInputFiles(tempPath);
+      83 |
+      84 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:81:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Document-U-089de-d-reject-non-XML-file-json--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Document-U-089de-d-reject-non-XML-file-json--chromium/error-context.md
+
+
+[1A[2K[4/31] [chromium] › tests/e2e/document-upload.spec.ts:90:7 › Document Upload - Basic Operations › should reject binary file (.jpg)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:90:7 › Document Upload - Basic Operations › should reject binary file (.jpg)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  4) [chromium] › tests/e2e/document-upload.spec.ts:90:7 › Document Upload - Basic Operations › should reject binary file (.jpg) 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      93 |
+      94 |     const fileInput = page.locator('input[type="file"]').first();
+    > 95 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+         |                     ^
+      96 |     await fileInput.setInputFiles(tempPath);
+      97 |
+      98 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:95:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Document-U-90f20-uld-reject-binary-file-jpg--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Document-U-90f20-uld-reject-binary-file-jpg--chromium/error-context.md
+
+
+[1A[2K[5/31] [chromium] › tests/e2e/document-upload.spec.ts:106:7 › Document Upload - Basic Operations › should show loading indicator during upload
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:106:7 › Document Upload - Basic Operations › should show loading indicator during upload
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  5) [chromium] › tests/e2e/document-upload.spec.ts:106:7 › Document Upload - Basic Operations › should show loading indicator during upload 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      115 |
+      116 |     const fileInput = page.locator('input[type="file"]').first();
+    > 117 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      118 |     await fileInput.setInputFiles(tempPath);
+      119 |
+      120 |     // Brief wait to observe any loading state
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:117:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Document-U-03fd9-ing-indicator-during-upload-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Document-U-03fd9-ing-indicator-during-upload-chromium/error-context.md
+
+
+[1A[2K[6/31] [chromium] › tests/e2e/document-upload.spec.ts:128:7 › Document Upload - Basic Operations › should handle rapid file uploads
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:128:7 › Document Upload - Basic Operations › should handle rapid file uploads
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  6) [chromium] › tests/e2e/document-upload.spec.ts:128:7 › Document Upload - Basic Operations › should handle rapid file uploads 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      137 |
+      138 |     const fileInput = page.locator('input[type="file"]').first();
+    > 139 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      140 |
+      141 |     // Upload first file
+      142 |     await fileInput.setInputFiles(tempPath1);
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:139:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Document-U-76e5b-d-handle-rapid-file-uploads-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Document-U-76e5b-d-handle-rapid-file-uploads-chromium/error-context.md
+
+
+[1A[2K[7/31] [chromium] › tests/e2e/document-upload.spec.ts:163:7 › TEI Format Variants › should handle TEI with namespace declarations
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:163:7 › TEI Format Variants › should handle TEI with namespace declarations
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  7) [chromium] › tests/e2e/document-upload.spec.ts:163:7 › TEI Format Variants › should handle TEI with namespace declarations 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:171:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-TEI-Format-dd049-with-namespace-declarations-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-TEI-Format-dd049-with-namespace-declarations-chromium/error-context.md
+
+
+[1A[2K[8/31] [chromium] › tests/e2e/document-upload.spec.ts:182:7 › TEI Format Variants › should handle TEI without namespace (backward compatibility)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:182:7 › TEI Format Variants › should handle TEI without namespace (backward compatibility)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  8) [chromium] › tests/e2e/document-upload.spec.ts:182:7 › TEI Format Variants › should handle TEI without namespace (backward compatibility) 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:190:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-TEI-Format-abf66-ace-backward-compatibility--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-TEI-Format-abf66-ace-backward-compatibility--chromium/error-context.md
+
+
+[1A[2K[9/31] [chromium] › tests/e2e/document-upload.spec.ts:201:7 › TEI Format Variants › should handle TEI without XML declaration
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:201:7 › TEI Format Variants › should handle TEI without XML declaration
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  9) [chromium] › tests/e2e/document-upload.spec.ts:201:7 › TEI Format Variants › should handle TEI without XML declaration 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:209:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-TEI-Format-e8d87-TEI-without-XML-declaration-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-TEI-Format-e8d87-TEI-without-XML-declaration-chromium/error-context.md
+
+
+[1A[2K[10/31] [chromium] › tests/e2e/document-upload.spec.ts:219:7 › TEI Format Variants › should handle TEI with custom header metadata
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:219:7 › TEI Format Variants › should handle TEI with custom header metadata
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  10) [chromium] › tests/e2e/document-upload.spec.ts:219:7 › TEI Format Variants › should handle TEI with custom header metadata 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:237:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-TEI-Format-4275b-with-custom-header-metadata-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-TEI-Format-4275b-with-custom-header-metadata-chromium/error-context.md
+
+
+[1A[2K[11/31] [chromium] › tests/e2e/document-upload.spec.ts:247:7 › TEI Format Variants › should handle different TEI versions
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:247:7 › TEI Format Variants › should handle different TEI versions
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  11) [chromium] › tests/e2e/document-upload.spec.ts:247:7 › TEI Format Variants › should handle different TEI versions 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:255:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-TEI-Format-7f85b-ndle-different-TEI-versions-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-TEI-Format-7f85b-ndle-different-TEI-versions-chromium/error-context.md
+
+
+[1A[2K[12/31] [chromium] › tests/e2e/document-upload.spec.ts:271:7 › Edge Cases › should handle empty document (no passages)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:271:7 › Edge Cases › should handle empty document (no passages)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  12) [chromium] › tests/e2e/document-upload.spec.ts:271:7 › Edge Cases › should handle empty document (no passages) 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:274:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-c2d23-empty-document-no-passages--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-c2d23-empty-document-no-passages--chromium/error-context.md
+
+
+[1A[2K[13/31] [chromium] › tests/e2e/document-upload.spec.ts:284:7 › Edge Cases › should handle document with only speakers (no dialogue)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:284:7 › Edge Cases › should handle document with only speakers (no dialogue)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  13) [chromium] › tests/e2e/document-upload.spec.ts:284:7 › Edge Cases › should handle document with only speakers (no dialogue) 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:306:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-7219e--only-speakers-no-dialogue--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-7219e--only-speakers-no-dialogue--chromium/error-context.md
+
+
+[1A[2K[14/31] [chromium] › tests/e2e/document-upload.spec.ts:316:7 › Edge Cases › should handle large document (>100KB)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:316:7 › Edge Cases › should handle large document (>100KB)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  14) [chromium] › tests/e2e/document-upload.spec.ts:316:7 › Edge Cases › should handle large document (>100KB) 
+
+    Error: page.evaluate: TypeError: Failed to resolve module specifier 'fs'
+        at eval (eval at evaluate (:290:30), <anonymous>:2:18)
+        at UtilityScript.evaluate (<anonymous>:292:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:290:30), <anonymous>:2:18)
+        at UtilityScript.evaluate (<anonymous>:292:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:327:33
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-14ba5-andle-large-document-100KB--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-14ba5-andle-large-document-100KB--chromium/error-context.md
+
+
+[1A[2K[15/31] [chromium] › tests/e2e/document-upload.spec.ts:350:7 › Edge Cases › should handle very large document (>500 passages)
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:350:7 › Edge Cases › should handle very large document (>500 passages)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  15) [chromium] › tests/e2e/document-upload.spec.ts:350:7 › Edge Cases › should handle very large document (>500 passages) 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:356:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-7709b-arge-document-500-passages--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-7709b-arge-document-500-passages--chromium/error-context.md
+
+
+[1A[2K[16/31] [chromium] › tests/e2e/document-upload.spec.ts:369:7 › Edge Cases › should handle documents with Unicode characters
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:369:7 › Edge Cases › should handle documents with Unicode characters
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  16) [chromium] › tests/e2e/document-upload.spec.ts:369:7 › Edge Cases › should handle documents with Unicode characters 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:380:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-5c3d0-nts-with-Unicode-characters-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-5c3d0-nts-with-Unicode-characters-chromium/error-context.md
+
+
+[1A[2K[17/31] [chromium] › tests/e2e/document-upload.spec.ts:393:7 › Edge Cases › should handle documents with emoji characters
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:393:7 › Edge Cases › should handle documents with emoji characters
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  17) [chromium] › tests/e2e/document-upload.spec.ts:393:7 › Edge Cases › should handle documents with emoji characters 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:403:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-93440-ments-with-emoji-characters-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-93440-ments-with-emoji-characters-chromium/error-context.md
+
+
+[1A[2K[18/31] [chromium] › tests/e2e/document-upload.spec.ts:416:7 › Edge Cases › should handle documents with special XML characters
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:416:7 › Edge Cases › should handle documents with special XML characters
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  18) [chromium] › tests/e2e/document-upload.spec.ts:416:7 › Edge Cases › should handle documents with special XML characters 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:426:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-11d78-with-special-XML-characters-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-11d78-with-special-XML-characters-chromium/error-context.md
+
+
+[1A[2K[19/31] [chromium] › tests/e2e/document-upload.spec.ts:436:7 › Edge Cases › should handle documents with nested XML structures
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:436:7 › Edge Cases › should handle documents with nested XML structures
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  19) [chromium] › tests/e2e/document-upload.spec.ts:436:7 › Edge Cases › should handle documents with nested XML structures 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:448:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-c5bc9--with-nested-XML-structures-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-c5bc9--with-nested-XML-structures-chromium/error-context.md
+
+
+[1A[2K[20/31] [chromium] › tests/e2e/document-upload.spec.ts:457:7 › Edge Cases › should handle document with multiple paragraphs per passage
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:457:7 › Edge Cases › should handle document with multiple paragraphs per passage
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  20) [chromium] › tests/e2e/document-upload.spec.ts:457:7 › Edge Cases › should handle document with multiple paragraphs per passage 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:468:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Edge-Cases-500ea-iple-paragraphs-per-passage-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Edge-Cases-500ea-iple-paragraphs-per-passage-chromium/error-context.md
+
+
+[1A[2K[21/31] [chromium] › tests/e2e/document-upload.spec.ts:485:7 › Validation and Error Handling › should detect malformed XML with unclosed tag
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:485:7 › Validation and Error Handling › should detect malformed XML with unclosed tag
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  21) [chromium] › tests/e2e/document-upload.spec.ts:485:7 › Validation and Error Handling › should detect malformed XML with unclosed tag 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:488:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Validation-2b632-ormed-XML-with-unclosed-tag-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Validation-2b632-ormed-XML-with-unclosed-tag-chromium/error-context.md
+
+
+[1A[2K[22/31] [chromium] › tests/e2e/document-upload.spec.ts:498:7 › Validation and Error Handling › should detect malformed XML with invalid entities
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:498:7 › Validation and Error Handling › should detect malformed XML with invalid entities
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  22) [chromium] › tests/e2e/document-upload.spec.ts:498:7 › Validation and Error Handling › should detect malformed XML with invalid entities 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:501:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Validation-16d2e-d-XML-with-invalid-entities-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Validation-16d2e-d-XML-with-invalid-entities-chromium/error-context.md
+
+
+[1A[2K[23/31] [chromium] › tests/e2e/document-upload.spec.ts:510:7 › Validation and Error Handling › should detect missing root element
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:510:7 › Validation and Error Handling › should detect missing root element
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  23) [chromium] › tests/e2e/document-upload.spec.ts:510:7 › Validation and Error Handling › should detect missing root element 
+
+    Error: locator.waitFor: Page crashed
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:513:5
+
+
+[1A[2K[24/31] [chromium] › tests/e2e/document-upload.spec.ts:522:7 › Validation and Error Handling › should reject completely empty file
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:522:7 › Validation and Error Handling › should reject completely empty file
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  24) [chromium] › tests/e2e/document-upload.spec.ts:522:7 › Validation and Error Handling › should reject completely empty file 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      525 |
+      526 |     const fileInput = page.locator('input[type="file"]').first();
+    > 527 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      528 |     await fileInput.setInputFiles(tempPath);
+      529 |
+      530 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:527:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Validation-c4ab2-eject-completely-empty-file-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Validation-c4ab2-eject-completely-empty-file-chromium/error-context.md
+
+
+[1A[2K[25/31] [chromium] › tests/e2e/document-upload.spec.ts:536:7 › Validation and Error Handling › should reject file with only whitespace
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:536:7 › Validation and Error Handling › should reject file with only whitespace
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  25) [chromium] › tests/e2e/document-upload.spec.ts:536:7 › Validation and Error Handling › should reject file with only whitespace 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      539 |
+      540 |     const fileInput = page.locator('input[type="file"]').first();
+    > 541 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      542 |     await fileInput.setInputFiles(tempPath);
+      543 |
+      544 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:541:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Validation-326c4-t-file-with-only-whitespace-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Validation-326c4-t-file-with-only-whitespace-chromium/error-context.md
+
+
+[1A[2K[26/31] [chromium] › tests/e2e/document-upload.spec.ts:550:7 › Validation and Error Handling › should validate required TEI elements
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:550:7 › Validation and Error Handling › should validate required TEI elements
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  26) [chromium] › tests/e2e/document-upload.spec.ts:550:7 › Validation and Error Handling › should validate required TEI elements 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:559:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Validation-595d0-idate-required-TEI-elements-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Validation-595d0-idate-required-TEI-elements-chromium/error-context.md
+
+
+[1A[2K[27/31] [chromium] › tests/e2e/document-upload.spec.ts:569:7 › Validation and Error Handling › should handle XML with encoding issues
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:569:7 › Validation and Error Handling › should handle XML with encoding issues
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  27) [chromium] › tests/e2e/document-upload.spec.ts:569:7 › Validation and Error Handling › should handle XML with encoding issues 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      573 |
+      574 |     const fileInput = page.locator('input[type="file"]').first();
+    > 575 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      576 |     await fileInput.setInputFiles(tempPath);
+      577 |
+      578 |     await page.waitForLoadState('networkidle');
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:575:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Validation-5bd45-le-XML-with-encoding-issues-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Validation-5bd45-le-XML-with-encoding-issues-chromium/error-context.md
+
+
+[1A[2K[28/31] [chromium] › tests/e2e/document-upload.spec.ts:592:7 › Upload UI Interactions › should preserve document state after failed upload attempt
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:592:7 › Upload UI Interactions › should preserve document state after failed upload attempt
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  28) [chromium] › tests/e2e/document-upload.spec.ts:592:7 › Upload UI Interactions › should preserve document state after failed upload attempt 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:599:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Upload-UI--3ed82-after-failed-upload-attempt-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Upload-UI--3ed82-after-failed-upload-attempt-chromium/error-context.md
+
+
+[1A[2K[29/31] [chromium] › tests/e2e/document-upload.spec.ts:622:7 › Upload UI Interactions › should allow re-uploading different documents
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:622:7 › Upload UI Interactions › should allow re-uploading different documents
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  29) [chromium] › tests/e2e/document-upload.spec.ts:622:7 › Upload UI Interactions › should allow re-uploading different documents 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:634:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Upload-UI--d31ad-loading-different-documents-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Upload-UI--d31ad-loading-different-documents-chromium/error-context.md
+
+
+[1A[2K[30/31] [chromium] › tests/e2e/document-upload.spec.ts:659:7 › Performance and Stress Tests › should handle document with 1000 passages
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:659:7 › Performance and Stress Tests › should handle document with 1000 passages
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  30) [chromium] › tests/e2e/document-upload.spec.ts:659:7 › Performance and Stress Tests › should handle document with 1000 passages 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:667:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Performanc-262de-document-with-1000-passages-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Performanc-262de-document-with-1000-passages-chromium/error-context.md
+
+
+[1A[2K[31/31] [chromium] › tests/e2e/document-upload.spec.ts:684:7 › Performance and Stress Tests › should handle multiple rapid uploads without memory issues
+[1A[2K[chromium] › tests/e2e/document-upload.spec.ts:684:7 › Performance and Stress Tests › should handle multiple rapid uploads without memory issues
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  31) [chromium] › tests/e2e/document-upload.spec.ts:684:7 › Performance and Stress Tests › should handle multiple rapid uploads without memory issues 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:39
+
+      37 |
+      38 |   // Wait with condition-based polling - check if input is attached and ready
+    > 39 |   await fileInput.waitFor({
+         |                   ^
+      40 |     state: 'attached',
+      41 |     timeout: TIMEOUTS.FILE
+      42 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:39:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:694:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/document-upload-Performanc-421cc-loads-without-memory-issues-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/document-upload-Performanc-421cc-loads-without-memory-issues-chromium/error-context.md
+
+
+[1A[2K  31 failed
+    [chromium] › tests/e2e/document-upload.spec.ts:37:7 › Document Upload - Basic Operations › should upload valid TEI document 
+    [chromium] › tests/e2e/document-upload.spec.ts:60:7 › Document Upload - Basic Operations › should reject non-XML file (.txt) 
+    [chromium] › tests/e2e/document-upload.spec.ts:76:7 › Document Upload - Basic Operations › should reject non-XML file (.json) 
+    [chromium] › tests/e2e/document-upload.spec.ts:90:7 › Document Upload - Basic Operations › should reject binary file (.jpg) 
+    [chromium] › tests/e2e/document-upload.spec.ts:106:7 › Document Upload - Basic Operations › should show loading indicator during upload 
+    [chromium] › tests/e2e/document-upload.spec.ts:128:7 › Document Upload - Basic Operations › should handle rapid file uploads 
+    [chromium] › tests/e2e/document-upload.spec.ts:163:7 › TEI Format Variants › should handle TEI with namespace declarations 
+    [chromium] › tests/e2e/document-upload.spec.ts:182:7 › TEI Format Variants › should handle TEI without namespace (backward compatibility) 
+    [chromium] › tests/e2e/document-upload.spec.ts:201:7 › TEI Format Variants › should handle TEI without XML declaration 
+    [chromium] › tests/e2e/document-upload.spec.ts:219:7 › TEI Format Variants › should handle TEI with custom header metadata 
+    [chromium] › tests/e2e/document-upload.spec.ts:247:7 › TEI Format Variants › should handle different TEI versions 
+    [chromium] › tests/e2e/document-upload.spec.ts:271:7 › Edge Cases › should handle empty document (no passages) 
+    [chromium] › tests/e2e/document-upload.spec.ts:284:7 › Edge Cases › should handle document with only speakers (no dialogue) 
+    [chromium] › tests/e2e/document-upload.spec.ts:316:7 › Edge Cases › should handle large document (>100KB) 
+    [chromium] › tests/e2e/document-upload.spec.ts:350:7 › Edge Cases › should handle very large document (>500 passages) 
+    [chromium] › tests/e2e/document-upload.spec.ts:369:7 › Edge Cases › should handle documents with Unicode characters 
+    [chromium] › tests/e2e/document-upload.spec.ts:393:7 › Edge Cases › should handle documents with emoji characters 
+    [chromium] › tests/e2e/document-upload.spec.ts:416:7 › Edge Cases › should handle documents with special XML characters 
+    [chromium] › tests/e2e/document-upload.spec.ts:436:7 › Edge Cases › should handle documents with nested XML structures 
+    [chromium] › tests/e2e/document-upload.spec.ts:457:7 › Edge Cases › should handle document with multiple paragraphs per passage 
+    [chromium] › tests/e2e/document-upload.spec.ts:485:7 › Validation and Error Handling › should detect malformed XML with unclosed tag 
+    [chromium] › tests/e2e/document-upload.spec.ts:498:7 › Validation and Error Handling › should detect malformed XML with invalid entities 
+    [chromium] › tests/e2e/document-upload.spec.ts:510:7 › Validation and Error Handling › should detect missing root element 
+    [chromium] › tests/e2e/document-upload.spec.ts:522:7 › Validation and Error Handling › should reject completely empty file 
+    [chromium] › tests/e2e/document-upload.spec.ts:536:7 › Validation and Error Handling › should reject file with only whitespace 
+    [chromium] › tests/e2e/document-upload.spec.ts:550:7 › Validation and Error Handling › should validate required TEI elements 
+    [chromium] › tests/e2e/document-upload.spec.ts:569:7 › Validation and Error Handling › should handle XML with encoding issues 
+    [chromium] › tests/e2e/document-upload.spec.ts:592:7 › Upload UI Interactions › should preserve document state after failed upload attempt 
+    [chromium] › tests/e2e/document-upload.spec.ts:622:7 › Upload UI Interactions › should allow re-uploading different documents 
+    [chromium] › tests/e2e/document-upload.spec.ts:659:7 › Performance and Stress Tests › should handle document with 1000 passages 
+    [chromium] › tests/e2e/document-upload.spec.ts:684:7 › Performance and Stress Tests › should handle multiple rapid uploads without memory issues 

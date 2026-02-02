@@ -1,0 +1,671 @@
+
+> tei-dialogue-editor@0.1.0 test:e2e
+> playwright test tests/e2e/error-scenarios.spec.ts
+
+
+Running 38 tests using 1 worker
+
+[1A[2K[1/38] [chromium] › tests/e2e/error-scenarios.spec.ts:35:7 › Invalid File Upload Errors › should reject non-XML file (.txt) with user feedback
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:35:7 › Invalid File Upload Errors › should reject non-XML file (.txt) with user feedback
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  1) [chromium] › tests/e2e/error-scenarios.spec.ts:35:7 › Invalid File Upload Errors › should reject non-XML file (.txt) with user feedback 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      42 |
+      43 |     const fileInput = page.locator('input[type="file"]').first();
+    > 44 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+         |                     ^
+      45 |     await fileInput.setInputFiles(file);
+      46 |
+      47 |     // Wait for any processing
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:44:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-9f2b5-file-txt-with-user-feedback-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-9f2b5-file-txt-with-user-feedback-chromium/error-context.md
+
+
+[1A[2K[2/38] [chromium] › tests/e2e/error-scenarios.spec.ts:57:7 › Invalid File Upload Errors › should reject binary file (.jpg)
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:57:7 › Invalid File Upload Errors › should reject binary file (.jpg)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  2) [chromium] › tests/e2e/error-scenarios.spec.ts:57:7 › Invalid File Upload Errors › should reject binary file (.jpg) 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      63 |
+      64 |     const fileInput = page.locator('input[type="file"]').first();
+    > 65 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+         |                     ^
+      66 |     await fileInput.setInputFiles(file);
+      67 |
+      68 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:65:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-d26a3-uld-reject-binary-file-jpg--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-d26a3-uld-reject-binary-file-jpg--chromium/error-context.md
+
+
+[1A[2K[3/38] [chromium] › tests/e2e/error-scenarios.spec.ts:77:7 › Invalid File Upload Errors › should reject completely empty file
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:77:7 › Invalid File Upload Errors › should reject completely empty file
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  3) [chromium] › tests/e2e/error-scenarios.spec.ts:77:7 › Invalid File Upload Errors › should reject completely empty file 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      83 |
+      84 |     const fileInput = page.locator('input[type="file"]').first();
+    > 85 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+         |                     ^
+      86 |     await fileInput.setInputFiles(file);
+      87 |
+      88 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:85:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-c39d6-eject-completely-empty-file-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-c39d6-eject-completely-empty-file-chromium/error-context.md
+
+
+[1A[2K[4/38] [chromium] › tests/e2e/error-scenarios.spec.ts:97:7 › Invalid File Upload Errors › should reject file with only whitespace
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:97:7 › Invalid File Upload Errors › should reject file with only whitespace
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  4) [chromium] › tests/e2e/error-scenarios.spec.ts:97:7 › Invalid File Upload Errors › should reject file with only whitespace 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      103 |
+      104 |     const fileInput = page.locator('input[type="file"]').first();
+    > 105 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      106 |     await fileInput.setInputFiles(file);
+      107 |
+      108 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:105:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-b3b29-t-file-with-only-whitespace-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-b3b29-t-file-with-only-whitespace-chromium/error-context.md
+
+
+[1A[2K[5/38] [chromium] › tests/e2e/error-scenarios.spec.ts:114:7 › Invalid File Upload Errors › should handle malformed XML with unclosed tag
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:114:7 › Invalid File Upload Errors › should handle malformed XML with unclosed tag
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  5) [chromium] › tests/e2e/error-scenarios.spec.ts:114:7 › Invalid File Upload Errors › should handle malformed XML with unclosed tag 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: /upload/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: /upload/i })[22m
+
+
+      125 |
+      126 |     // App should remain functional
+    > 127 |     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
+          |                                                                 ^
+      128 |   });
+      129 |
+      130 |   test('should handle malformed XML with invalid entities', async ({ page }) => {
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:127:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-da211-ormed-XML-with-unclosed-tag-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-da211-ormed-XML-with-unclosed-tag-chromium/error-context.md
+
+
+[1A[2K[6/38] [chromium] › tests/e2e/error-scenarios.spec.ts:130:7 › Invalid File Upload Errors › should handle malformed XML with invalid entities
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:130:7 › Invalid File Upload Errors › should handle malformed XML with invalid entities
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  6) [chromium] › tests/e2e/error-scenarios.spec.ts:130:7 › Invalid File Upload Errors › should handle malformed XML with invalid entities 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: /upload/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: /upload/i })[22m
+
+
+      141 |
+      142 |     // Should remain responsive
+    > 143 |     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
+          |                                                                 ^
+      144 |   });
+      145 |
+      146 |   test('should handle missing root element', async ({ page }) => {
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:143:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-9e424-d-XML-with-invalid-entities-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-9e424-d-XML-with-invalid-entities-chromium/error-context.md
+
+
+[1A[2K[7/38] [chromium] › tests/e2e/error-scenarios.spec.ts:146:7 › Invalid File Upload Errors › should handle missing root element
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:146:7 › Invalid File Upload Errors › should handle missing root element
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  7) [chromium] › tests/e2e/error-scenarios.spec.ts:146:7 › Invalid File Upload Errors › should handle missing root element 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: /upload/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: /upload/i })[22m
+
+
+      157 |
+      158 |     // Should allow user to try again
+    > 159 |     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
+          |                                                                 ^
+      160 |   });
+      161 |
+      162 |   test('should allow retry after failed upload', async ({ page }) => {
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:159:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-c2410-handle-missing-root-element-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-c2410-handle-missing-root-element-chromium/error-context.md
+
+
+[1A[2K[8/38] [chromium] › tests/e2e/error-scenarios.spec.ts:162:7 › Invalid File Upload Errors › should allow retry after failed upload
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:162:7 › Invalid File Upload Errors › should allow retry after failed upload
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  8) [chromium] › tests/e2e/error-scenarios.spec.ts:162:7 › Invalid File Upload Errors › should allow retry after failed upload 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      169 |
+      170 |     const fileInput = page.locator('input[type="file"]').first();
+    > 171 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      172 |     await fileInput.setInputFiles(invalidFile);
+      173 |
+      174 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:171:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-0e4be-w-retry-after-failed-upload-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-0e4be-w-retry-after-failed-upload-chromium/error-context.md
+
+
+[1A[2K[9/38] [chromium] › tests/e2e/error-scenarios.spec.ts:195:7 › Invalid File Upload Errors › should show user-friendly error message for invalid files
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:195:7 › Invalid File Upload Errors › should show user-friendly error message for invalid files
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  9) [chromium] › tests/e2e/error-scenarios.spec.ts:195:7 › Invalid File Upload Errors › should show user-friendly error message for invalid files 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      203 |
+      204 |     const fileInput = page.locator('input[type="file"]').first();
+    > 205 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      206 |     await fileInput.setInputFiles(file);
+      207 |
+      208 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:205:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-Fi-b808b-r-message-for-invalid-files-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Invalid-Fi-b808b-r-message-for-invalid-files-chromium/error-context.md
+
+
+[1A[2K[10/38] [chromium] › tests/e2e/error-scenarios.spec.ts:219:7 › Network Error Scenarios › should handle corpus browser sample load failure
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:219:7 › Network Error Scenarios › should handle corpus browser sample load failure
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K[11/38] [chromium] › tests/e2e/error-scenarios.spec.ts:246:7 › Network Error Scenarios › should handle missing 404 sample
+[1A[2K[12/38] [chromium] › tests/e2e/error-scenarios.spec.ts:265:7 › Network Error Scenarios › should recover from network timeout
+[1A[2K[13/38] [chromium] › tests/e2e/error-scenarios.spec.ts:299:7 › Network Error Scenarios › should work offline after initial load
+[1A[2K[14/38] [chromium] › tests/e2e/error-scenarios.spec.ts:330:7 › Missing Document Scenarios › should handle operations with no document loaded
+[1A[2K[15/38] [chromium] › tests/e2e/error-scenarios.spec.ts:345:7 › Missing Document Scenarios › should handle AI mode switch without document
+[1A[2K[16/38] [chromium] › tests/e2e/error-scenarios.spec.ts:362:7 › Missing Document Scenarios › should handle visualization access without document
+[1A[2K[17/38] [chromium] › tests/e2e/error-scenarios.spec.ts:378:7 › Missing Document Scenarios › should handle export without document
+[1A[2K[18/38] [chromium] › tests/e2e/error-scenarios.spec.ts:401:7 › Invalid TEI Structure › should handle TEI without required teiHeader
+[1A[2K  10) [chromium] › tests/e2e/error-scenarios.spec.ts:401:7 › Invalid TEI Structure › should handle TEI without required teiHeader 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:70
+
+      68 |
+      69 |   // Wait with condition-based polling - check if input is attached and ready
+    > 70 |   await fileInput.waitFor({
+         |                   ^
+      71 |     state: 'attached',
+      72 |     timeout: TIMEOUTS.FILE
+      73 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:70:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:409:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-TE-ad4d5--without-required-teiHeader-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[19/38] [chromium] › tests/e2e/error-scenarios.spec.ts:421:7 › Invalid TEI Structure › should handle TEI without body content
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:421:7 › Invalid TEI Structure › should handle TEI without body content
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  11) [chromium] › tests/e2e/error-scenarios.spec.ts:421:7 › Invalid TEI Structure › should handle TEI without body content 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:70
+
+      68 |
+      69 |   // Wait with condition-based polling - check if input is attached and ready
+    > 70 |   await fileInput.waitFor({
+         |                   ^
+      71 |     state: 'attached',
+      72 |     timeout: TIMEOUTS.FILE
+      73 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:70:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:435:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-TE-fc366-le-TEI-without-body-content-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[20/38] [chromium] › tests/e2e/error-scenarios.spec.ts:449:7 › Invalid TEI Structure › should handle TEI with speakers but no dialogue
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:449:7 › Invalid TEI Structure › should handle TEI with speakers but no dialogue
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  12) [chromium] › tests/e2e/error-scenarios.spec.ts:449:7 › Invalid TEI Structure › should handle TEI with speakers but no dialogue 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:70
+
+      68 |
+      69 |   // Wait with condition-based polling - check if input is attached and ready
+    > 70 |   await fileInput.waitFor({
+         |                   ^
+      71 |     state: 'attached',
+      72 |     timeout: TIMEOUTS.FILE
+      73 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:70:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:461:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-TE-2859c-th-speakers-but-no-dialogue-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[21/38] [chromium] › tests/e2e/error-scenarios.spec.ts:475:7 › Invalid TEI Structure › should handle TEI with malformed speaker references
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:475:7 › Invalid TEI Structure › should handle TEI with malformed speaker references
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  13) [chromium] › tests/e2e/error-scenarios.spec.ts:475:7 › Invalid TEI Structure › should handle TEI with malformed speaker references 
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+       at fixtures/test-helpers.ts:70
+
+      68 |
+      69 |   // Wait with condition-based polling - check if input is attached and ready
+    > 70 |   await fileInput.waitFor({
+         |                   ^
+      71 |     state: 'attached',
+      72 |     timeout: TIMEOUTS.FILE
+      73 |   });
+        at uploadTestDocument (/home/bor/Projects/tei-xml/tests/e2e/fixtures/test-helpers.ts:70:19)
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:485:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Invalid-TE-c0e2a-alformed-speaker-references-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[22/38] [chromium] › tests/e2e/error-scenarios.spec.ts:507:7 › Large File Performance › should handle document with 200 passages
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:507:7 › Large File Performance › should handle document with 200 passages
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  14) [chromium] › tests/e2e/error-scenarios.spec.ts:507:7 › Large File Performance › should handle document with 200 passages 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('div.p-3.rounded-lg').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('div.p-3.rounded-lg').first()[22m
+
+
+      530 |
+      531 |     // Should render at least first passage
+    > 532 |     await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+          |                                                              ^
+      533 |
+      534 |     // Should remain responsive
+      535 |     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:532:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Large-File-569b6--document-with-200-passages-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Large-File-569b6--document-with-200-passages-chromium/error-context.md
+
+
+[1A[2K[23/38] [chromium] › tests/e2e/error-scenarios.spec.ts:538:7 › Large File Performance › should handle very large document (>500 passages)
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:538:7 › Large File Performance › should handle very large document (>500 passages)
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  15) [chromium] › tests/e2e/error-scenarios.spec.ts:538:7 › Large File Performance › should handle very large document (>500 passages) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('div.p-3.rounded-lg').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('div.p-3.rounded-lg').first()[22m
+
+
+      561 |
+      562 |     // At minimum, should show first passage
+    > 563 |     await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+          |                                                              ^
+      564 |
+      565 |     // UI should remain responsive
+      566 |     await expect(page.getByRole('button', { name: /manual/i })).toBeVisible();
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:563:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Large-File-0917c-arge-document-500-passages--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Large-File-0917c-arge-document-500-passages--chromium/error-context.md
+
+
+[1A[2K[24/38] [chromium] › tests/e2e/error-scenarios.spec.ts:569:7 › Large File Performance › should handle document >100KB
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:569:7 › Large File Performance › should handle document >100KB
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  16) [chromium] › tests/e2e/error-scenarios.spec.ts:569:7 › Large File Performance › should handle document >100KB 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m100[39m
+    Received:   [31m20.373046875[39m
+
+      584 |     const sizeKB = stats.size / 1024;
+      585 |
+    > 586 |     expect(sizeKB).toBeGreaterThan(100);
+          |                    ^
+      587 |
+      588 |     const fileInput = page.locator('input[type="file"]').first();
+      589 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:586:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Large-File-1170b-hould-handle-document-100KB-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Large-File-1170b-hould-handle-document-100KB-chromium/error-context.md
+
+
+[1A[2K[25/38] [chromium] › tests/e2e/error-scenarios.spec.ts:606:7 › Large File Performance › should handle document >1MB
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:606:7 › Large File Performance › should handle document >1MB
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K[26/38] [chromium] › tests/e2e/error-scenarios.spec.ts:656:7 › Large File Performance › should handle rapid file uploads of large documents
+[1A[2K  17) [chromium] › tests/e2e/error-scenarios.spec.ts:656:7 › Large File Performance › should handle rapid file uploads of large documents 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      668 |
+      669 |     const fileInput = page.locator('input[type="file"]').first();
+    > 670 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      671 |
+      672 |     // Upload first large file
+      673 |     await fileInput.setInputFiles({
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:670:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Large-File-a5cde--uploads-of-large-documents-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Large-File-a5cde--uploads-of-large-documents-chromium/error-context.md
+
+
+[1A[2K[27/38] [chromium] › tests/e2e/error-scenarios.spec.ts:700:7 › Browser Limits and Memory › should handle low memory conditions gracefully
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:700:7 › Browser Limits and Memory › should handle low memory conditions gracefully
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K[28/38] [chromium] › tests/e2e/error-scenarios.spec.ts:729:7 › Browser Limits and Memory › should handle file size limits
+[1A[2K[29/38] [chromium] › tests/e2e/error-scenarios.spec.ts:782:7 › Browser Limits and Memory › should handle storage quota exceeded
+[1A[2K[30/38] [chromium] › tests/e2e/error-scenarios.spec.ts:812:7 › Browser Limits and Memory › should handle disabled localStorage
+[1A[2K[31/38] [chromium] › tests/e2e/error-scenarios.spec.ts:844:7 › Concurrent Operations and Race Conditions › should handle rapid mode switching
+[1A[2K[32/38] [chromium] › tests/e2e/error-scenarios.spec.ts:871:7 › Concurrent Operations and Race Conditions › should handle rapid sample loading
+[1A[2K  18) [chromium] › tests/e2e/error-scenarios.spec.ts:871:7 › Concurrent Operations and Race Conditions › should handle rapid sample loading 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Load Sample' }).first()[22m
+
+
+      878 |     for (const sample of samples) {
+      879 |       await page.getByText(sample, { exact: false }).click();
+    > 880 |       await page.getByRole('button', { name: 'Load Sample' }).first().click();
+          |                                                                       ^
+      881 |       await page.waitForTimeout(200);
+      882 |     }
+      883 |
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:880:71
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Concurrent-fe930-handle-rapid-sample-loading-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Concurrent-fe930-handle-rapid-sample-loading-chromium/error-context.md
+
+
+[1A[2K[33/38] [chromium] › tests/e2e/error-scenarios.spec.ts:893:7 › Concurrent Operations and Race Conditions › should handle rapid panel toggling
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:893:7 › Concurrent Operations and Race Conditions › should handle rapid panel toggling
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K[34/38] [chromium] › tests/e2e/error-scenarios.spec.ts:915:7 › Concurrent Operations and Race Conditions › should handle simultaneous keyboard shortcuts
+[1A[2K[35/38] [chromium] › tests/e2e/error-scenarios.spec.ts:938:7 › Recovery and User Experience › should allow document reload after error
+[1A[2K  19) [chromium] › tests/e2e/error-scenarios.spec.ts:938:7 › Recovery and User Experience › should allow document reload after error 
+
+    TimeoutError: locator.waitFor: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"]').first()[22m
+
+
+      948 |
+      949 |     const fileInput = page.locator('input[type="file"]').first();
+    > 950 |     await fileInput.waitFor({ state: 'attached', timeout: 5000 });
+          |                     ^
+      951 |     await fileInput.setInputFiles(invalidFile);
+      952 |
+      953 |     await page.waitForTimeout(500);
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:950:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/error-scenarios-Recovery-a-3a394-document-reload-after-error-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/error-scenarios-Recovery-a-3a394-document-reload-after-error-chromium/error-context.md
+
+
+[1A[2K[36/38] [chromium] › tests/e2e/error-scenarios.spec.ts:967:7 › Recovery and User Experience › should preserve app state during errors
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:967:7 › Recovery and User Experience › should preserve app state during errors
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  20) [chromium] › tests/e2e/error-scenarios.spec.ts:967:7 › Recovery and User Experience › should preserve app state during errors 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+      966 |
+      967 |   test('should preserve app state during errors', async ({ page }) => {
+    > 968 |     await page.goto(URLS.HOME);
+          |                ^
+      969 |     await page.waitForLoadState('networkidle');
+      970 |
+      971 |     // Load valid document
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:968:16
+
+    Error Context: test-results/error-scenarios-Recovery-a-df7f4-rve-app-state-during-errors-chromium/error-context.md
+
+
+[1A[2K[37/38] [chromium] › tests/e2e/error-scenarios.spec.ts:996:7 › Recovery and User Experience › should show helpful error messages
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:996:7 › Recovery and User Experience › should show helpful error messages
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  21) [chromium] › tests/e2e/error-scenarios.spec.ts:996:7 › Recovery and User Experience › should show helpful error messages 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+       995 |
+       996 |   test('should show helpful error messages', async ({ page }) => {
+    >  997 |     await page.goto(URLS.HOME);
+           |                ^
+       998 |     await page.waitForLoadState('networkidle');
+       999 |
+      1000 |     // Load invalid file
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:997:16
+
+    Error Context: test-results/error-scenarios-Recovery-a-a399a-show-helpful-error-messages-chromium/error-context.md
+
+
+[1A[2K[38/38] [chromium] › tests/e2e/error-scenarios.spec.ts:1020:7 › Recovery and User Experience › should allow user to continue working after error
+[1A[2K[chromium] › tests/e2e/error-scenarios.spec.ts:1020:7 › Recovery and User Experience › should allow user to continue working after error
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+[1A[2K  22) [chromium] › tests/e2e/error-scenarios.spec.ts:1020:7 › Recovery and User Experience › should allow user to continue working after error 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+    Call log:
+    [2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
+
+
+      1019 |
+      1020 |   test('should allow user to continue working after error', async ({ page }) => {
+    > 1021 |     await page.goto(URLS.HOME);
+           |                ^
+      1022 |     await page.waitForLoadState('networkidle');
+      1023 |
+      1024 |     // Load invalid file
+        at /home/bor/Projects/tei-xml/tests/e2e/error-scenarios.spec.ts:1021:16
+
+    Error Context: test-results/error-scenarios-Recovery-a-9e6e0-ontinue-working-after-error-chromium/error-context.md
+
+
+[1A[2K  22 failed
+    [chromium] › tests/e2e/error-scenarios.spec.ts:35:7 › Invalid File Upload Errors › should reject non-XML file (.txt) with user feedback 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:57:7 › Invalid File Upload Errors › should reject binary file (.jpg) 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:77:7 › Invalid File Upload Errors › should reject completely empty file 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:97:7 › Invalid File Upload Errors › should reject file with only whitespace 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:114:7 › Invalid File Upload Errors › should handle malformed XML with unclosed tag 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:130:7 › Invalid File Upload Errors › should handle malformed XML with invalid entities 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:146:7 › Invalid File Upload Errors › should handle missing root element 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:162:7 › Invalid File Upload Errors › should allow retry after failed upload 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:195:7 › Invalid File Upload Errors › should show user-friendly error message for invalid files 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:401:7 › Invalid TEI Structure › should handle TEI without required teiHeader 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:421:7 › Invalid TEI Structure › should handle TEI without body content 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:449:7 › Invalid TEI Structure › should handle TEI with speakers but no dialogue 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:475:7 › Invalid TEI Structure › should handle TEI with malformed speaker references 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:507:7 › Large File Performance › should handle document with 200 passages 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:538:7 › Large File Performance › should handle very large document (>500 passages) 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:569:7 › Large File Performance › should handle document >100KB 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:656:7 › Large File Performance › should handle rapid file uploads of large documents 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:871:7 › Concurrent Operations and Race Conditions › should handle rapid sample loading 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:938:7 › Recovery and User Experience › should allow document reload after error 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:967:7 › Recovery and User Experience › should preserve app state during errors 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:996:7 › Recovery and User Experience › should show helpful error messages 
+    [chromium] › tests/e2e/error-scenarios.spec.ts:1020:7 › Recovery and User Experience › should allow user to continue working after error 
+  2 skipped
+  14 passed (6.2m)

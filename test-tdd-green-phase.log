@@ -1,0 +1,19 @@
+
+> tei-dialogue-editor@0.1.0 test
+> jest tests/unit/TEIDocument.test.ts
+
+PASS tests/unit/TEIDocument.test.ts
+  TEIDocument
+    ✓ should parse basic TEI structure (4 ms)
+    ✓ should serialize back to XML (1 ms)
+    getDialogue
+      ✓ should extract <s> tags with @who attribute as dialogue (1 ms)
+      ✓ should extract <said> tags for backward compatibility (1 ms)
+      ✓ should handle <s> tags without @who gracefully
+      ✓ should return empty array when no dialogue tags present (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       6 passed, 6 total
+Snapshots:   0 total
+Time:        0.506 s, estimated 1 s
+Ran all test suites matching tests/unit/TEIDocument.test.ts.
