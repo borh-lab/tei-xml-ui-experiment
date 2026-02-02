@@ -31,19 +31,19 @@ test.describe('TEI Dialogue Editor', () => {
     // Should show auto-loaded document with annotation controls
     await expect(page.getByText(/Gift of the Magi/i)).toBeVisible();
     // Should have content visible
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible();
+    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible();
   });
 
   test.describe('Manual Annotation', () => {
     test('should tag dialogue with speaker', async ({ page }) => {
       // Select a passage (click on first paragraph div)
-      await page.locator('div.p-3.rounded-lg').first().click();
+      await page.locator('div.p-3.rounded-lg').click();
 
       // Tag with speaker
       await page.keyboard.press('1');
 
       // Should update selection
-      await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible();
+      await expect(page.locator('div.p-3.rounded-lg')).toBeVisible();
     });
 
     test('should export TEI document', async ({ page }) => {
@@ -67,7 +67,7 @@ test.describe('TEI Dialogue Editor', () => {
   test.describe('AI-Assisted Features', () => {
     test.beforeEach(async ({ page }) => {
       // Load a sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Switch to AI suggest mode
@@ -87,10 +87,10 @@ test.describe('TEI Dialogue Editor', () => {
       await expect(page.getByText(/AI Suggestions/i)).toBeVisible();
 
       // Click accept button on first suggestion
-      await page.getByRole('button', { name: /accept/i }).first().click();
+      await page.getByRole('button', { name: /accept/i }).click();
 
       // Suggestion should disappear
-      await expect(page.getByRole('button', { name: /accept/i }).first()).not.toBeVisible();
+      await expect(page.getByRole('button', { name: /accept/i })).not.toBeVisible();
     });
 
     test('should switch AI modes', async ({ page }) => {
@@ -136,7 +136,7 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('Bulk Operations', () => {
     test.beforeEach(async ({ page }) => {
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
     });
 
@@ -169,7 +169,7 @@ test.describe('TEI Dialogue Editor', () => {
   test.describe('Quick Search', () => {
     test('should open quick search with Cmd+F', async ({ page }) => {
       // Load a sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Press Cmd+F
@@ -184,7 +184,7 @@ test.describe('TEI Dialogue Editor', () => {
 
     test('should search and navigate results', async ({ page }) => {
       // Load sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Open search
@@ -201,7 +201,7 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('Character Network Visualization', () => {
     test.beforeEach(async ({ page }) => {
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
     });
 
@@ -213,7 +213,7 @@ test.describe('TEI Dialogue Editor', () => {
       await expect(page.getByText(/Character Network/i)).toBeVisible({ timeout: 5000 });
 
       // Should display character nodes
-      await expect(page.locator('.react-flow').first()).toBeVisible();
+      await expect(page.locator('.react-flow')).toBeVisible();
     });
 
     test('should show dialogue statistics', async ({ page }) => {
@@ -232,7 +232,7 @@ test.describe('TEI Dialogue Editor', () => {
   test.describe('Pattern Learning', () => {
     test('should learn from user corrections', async ({ page }) => {
       // Load sample and enable AI mode
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
       await page.getByRole('button', { name: /AI Suggest/i }).click();
 
@@ -240,7 +240,7 @@ test.describe('TEI Dialogue Editor', () => {
       await expect(page.getByText(/AI Suggestions/i)).toBeVisible({ timeout: 5000 });
 
       // Accept a suggestion
-      await page.getByRole('button', { name: /accept/i }).first().click();
+      await page.getByRole('button', { name: /accept/i }).click();
 
       // Pattern should be learned (verified internally)
       // We can test this by rejecting next suggestion from same speaker
@@ -258,7 +258,7 @@ test.describe('TEI Dialogue Editor', () => {
   test.describe('Error Handling', () => {
     test('should handle missing API key gracefully', async ({ page }) => {
       // Try to use AI features without API key
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
       await page.getByRole('button', { name: /AI Suggest/i }).click();
 
@@ -296,7 +296,7 @@ test.describe('TEI Dialogue Editor', () => {
 
     test('should capture editor with annotations', async ({ page }) => {
       // Load sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Take screenshot
@@ -308,7 +308,7 @@ test.describe('TEI Dialogue Editor', () => {
 
     test('should capture AI suggestions interface', async ({ page }) => {
       // Load sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Enable AI mode
@@ -324,7 +324,7 @@ test.describe('TEI Dialogue Editor', () => {
 
     test('should capture character network visualization', async ({ page }) => {
       // Load sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Open visualizations
@@ -355,7 +355,7 @@ test.describe('TEI Dialogue Editor', () => {
 
     test('should capture bulk operations panel', async ({ page }) => {
       // Load sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Open bulk operations
@@ -410,7 +410,7 @@ test.describe('TEI Dialogue Editor', () => {
 
     test('should have proper ARIA labels', async ({ page }) => {
       // Load sample to test editor controls
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Check for ARIA labels on buttons
@@ -444,7 +444,7 @@ test.describe('TEI Dialogue Editor', () => {
       await expect(page.getByText(/Pride and Prejudice/i)).toBeVisible({ timeout: 10000 });
 
       // Editor should be responsive
-      const firstPassage = page.locator('div.p-3.rounded-lg').first();
+      const firstPassage = page.locator('div.p-3.rounded-lg');
       await expect(firstPassage).toBeVisible({ timeout: 5000 });
     });
   });
@@ -452,7 +452,7 @@ test.describe('TEI Dialogue Editor', () => {
   test.describe('Data Persistence', () => {
     test('should remember recent documents', async ({ page }) => {
       // Load a sample
-      await page.getByText('Load Sample').first().click();
+      await page.getByText('Load Sample').click();
       await page.waitForLoadState('networkidle');
 
       // Reload the page

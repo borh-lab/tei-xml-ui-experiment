@@ -72,7 +72,7 @@ test.describe('FileUpload', () => {
     await page.waitForTimeout(500);
 
     // Verify error toast appears
-    const errorToast = page.getByText(/failed to upload|invalid|error/i).first();
+    const errorToast = page.getByText(/failed to upload|invalid|error/i);
     await expect(errorToast).toBeVisible({
       timeout: TIMEOUTS.ELEMENT_VISIBLE
     });

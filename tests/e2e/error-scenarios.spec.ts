@@ -47,7 +47,7 @@ test.describe('Invalid File Upload Errors', () => {
     await page.waitForTimeout(500);
 
     // Should not load passages
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // App should still be functional (not crashed)
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -66,7 +66,7 @@ test.describe('Invalid File Upload Errors', () => {
     await page.waitForTimeout(500);
 
     // Should not crash or load content
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Should remain in functional state
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -85,7 +85,7 @@ test.describe('Invalid File Upload Errors', () => {
     await page.waitForTimeout(500);
 
     // Should not load passages
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Should still be functional
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -104,7 +104,7 @@ test.describe('Invalid File Upload Errors', () => {
     await page.waitForTimeout(500);
 
     // Should not load passages
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
   });
 
   test('should handle malformed XML with unclosed tag', async ({ page }) => {
@@ -117,7 +117,7 @@ test.describe('Invalid File Upload Errors', () => {
 
     // Should not crash or show content
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // App should remain functional
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -133,7 +133,7 @@ test.describe('Invalid File Upload Errors', () => {
 
     // Should not crash
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Should remain responsive
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -149,7 +149,7 @@ test.describe('Invalid File Upload Errors', () => {
 
     // Should handle gracefully
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Should allow user to try again
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -169,7 +169,7 @@ test.describe('Invalid File Upload Errors', () => {
     await page.waitForTimeout(500);
 
     // Should not load
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Now upload valid file
     const validTEI = generateTestDocument({
@@ -184,7 +184,7 @@ test.describe('Invalid File Upload Errors', () => {
 
     // Should successfully load
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
   });
 
   test('should show user-friendly error message for invalid files', async ({ page }) => {
@@ -222,7 +222,7 @@ test.describe('Network Error Scenarios', () => {
 
     // Try to load a sample
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
 
     // Wait for network idle
     await page.waitForLoadState('networkidle');
@@ -274,7 +274,7 @@ test.describe('Network Error Scenarios', () => {
 
     // Try to load sample - may timeout
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
 
     // Wait for timeout or load
     await page.waitForTimeout(5000);
@@ -295,7 +295,7 @@ test.describe('Network Error Scenarios', () => {
     await page.goto(URLS.HOME);
     await page.waitForLoadState('networkidle');
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(500);
 
@@ -306,7 +306,7 @@ test.describe('Network Error Scenarios', () => {
     await page.context().setOffline(true);
 
     // Try to use editor - should work with loaded content
-    const firstPassage = page.locator('div.p-3.rounded-lg').first();
+    const firstPassage = page.locator('div.p-3.rounded-lg');
     if (await firstPassage.isVisible()) {
       await firstPassage.click();
       await page.waitForTimeout(200);
@@ -333,7 +333,7 @@ test.describe('Missing Document Scenarios', () => {
     await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
 
     // Should show gallery or helpful message
-    await expect(page.getByText(/Welcome|Sample Gallery/i).first()).toBeVisible();
+    await expect(page.getByText(/Welcome|Sample Gallery/i)).toBeVisible();
   });
 
   test('should handle AI mode switch without document', async ({ page }) => {
@@ -374,7 +374,7 @@ test.describe('Missing Document Scenarios', () => {
     await page.waitForLoadState('networkidle');
 
     // Try to export (if export button exists)
-    const exportButton = page.getByRole('button', { name: /export/i }).first();
+    const exportButton = page.getByRole('button', { name: /export/i });
 
     if (await exportButton.isVisible()) {
       const consoleErrors = await mockConsoleErrors(page);
@@ -434,7 +434,7 @@ test.describe('Invalid TEI Structure', () => {
     await page.waitForLoadState('networkidle');
 
     // Should load but show no passages or empty state
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Should remain functional
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -460,7 +460,7 @@ test.describe('Invalid TEI Structure', () => {
     await page.waitForLoadState('networkidle');
 
     // Should load successfully with no dialogue passages
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Should allow uploading a different document
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -484,7 +484,7 @@ test.describe('Invalid TEI Structure', () => {
     await page.waitForLoadState('networkidle');
 
     // Should load passages even with invalid references
-    const firstPassage = page.locator('div.p-3.rounded-lg').first();
+    const firstPassage = page.locator('div.p-3.rounded-lg');
     const isVisible = await firstPassage.isVisible({ timeout: 2000 });
 
     if (isVisible) {
@@ -523,7 +523,7 @@ test.describe('Large File Performance', () => {
     expect(loadTime).toBeLessThan(30000);
 
     // Should render at least first passage
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
 
     // Should remain responsive
     await expect(page.getByRole('button', { name: /upload/i })).toBeVisible();
@@ -554,7 +554,7 @@ test.describe('Large File Performance', () => {
     expect(loadTime).toBeLessThan(60000);
 
     // At minimum, should show first passage
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
 
     // UI should remain responsive
     await expect(page.getByRole('button', { name: /manual/i })).toBeVisible();
@@ -591,7 +591,7 @@ test.describe('Large File Performance', () => {
     await page.waitForTimeout(2000);
 
     // Should handle large file
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
 
     unlinkSync(tempPath);
   });
@@ -633,7 +633,7 @@ test.describe('Large File Performance', () => {
       expect(loadTime).toBeLessThan(60000);
 
       // Should at least render first passage
-      await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+      await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
 
       // Should not freeze or crash
       await expect(page.getByRole('button', { name: /manual/i })).toBeVisible();
@@ -679,7 +679,7 @@ test.describe('Large File Performance', () => {
     await page.waitForTimeout(500);
 
     // Should handle without memory issues
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
 
     // Cleanup
     unlinkSync(tempPath1);
@@ -709,7 +709,7 @@ test.describe('Browser Limits and Memory', () => {
 
     // Should handle sample load
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
 
     await page.waitForLoadState('networkidle');
 
@@ -752,7 +752,7 @@ test.describe('Browser Limits and Memory', () => {
         await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
 
         // Either loads successfully or shows error
-        const hasContent = await page.locator('div.p-3.rounded-lg').first().isVisible({ timeout: 1000 });
+        const hasContent = await page.locator('div.p-3.rounded-lg').isVisible({ timeout: 1000 });
         const hasError = await page.getByText(/too large|limit|size/i).isVisible({ timeout: 1000 });
 
         expect(hasContent || hasError).toBeTruthy();
@@ -791,7 +791,7 @@ test.describe('Browser Limits and Memory', () => {
 
     // Should load sample
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
 
     await page.waitForLoadState('networkidle');
 
@@ -818,7 +818,7 @@ test.describe('Browser Limits and Memory', () => {
 
     // Should load sample
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
 
     await page.waitForLoadState('networkidle');
 
@@ -835,7 +835,7 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     await page.goto(URLS.HOME);
     await page.waitForLoadState('networkidle');
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
 
     const consoleErrors = await mockConsoleErrors(page);
@@ -867,7 +867,7 @@ test.describe('Concurrent Operations and Race Conditions', () => {
 
     for (const sample of samples) {
       await page.getByText(sample, { exact: false }).click();
-      await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      await page.getByRole('button', { name: 'Load Sample' }).click();
       await page.waitForTimeout(200);
     }
 
@@ -884,7 +884,7 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     await page.goto(URLS.HOME);
     await page.waitForLoadState('networkidle');
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
 
     // Rapidly toggle panels
@@ -920,7 +920,7 @@ test.describe('Concurrent Operations and Race Conditions', () => {
 
     // Should be in valid state
     await page.waitForTimeout(500);
-    await expect(page.getByText(/TEI Dialogue Editor|Welcome|Rendered/i).first()).toBeVisible();
+    await expect(page.getByText(/TEI Dialogue Editor|Welcome|Rendered/i)).toBeVisible();
   });
 });
 
@@ -942,11 +942,11 @@ test.describe('Recovery and User Experience', () => {
     await page.waitForTimeout(500);
 
     // Should not load
-    await expect(page.locator('div.p-3.rounded-lg').first()).not.toBeVisible({ timeout: 2000 });
+    await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
 
     // Now reload valid sample
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
 
     // Should successfully load
@@ -959,7 +959,7 @@ test.describe('Recovery and User Experience', () => {
 
     // Load valid document
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
 
     // Verify loaded
@@ -1025,11 +1025,11 @@ test.describe('Recovery and User Experience', () => {
     await page.waitForLoadState('networkidle');
 
     // Should show gallery
-    await expect(page.getByText(/Sample Gallery|Welcome/i).first()).toBeVisible();
+    await expect(page.getByText(/Sample Gallery|Welcome/i)).toBeVisible();
 
     // User should be able to load another sample
     await page.getByText('The Gift of the Magi', { exact: false }).click();
-    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+    await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
 
     // Should successfully load

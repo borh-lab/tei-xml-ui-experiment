@@ -1,0 +1,1895 @@
+{
+  "config": {
+    "configFile": "/home/bor/Projects/tei-xml/playwright.config.ts",
+    "rootDir": "/home/bor/Projects/tei-xml/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/bor/Projects/tei-xml/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/bor/Projects/tei-xml/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.0",
+    "workers": 16,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "document-upload.spec.ts",
+      "file": "document-upload.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Document Upload - Basic Operations",
+          "file": "document-upload.spec.ts",
+          "line": 29,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should upload valid TEI document",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6959,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:55:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 55
+                        },
+                        "snippet": "  53 |\n  54 |     // Verify document loaded successfully\n> 55 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n     |                                                    ^\n  56 |     const passages = page.locator('[id^=\"passage-\"]');\n  57 |     await expect(passages).toHaveCount(5);\n  58 |   });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 55
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  53 |\n  54 |     // Verify document loaded successfully\n> 55 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n     |                                                    ^\n  56 |     const passages = page.locator('[id^=\"passage-\"]');\n  57 |     await expect(passages).toHaveCount(5);\n  58 |   });\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:55:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:26.978Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Document-U-febb5-d-upload-valid-TEI-document-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Document-U-febb5-d-upload-valid-TEI-document-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 55
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-cc831ef620897a30f115",
+              "file": "document-upload.spec.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "should reject non-XML file (.txt)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1626,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:34.893Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-579e4ddc9007a348708f",
+              "file": "document-upload.spec.ts",
+              "line": 60,
+              "column": 7
+            },
+            {
+              "title": "should reject non-XML file (.json)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1364,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:36.678Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-d3307d788877005d91c7",
+              "file": "document-upload.spec.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "should reject binary file (.jpg)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1410,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:38.051Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-bd8a401ab09949d47dc5",
+              "file": "document-upload.spec.ts",
+              "line": 88,
+              "column": 7
+            },
+            {
+              "title": "should show loading indicator during upload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 978,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:39.468Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-0021689b90edcc99649d",
+              "file": "document-upload.spec.ts",
+              "line": 103,
+              "column": 7
+            },
+            {
+              "title": "should handle rapid file uploads",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5902,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:139:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 139
+                        },
+                        "snippet": "  137 |     await fileInput.setInputFiles(tempPath1);\n  138 |     await page.waitForLoadState('networkidle');\n> 139 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(3);\n      |                                                    ^\n  140 |\n  141 |     // Upload second file immediately after\n  142 |     await fileInput.setInputFiles(tempPath2);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 139
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  137 |     await fileInput.setInputFiles(tempPath1);\n  138 |     await page.waitForLoadState('networkidle');\n> 139 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(3);\n      |                                                    ^\n  140 |\n  141 |     // Upload second file immediately after\n  142 |     await fileInput.setInputFiles(tempPath2);\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:139:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:40.460Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Document-U-76e5b-d-handle-rapid-file-uploads-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Document-U-76e5b-d-handle-rapid-file-uploads-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 139
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-7efd55512f8283bcc3ef",
+              "file": "document-upload.spec.ts",
+              "line": 124,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "TEI Format Variants",
+          "file": "document-upload.spec.ts",
+          "line": 152,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle TEI with namespace declarations",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5945,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:172:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 172
+                        },
+                        "snippet": "  170 |\n  171 |     await page.waitForLoadState('networkidle');\n> 172 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  173 |     const passages = page.locator('[id^=\"passage-\"]');\n  174 |     await expect(passages).toHaveCount(5);\n  175 |   });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 172
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  170 |\n  171 |     await page.waitForLoadState('networkidle');\n> 172 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  173 |     const passages = page.locator('[id^=\"passage-\"]');\n  174 |     await expect(passages).toHaveCount(5);\n  175 |   });\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:172:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:47.050Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-dd049-with-namespace-declarations-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-dd049-with-namespace-declarations-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 172
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-697958a8d7d9269c0934",
+              "file": "document-upload.spec.ts",
+              "line": 158,
+              "column": 7
+            },
+            {
+              "title": "should handle TEI without namespace (backward compatibility)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5987,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:191:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 191
+                        },
+                        "snippet": "  189 |\n  190 |     await page.waitForLoadState('networkidle');\n> 191 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  192 |     const passages = page.locator('[id^=\"passage-\"]');\n  193 |     await expect(passages).toHaveCount(5);\n  194 |   });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 191
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  189 |\n  190 |     await page.waitForLoadState('networkidle');\n> 191 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  192 |     const passages = page.locator('[id^=\"passage-\"]');\n  193 |     await expect(passages).toHaveCount(5);\n  194 |   });\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:191:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:42:53.857Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-abf66-ace-backward-compatibility--chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-abf66-ace-backward-compatibility--chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 191
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-dfe476ac3f1fdf09b74f",
+              "file": "document-upload.spec.ts",
+              "line": 177,
+              "column": 7
+            },
+            {
+              "title": "should handle TEI without XML declaration",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5995,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:210:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 210
+                        },
+                        "snippet": "  208 |\n  209 |     await page.waitForLoadState('networkidle');\n> 210 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  211 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(3);\n  212 |   });\n  213 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 210
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  208 |\n  209 |     await page.waitForLoadState('networkidle');\n> 210 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  211 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(3);\n  212 |   });\n  213 |\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:210:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:00.838Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-e8d87-TEI-without-XML-declaration-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-e8d87-TEI-without-XML-declaration-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 210
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-5519ae80a7bd66ef20e4",
+              "file": "document-upload.spec.ts",
+              "line": 196,
+              "column": 7
+            },
+            {
+              "title": "should handle TEI with custom header metadata",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5943,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:238:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 238
+                        },
+                        "snippet": "  236 |\n  237 |     await page.waitForLoadState('networkidle');\n> 238 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  239 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(1);\n  240 |   });\n  241 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 238
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  236 |\n  237 |     await page.waitForLoadState('networkidle');\n> 238 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  239 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(1);\n  240 |   });\n  241 |\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:238:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:07.816Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-4275b-with-custom-header-metadata-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-4275b-with-custom-header-metadata-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 238
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-600957c9f0c5a8ce72a7",
+              "file": "document-upload.spec.ts",
+              "line": 214,
+              "column": 7
+            },
+            {
+              "title": "should handle different TEI versions",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5989,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:256:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 256
+                        },
+                        "snippet": "  254 |\n  255 |     await page.waitForLoadState('networkidle');\n> 256 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  257 |   });\n  258 | });\n  259 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 256
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  254 |\n  255 |     await page.waitForLoadState('networkidle');\n> 256 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  257 |   });\n  258 | });\n  259 |\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:256:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:14.869Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-7f85b-ndle-different-TEI-versions-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-TEI-Format-7f85b-ndle-different-TEI-versions-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 256
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-bfcde1b38e4cc0706132",
+              "file": "document-upload.spec.ts",
+              "line": 242,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Edge Cases",
+          "file": "document-upload.spec.ts",
+          "line": 260,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle empty document (no passages)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1177,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:21.820Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-30a3fad01fe0ceb55c2c",
+              "file": "document-upload.spec.ts",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "should handle document with only speakers (no dialogue)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 919,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:23.147Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-73b5ad2287888e643272",
+              "file": "document-upload.spec.ts",
+              "line": 279,
+              "column": 7
+            },
+            {
+              "title": "should handle large document (>100KB)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 857,
+                      "error": {
+                        "message": "Error: page.evaluate: TypeError: Failed to resolve module specifier 'fs'\n    at eval (eval at evaluate (:290:30), <anonymous>:2:18)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+                        "stack": "Error: page.evaluate: TypeError: Failed to resolve module specifier 'fs'\n    at eval (eval at evaluate (:290:30), <anonymous>:2:18)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at evaluate (:290:30), <anonymous>:2:18)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:322:33",
+                        "location": {
+                          "file": "eval at evaluate (:290:30), <anonymous>",
+                          "column": 18,
+                          "line": 2
+                        }
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "eval at evaluate (:290:30), <anonymous>",
+                            "column": 18,
+                            "line": 2
+                          },
+                          "message": "Error: page.evaluate: TypeError: Failed to resolve module specifier 'fs'\n    at eval (eval at evaluate (:290:30), <anonymous>:2:18)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at evaluate (:290:30), <anonymous>:2:18)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:322:33"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:24.078Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-14ba5-andle-large-document-100KB--chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-14ba5-andle-large-document-100KB--chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "eval at evaluate (:290:30), <anonymous>",
+                        "column": 18,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-710ae6b01e555c9c38bf",
+              "file": "document-upload.spec.ts",
+              "line": 311,
+              "column": 7
+            },
+            {
+              "title": "should handle very large document (>500 passages)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8995,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:360:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 360
+                        },
+                        "snippet": "  358 |\n  359 |     // At minimum, should show first passage\n> 360 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n      |                                                    ^\n  361 |   });\n  362 |\n  363 |   test('should handle documents with Unicode characters', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 360
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  358 |\n  359 |     // At minimum, should show first passage\n> 360 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n      |                                                    ^\n  361 |   });\n  362 |\n  363 |   test('should handle documents with Unicode characters', async ({ page }) => {\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:360:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:25.904Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-7709b-arge-document-500-passages--chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-7709b-arge-document-500-passages--chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 360
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-d8fb4810f824146e4c48",
+              "file": "document-upload.spec.ts",
+              "line": 344,
+              "column": 7
+            },
+            {
+              "title": "should handle documents with Unicode characters",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5928,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:381:28",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 28,
+                          "line": 381
+                        },
+                        "snippet": "  379 |     await page.waitForLoadState('networkidle');\n  380 |     const passages = page.locator('[id^=\"passage-\"]');\n> 381 |     await expect(passages).toHaveCount(3);\n      |                            ^\n  382 |\n  383 |     // Verify Unicode content is visible\n  384 |     await expect(page.locator('[id^=\"passage-\"]')).toContainText(/世界/);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 28,
+                            "line": 381
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  379 |     await page.waitForLoadState('networkidle');\n  380 |     const passages = page.locator('[id^=\"passage-\"]');\n> 381 |     await expect(passages).toHaveCount(3);\n      |                            ^\n  382 |\n  383 |     // Verify Unicode content is visible\n  384 |     await expect(page.locator('[id^=\"passage-\"]')).toContainText(/世界/);\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:381:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:35.927Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-5c3d0-nts-with-Unicode-characters-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-5c3d0-nts-with-Unicode-characters-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 28,
+                        "line": 381
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-570703c03bf768e1fbd3",
+              "file": "document-upload.spec.ts",
+              "line": 363,
+              "column": 7
+            },
+            {
+              "title": "should handle documents with emoji characters",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5928,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:404:28",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 28,
+                          "line": 404
+                        },
+                        "snippet": "  402 |     await page.waitForLoadState('networkidle');\n  403 |     const passages = page.locator('[id^=\"passage-\"]');\n> 404 |     await expect(passages).toHaveCount(2);\n      |                            ^\n  405 |\n  406 |     // Verify emoji content is visible\n  407 |     await expect(page.locator('[id^=\"passage-\"]')).toContainText(/😊/);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 28,
+                            "line": 404
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  402 |     await page.waitForLoadState('networkidle');\n  403 |     const passages = page.locator('[id^=\"passage-\"]');\n> 404 |     await expect(passages).toHaveCount(2);\n      |                            ^\n  405 |\n  406 |     // Verify emoji content is visible\n  407 |     await expect(page.locator('[id^=\"passage-\"]')).toContainText(/😊/);\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:404:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:42.934Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-93440-ments-with-emoji-characters-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-93440-ments-with-emoji-characters-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 28,
+                        "line": 404
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-574b71bcd889dca562c9",
+              "file": "document-upload.spec.ts",
+              "line": 387,
+              "column": 7
+            },
+            {
+              "title": "should handle documents with special XML characters",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5963,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:427:28",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 28,
+                          "line": 427
+                        },
+                        "snippet": "  425 |     await page.waitForLoadState('networkidle');\n  426 |     const passages = page.locator('[id^=\"passage-\"]');\n> 427 |     await expect(passages).toHaveCount(2);\n      |                            ^\n  428 |   });\n  429 |\n  430 |   test('should handle documents with nested XML structures', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 28,
+                            "line": 427
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  425 |     await page.waitForLoadState('networkidle');\n  426 |     const passages = page.locator('[id^=\"passage-\"]');\n> 427 |     await expect(passages).toHaveCount(2);\n      |                            ^\n  428 |   });\n  429 |\n  430 |   test('should handle documents with nested XML structures', async ({ page }) => {\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:427:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:49.905Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-11d78-with-special-XML-characters-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-11d78-with-special-XML-characters-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 28,
+                        "line": 427
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-27434a775294ea4ac0c6",
+              "file": "document-upload.spec.ts",
+              "line": 410,
+              "column": 7
+            },
+            {
+              "title": "should handle documents with nested XML structures",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5926,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:448:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 448
+                        },
+                        "snippet": "  446 |\n  447 |     await page.waitForLoadState('networkidle');\n> 448 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  449 |   });\n  450 |\n  451 |   test('should handle document with multiple paragraphs per passage', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 448
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  446 |\n  447 |     await page.waitForLoadState('networkidle');\n> 448 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible();\n      |                                                    ^\n  449 |   });\n  450 |\n  451 |   test('should handle document with multiple paragraphs per passage', async ({ page }) => {\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:448:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:43:56.789Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-c5bc9--with-nested-XML-structures-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-c5bc9--with-nested-XML-structures-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 448
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-61019198198ac0c71070",
+              "file": "document-upload.spec.ts",
+              "line": 430,
+              "column": 7
+            },
+            {
+              "title": "should handle document with multiple paragraphs per passage",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5983,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:469:28",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 28,
+                          "line": 469
+                        },
+                        "snippet": "  467 |     await page.waitForLoadState('networkidle');\n  468 |     const passages = page.locator('[id^=\"passage-\"]');\n> 469 |     await expect(passages).toHaveCount(3);\n      |                            ^\n  470 |   });\n  471 | });\n  472 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 28,
+                            "line": 469
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  467 |     await page.waitForLoadState('networkidle');\n  468 |     const passages = page.locator('[id^=\"passage-\"]');\n> 469 |     await expect(passages).toHaveCount(3);\n      |                            ^\n  470 |   });\n  471 | });\n  472 |\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:469:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:03.646Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-500ea-iple-paragraphs-per-passage-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Edge-Cases-500ea-iple-paragraphs-per-passage-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 28,
+                        "line": 469
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-ae604fb698197b76b24f",
+              "file": "document-upload.spec.ts",
+              "line": 451,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Validation and Error Handling",
+          "file": "document-upload.spec.ts",
+          "line": 473,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should detect malformed XML with unclosed tag",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1386,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:10.794Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-419ce36204f0f58cbf86",
+              "file": "document-upload.spec.ts",
+              "line": 479,
+              "column": 7
+            },
+            {
+              "title": "should detect malformed XML with invalid entities",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 978,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:12.353Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-77b90dcc887b976984b2",
+              "file": "document-upload.spec.ts",
+              "line": 492,
+              "column": 7
+            },
+            {
+              "title": "should detect missing root element",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1139,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:13.341Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-28c2d91ff3a1a4154ca2",
+              "file": "document-upload.spec.ts",
+              "line": 504,
+              "column": 7
+            },
+            {
+              "title": "should reject completely empty file",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1369,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:14.490Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-e4f990197d14300c0a1f",
+              "file": "document-upload.spec.ts",
+              "line": 516,
+              "column": 7
+            },
+            {
+              "title": "should reject file with only whitespace",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1365,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:15.873Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-8c3a0396c2c29912b72f",
+              "file": "document-upload.spec.ts",
+              "line": 529,
+              "column": 7
+            },
+            {
+              "title": "should validate required TEI elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 925,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:17.249Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-d4d69b9a1655f8a4369e",
+              "file": "document-upload.spec.ts",
+              "line": 542,
+              "column": 7
+            },
+            {
+              "title": "should handle XML with encoding issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 958,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:18.182Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-e9d3f743d569f7d4d9b5",
+              "file": "document-upload.spec.ts",
+              "line": 561,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Upload UI Interactions",
+          "file": "document-upload.spec.ts",
+          "line": 577,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should preserve document state after failed upload attempt",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5846,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:596:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 596
+                        },
+                        "snippet": "  594 |\n  595 |     await page.waitForLoadState('networkidle');\n> 596 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(3);\n      |                                                    ^\n  597 |\n  598 |     // Try to upload invalid file\n  599 |     const tempPath = join(process.cwd(), 'invalid.xml');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 596
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  594 |\n  595 |     await page.waitForLoadState('networkidle');\n> 596 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(3);\n      |                                                    ^\n  597 |\n  598 |     // Try to upload invalid file\n  599 |     const tempPath = join(process.cwd(), 'invalid.xml');\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:596:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:19.147Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Upload-UI--3ed82-after-failed-upload-attempt-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Upload-UI--3ed82-after-failed-upload-attempt-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 596
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-ad66b7984e9b8afc8a32",
+              "file": "document-upload.spec.ts",
+              "line": 583,
+              "column": 7
+            },
+            {
+              "title": "should allow re-uploading different documents",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5960,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:630:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 630
+                        },
+                        "snippet": "  628 |\n  629 |     await page.waitForLoadState('networkidle');\n> 630 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(2);\n      |                                                    ^\n  631 |\n  632 |     // Upload second document (should replace first)\n  633 |     await uploadTestDocument(page, {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 630
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[id^=\"passage-\"]')\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\u001b[2m    8 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  628 |\n  629 |     await page.waitForLoadState('networkidle');\n> 630 |     await expect(page.locator('[id^=\"passage-\"]')).toHaveCount(2);\n      |                                                    ^\n  631 |\n  632 |     // Upload second document (should replace first)\n  633 |     await uploadTestDocument(page, {\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:630:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:25.830Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Upload-UI--d31ad-loading-different-documents-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Upload-UI--d31ad-loading-different-documents-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 630
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-acad10e3cb9f7d5bad45",
+              "file": "document-upload.spec.ts",
+              "line": 612,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Performance and Stress Tests",
+          "file": "document-upload.spec.ts",
+          "line": 643,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle document with 1000 passages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8955,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:671:52",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 52,
+                          "line": 671
+                        },
+                        "snippet": "  669 |\n  670 |     // Should at least render first passage\n> 671 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n      |                                                    ^\n  672 |   });\n  673 |\n  674 |   test('should handle multiple rapid uploads without memory issues', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 52,
+                            "line": 671
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  669 |\n  670 |     // Should at least render first passage\n> 671 |     await expect(page.locator('[id^=\"passage-\"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n      |                                                    ^\n  672 |   });\n  673 |\n  674 |   test('should handle multiple rapid uploads without memory issues', async ({ page }) => {\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:671:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:32.819Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Performanc-262de-document-with-1000-passages-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Performanc-262de-document-with-1000-passages-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 52,
+                        "line": 671
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-fd054df7bb152132fe3f",
+              "file": "document-upload.spec.ts",
+              "line": 649,
+              "column": 7
+            },
+            {
+              "title": "should handle multiple rapid uploads without memory issues",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8497,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:695:28",
+                        "location": {
+                          "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                          "column": 28,
+                          "line": 695
+                        },
+                        "snippet": "  693 |     // Final document should be loaded correctly\n  694 |     const passages = page.locator('[id^=\"passage-\"]');\n> 695 |     await expect(passages).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n      |                            ^\n  696 |   });\n  697 | });\n  698 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                            "column": 28,
+                            "line": 695
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[id^=\"passage-\"]')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[id^=\"passage-\"]')\u001b[22m\n\n\n  693 |     // Final document should be loaded correctly\n  694 |     const passages = page.locator('[id^=\"passage-\"]');\n> 695 |     await expect(passages).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });\n      |                            ^\n  696 |   });\n  697 | });\n  698 |\n    at /home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts:695:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-02-02T02:44:42.708Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Performanc-421cc-loads-without-memory-issues-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/bor/Projects/tei-xml/test-results/document-upload-Performanc-421cc-loads-without-memory-issues-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/bor/Projects/tei-xml/tests/e2e/document-upload.spec.ts",
+                        "column": 28,
+                        "line": 695
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c8b0798226355fa8f249-6b5dfbea3f5848ba4ae6",
+              "file": "document-upload.spec.ts",
+              "line": 674,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-02T02:42:25.809Z",
+    "duration": 145629.583,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 18,
+    "flaky": 0
+  }
+}

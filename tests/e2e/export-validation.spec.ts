@@ -343,7 +343,7 @@ test.describe('Export Validation - Incremental Exports', () => {
 
     // Modify annotation (change speaker)
     // Click the passage again and assign different speaker
-    await page.locator('[id^="passage-"]').first().click();
+    await page.locator('[id^="passage-"]').click();
     await page.keyboard.press('2'); // Different speaker
 
     // Second export
@@ -548,7 +548,7 @@ test.describe('Export Validation - Content Verification', () => {
     const editorPage = new EditorPage(page);
 
     // Get first passage text from UI
-    const firstPassage = page.locator('[id^="passage-"]').first();
+    const firstPassage = page.locator('[id^="passage-"]');
     const passageText = await firstPassage.textContent();
 
     // Export

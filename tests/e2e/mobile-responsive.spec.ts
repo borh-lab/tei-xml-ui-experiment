@@ -56,7 +56,7 @@ test.describe('Mobile Viewports', () => {
       await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
       // Verify editor loads
-      await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+      await expect(page.locator('[id^="passage-"]')).toBeVisible();
 
       // Verify no horizontal overflow in editor
       const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -75,7 +75,7 @@ test.describe('Touch Interactions', () => {
   test('should tap to select passages', async ({ page }) => {
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
-    const firstPassage = page.locator('[id^="passage-"]').first();
+    const firstPassage = page.locator('[id^="passage-"]');
 
     // Tap to select
     await firstPassage.tap();
@@ -87,7 +87,7 @@ test.describe('Touch Interactions', () => {
   test('should swipe for navigation', async ({ page }) => {
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
-    const initialPassage = page.locator('[id^="passage-"]').first();
+    const initialPassage = page.locator('[id^="passage-"]');
     const boundingBox = await initialPassage.boundingBox();
 
     if (boundingBox) {
@@ -100,7 +100,7 @@ test.describe('Touch Interactions', () => {
       await page.mouse.up();
 
       // Verify some interaction occurred
-      await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+      await expect(page.locator('[id^="passage-"]')).toBeVisible();
     }
   });
 
@@ -136,7 +136,7 @@ test.describe('Touch Interactions', () => {
   test('should handle long-press interactions', async ({ page }) => {
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
-    const firstPassage = page.locator('[id^="passage-"]').first();
+    const firstPassage = page.locator('[id^="passage-"]');
 
     // Long press on passage
     await firstPassage.click({ button: 'right', delay: 1000 });
@@ -163,7 +163,7 @@ test.describe('Orientation Changes', () => {
     await page.waitForTimeout(500);
 
     // Verify content is still visible
-    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]')).toBeVisible();
 
     // Verify passage count is preserved
     const finalPassageCount = await page.locator('[id^="passage-"]').count();
@@ -186,7 +186,7 @@ test.describe('Orientation Changes', () => {
     await page.waitForTimeout(500);
 
     // Verify content is still visible
-    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]')).toBeVisible();
 
     // Verify passage count is preserved
     const finalPassageCount = await page.locator('[id^="passage-"]').count();
@@ -223,7 +223,7 @@ test.describe('Orientation Changes', () => {
     await page.waitForTimeout(500);
 
     // Verify content adapts to landscape
-    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]')).toBeVisible();
 
     // Verify no overflow
     const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -268,7 +268,7 @@ test.describe('Responsive Breakpoints', () => {
       await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
       // Verify editor loads
-      await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+      await expect(page.locator('[id^="passage-"]')).toBeVisible();
 
       // Verify no horizontal overflow
       const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -306,7 +306,7 @@ test.describe('Mobile-Specific UI', () => {
 
     // Look for menu button (hamburger icon)
     const menuButton = page.locator('button[aria-label*="menu" i], button[aria-label*="Menu" i], button[aria-label*="nav" i]').or(
-      page.locator('svg').filter({ hasText: '' }).first()
+      page.locator('svg').filter({ hasText: '' })
     );
 
     // At minimum, navigation should be accessible
@@ -324,9 +324,9 @@ test.describe('Mobile-Specific UI', () => {
 
     if (sidebarCount > 0) {
       // If sidebar exists, it should be collapsed or not visible
-      const isVisible = await sidebar.first().isVisible();
+      const isVisible = await sidebar.isVisible();
       if (isVisible) {
-        const width = await sidebar.first().evaluate(el => el.getBoundingClientRect().width);
+        const width = await sidebar.evaluate(el => el.getBoundingClientRect().width);
         expect(width).toBeLessThan(100);
       }
     }
@@ -359,7 +359,7 @@ test.describe('Mobile-Specific UI', () => {
 
     // Should have some way to collapse panels on mobile
     if (count > 0) {
-      await expect(collapseButtons.first()).toBeVisible();
+      await expect(collapseButtons).toBeVisible();
     }
   });
 
@@ -441,7 +441,7 @@ test.describe('Mobile Performance', () => {
     // Measure tap response time
     const startTime = Date.now();
 
-    const firstPassage = page.locator('[id^="passage-"]').first();
+    const firstPassage = page.locator('[id^="passage-"]');
     await firstPassage.tap();
 
     const responseTime = Date.now() - startTime;
@@ -467,7 +467,7 @@ test.describe('Mobile Performance', () => {
     await page.waitForTimeout(1000);
 
     // Verify app is still responsive
-    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]')).toBeVisible();
 
     // Check for memory issues (no crashes or extreme slowdown)
     const isResponsive = await page.evaluate(() => {
@@ -529,7 +529,7 @@ test.describe('Mobile Edge Cases', () => {
     await loadSample(page, SAMPLES.PRID_E_AND_PREJUDICE);
 
     // Verify content is properly spaced
-    const firstPassage = page.locator('[id^="passage-"]').first();
+    const firstPassage = page.locator('[id^="passage-"]');
     await expect(firstPassage).toBeVisible();
 
     // Verify no horizontal overflow
@@ -555,7 +555,7 @@ test.describe('Mobile Edge Cases', () => {
     await page.waitForTimeout(100);
 
     // Verify app is still functional
-    await expect(page.locator('[id^="passage-"]').first()).toBeVisible();
+    await expect(page.locator('[id^="passage-"]')).toBeVisible();
   });
 });
 

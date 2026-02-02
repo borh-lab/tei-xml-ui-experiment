@@ -26,7 +26,7 @@ test.describe('Retry Functionality', () => {
 
       // Try to load a sample (will fail due to network error)
       await page.getByText('The Gift of the Magi', { exact: false }).click();
-      await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      await page.getByRole('button', { name: 'Load Sample' }).click();
 
       // Wait for error to appear
       await page.waitForLoadState('networkidle');
@@ -34,11 +34,11 @@ test.describe('Retry Functionality', () => {
 
       // The app should show an error toast with retry action
       // The error categorization system adds a retry action for network errors
-      const errorToast = page.getByText(/failed to load|network|error/i).first();
+      const errorToast = page.getByText(/failed to load|network|error/i);
       await expect(errorToast).toBeVisible();
 
       // Look for retry action in the toast
-      const retryAction = page.getByRole('button', { name: /retry|try again/i }).first();
+      const retryAction = page.getByRole('button', { name: /retry|try again/i });
       const hasRetry = await retryAction.isVisible({ timeout: 2000 }).catch(() => false);
 
       if (hasRetry) {
@@ -69,14 +69,14 @@ test.describe('Retry Functionality', () => {
 
       // Try to load sample (will fail first time)
       await page.getByText('The Gift of the Magi', { exact: false }).click();
-      await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      await page.getByRole('button', { name: 'Load Sample' }).click();
 
       // Wait for error
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1000);
 
       // Look for retry action
-      const retryAction = page.getByRole('button', { name: /retry|try again/i }).first();
+      const retryAction = page.getByRole('button', { name: /retry|try again/i });
       const hasRetry = await retryAction.isVisible({ timeout: 2000 }).catch(() => false);
 
       if (hasRetry) {
@@ -115,14 +115,14 @@ test.describe('Retry Functionality', () => {
       await page.waitForTimeout(500);
 
       // Verify error toast appears
-      await expect(page.getByText(/failed to upload|invalid|error/i).first()).toBeVisible();
+      await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible();
 
       // Verify retry button is NOT shown (parse errors are not retryable)
-      const retryButton = page.getByRole('button', { name: /retry|try again/i }).first();
+      const retryButton = page.getByRole('button', { name: /retry|try again/i });
       await expect(retryButton).not.toBeVisible({ timeout: 2000 });
 
       // Error should only have close/dismiss action, not retry
-      const closeButton = page.getByRole('button', { name: /close|dismiss|×/i }).first();
+      const closeButton = page.getByRole('button', { name: /close|dismiss|×/i });
       const hasClose = await closeButton.isVisible({ timeout: 1000 }).catch(() => false);
 
       // Either close button exists or toast auto-dismisses

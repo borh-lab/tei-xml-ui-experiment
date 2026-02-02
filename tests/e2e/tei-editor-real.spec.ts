@@ -65,8 +65,8 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
     test('should display rendered passages in the editor', async ({ page }) => {
       // RenderedView shows passages split by sentences (RenderedView.tsx line 47-48)
       // Each passage has ID like "ID: passage-0"
-      // Use .first() to avoid strict mode violation when multiple elements match
-      await expect(page.getByText(/ID: passage/).first()).toBeVisible();
+      // Use  to avoid strict mode violation when multiple elements match
+      await expect(page.getByText(/ID: passage/)).toBeVisible();
 
       // Should have multiple passages
       const passageCount = await page.getByText(/ID: passage/).count();
@@ -95,14 +95,14 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('button', { name: '← Back to Gallery' }).click();
 
       // Wait for gallery to appear (wait for sample cards to be visible)
-      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart/i).first()).toBeVisible();
+      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart/i)).toBeVisible();
 
       // Test that at least one other sample can be loaded
       // (We already have gift-of-the-magi loaded by default)
       await page.getByText('The Yellow Wallpaper', { exact: false }).click();
 
       // Click "Load Sample" button
-      await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      await page.getByRole('button', { name: 'Load Sample' }).click();
 
       // Wait for sample to load - wait for editor to be visible
       await page.waitForLoadState('networkidle');
@@ -113,7 +113,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('button', { name: '← Back to Gallery' }).click();
 
       // Wait for gallery to appear - wait for sample cards to be visible
-      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i).first()).toBeVisible();
+      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i)).toBeVisible();
     });
   });
 
@@ -169,7 +169,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await expect(page.getByRole('heading', { name: 'Bulk Operations' })).toBeVisible();
 
       // Find a passage element (they have class with "p-3 rounded-lg")
-      const firstPassage = page.locator('div.p-3.rounded-lg').first();
+      const firstPassage = page.locator('div.p-3.rounded-lg');
       await expect(firstPassage).toBeVisible();
 
       // Click to select it
@@ -197,9 +197,9 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       // Should show "Select All" and "Deselect All" buttons in bulk mode controls
       // These appear in RenderedView.tsx line 138-149
-      // Use .first() to avoid strict mode violations if multiple exist
-      await expect(page.getByRole('button', { name: 'Select All' }).first()).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Deselect All' }).first()).toBeVisible();
+      // Use  to avoid strict mode violations if multiple exist
+      await expect(page.getByRole('button', { name: 'Select All' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Deselect All' })).toBeVisible();
     });
 
     test('should tag selected passages with speaker', async ({ page }) => {
@@ -208,7 +208,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await expect(page.getByRole('heading', { name: 'Bulk Operations' })).toBeVisible();
 
       // Click on a passage to select it
-      const passage = page.locator('div.p-3.rounded-lg').first();
+      const passage = page.locator('div.p-3.rounded-lg');
       await passage.click();
 
       // Verify bulk operations panel is still responsive
@@ -315,14 +315,14 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       if (hasSuggestions) {
         // Find accept button
-        const acceptButton = page.getByRole('button', { name: /Accept suggestion/i }).first();
+        const acceptButton = page.getByRole('button', { name: /Accept suggestion/i });
 
         // Accept first suggestion
         await acceptButton.click();
         await page.waitForTimeout(200); // Brief wait for UI update
 
         // Try reject if more suggestions exist
-        const rejectButton = page.getByRole('button', { name: /Reject suggestion/i }).first();
+        const rejectButton = page.getByRole('button', { name: /Reject suggestion/i });
         const hasReject = await rejectButton.count() > 0;
 
         if (hasReject) {
@@ -394,7 +394,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await expect(page.getByText('Total Dialogue Passages')).toBeVisible();
 
       // Should show a number
-      const statsNumber = page.locator('p.text-2xl.font-bold').first();
+      const statsNumber = page.locator('p.text-2xl.font-bold');
       await expect(statsNumber).toBeVisible();
     });
   });
@@ -498,11 +498,11 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('button', { name: '← Back to Gallery' }).click();
 
       // Wait for gallery to be visible
-      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i).first()).toBeVisible();
+      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i)).toBeVisible();
 
       // Load different sample
       await page.getByText('The Tell-Tale Heart', { exact: false }).click();
-      await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      await page.getByRole('button', { name: 'Load Sample' }).click();
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(200); // Brief wait for DOM update
 
@@ -519,8 +519,8 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
   test.describe('Passage Selection Details', () => {
     test('should show passage metadata', async ({ page }) => {
       // Each passage shows ID (RenderedView.tsx line 207-209)
-      // Use .first() to avoid strict mode violation with multiple matches
-      await expect(page.getByText(/ID: passage-\d+/).first()).toBeVisible();
+      // Use  to avoid strict mode violation with multiple matches
+      await expect(page.getByText(/ID: passage-\d+/)).toBeVisible();
 
       // Initially no speaker tagged (line 194-197 shows speaker badge if exists)
       // Should not show speaker badges for untagged passages
@@ -531,10 +531,10 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('button', { name: /Bulk Operations/ }).click();
 
       // Click "Select All"
-      await page.getByRole('button', { name: 'Select All' }).first().click();
+      await page.getByRole('button', { name: 'Select All' }).click();
 
       // Verify selection UI is responsive - Deselect All should become available
-      await expect(page.getByRole('button', { name: 'Deselect All' }).first()).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Deselect All' })).toBeVisible();
     });
 
     test('should deselect all passages', async ({ page }) => {
@@ -542,13 +542,13 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('button', { name: /Bulk Operations/ }).click();
 
       // Select all first
-      await page.getByRole('button', { name: 'Select All' }).first().click();
+      await page.getByRole('button', { name: 'Select All' }).click();
 
       // Click "Deselect All"
-      await page.getByRole('button', { name: 'Deselect All' }).first().click();
+      await page.getByRole('button', { name: 'Deselect All' }).click();
 
       // Verify operation completed - Select All should still be available
-      await expect(page.getByRole('button', { name: 'Select All' }).first()).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Select All' })).toBeVisible();
     });
   });
 
@@ -604,7 +604,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
         await expect(suggestions).toBeVisible();
 
         // Accept/reject buttons should have aria-label (line 145, 156)
-        const acceptButton = page.getByRole('button', { name: /Accept suggestion/i }).first();
+        const acceptButton = page.getByRole('button', { name: /Accept suggestion/i });
         await expect(acceptButton).toHaveAttribute('aria-label', /Accept suggestion/);
       }
     });
@@ -648,7 +648,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       // Click on Pride and Prejudice (use partial match)
       await page.getByText('Pride and Prejudice', { exact: false }).click();
-      await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      await page.getByRole('button', { name: 'Load Sample' }).click();
 
       // Wait for load
       await page.waitForLoadState('networkidle');
@@ -704,7 +704,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await expect(page.getByRole('heading', { name: 'Bulk Operations' })).toBeVisible();
 
       // Select a passage
-      await page.locator('div.p-3.rounded-lg').first().click();
+      await page.locator('div.p-3.rounded-lg').click();
       await page.waitForTimeout(300);
 
       // Verify selection
@@ -745,7 +745,7 @@ test.describe('Bulk Tagging Functionality', () => {
     await expect(page.getByText(/Tag all as/i)).toBeVisible();
 
     // Select a few passages (use the correct selector)
-    const firstPassage = page.locator('div.p-3.rounded-lg').first();
+    const firstPassage = page.locator('div.p-3.rounded-lg');
     await expect(firstPassage).toBeVisible();
     await firstPassage.click();
 
@@ -753,7 +753,7 @@ test.describe('Bulk Tagging Functionality', () => {
     await secondPassage.click();
 
     // Verify selection count updates (text format: "2 passages selected" or "2 selected")
-    await expect(page.getByText(/selected/i).first()).toBeVisible();
+    await expect(page.getByText(/selected/i)).toBeVisible();
 
     // Choose speaker from dropdown using selectOption API
     await page.getByRole('combobox').selectOption('narrator');
@@ -765,7 +765,7 @@ test.describe('Bulk Tagging Functionality', () => {
     await page.waitForTimeout(200);
     // The actual tagging would update the document
     // For now we verify the button is clickable and action is triggered
-    await expect(page.getByText(/selected/i).first()).toBeVisible();
+    await expect(page.getByText(/selected/i)).toBeVisible();
   });
 
   test('should show speaker dropdown in bulk panel', async ({ page }) => {
@@ -819,7 +819,7 @@ test.describe('Real File Upload', () => {
     await page.waitForTimeout(300);
 
     // Verify content loaded (should see passages)
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible();
+    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible();
   });
 
   test('should handle text file upload', async ({ page }) => {
@@ -849,7 +849,7 @@ test.describe('Real File Upload', () => {
 
     // If passages exist, verify at least one is visible
     if (passageCount > 0) {
-      await expect(passages.first()).toBeVisible();
+      await expect(passages).toBeVisible();
     }
     // Otherwise, the document loaded but may not have dialogue passages
   });
@@ -875,7 +875,7 @@ test.describe('Shift+Click Range Selection', () => {
     await expect(page.getByText(/Tag all as/i)).toBeVisible();
 
     // Click first passage
-    await page.locator('div.p-3.rounded-lg').first().click();
+    await page.locator('div.p-3.rounded-lg').click();
 
     // Hold shift and click 5th passage
     await page.keyboard.down('Shift');
@@ -893,7 +893,7 @@ test.describe('Shift+Click Range Selection', () => {
     await expect(page.getByText(/Tag all as/i)).toBeVisible();
 
     // First select a range
-    await page.locator('div.p-3.rounded-lg').first().click();
+    await page.locator('div.p-3.rounded-lg').click();
     await page.keyboard.down('Shift');
     await page.locator('div.p-3.rounded-lg').nth(2).click();
     await page.keyboard.up('Shift');
@@ -918,13 +918,13 @@ test.describe('Character Network Interactions', () => {
 
   test('should display character network graph', async ({ page }) => {
     // Verify ReactFlow container is visible
-    await expect(page.locator('.react-flow').first()).toBeVisible();
+    await expect(page.locator('.react-flow')).toBeVisible();
   });
 
   test('should show character nodes in network', async ({ page }) => {
     // Verify character nodes exist
     const nodes = page.locator('.react-flow__node');
-    await expect(nodes.first()).toBeVisible();
+    await expect(nodes).toBeVisible();
   });
 
   test('should show edges between characters', async ({ page }) => {
@@ -934,13 +934,13 @@ test.describe('Character Network Interactions', () => {
 
     // If there are edges, verify at least one is visible
     if (edgeCount > 0) {
-      await expect(edges.first()).toBeVisible();
+      await expect(edges).toBeVisible();
     }
     // If no edges, that's okay for documents with minimal dialogue
   });
 
   test('should allow zooming and panning', async ({ page }) => {
-    const reactFlow = page.locator('.react-flow').first();
+    const reactFlow = page.locator('.react-flow');
 
     // Verify ReactFlow is interactive
     await expect(reactFlow).toBeVisible();
@@ -948,7 +948,7 @@ test.describe('Character Network Interactions', () => {
     // Test zoom controls (if available)
     const zoomControls = page.locator('.react-flow__controls');
     if (await zoomControls.count() > 0) {
-      await expect(zoomControls.first()).toBeVisible();
+      await expect(zoomControls).toBeVisible();
     }
   });
 
@@ -956,7 +956,7 @@ test.describe('Character Network Interactions', () => {
     // Check for minimap
     const minimap = page.locator('.react-flow__minimap');
     if (await minimap.count() > 0) {
-      await expect(minimap.first()).toBeVisible();
+      await expect(minimap).toBeVisible();
     }
   });
 });

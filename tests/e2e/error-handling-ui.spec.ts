@@ -31,7 +31,7 @@ test.describe('Error Handling UI', () => {
     const fileInput = page.locator('input[type="file"]')
     await fileInput.setInputFiles(tempPath)
 
-    const toast = page.locator('[data-sonner-toast]').first()
+    const toast = page.locator('[data-sonner-toast]')
     await expect(toast).toBeVisible({ timeout: 5000 })
     await expect(toast).toContainText('Invalid TEI format', { timeout: 3000 })
 
@@ -46,7 +46,7 @@ test.describe('Error Handling UI', () => {
     const fileInput = page.locator('input[type="file"]')
     await fileInput.setInputFiles(tempPath)
 
-    const toast = page.locator('[data-sonner-toast]').first()
+    const toast = page.locator('[data-sonner-toast]')
     await expect(toast).toBeVisible()
     await page.waitForTimeout(6000)
     await expect(toast).not.toBeVisible()
@@ -65,7 +65,7 @@ test.describe('Error Handling UI', () => {
       content: validXml
     })
 
-    const toast = page.locator('[data-sonner-toast]').first()
+    const toast = page.locator('[data-sonner-toast]')
     await expect(toast).toBeVisible({ timeout: 5000 })
     await expect(toast).toContainText('uploaded successfully')
   })
@@ -78,7 +78,7 @@ test.describe('Error Handling UI', () => {
     const fileInput = page.locator('input[type="file"]')
     await fileInput.setInputFiles(tempPath)
 
-    const toast = page.locator('[data-sonner-toast]').first()
+    const toast = page.locator('[data-sonner-toast]')
     await expect(toast).toBeVisible()
 
     const closeButton = toast.locator('button[aria-label="close"]')
