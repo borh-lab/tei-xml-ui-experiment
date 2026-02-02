@@ -55,13 +55,12 @@ export class SelectionManager {
    * Calculate character offsets within a passage element
    */
   private calculateOffsets(passageElement: HTMLElement, range: Range): { start: number; end: number } {
-    const rangeClone = range.cloneRange();
     const textRange = document.createRange();
     textRange.selectNodeContents(passageElement);
-    textRange.setEnd(rangeClone.startContainer, rangeClone.startOffset);
+    textRange.setEnd(range.startContainer, range.startOffset);
     const start = textRange.toString().length;
 
-    textRange.setEnd(rangeClone.endContainer, rangeClone.endOffset);
+    textRange.setEnd(range.endContainer, range.endOffset);
     const end = textRange.toString().length;
 
     return { start, end };
@@ -104,8 +103,10 @@ export class SelectionManager {
    * Set selection within a node at character offsets
    */
   private setSelectionInNode(node: Node, start: number, end: number): void {
+    const selection = window.getSelection();
+    if (!selection) return;
+
     const range = document.createRange();
-    const selection = window.getSelection()!;
 
     let currentOffset = 0;
     let startNode: Node | null = null;
