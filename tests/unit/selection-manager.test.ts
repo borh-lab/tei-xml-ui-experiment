@@ -111,4 +111,38 @@ describe('SelectionManager', () => {
       expect(result!.attributes).toEqual({ 'who': '#speaker1' });
     });
   });
+
+  describe('cache management', () => {
+    it('should return cached selection after capture', () => {
+      mockContainer.textContent = 'Hello world';
+      const textNode = mockContainer.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 0);
+      range.setEnd(textNode, 5);
+      const selection = window.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      selectionManager.captureSelection();
+      const cached = selectionManager.getCachedSelection();
+      expect(cached).not.toBeNull();
+      expect(cached!.text).toBe('Hello');
+    });
+
+    it('should clear cached selection', () => {
+      mockContainer.textContent = 'Hello';
+      const textNode = mockContainer.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 0);
+      range.setEnd(textNode, 5);
+      const selection = window.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      selectionManager.captureSelection();
+      selectionManager.clearCache();
+      const cached = selectionManager.getCachedSelection();
+      expect(cached).toBeNull();
+    });
+  });
 });
