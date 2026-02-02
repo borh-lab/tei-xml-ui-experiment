@@ -174,5 +174,29 @@ export class TEIDocument {
     passage['said'] = saidArray.length === 1 ? saidArray[0] : saidArray;
   }
 
-  getCharacters() { return []; }
+  getCharacters(): any[] {
+    const standOff = this.parsed.TEI?.standOff;
+    if (!standOff) return [];
+
+    const listPerson = standOff['listPerson'];
+    if (!listPerson) return [];
+
+    const persons = listPerson['person'];
+    if (!persons) return [];
+
+    const personArray = Array.isArray(persons) ? persons : [persons];
+
+    return personArray.map((person: any) => ({
+      'xml:id': person['@_xml:id'] || person['xml:id'],
+      persName: person['persName']?.['#text'] || person['persName'],
+      sex: person['sex']?.['@_value'],
+      age: person['age']?.['@_value'] ? parseInt(person['age']['@_value']) : undefined,
+      occupation: person['occupation']?.['#text'] || person['occupation'],
+      role: person['role']?.['@_type'] || person['role'],
+      traits: person['trait'] ? (Array.isArray(person['trait']) ? person['trait'].map((t: any) => t['@_type'] || t) : [person['trait']]) : [],
+      socialStatus: person['socecStatus']?.['#text'],
+      maritalStatus: person['state']?.find((s: any) => s['@_type'] === 'marital')?.['@_value'],
+      element: person
+    }));
+  }
 }

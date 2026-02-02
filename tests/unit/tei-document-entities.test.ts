@@ -82,3 +82,57 @@ describe('TEIDocument - updateSpeaker', () => {
     expect(serialized).toContain('who="#speaker2">Second');
   });
 });
+
+describe('TEIDocument - getCharacters', () => {
+  test('parses characters from <listPerson><person> elements', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test</title>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p>Text</p>
+    </body>
+  </text>
+  <standOff>
+    <listPerson>
+      <person xml:id="darcy">
+        <persName>Mr. Darcy</persName>
+        <sex value="M"/>
+        <age value="28"/>
+      </person>
+      <person xml:id="elizabeth">
+        <persName>Elizabeth Bennet</persName>
+        <sex value="F"/>
+      </person>
+    </listPerson>
+  </standOff>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    const characters = doc.getCharacters();
+
+    expect(characters).toHaveLength(2);
+    expect(characters[0]['xml:id']).toBe('darcy');
+    expect(characters[0].persName).toBe('Mr. Darcy');
+    expect(characters[0].sex).toBe('M');
+    expect(characters[1]['xml:id']).toBe('elizabeth');
+  });
+
+  test('returns empty array when no characters exist', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text><body><p>Text</p></body></text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    const characters = doc.getCharacters();
+
+    expect(characters).toEqual([]);
+  });
+});
