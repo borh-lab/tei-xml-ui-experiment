@@ -13,12 +13,16 @@ interface DocumentContextType {
   loadSample: (sampleId: string) => Promise<void>;
   updateDocument: (xml: string) => void;
   clearDocument: () => void;
+  loadingSample: boolean;
+  loadingProgress: number;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
 
 export function DocumentProvider({ children }: { children: ReactNode }) {
   const [document, setDocument] = useState<TEIDocument | null>(null);
+  const [loadingSample, setLoadingSample] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const { logError } = useErrorContext();
 
   const loadDocument = (xml: string) => {
@@ -40,8 +44,24 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
 
   const loadSample = async (sampleId: string) => {
     try {
+      setLoadingSample(true);
+      setLoadingProgress(0);
+
+      // Simulate loading progress (0 -> 50 -> 100%)
+      setLoadingProgress(10);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const content = await loadSampleContent(sampleId);
+      setLoadingProgress(50);
+
+      await new Promise(resolve => setTimeout(resolve, 100));
       setDocument(new TEIDocument(content));
+
+      setLoadingProgress(100);
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      setLoadingSample(false);
+      setLoadingProgress(0);
     } catch (error) {
       console.error('Failed to load sample:', error);
       logError(error as Error, 'DocumentContext', {
@@ -53,6 +73,8 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
         description: errorInfo.description,
         action: errorInfo.action,
       });
+      setLoadingSample(false);
+      setLoadingProgress(0);
       throw error;
     }
   };
@@ -66,7 +88,7 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument }}>
+    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument, loadingSample, loadingProgress }}>
       {children}
     </DocumentContext.Provider>
   );
