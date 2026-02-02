@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { db } from '@/lib/db/PatternDB';
 import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, X, Navigation } from 'lucide-react';
+import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -428,6 +428,15 @@ export function EditorLayout() {
           Visualizations
         </Button>
         <ExportButton />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShortcutHelpOpen(true)}
+          title="Keyboard shortcuts (Press ?)"
+        >
+          <HelpCircle className="h-4 w-4" />
+          <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">?</kbd>
+        </Button>
       </div>
       <div className="flex-1 flex overflow-hidden">
         {/* Left pane - Rendered view with AI suggestions */}
