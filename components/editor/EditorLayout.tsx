@@ -20,6 +20,7 @@ import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { MobileNavigation } from '@/components/navigation/MobileNavigation';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -408,6 +409,7 @@ export function EditorLayout() {
         onClose={() => setShortcutHelpOpen(false)}
       />
       <div className="flex items-center gap-2 p-2 border-b">
+        <MobileNavigation />
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
         <TagToolbar onApplyTag={handleApplyTag} />
         <Button
