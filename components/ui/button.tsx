@@ -43,10 +43,12 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  touch = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    touch?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
 
@@ -55,7 +57,7 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, className }), touch && 'touch-target')}
       {...props}
     />
   )
