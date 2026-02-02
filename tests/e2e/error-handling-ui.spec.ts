@@ -25,7 +25,7 @@ test.describe('Error Handling UI', () => {
 
   test('shows toast notification on invalid file upload', async ({ page }) => {
     const invalidXml = 'invalid {{{ xml'
-    const tempPath = join(process.cwd(), 'invalid-test.xml')
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'invalid-test.xml')
     writeFileSync(tempPath, invalidXml)
 
     const fileInput = page.locator('input[type="file"]')
@@ -40,7 +40,7 @@ test.describe('Error Handling UI', () => {
 
   test('toast auto-dismisses after 5 seconds', async ({ page }) => {
     const invalidXml = 'invalid {{{ xml'
-    const tempPath = join(process.cwd(), 'invalid-auto.xml')
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'invalid-auto.xml')
     writeFileSync(tempPath, invalidXml)
 
     const fileInput = page.locator('input[type="file"]')
@@ -72,7 +72,7 @@ test.describe('Error Handling UI', () => {
 
   test('dismissible toasts can be closed manually', async ({ page }) => {
     const invalidXml = 'invalid {{{ xml'
-    const tempPath = join(process.cwd(), 'invalid-close.xml')
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'invalid-close.xml')
     writeFileSync(tempPath, invalidXml)
 
     const fileInput = page.locator('input[type="file"]')

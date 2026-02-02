@@ -40,9 +40,21 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# test logs and output
+*.log
+test-results-*.txt
+e2e-results-*.txt
+logs/
+
+# Playwright test results
+playwright-report/
+test-results/
+
+# Debug artifacts
+debug-*.png
+
 # test fixtures
 /tests/fixtures/Wright-American-Fiction
 
-# submodules and working docs
+# submodules
 TEI/
-docs/

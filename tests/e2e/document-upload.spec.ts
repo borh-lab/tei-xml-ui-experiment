@@ -104,7 +104,7 @@ test.describe('Document Upload - Basic Operations', () => {
       passages: 50
     });
 
-    const tempPath = join(process.cwd(), 'large-test.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'large-test.tei.xml');
     writeFileSync(tempPath, largeTEI);
 
     const fileInput = page.locator('input[type="file"]');
@@ -122,8 +122,8 @@ test.describe('Document Upload - Basic Operations', () => {
     const tei1 = generateTestDocument({ speakers: ['speaker1'], passages: 3 });
     const tei2 = generateTestDocument({ speakers: ['speaker2'], passages: 5 });
 
-    const tempPath1 = join(process.cwd(), 'test1.tei.xml');
-    const tempPath2 = join(process.cwd(), 'test2.tei.xml');
+    const tempPath1 = join(process.cwd(), 'tests/fixtures', 'test1.tei.xml');
+    const tempPath2 = join(process.cwd(), 'tests/fixtures', 'test2.tei.xml');
 
     writeFileSync(tempPath1, tei1);
     writeFileSync(tempPath2, tei2);
@@ -312,7 +312,7 @@ test.describe('Edge Cases', () => {
       passages: 200
     });
 
-    const tempPath = join(process.cwd(), 'large-test.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'large-test.tei.xml');
     writeFileSync(tempPath, largeTEI);
 
     // Check file size
@@ -511,7 +511,7 @@ test.describe('Validation and Error Handling', () => {
   });
 
   test('should reject completely empty file', async ({ page }) => {
-    const tempPath = join(process.cwd(), 'empty.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'empty.xml');
     writeFileSync(tempPath, '');
 
     const fileInput = page.locator('input[type="file"]');
@@ -524,7 +524,7 @@ test.describe('Validation and Error Handling', () => {
   });
 
   test('should reject file with only whitespace', async ({ page }) => {
-    const tempPath = join(process.cwd(), 'whitespace.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'whitespace.xml');
     writeFileSync(tempPath, '   \n\n  \t  \n  ');
 
     const fileInput = page.locator('input[type="file"]');
@@ -557,7 +557,7 @@ test.describe('Validation and Error Handling', () => {
 
   test('should handle XML with encoding issues', async ({ page }) => {
     // Create file with mismatched encoding declaration vs content
-    const tempPath = join(process.cwd(), 'encoding-test.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'encoding-test.tei.xml');
     writeFileSync(tempPath, '<?xml version="1.0" encoding="ISO-8859-1"?>\n<TEI>Content</TEI>', 'utf-8');
 
     const fileInput = page.locator('input[type="file"]');
@@ -593,7 +593,7 @@ test.describe('Upload UI Interactions', () => {
     await expect(page.locator('[id^="passage-"]')).toHaveCount(3);
 
     // Try to upload invalid file
-    const tempPath = join(process.cwd(), 'invalid.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'invalid.xml');
     writeFileSync(tempPath, '<invalid></invalid');
 
     const fileInput = page.locator('input[type="file"]');

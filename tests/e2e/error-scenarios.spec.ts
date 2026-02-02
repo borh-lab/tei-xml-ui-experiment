@@ -569,7 +569,7 @@ test.describe('Large File Performance', () => {
       passages: 300
     });
 
-    const tempPath = join(process.cwd(), 'large-test.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'large-test.tei.xml');
     writeFileSync(tempPath, largeTEI);
 
     // Check file size
@@ -606,7 +606,7 @@ test.describe('Large File Performance', () => {
       passages: 1000
     });
 
-    const tempPath = join(process.cwd(), 'massive-test.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'massive-test.tei.xml');
     writeFileSync(tempPath, massiveTEI);
 
     const fs = require('fs');
@@ -652,8 +652,8 @@ test.describe('Large File Performance', () => {
     const largeTEI1 = generateTestDocument({ speakers: ['s1'], passages: 100 });
     const largeTEI2 = generateTestDocument({ speakers: ['s2'], passages: 150 });
 
-    const tempPath1 = join(process.cwd(), 'large1.tei.xml');
-    const tempPath2 = join(process.cwd(), 'large2.tei.xml');
+    const tempPath1 = join(process.cwd(), 'tests/fixtures', 'large1.tei.xml');
+    const tempPath2 = join(process.cwd(), 'tests/fixtures', 'large2.tei.xml');
 
     writeFileSync(tempPath1, largeTEI1);
     writeFileSync(tempPath2, largeTEI2);
@@ -728,7 +728,7 @@ test.describe('Browser Limits and Memory', () => {
       passages: 3000
     });
 
-    const tempPath = join(process.cwd(), 'huge-test.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'huge-test.tei.xml');
     writeFileSync(tempPath, hugeTEI);
 
     const fs = require('fs');

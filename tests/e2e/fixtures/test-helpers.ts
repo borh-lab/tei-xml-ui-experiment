@@ -6,7 +6,7 @@ import { join } from 'path';
  * Uploads a test document to the editor
  */
 export async function uploadTestDocument(page: Page, doc: { name: string; content: string }): Promise<void> {
-  const tempPath = join(process.cwd(), 'temp-test.tei.xml');
+  const tempPath = join(process.cwd(), 'tests/fixtures', 'temp-test.tei.xml');
   writeFileSync(tempPath, doc.content);
 
   const fileInput = page.locator('input[type="file"]');

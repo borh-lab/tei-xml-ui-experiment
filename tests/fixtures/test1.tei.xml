@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test Document</title>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <castList>
+        <castItem>
+          <role xml:id="speaker1">speaker1</role>
+        </castItem>
+      </castList>
+      <p>
+        <s who="#speaker1">Test passage 1</s>
+      </p>
+      <p>
+        <s who="#speaker1">Test passage 2</s>
+      </p>
+      <p>
+        <s who="#speaker1">Test passage 3</s>
+      </p>
+    </body>
+  </text>
+</TEI>

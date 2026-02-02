@@ -1,5 +1,7 @@
 # Deployment Guide
 
+**📖 For feature documentation and user guide, see [FEATURES.md](./FEATURES.md)**
+
 ## Environment Setup
 
 ### Prerequisites
@@ -46,6 +48,28 @@ npm run dev
 
 The application will be available at `http://localhost:3000`.
 
+### ✅ Verify Your Setup
+
+<img src="docs/screenshots/welcome-screen.png" alt="Application Running Successfully" width="800">
+
+**You should see:**
+- ✅ Welcome page with sample gallery loaded
+- ✅ No console errors (check browser DevTools)
+- ✅ File upload button is functional
+- ✅ Can click on samples to load them
+
+**If you see errors:**
+- Check browser console (F12 → Console tab)
+- Verify port 3000 is available
+- Ensure all dependencies installed (`node_modules` exists)
+- See [Troubleshooting](#troubleshooting) below
+
+**Quick Test:**
+1. Click on a sample document (e.g., "The Gift of the Magi")
+2. Click "Load Sample"
+3. Should see the editor with annotated passages
+4. Try pressing `Ctrl/Cmd+K` to open command palette
+
 ### 5. Run Tests
 
 ```bash
@@ -72,6 +96,18 @@ The optimized production build will be in the `.next` directory.
 ```bash
 npm start
 ```
+
+## Quick Reference: Environment Setup Checklist
+
+Before deploying, verify your setup:
+
+- [ ] **Node.js 18+** installed: `node --version`
+- [ ] **Dependencies installed**: `node_modules/` directory exists
+- [ ] **Port available**: `lsof -i :3000` shows nothing (or use different port)
+- [ ] **Environment file**: `.env.local` created (if using AI features)
+- [ ] **WASM built** (optional): `public/wasm/pattern_engine.js` exists
+- [ ] **Tests passing**: `npm test` completes successfully
+- [ ] **Can load app**: Browser shows welcome screen at `localhost:3000`
 
 ## Deployment Options
 
@@ -120,6 +156,130 @@ npm run export
 See `docs/plans/2026-01-27-critical-issues-fixes.md` for tracking ongoing issues and improvements.
 
 ## Troubleshooting
+
+### Setup Verification Checklist
+
+Before diving into specific errors, run through this checklist:
+
+**Environment Check:**
+```bash
+# Check Node version (must be 18+)
+node --version
+
+# Verify npm
+npm --version
+
+# Check if port 3000 is available
+lsof -i :3000  # Should show nothing or kill the process
+
+# Verify dependencies
+ls node_modules | head -10  # Should show packages
+```
+
+**Quick Health Check:**
+1. Can you run `npm run dev` without errors?
+2. Does browser show the welcome screen?
+3. Can you load a sample document?
+4. Does console show any errors (F12)?
+
+### Common Setup Issues
+
+#### Issue: Module not found errors
+
+**Symptoms:**
+```
+Error: Cannot find module 'some-package'
+```
+
+**Solutions:**
+1. Reinstall dependencies:
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+2. Clear npm cache:
+   ```bash
+   npm cache clean --force
+   npm install
+   ```
+
+3. Check Node version:
+   ```bash
+   node --version  # Must be 18+
+   ```
+
+#### Issue: Port already in use
+
+**Symptoms:**
+```
+Error: listen EADDRINUSE: address already in use :::3000
+```
+
+**Solutions:**
+1. Kill process on port 3000:
+   ```bash
+   # Find process
+   lsof -i :3000
+
+   # Kill it (replace PID with actual process ID)
+   kill -9 PID
+   ```
+
+2. Or use different port:
+   ```bash
+   PORT=3001 npm run dev
+   ```
+
+#### Issue: WASM module fails to load
+
+**Symptoms:**
+- Console errors about `.wasm` files
+- Pattern features not working
+- Performance issues
+
+**Solutions:**
+1. Build WASM module:
+   ```bash
+   cd pattern-engine
+   wasm-pack build --target web --out-dir ../public/wasm
+   ```
+
+2. Verify files exist:
+   ```bash
+   ls public/wasm/
+   # Should see: pattern_engine.js, pattern_engine_bg.wasm, etc.
+   ```
+
+3. Check Rust toolchain:
+   ```bash
+   rustc --version
+   wasm-pack --version
+   ```
+
+4. Or use JavaScript fallback (no action needed)
+
+#### Issue: Cannot find .env.local
+
+**Symptoms:**
+- API features not working
+- Console shows "API key not provided"
+
+**Solutions:**
+1. Create environment file:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+2. Edit with your API keys:
+   ```bash
+   # Edit .env.local and add:
+   OPENAI_API_KEY=sk-your-key-here
+   # or
+   ANTHROPIC_API_KEY=sk-ant-your-key-here
+   ```
+
+3. Restart dev server after creating file
 
 ### API Key Errors
 

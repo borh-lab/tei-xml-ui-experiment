@@ -1,8 +1,45 @@
 # TEI Dialogue Editor
 
+<img src="docs/screenshots/welcome-screen.png" alt="Welcome Screen" width="800">
+
 An AI-assisted tool for annotating dialogue in TEI XML documents.
 
-## Features
+## Features Overview
+
+### 🎯 Manual & AI-Assisted Annotation
+
+<img src="docs/screenshots/ai-suggestions.png" alt="AI Suggestions" width="800">
+
+- Manual dialogue annotation with TEI markup (`<said>`, `<q>`)
+- AI-assisted dialogue detection with one-click acceptance
+- Pattern learning from your corrections improves accuracy over time
+
+### 📊 Character Network Visualization
+
+<img src="docs/screenshots/character-network.png" alt="Character Network" width="800">
+
+- Interactive visualization of character relationships
+- See dialogue frequency and connections at a glance
+- Click characters to filter their passages
+
+### ⚡ Productivity Features
+
+<img src="docs/screenshots/command-palette.png" alt="Command Palette" width="800">
+
+- **Command Palette** (`Ctrl/Cmd+K`) - Quick access to all actions
+- **Keyboard Shortcuts** - Annotate without leaving the keyboard
+- **Bulk Operations** - Batch-apply annotations to similar passages
+- **Quick Search** - Regex search across your document
+
+### 📚 Sample Gallery
+
+<img src="docs/screenshots/sample-gallery.png" alt="Sample Gallery" width="800">
+
+- Start with pre-annotated literary examples
+- Learn from existing TEI markup patterns
+- Upload your own TEI documents
+
+## Key Features
 
 - Manual dialogue annotation with TEI markup (`<said>`, `<q>`)
 - AI-assisted dialogue detection (Ax framework with NLP fallback)
@@ -12,6 +49,8 @@ An AI-assisted tool for annotating dialogue in TEI XML documents.
 - Sample gallery with annotated examples
 - Quick search with regex support
 - Recent documents tracking
+
+For detailed feature documentation, see [FEATURES.md](./FEATURES.md).
 
 ## Current Status
 
@@ -42,7 +81,8 @@ npm run dev
 
 Visit [http://localhost:3000](http://localhost:3000) to use the application.
 
-For detailed setup instructions, including API key configuration and WASM compilation, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+- For detailed setup instructions: [DEPLOYMENT.md](./DEPLOYMENT.md)
+- For feature documentation and user guide: [FEATURES.md](./FEATURES.md)
 
 ## Testing
 
