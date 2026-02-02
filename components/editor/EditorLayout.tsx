@@ -309,8 +309,29 @@ export function EditorLayout() {
   };
 
   const handleApplyTag = (tag: string, attrs?: Record<string, string>) => {
-    console.log('Apply tag:', tag, attrs);
-    // TODO: Implement actual TEI tagging in future task
+    if (!document) return;
+
+    const selection = window.getSelection();
+    const selectedText = selection?.toString() || '';
+    if (!selectedText) return;
+
+    // Find current passage index
+    const passageId = currentPassageId || 'passage-0';
+    const passageIndex = parseInt(passageId.split('-')[1], 10);
+
+    if (tag === 'said' && attrs?.['@who']) {
+      const speakerId = attrs['@who'].replace('#', '');
+      const range = { start: 0, end: selectedText.length }; // Simplified - would need actual text position
+
+      document.addSaidTag(passageIndex, range, speakerId);
+
+      // Update document in context
+      const updatedXML = document.serialize();
+      updateDocument(updatedXML);
+
+      console.log(`Applied <said who="#${speakerId}"> to passage ${passageIndex}`);
+      showToast(`Tagged as ${speakerId}`, 'success');
+    }
   };
 
   const handleAcceptSuggestion = (suggestion: DialogueSpan) => {
