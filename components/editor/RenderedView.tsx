@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Badge } from '@/components/ui/badge';
+import { EntityTooltip } from './EntityTooltip';
 
 interface Passage {
   id: string;
@@ -29,6 +30,7 @@ export const RenderedView = React.memo(({
   const { document } = useDocumentContext();
   const [passages, setPassages] = useState<Passage[]>([]);
   const [activePassageId, setActivePassageId] = useState<string | null>(null);
+  const [hoveredEntity, setHoveredEntity] = useState<{ entity: any; position: { x: number; y: number } } | null>(null);
   const lastSelectedIndex = useRef<number | null>(null);
   const passageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -242,6 +244,18 @@ export const RenderedView = React.memo(({
                   if (el) passageRefs.current.set(passage.id, el);
                 }}
                 onClick={(e) => handlePassageClick(passage.id, index, e)}
+                onMouseEnter={(e) => {
+                  if (passage.speaker) {
+                    const character = document?.getCharacters().find((c: any) => c['xml:id'] === passage.speaker);
+                    if (character) {
+                      setHoveredEntity({
+                        entity: character,
+                        position: { x: e.clientX, y: e.clientY }
+                      });
+                    }
+                  }
+                }}
+                onMouseLeave={() => setHoveredEntity(null)}
                 className={`
                   relative p-3 rounded-lg border transition-all cursor-pointer
                   ${isActive
@@ -313,6 +327,15 @@ export const RenderedView = React.memo(({
         <div className="p-2 border-t bg-muted/30 text-xs text-muted-foreground">
           <strong>Multi-Select:</strong> Click to select, Shift+click for range selection
         </div>
+      )}
+
+      {/* Entity Tooltip */}
+      {hoveredEntity && (
+        <EntityTooltip
+          entity={hoveredEntity.entity}
+          position={hoveredEntity.position}
+          visible={true}
+        />
       )}
     </div>
   );
