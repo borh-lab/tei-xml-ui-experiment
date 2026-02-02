@@ -65,8 +65,8 @@ export class EntityDetector {
   detectPlaces(text: string): EntitySpan[] {
     const entities: EntitySpan[] = [];
 
-    // Pattern: in/at/from + Capitalized Place
-    const placePattern = /\b(in|at|from|near)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/g;
+    // Pattern: in/at/from/to/near + Capitalized Place
+    const placePattern = /\b(in|at|from|to|near)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/g;
 
     let match;
     while ((match = placePattern.exec(text)) !== null) {
