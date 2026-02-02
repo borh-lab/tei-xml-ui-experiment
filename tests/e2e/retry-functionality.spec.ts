@@ -16,21 +16,34 @@ import { URLS, TIMEOUTS } from './fixtures/test-constants';
 test.describe('Retry Functionality', () => {
   test.describe('Network Errors', () => {
     test('shows retry button on network errors', async ({ page }) => {
-      await page.goto(URLS.HOME);
-      await page.waitForLoadState('networkidle');
-
       // Intercept and abort sample loading to simulate network failure
       await page.route('**/samples/*.xml', route => {
         route.abort('failed');
       });
 
-      // Try to load a sample (will fail due to network error)
-      await page.getByText('The Gift of the Magi', { exact: false }).click();
-      await page.getByRole('button', { name: 'Load Sample' }).click();
+      await page.goto(URLS.HOME);
+      await page.waitForLoadState('networkidle');
+
+      // Check if we're on the gallery page (no document auto-loaded)
+      const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+
+      if (!hasDocument) {
+        // We're on the gallery page, try to load a sample (will fail due to network error)
+        // Click on the card first to select it
+        await page.getByText('The Gift of the Magi', { exact: false }).click();
+        // Then click the first Load Sample button (which should be within the selected card)
+        await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      } else {
+        // Document auto-loaded, but we intercepted it so it should have failed
+        // Navigate to the gallery to try loading another sample
+        await page.goto(URLS.HOME + '?clear=true');
+        await page.waitForLoadState('networkidle');
+        await page.getByText('The Gift of the Magi', { exact: false }).click();
+        await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      }
 
       // Wait for error to appear
       await page.waitForLoadState('networkidle');
-      await page.waitForLoadState("networkidle")
 
       // The app should show an error toast with retry action
       // The error categorization system adds a retry action for network errors
@@ -51,9 +64,6 @@ test.describe('Retry Functionality', () => {
     });
 
     test('retry button triggers retry after network failure', async ({ page }) => {
-      await page.goto(URLS.HOME);
-      await page.waitForLoadState('networkidle');
-
       // Track request count
       let requestCount = 0;
 
@@ -67,13 +77,28 @@ test.describe('Retry Functionality', () => {
         }
       });
 
-      // Try to load sample (will fail first time)
-      await page.getByText('The Gift of the Magi', { exact: false }).click();
-      await page.getByRole('button', { name: 'Load Sample' }).click();
+      await page.goto(URLS.HOME);
+      await page.waitForLoadState('networkidle');
+
+      // Check if we're on the gallery page (no document auto-loaded)
+      const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+
+      if (!hasDocument) {
+        // We're on the gallery page, try to load a sample (will fail first time)
+        // Click on the card first to select it
+        await page.getByText('The Gift of the Magi', { exact: false }).click();
+        // Then click the first Load Sample button
+        await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      } else {
+        // Document auto-loaded but was intercepted, navigate to gallery
+        await page.goto(URLS.HOME + '?clear=true');
+        await page.waitForLoadState('networkidle');
+        await page.getByText('The Gift of the Magi', { exact: false }).click();
+        await page.getByRole('button', { name: 'Load Sample' }).first().click();
+      }
 
       // Wait for error
       await page.waitForLoadState('networkidle');
-      await page.waitForLoadState("networkidle")
 
       // Look for retry action
       const retryAction = page.getByRole('button', { name: /retry|try again/i });
@@ -85,7 +110,6 @@ test.describe('Retry Functionality', () => {
 
         // Wait for retry to complete
         await page.waitForLoadState('networkidle');
-        await page.waitForLoadState("networkidle")
 
         // Should succeed on second attempt
         await expect(page.getByText('Rendered View')).toBeVisible({

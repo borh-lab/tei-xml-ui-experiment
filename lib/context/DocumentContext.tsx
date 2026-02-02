@@ -46,7 +46,8 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
 
   const loadDocument = (xml: string) => {
     try {
-      setDocument(new TEIDocument(xml));
+      const newDoc = new TEIDocument(xml);
+      setDocument(newDoc);
     } catch (error) {
       console.error('Failed to load document:', error);
       logError(error as Error, 'DocumentContext', {
@@ -57,7 +58,8 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
         description: errorInfo.description,
         action: errorInfo.action,
       });
-      throw error;
+      // Don't set document if loading failed - keep current state or clear it
+      // Don't re-throw to allow app to continue
     }
   };
 

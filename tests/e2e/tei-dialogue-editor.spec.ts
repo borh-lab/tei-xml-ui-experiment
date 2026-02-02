@@ -13,8 +13,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('TEI Dialogue Editor', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the application
+    // Clear localStorage to ensure fresh state for auto-load on each test
     await page.goto('/');
+
+    // Clear the visited flag so auto-load triggers on every test
+    await page.evaluate(() => {
+      localStorage.removeItem('tei-editor-visited');
+    });
 
     // Wait for the page to load and auto-load a sample
     await page.waitForLoadState('networkidle');
@@ -66,10 +71,7 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('AI-Assisted Features', () => {
     test.beforeEach(async ({ page }) => {
-      // Load a sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Switch to AI suggest mode
       await page.getByRole('button', { name: /AI Suggest/i }).click();
     });
@@ -135,10 +137,7 @@ test.describe('TEI Dialogue Editor', () => {
   });
 
   test.describe('Bulk Operations', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-    });
+    // Document is already auto-loaded by main beforeEach
 
     test('should open bulk operations panel', async ({ page }) => {
       // Open bulk operations
@@ -168,10 +167,7 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('Quick Search', () => {
     test('should open quick search with Cmd+F', async ({ page }) => {
-      // Load a sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Press Cmd+F
       await page.keyboard.press('Meta+f');
 
@@ -183,10 +179,7 @@ test.describe('TEI Dialogue Editor', () => {
     });
 
     test('should search and navigate results', async ({ page }) => {
-      // Load sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Open search
       await page.keyboard.press('Meta+f');
       await expect(page.getByPlaceholder(/search/i)).toBeVisible();
@@ -200,10 +193,7 @@ test.describe('TEI Dialogue Editor', () => {
   });
 
   test.describe('Character Network Visualization', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-    });
+    // Document is already auto-loaded by main beforeEach
 
     test('should show character network graph', async ({ page }) => {
       // Open visualizations
@@ -231,9 +221,8 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('Pattern Learning', () => {
     test('should learn from user corrections', async ({ page }) => {
-      // Load sample and enable AI mode
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
+      // Document is already auto-loaded by main beforeEach
+      // Enable AI mode
       await page.getByRole('button', { name: /AI Suggest/i }).click();
 
       // Wait for AI suggestions
@@ -257,9 +246,8 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('Error Handling', () => {
     test('should handle missing API key gracefully', async ({ page }) => {
+      // Document is already auto-loaded by main beforeEach
       // Try to use AI features without API key
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
       await page.getByRole('button', { name: /AI Suggest/i }).click();
 
       // Should still work with fallback to NLP
@@ -281,6 +269,13 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('Documentation Screenshots', () => {
     test('should capture welcome screen', async ({ page }) => {
+      // Clear localStorage to show welcome screen
+      await page.evaluate(() => {
+        localStorage.clear();
+      });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
       await page.screenshot({
         path: 'docs/screenshots/welcome-screen.png',
         fullPage: true
@@ -288,6 +283,13 @@ test.describe('TEI Dialogue Editor', () => {
     });
 
     test('should capture sample gallery', async ({ page }) => {
+      // Clear localStorage to show welcome screen with gallery
+      await page.evaluate(() => {
+        localStorage.clear();
+      });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
       await page.screenshot({
         path: 'docs/screenshots/sample-gallery.png',
         fullPage: true
@@ -295,10 +297,7 @@ test.describe('TEI Dialogue Editor', () => {
     });
 
     test('should capture editor with annotations', async ({ page }) => {
-      // Load sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Take screenshot
       await page.screenshot({
         path: 'docs/screenshots/editor-annotated.png',
@@ -307,10 +306,7 @@ test.describe('TEI Dialogue Editor', () => {
     });
 
     test('should capture AI suggestions interface', async ({ page }) => {
-      // Load sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Enable AI mode
       await page.getByRole('button', { name: /AI Suggest/i }).click();
       await expect(page.getByText(/AI Suggestions/i)).toBeVisible({ timeout: 10000 });
@@ -323,10 +319,7 @@ test.describe('TEI Dialogue Editor', () => {
     });
 
     test('should capture character network visualization', async ({ page }) => {
-      // Load sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Open visualizations
       await page.getByRole('button', { name: /Visualizations/i }).click();
       await expect(page.getByText(/Character Network/i)).toBeVisible({ timeout: 5000 });
@@ -354,10 +347,7 @@ test.describe('TEI Dialogue Editor', () => {
     });
 
     test('should capture bulk operations panel', async ({ page }) => {
-      // Load sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Open bulk operations
       await page.keyboard.press('Meta+b');
       await expect(page.getByText(/Bulk Operations/i)).toBeVisible({ timeout: 5000 });
@@ -409,10 +399,7 @@ test.describe('TEI Dialogue Editor', () => {
     });
 
     test('should have proper ARIA labels', async ({ page }) => {
-      // Load sample to test editor controls
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Check for ARIA labels on buttons
       const tagButton = page.getByRole('button', { name: /tag/i });
       await expect(tagButton).toBeVisible();
@@ -451,10 +438,7 @@ test.describe('TEI Dialogue Editor', () => {
 
   test.describe('Data Persistence', () => {
     test('should remember recent documents', async ({ page }) => {
-      // Load a sample
-      await page.getByText('Load Sample').click();
-      await page.waitForLoadState('networkidle');
-
+      // Document is already auto-loaded by main beforeEach
       // Reload the page
       await page.reload();
 

@@ -6,6 +6,25 @@ import { join } from 'path';
  * Uploads a test document to the editor
  */
 export async function uploadTestDocument(page: Page, doc: { name: string; content: string }): Promise<void> {
+  // First, ensure we're in editor mode (not gallery) by checking if FileUpload button exists
+  const hasFileUpload = await page.locator('input[type="file"]').count();
+
+  if (hasFileUpload === 0) {
+    // We're on the gallery page, need to load a sample first to get the FileUpload button
+    // Check if a document has already auto-loaded
+    const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+
+    if (!hasDocument) {
+      // No auto-loaded document, load a sample manually
+      await page.getByText('The Gift of the Magi', { exact: false }).click();
+      await page.waitForSelector('button:has-text("Load Sample")', { timeout: 5000 });
+      await page.getByRole('button', { name: 'Load Sample' }).click();
+      await page.waitForLoadState('networkidle');
+      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 });
+    }
+    // If document auto-loaded, FileUpload component should already be visible
+  }
+
   const tempPath = join(process.cwd(), 'tests/fixtures', 'temp-test.tei.xml');
   writeFileSync(tempPath, doc.content);
 
@@ -124,16 +143,65 @@ export function generateTestDocument(options: {
 }
 
 /**
- * Loads a sample document
+ * Loads a sample document from the card-based gallery
  */
-export async function loadSample(page: Page, sampleName: string): Promise<void> {
+export async function loadSample(page: Page, sampleId: string): Promise<void> {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
 
-  const samplePattern = new RegExp(sampleName, 'i');
-  await page.getByText(samplePattern).click();
-  await page.getByText('Load Sample').first().click();
+  // Check if a document is already loaded (app auto-loads a sample)
+  const passageCount = await page.locator('[id^="passage-"]').count();
+
+  if (passageCount > 0) {
+    // A document is already loaded, we need to navigate back to the gallery
+    // Click on the app title or reload to get back to gallery
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+  }
+
+  // Map sample IDs to their actual titles as displayed in the UI
+  const titleMap: Record<string, string> = {
+    'yellow-wallpaper': 'The Yellow Wallpaper',
+    'gift-of-the-magi': 'The Gift of the Magi',
+    'tell-tale-heart': 'The Tell-Tale Heart',
+    'owl-creek-bridge': 'An Occurrence at Owl Creek Bridge',
+    'pride-prejudice-ch1': 'Pride and Prejudice'
+  };
+
+  const title = titleMap[sampleId] || sampleId;
+
+  // Wait for the gallery to be visible
+  await page.waitForSelector('text=Sample Gallery', { timeout: 5000 });
+
+  // Find all "Load Sample" buttons
+  const loadButtons = page.getByRole('button', { name: 'Load Sample' });
+
+  // Get the count of buttons
+  const buttonCount = await loadButtons.count();
+
+  // Find the button that's in the same card as our title
+  for (let i = 0; i < buttonCount; i++) {
+    const button = loadButtons.nth(i);
+    // Check if this button's card contains the title we want
+    const card = button.locator('xpath=ancestor::div[contains(@class, "hover:shadow")][1]');
+    const cardText = await card.textContent();
+    if (cardText && cardText.includes(title)) {
+      await button.click();
+      break;
+    }
+  }
+
+  // Wait for the editor to be ready (document should be loaded)
   await waitForEditorReady(page);
+}
+
+/**
+ * Checks if a document is already loaded (for handling auto-load on first visit)
+ */
+export async function hasDocumentLoaded(page: Page): Promise<boolean> {
+  await page.waitForLoadState('networkidle');
+  const passageCount = await page.locator('[id^="passage-"]').count();
+  return passageCount > 0;
 }
 
 /**
@@ -152,11 +220,12 @@ export async function annotatePassage(page: Page, index: number, speaker: string
 }
 
 /**
- * Triggers export and waits for download
+ * Triggers TEI export and waits for download
  */
 export async function exportDocument(page: Page): Promise<any> {
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: /export/i }).click();
+  // Use more specific selector to avoid ambiguity between Export TEI and Export HTML
+  await page.getByRole('button', { name: 'Export TEI' }).click();
   return await downloadPromise;
 }
 
