@@ -42,6 +42,7 @@
     "lucide-react": "^0.563.0",
     "next": "16.1.4",
     "openai": "^6.16.0",
+    "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hotkeys-hook": "^5.2.3",
