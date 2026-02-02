@@ -123,3 +123,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (max-width: 768px) {
+  .button-primary,
+  .button-secondary {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
