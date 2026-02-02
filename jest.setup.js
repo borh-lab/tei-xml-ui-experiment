@@ -1,5 +1,14 @@
 import '@testing-library/jest-dom'
 
+// Polyfill for fetch (required by salve-annos for Node.js)
+if (typeof global.fetch === 'undefined') {
+  const fetch = require('node-fetch')
+  global.fetch = fetch
+  global.Request = fetch.Request
+  global.Response = fetch.Response
+  global.Headers = fetch.Headers
+}
+
 // Polyfill for structuredClone (required by fake-indexeddb)
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (val) => JSON.parse(JSON.stringify(val))
