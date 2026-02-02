@@ -50,10 +50,8 @@ export const StructuralTagPalette: React.FC<StructuralTagPaletteProps> = ({
 
   const handleTagClick = async (tagName: string) => {
     if (disabled) {
-      toast({
-        title: 'Cannot Insert Tag',
+      toast.error('Cannot Insert Tag', {
         description: 'Please switch to XML or Split view to insert tags',
-        variant: 'destructive',
       });
       return;
     }
@@ -76,16 +74,13 @@ export const StructuralTagPalette: React.FC<StructuralTagPaletteProps> = ({
       // Call the insert callback
       onInsertTag(tagName);
 
-      toast({
-        title: 'Tag Inserted',
+      toast.success('Tag Inserted', {
         description: `<${tagName}> tag has been inserted at cursor position`,
       });
     } catch (error) {
       console.error('Failed to insert tag:', error);
-      toast({
-        title: 'Insertion Failed',
+      toast.error('Insertion Failed', {
         description: error instanceof Error ? error.message : 'Failed to insert tag',
-        variant: 'destructive',
       });
     } finally {
       setIsValidating(false);

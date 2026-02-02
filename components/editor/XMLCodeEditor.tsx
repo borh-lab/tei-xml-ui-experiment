@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import Editor from '@monaco-editor/react';
+import dynamic from 'next/dynamic';
 import type { editor } from 'monaco-editor';
+
+// Dynamically import Monaco Editor to avoid SSR issues
+const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
 interface XMLCodeEditorProps {
   value: string;
   onChange?: (value: string) => void;
-  onDidChangeSelection?: (event: editor.IModelSelectionChangeEvent) => void;
+  onDidChangeSelection?: (event: any) => void;
   onMount?: (editor: editor.IStandaloneCodeEditor) => void;
   errors?: Array<{ line: number; message: string }>;
   readOnly?: boolean;
@@ -23,25 +26,29 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
   readOnly = false,
   height = '100%',
 }) => {
+  const [mounted, setMounted] = useState(false);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const decorationRefs = useRef<string[]>([]);
   const [hasPendingChange, setHasPendingChange] = useState(false);
 
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
+  // Only render on client-side
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-sm text-muted-foreground">Loading editor...</div>
+      </div>
+    );
+  }
+
+  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: any) => {
     editorRef.current = editor;
 
     // Configure XML language options
     // Note: Monaco doesn't have built-in XML validation, so we'll use custom markers
-
-    // Enable auto-indentation
-    editor.addAction({
-      id: 'format-document',
-      label: 'Format Document',
-      keybindings: [editor.KeyCode.KeyS | editor.KeyCode.Shift | editor.KeyCode.CtrlCmd],
-      run: (ed) => {
-        ed.getAction('editor.action.formatDocument')?.run();
-      },
-    });
 
     // Register selection change listener
     if (onDidChangeSelection) {
@@ -83,30 +90,33 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
     const oldDecorations = decorationRefs.current;
     decorationRefs.current = [];
 
-    // Create new decorations for errors
-    const newDecorations: editor.IModelDeltaDecoration[] = errors.map((error) => ({
-      range: new monaco.Range(
-        error.line,
-        1,
-        error.line,
-        1000 // Highlight entire line
-      ),
-      options: {
-        className: 'squiggly-error',
-        hoverMessage: {
-          value: error.message,
+    // Create new decorations for errors (using dynamic import to access monaco)
+    import('monaco-editor').then((monaco) => {
+      const newDecorations: editor.IModelDeltaDecoration[] = errors.map((error) => ({
+        range: new monaco.Range(
+          error.line,
+          1,
+          error.line,
+          1000 // Highlight entire line
+        ),
+        options: {
+          className: 'squiggly-error',
+          hoverMessage: {
+            value: error.message,
+          },
+          minimap: {
+            color: '#ff0000',
+            position: monaco.editor.MinimapPosition.Inline,
+          },
         },
-        minimap: {
-          color: '#ff0000',
-        },
-      },
-    }));
+      }));
 
-    // Apply decorations
-    decorationRefs.current = monacoEditor.deltaDecorations(
-      oldDecorations,
-      newDecorations
-    );
+      // Apply decorations
+      decorationRefs.current = monacoEditor.deltaDecorations(
+        oldDecorations,
+        newDecorations
+      );
+    });
   }, [errors]);
 
   // Clear pending change flag after a delay
@@ -121,8 +131,7 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
 
   return (
     <div className="relative w-full h-full">
-      <Editor
-        height={height}
+      <MonacoEditor
         defaultLanguage="xml"
         value={value}
         onChange={handleEditorChange}
