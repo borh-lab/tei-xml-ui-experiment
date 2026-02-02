@@ -1,0 +1,100 @@
+# Nginx configuration example for reverse proxy deployment
+# Deploy at: https://nlp.lang.osaka-u.ac.jp/dhlab-experiment-ui
+#
+# Instructions:
+# 1. Copy this file to /etc/nginx/sites-available/tei-xml-editor
+# 2. Create symlink: ln -s /etc/nginx/sites-available/tei-xml-editor /etc/nginx/sites-enabled/
+# 3. Test configuration: nginx -t
+# 4. Reload nginx: systemctl reload nginx
+# 5. Uncomment basePath in next.config.ts and rebuild: npm run build
+
+server {
+    listen 80;
+    server_name nlp.lang.osaka-u.ac.jp;
+
+    # Uncomment for HTTPS
+    # listen 443 ssl http2;
+    # ssl_certificate /path/to/cert.pem;
+    # ssl_certificate_key /path/to/key.pem;
+
+    # Enable gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Proxy to Next.js application
+    location /dhlab-experiment-ui {
+        # Proxy to Next.js server (dev or production)
+        proxy_pass http://localhost:3000;
+
+        # Required proxy headers
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeout settings for large file uploads
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 75s;
+
+        # WebSocket support (for Next.js hot reload in development)
+        proxy_cache_bypass $http_upgrade;
+
+        # Buffer settings
+        proxy_buffering off;
+        proxy_request_buffering off;
+    }
+
+    # Cache static Next.js assets
+    location /dhlab-experiment-ui/_next/static {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+
+        # Cache for 1 year
+        expires 365d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Cache public static assets
+    location /dhlab-experiment-ui/static {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+
+        # Cache for 30 days
+        expires 30d;
+        add_header Cache-Control "public";
+    }
+
+    # API routes (if any)
+    location /dhlab-experiment-ui/api {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Don't cache API responses
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+}
+
+# Alternative: If you prefer to strip the basePath in nginx and handle it in Next.js
+# Note: When basePath is set in next.config.ts, Next.js expects it in the URL
+# Uncomment this if you want nginx to handle the path rewriting
+#
+# location /dhlab-experiment-ui {
+#     # Strip the prefix and pass to Next.js
+#     rewrite ^/dhlab-experiment-ui/(.*) /$1 break;
+#     proxy_pass http://localhost:3000;
+#     proxy_http_version 1.1;
+#     proxy_set_header Host $host;
+#     proxy_set_header X-Real-IP $remote_addr;
+#     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+# }

@@ -2,7 +2,7 @@ export interface EntitySpan {
   start: number;
   end: number;
   text: string;
-  type: 'persName' | 'placeName' | 'orgName' | 'date';
+  type: 'persName' | 'placeName' | 'orgName' | 'date' | 'dialogue';
   confidence: number;
 }
 

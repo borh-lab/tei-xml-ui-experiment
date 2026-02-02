@@ -49,10 +49,15 @@ export class NERAutoTagger {
     const highConfidence = this.getHighConfidenceEntities(result);
 
     highConfidence.forEach(entity => {
+      // Skip dialogue entities - those are handled separately
+      if (entity.type === 'dialogue') {
+        return;
+      }
+
       // Apply each high-confidence entity to the document
       document.addNERTag(
         { start: entity.start, end: entity.end },
-        entity.type,
+        entity.type as 'persName' | 'placeName' | 'orgName' | 'date',
         undefined // TODO: match to character ID if persName
       );
     });

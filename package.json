@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:proxy": "NEXT_PUBLIC_BASE_PATH=/dhlab-experiment-ui next build",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
