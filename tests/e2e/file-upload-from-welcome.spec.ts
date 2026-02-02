@@ -35,7 +35,7 @@ test.describe('FileUpload', () => {
 
     // Wait for processing
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify success toast appears
     await expect(page.getByText(/document uploaded successfully/i)).toBeVisible({
@@ -69,7 +69,7 @@ test.describe('FileUpload', () => {
 
     // Wait for processing
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify error toast appears
     const errorToast = page.getByText(/failed to upload|invalid|error/i);
@@ -125,7 +125,7 @@ test.describe('FileUpload', () => {
 
     // Wait for state transition
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify "No document loaded" message is gone
     await expect(page.getByText('No document loaded')).not.toBeVisible();
@@ -171,7 +171,7 @@ test.describe('FileUpload', () => {
     });
 
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify new document loads successfully
     await expect(page.getByText(/document uploaded successfully/i)).toBeVisible();

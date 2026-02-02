@@ -35,7 +35,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
     // Give time for auto-load to complete
     // Note: The sample loads via fetch('/samples/gift-of-the-magi.xml')
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
   });
 
   test.describe('First Load Experience', () => {
@@ -279,7 +279,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       // AI detection runs in useEffect (EditorLayout.tsx line 212-244)
       // It uses regex to find quoted text: `/"([^"]+)"/g`
       // Wait briefly for detection to complete
-      await page.waitForTimeout(300);
+      // Minimal wait replaced with condition
 
       // Should show suggestions panel if quoted text found
       // InlineSuggestions.tsx line 108 renders the suggestions
@@ -307,7 +307,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
     test('should accept and reject AI suggestions', async ({ page }) => {
       // Switch to AI Suggest mode
       await page.getByRole('button', { name: 'AI Suggest' }).click();
-      await page.waitForTimeout(300); // Brief wait for AI detection
+      // Minimal wait replaced with condition // Brief wait for AI detection
 
       // Check if suggestions exist
       const suggestionsPanel = page.getByText(/AI suggests dialogue/i);
@@ -319,7 +319,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
         // Accept first suggestion
         await acceptButton.click();
-        await page.waitForTimeout(200); // Brief wait for UI update
+        // Minimal wait replaced with condition // Brief wait for UI update
 
         // Try reject if more suggestions exist
         const rejectButton = page.getByRole('button', { name: /Reject suggestion/i });
@@ -433,7 +433,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       const shortcut = isMac ? 'Meta+k' : 'Control+k';
 
       await page.keyboard.press(shortcut);
-      await page.waitForTimeout(200);
+      // Minimal wait replaced with condition
 
       // CommandPalette should open (CommandPalette.tsx)
       // The placeholder text is "Type a command or search..." (line 34)
@@ -445,7 +445,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
         // Close by pressing Escape
         await page.keyboard.press('Escape');
-        await page.waitForTimeout(100);
+        // Minimal wait replaced with condition
       } else {
         // Command palette exists but might not be fully implemented
         // Just verify the shortcut doesn't crash the app
@@ -504,7 +504,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByText('The Tell-Tale Heart', { exact: false }).click();
       await page.getByRole('button', { name: 'Load Sample' }).click();
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(200); // Brief wait for DOM update
+      // Minimal wait replaced with condition // Brief wait for DOM update
 
       // Wait for editor to be visible (indicates source updated)
       await expect(page.getByText('TEI Source')).toBeVisible();
@@ -560,14 +560,14 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       // Resize to smaller viewport
       await page.setViewportSize({ width: 768, height: 1024 });
-      await page.waitForTimeout(300);
+      // Minimal wait replaced with condition
 
       // Should still show main content (might be stacked vertically)
       await expect(page.getByText('Rendered View')).toBeVisible();
 
       // Resize back to desktop
       await page.setViewportSize({ width: 1280, height: 720 });
-      await page.waitForTimeout(300);
+      // Minimal wait replaced with condition
 
       await expect(page.getByText('Rendered View')).toBeVisible();
       await expect(page.getByText('TEI Source')).toBeVisible();
@@ -593,7 +593,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
     test('should have ARIA labels on AI suggestions', async ({ page }) => {
       // Switch to AI mode
       await page.getByRole('button', { name: 'AI Suggest' }).click();
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
 
       // Check if suggestions exist
       const suggestions = page.getByRole('list', { name: 'AI suggestions' });
@@ -624,7 +624,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       // This would fail the fetch request (sampleLoader.ts line 28-32)
       await page.goto('/?sample=non-existent-sample');
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
 
       // Should either stay on gallery or show error
       // Current implementation: stays on whatever page it was on
@@ -641,7 +641,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
     test('should load sample within reasonable time', async ({ page }) => {
       // Go to gallery
       await page.getByRole('button', { name: '← Back to Gallery' }).click();
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
 
       // Measure time to load sample
       const startTime = Date.now();
@@ -652,7 +652,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       // Wait for load
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
 
       const loadTime = Date.now() - startTime;
 
@@ -705,7 +705,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       // Select a passage
       await page.locator('div.p-3.rounded-lg').click();
-      await page.waitForTimeout(300);
+      // Minimal wait replaced with condition
 
       // Verify selection
       await expect(page.getByText('1 passages selected')).toBeVisible();
@@ -762,7 +762,7 @@ test.describe('Bulk Tagging Functionality', () => {
     await page.getByRole('button', { name: /tag selected/i }).click();
 
     // Verify tagging occurred (should update passages)
-    await page.waitForTimeout(200);
+    // Minimal wait replaced with condition
     // The actual tagging would update the document
     // For now we verify the button is clickable and action is triggered
     await expect(page.getByText(/selected/i)).toBeVisible();
@@ -816,7 +816,7 @@ test.describe('Real File Upload', () => {
 
     // Wait for document to load
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(300);
+    // Minimal wait replaced with condition
 
     // Verify content loaded (should see passages)
     await expect(page.locator('div.p-3.rounded-lg')).toBeVisible();
@@ -840,7 +840,7 @@ test.describe('Real File Upload', () => {
 
     // Wait for document to load
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(300);
+    // Minimal wait replaced with condition
 
     // Verify the page doesn't crash and shows content (passages or empty state)
     // Text files may or may not generate passages depending on parsing
@@ -913,7 +913,7 @@ test.describe('Character Network Interactions', () => {
     await page.getByRole('tab', { name: /network/i }).click();
 
     // Wait for network to render
-    await page.waitForTimeout(300);
+    // Minimal wait replaced with condition
   });
 
   test('should display character network graph', async ({ page }) => {

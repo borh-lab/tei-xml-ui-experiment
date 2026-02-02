@@ -19,7 +19,7 @@ test.describe('TEI Dialogue Editor', () => {
     // Wait for the page to load and auto-load a sample
     await page.waitForLoadState('networkidle');
     // Wait a bit for the auto-load to complete
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle")
   });
 
   test('should auto-load sample document on first visit', async ({ page }) => {

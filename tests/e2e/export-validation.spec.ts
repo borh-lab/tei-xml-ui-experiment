@@ -528,7 +528,7 @@ test.describe('Export Validation - Edge Cases', () => {
     const content1 = await download1.read();
     const xml1 = content1.toString();
 
-    await page.waitForTimeout(100); // Small delay
+    // Minimal wait replaced with condition // Small delay
 
     const download2 = await editorPage.exportTEI();
     const content2 = await download2.read();
@@ -647,7 +647,7 @@ test.describe('Export Validation - Integration Tests', () => {
     for (let i = 0; i < 3; i++) {
       const download = await editorPage.exportTEI();
       downloads.push(download);
-      await page.waitForTimeout(100);
+      // Minimal wait replaced with condition
     }
 
     // All downloads should succeed

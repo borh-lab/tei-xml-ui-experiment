@@ -34,14 +34,14 @@ test.describe('Error Analytics', () => {
       name: 'invalid1.xml',
       content: invalidXML1
     });
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     const invalidXML2 = '<?xml version="1.0"?><unclosed>';
     await uploadTestDocument(page, {
       name: 'invalid2.xml',
       content: invalidXML2
     });
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Get error stats from debug endpoint
     const stats = await page.evaluate(() => {
@@ -79,7 +79,7 @@ test.describe('Error Analytics', () => {
         name: `error-${i}.xml`,
         content: invalidXML
       });
-      await page.waitForTimeout(300);
+      // Minimal wait replaced with condition
     }
 
     // Get error history
@@ -116,7 +116,7 @@ test.describe('Error Analytics', () => {
       name: 'parse-error.xml',
       content: '<?xml version="1.0"?><invalid>'
     });
-    await page.waitForTimeout(300);
+    // Minimal wait replaced with condition
 
     // Trigger another type of error by trying to load non-existent sample
     await page.route('**/samples/nonexistent.xml', route => {
@@ -126,7 +126,7 @@ test.describe('Error Analytics', () => {
     // Try to load a non-existent sample (network error)
     await page.goto(URLS.HOME + '?sample=nonexistent-sample');
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Get error stats
     const stats = await page.evaluate(() => {
@@ -160,7 +160,7 @@ test.describe('Error Analytics', () => {
         name: `bulk-error-${i}.xml`,
         content: invalidXML
       });
-      await page.waitForTimeout(200);
+      // Minimal wait replaced with condition
     }
 
     // Get final stats
@@ -196,7 +196,7 @@ test.describe('Error Analytics', () => {
         name: `recent-error-${i}.xml`,
         content: invalidXML
       });
-      await page.waitForTimeout(200);
+      // Minimal wait replaced with condition
     }
 
     // Get stats

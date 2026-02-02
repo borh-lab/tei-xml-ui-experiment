@@ -20,7 +20,7 @@ test.describe('Error Handling UI', () => {
     })
 
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(500)
+    await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 2000 }).catch(() => {})
   })
 
   test('shows toast notification on invalid file upload', async ({ page }) => {
@@ -48,8 +48,8 @@ test.describe('Error Handling UI', () => {
 
     const toast = page.locator('[data-sonner-toast]')
     await expect(toast).toBeVisible()
-    await page.waitForTimeout(6000)
-    await expect(toast).not.toBeVisible()
+    // Wait for auto-dismiss (5 second timeout)
+    await expect(toast).not.toBeVisible({ timeout: 6000 })
 
     unlinkSync(tempPath)
   })
@@ -96,7 +96,7 @@ test.describe('Error Handling UI', () => {
       writeFileSync(tempPath, 'invalid {{{ xml')
 
       await fileInput.setInputFiles(tempPath)
-      await page.waitForTimeout(500)
+      await page.waitForLoadState('domcontentloaded')
 
       unlinkSync(tempPath)
     }

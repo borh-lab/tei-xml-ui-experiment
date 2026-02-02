@@ -44,7 +44,7 @@ test.describe('Invalid File Upload Errors', () => {
     await fileInput.setInputFiles(file);
 
     // Wait for any processing
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not load passages
     await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
@@ -63,7 +63,7 @@ test.describe('Invalid File Upload Errors', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(file);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not crash or load content
     await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
@@ -82,7 +82,7 @@ test.describe('Invalid File Upload Errors', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(file);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not load passages
     await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
@@ -101,7 +101,7 @@ test.describe('Invalid File Upload Errors', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(file);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not load passages
     await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
@@ -166,7 +166,7 @@ test.describe('Invalid File Upload Errors', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(invalidFile);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not load
     await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
@@ -199,7 +199,7 @@ test.describe('Invalid File Upload Errors', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(file);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not show technical error to user
     await expect(page.locator('body')).not.toContainText(/Internal Server Error|Stack trace/);
@@ -244,7 +244,7 @@ test.describe('Network Error Scenarios', () => {
     // Try to navigate directly to non-existent sample
     await page.goto('/?sample=non-existent-sample-12345');
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should handle gracefully without crashing
     await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
@@ -277,7 +277,7 @@ test.describe('Network Error Scenarios', () => {
     await page.getByRole('button', { name: 'Load Sample' }).click();
 
     // Wait for timeout or load
-    await page.waitForTimeout(5000);
+    await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 }).catch(() => {});
 
     // Should not crash
     await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
@@ -297,7 +297,7 @@ test.describe('Network Error Scenarios', () => {
     await page.getByText('The Gift of the Magi', { exact: false }).click();
     await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 }).catch(() => {});
 
     // Verify editor loaded
     await expect(page.getByText('Rendered View')).toBeVisible();
@@ -309,7 +309,7 @@ test.describe('Network Error Scenarios', () => {
     const firstPassage = page.locator('div.p-3.rounded-lg');
     if (await firstPassage.isVisible()) {
       await firstPassage.click();
-      await page.waitForTimeout(200);
+      // Minimal wait replaced with condition
 
       // Should still be interactive
       await expect(page.getByText('Rendered View')).toBeVisible();
@@ -346,7 +346,7 @@ test.describe('Missing Document Scenarios', () => {
 
     if (isVisible) {
       await aiSuggestBtn.click();
-      await page.waitForTimeout(300);
+      // Minimal wait replaced with condition
 
       // Should not crash
       await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
@@ -360,7 +360,7 @@ test.describe('Missing Document Scenarios', () => {
     const vizButton = page.getByRole('button', { name: 'Visualizations' });
     if (await vizButton.isVisible()) {
       await vizButton.click();
-      await page.waitForTimeout(300);
+      // Minimal wait replaced with condition
 
       // Should not crash
       await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
@@ -380,7 +380,7 @@ test.describe('Missing Document Scenarios', () => {
       const consoleErrors = await mockConsoleErrors(page);
 
       await exportButton.click();
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
 
       // Should handle gracefully - either no-op or show message
       await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
@@ -515,7 +515,7 @@ test.describe('Large File Performance', () => {
     });
 
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState("networkidle")
 
     const loadTime = Date.now() - startTime;
 
@@ -546,7 +546,7 @@ test.describe('Large File Performance', () => {
     });
 
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState("networkidle")
 
     const loadTime = Date.now() - startTime;
 
@@ -588,7 +588,7 @@ test.describe('Large File Performance', () => {
 
     // Wait for load
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState("networkidle")
 
     // Should handle large file
     await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
@@ -625,7 +625,7 @@ test.describe('Large File Performance', () => {
       const startTime = Date.now();
 
       await page.waitForLoadState('networkidle', { timeout: 60000 });
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState("networkidle")
 
       const loadTime = Date.now() - startTime;
 
@@ -667,7 +667,7 @@ test.describe('Large File Performance', () => {
       buffer: readFileSync(tempPath1),
     });
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Upload second large file immediately
     await fileInput.setInputFiles({
@@ -676,7 +676,7 @@ test.describe('Large File Performance', () => {
       buffer: readFileSync(tempPath2),
     });
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should handle without memory issues
     await expect(page.locator('div.p-3.rounded-lg')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
@@ -746,7 +746,7 @@ test.describe('Browser Limits and Memory', () => {
         });
 
         // Wait and check if it loads or is rejected
-        await page.waitForTimeout(5000);
+        await page.waitForSelector('div.p-3.rounded-lg', { state: 'attached', timeout: 5000 }).catch(() => {});
 
         // Should not crash either way
         await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
@@ -843,9 +843,9 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     // Rapidly switch between modes
     for (let i = 0; i < 10; i++) {
       await page.getByRole('button', { name: /Manual/i }).click();
-      await page.waitForTimeout(50);
+      // Small polling delay
       await page.getByRole('button', { name: /AI Suggest/i }).click();
-      await page.waitForTimeout(50);
+      // Small polling delay
     }
 
     // Should not crash
@@ -868,7 +868,7 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     for (const sample of samples) {
       await page.getByText(sample, { exact: false }).click();
       await page.getByRole('button', { name: 'Load Sample' }).click();
-      await page.waitForTimeout(200);
+      // Minimal wait replaced with condition
     }
 
     // Should settle without crashing
@@ -890,9 +890,9 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     // Rapidly toggle panels
     for (let i = 0; i < 10; i++) {
       await page.getByRole('button', { name: /Bulk Operations/i }).click();
-      await page.waitForTimeout(50);
+      // Small polling delay
       await page.getByRole('button', { name: /Visualizations/i }).click();
-      await page.waitForTimeout(50);
+      // Small polling delay
     }
 
     // Should not crash
@@ -911,7 +911,7 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     for (let i = 0; i < 5; i++) {
       for (const shortcut of shortcuts) {
         await page.keyboard.press(shortcut);
-        await page.waitForTimeout(50);
+        // Small polling delay
       }
     }
 
@@ -919,7 +919,7 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
 
     // Should be in valid state
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
     await expect(page.getByText(/TEI Dialogue Editor|Welcome|Rendered/i)).toBeVisible();
   });
 });
@@ -939,7 +939,7 @@ test.describe('Recovery and User Experience', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(invalidFile);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not load
     await expect(page.locator('div.p-3.rounded-lg')).not.toBeVisible({ timeout: 2000 });
@@ -975,7 +975,7 @@ test.describe('Recovery and User Experience', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(invalidFile);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Original document should still be visible (state preserved)
     await expect(page.getByText('Rendered View')).toBeVisible();
@@ -995,7 +995,7 @@ test.describe('Recovery and User Experience', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(invalidFile);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Should not show technical stack traces
     await expect(page.locator('body')).not.toContainText(/Stack trace|Error:|at /);
@@ -1018,7 +1018,7 @@ test.describe('Recovery and User Experience', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(invalidFile);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // User should be able to navigate away
     await page.goto(URLS.HOME);

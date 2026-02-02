@@ -16,7 +16,7 @@ test('debug - what is on the page', async ({ page }) => {
 
   await page.goto('/');
   await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(2000);
+  await page.waitForLoadState("networkidle")
 
   // Log all console errors
   console.log('=== CONSOLE ERRORS ===');

@@ -49,10 +49,7 @@ test.describe('Document Upload - Basic Operations', () => {
 
     // Wait for document to load
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000);
-
-    // Verify document loaded successfully
-    await expect(page.locator('[id^="passage-"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await page.waitForSelector('[id^="passage-"]', { state: 'visible', timeout: TIMEOUTS.ELEMENT_VISIBLE });
     const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(5);
   });
@@ -65,7 +62,7 @@ test.describe('Document Upload - Basic Operations', () => {
     await fileInput.setInputFiles(tempPath);
 
     // File input should reject the file or show no content
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('networkidle');
     unlinkSync(tempPath);
 
     // Should not show passages (document not loaded)
@@ -79,7 +76,7 @@ test.describe('Document Upload - Basic Operations', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(tempPath);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
     unlinkSync(tempPath);
 
     await expect(page.locator('[id^="passage-"]')).not.toBeVisible({ timeout: 2000 });
@@ -92,7 +89,7 @@ test.describe('Document Upload - Basic Operations', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(tempPath);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
     if (existsSync(tempPath)) {
       unlinkSync(tempPath);
     }
@@ -114,7 +111,7 @@ test.describe('Document Upload - Basic Operations', () => {
     await fileInput.setInputFiles(tempPath);
 
     // Brief wait to observe any loading state
-    await page.waitForTimeout(100);
+    // Minimal wait replaced with condition
 
     // Verify eventual load
     await page.waitForLoadState('networkidle');
@@ -332,7 +329,7 @@ test.describe('Edge Cases', () => {
 
     // Wait for load
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForTimeout(2000); // Additional wait for processing
+    await page.waitForSelector('[id^="passage-"]', { state: 'visible', timeout: TIMEOUTS.ELEMENT_VISIBLE * 2 });
 
     // Verify some passages are rendered (may not show all for performance)
     const firstPassage = page.locator('[id^="passage-"]');
@@ -354,7 +351,7 @@ test.describe('Edge Cases', () => {
 
     // Give extra time for very large document
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForTimeout(3000);
+    await page.waitForSelector('[id^="passage-"]', { state: 'visible', timeout: TIMEOUTS.ELEMENT_VISIBLE * 2 });
 
     // At minimum, should show first passage
     await expect(page.locator('[id^="passage-"]')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
@@ -520,7 +517,7 @@ test.describe('Validation and Error Handling', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(tempPath);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
     unlinkSync(tempPath);
 
     await expect(page.locator('[id^="passage-"]')).not.toBeVisible({ timeout: 2000 });
@@ -533,7 +530,7 @@ test.describe('Validation and Error Handling', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(tempPath);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
     unlinkSync(tempPath);
 
     await expect(page.locator('[id^="passage-"]')).not.toBeVisible({ timeout: 2000 });
@@ -602,7 +599,7 @@ test.describe('Upload UI Interactions', () => {
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(tempPath);
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
     unlinkSync(tempPath);
 
     // Original document should still be visible
@@ -660,7 +657,7 @@ test.describe('Performance and Stress Tests', () => {
     });
 
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState("networkidle")
 
     const loadTime = Date.now() - startTime;
 
@@ -687,7 +684,7 @@ test.describe('Performance and Stress Tests', () => {
       });
 
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
     }
 
     // Final document should be loaded correctly

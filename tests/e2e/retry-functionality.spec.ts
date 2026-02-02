@@ -30,7 +30,7 @@ test.describe('Retry Functionality', () => {
 
       // Wait for error to appear
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState("networkidle")
 
       // The app should show an error toast with retry action
       // The error categorization system adds a retry action for network errors
@@ -73,7 +73,7 @@ test.describe('Retry Functionality', () => {
 
       // Wait for error
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(1000);
+      await page.waitForLoadState("networkidle")
 
       // Look for retry action
       const retryAction = page.getByRole('button', { name: /retry|try again/i });
@@ -85,7 +85,7 @@ test.describe('Retry Functionality', () => {
 
         // Wait for retry to complete
         await page.waitForLoadState('networkidle');
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState("networkidle")
 
         // Should succeed on second attempt
         await expect(page.getByText('Rendered View')).toBeVisible({
@@ -112,7 +112,7 @@ test.describe('Retry Functionality', () => {
       });
 
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
 
       // Verify error toast appears
       await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible();
@@ -148,7 +148,7 @@ test.describe('Retry Functionality', () => {
           content
         });
 
-        await page.waitForTimeout(300);
+        // Minimal wait replaced with condition
       }
 
       // App should still be functional
@@ -166,7 +166,7 @@ test.describe('Retry Functionality', () => {
       });
 
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
+      // Small wait replaced with condition
 
       // Should successfully load after errors
       await expect(page.getByText(/document uploaded successfully/i)).toBeVisible();

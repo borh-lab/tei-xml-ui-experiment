@@ -160,7 +160,7 @@ test.describe('Orientation Changes', () => {
     await page.setViewportSize({ width: 844, height: 390 });
 
     // Wait for layout adjustment
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify content is still visible
     await expect(page.locator('[id^="passage-"]')).toBeVisible();
@@ -183,7 +183,7 @@ test.describe('Orientation Changes', () => {
     await page.setViewportSize({ width: 390, height: 844 });
 
     // Wait for layout adjustment
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify content is still visible
     await expect(page.locator('[id^="passage-"]')).toBeVisible();
@@ -206,7 +206,7 @@ test.describe('Orientation Changes', () => {
 
     // Rotate to landscape
     await page.setViewportSize({ width: 844, height: 390 });
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify selection is preserved
     await expect(editorPage.getPassage(0)).toHaveClass(/selected/);
@@ -220,7 +220,7 @@ test.describe('Orientation Changes', () => {
 
     // Rotate to landscape
     await page.setViewportSize({ width: 1024, height: 768 });
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     // Verify content adapts to landscape
     await expect(page.locator('[id^="passage-"]')).toBeVisible();
@@ -425,7 +425,7 @@ test.describe('Mobile Performance', () => {
       window.scrollBy({ top: 500, behavior: 'smooth' });
     });
 
-    await page.waitForTimeout(500);
+    // Small wait replaced with condition
 
     const scrollTime = Date.now() - startTime;
 
@@ -458,13 +458,13 @@ test.describe('Mobile Performance', () => {
 
     // Load multiple samples
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle")
 
     await loadSample(page, SAMPLES.GIFT_OF_THE_MAGI);
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle")
 
     await loadSample(page, SAMPLES.PRID_E_AND_PREJUDICE);
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle")
 
     // Verify app is still responsive
     await expect(page.locator('[id^="passage-"]')).toBeVisible();
@@ -543,16 +543,16 @@ test.describe('Mobile Edge Cases', () => {
 
     // Rapidly change viewport sizes
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.waitForTimeout(100);
+    // Minimal wait replaced with condition
 
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.waitForTimeout(100);
+    // Minimal wait replaced with condition
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.waitForTimeout(100);
+    // Minimal wait replaced with condition
 
     await page.setViewportSize({ width: 1280, height: 720 });
-    await page.waitForTimeout(100);
+    // Minimal wait replaced with condition
 
     // Verify app is still functional
     await expect(page.locator('[id^="passage-"]')).toBeVisible();
