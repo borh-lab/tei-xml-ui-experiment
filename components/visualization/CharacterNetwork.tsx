@@ -65,12 +65,15 @@ export function CharacterNetwork({ onNodeClick }: CharacterNetworkProps) {
   );
 
   // Extract character interaction data from TEI document using ProximityAnalyzer
-  const { initialNodes, initialEdges } = useMemo(() => {
-    if (!document) return { initialNodes: [], initialEdges: [] };
+  const graphData = useMemo(() => {
+    if (!document) return { nodes: [], edges: [] };
 
     const analyzer = new ProximityAnalyzer(document);
     return analyzer.analyze(config);
   }, [document, config]);
+
+  const initialNodes = graphData.nodes;
+  const initialEdges = graphData.edges;
 
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
