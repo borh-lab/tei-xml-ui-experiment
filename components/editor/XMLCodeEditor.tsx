@@ -1,0 +1,168 @@
+'use client';
+
+import React, { useRef, useEffect, useState } from 'react';
+import Editor from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
+
+interface XMLCodeEditorProps {
+  value: string;
+  onChange?: (value: string) => void;
+  onDidChangeSelection?: (event: editor.IModelSelectionChangeEvent) => void;
+  onMount?: (editor: editor.IStandaloneCodeEditor) => void;
+  errors?: Array<{ line: number; message: string }>;
+  readOnly?: boolean;
+  height?: string;
+}
+
+export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
+  value,
+  onChange,
+  onDidChangeSelection,
+  onMount,
+  errors = [],
+  readOnly = false,
+  height = '100%',
+}) => {
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const decorationRefs = useRef<string[]>([]);
+  const [hasPendingChange, setHasPendingChange] = useState(false);
+
+  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
+    editorRef.current = editor;
+
+    // Configure XML language options
+    // Note: Monaco doesn't have built-in XML validation, so we'll use custom markers
+
+    // Enable auto-indentation
+    editor.addAction({
+      id: 'format-document',
+      label: 'Format Document',
+      keybindings: [editor.KeyCode.KeyS | editor.KeyCode.Shift | editor.KeyCode.CtrlCmd],
+      run: (ed) => {
+        ed.getAction('editor.action.formatDocument')?.run();
+      },
+    });
+
+    // Register selection change listener
+    if (onDidChangeSelection) {
+      editor.onDidChangeCursorSelection((e) => {
+        onDidChangeSelection(e);
+      });
+    }
+
+    // Call parent onMount callback
+    if (onMount) {
+      onMount(editor);
+    }
+
+    // Set custom XML syntax highlighting options
+    editor.updateOptions({
+      formatOnPaste: true,
+      formatOnType: true,
+    });
+  };
+
+  const handleEditorChange = (newValue: string | undefined) => {
+    if (newValue !== undefined && onChange) {
+      setHasPendingChange(true);
+      onChange(newValue);
+      // Debounce is handled by the parent component
+    }
+  };
+
+  // Update error markers (squiggles) when errors change
+  useEffect(() => {
+    if (!editorRef.current) return;
+
+    const monacoEditor = editorRef.current;
+    const model = monacoEditor.getModel();
+
+    if (!model) return;
+
+    // Clear existing decorations
+    const oldDecorations = decorationRefs.current;
+    decorationRefs.current = [];
+
+    // Create new decorations for errors
+    const newDecorations: editor.IModelDeltaDecoration[] = errors.map((error) => ({
+      range: new monaco.Range(
+        error.line,
+        1,
+        error.line,
+        1000 // Highlight entire line
+      ),
+      options: {
+        className: 'squiggly-error',
+        hoverMessage: {
+          value: error.message,
+        },
+        minimap: {
+          color: '#ff0000',
+        },
+      },
+    }));
+
+    // Apply decorations
+    decorationRefs.current = monacoEditor.deltaDecorations(
+      oldDecorations,
+      newDecorations
+    );
+  }, [errors]);
+
+  // Clear pending change flag after a delay
+  useEffect(() => {
+    if (hasPendingChange) {
+      const timer = setTimeout(() => {
+        setHasPendingChange(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [hasPendingChange]);
+
+  return (
+    <div className="relative w-full h-full">
+      <Editor
+        height={height}
+        defaultLanguage="xml"
+        value={value}
+        onChange={handleEditorChange}
+        onMount={handleEditorDidMount}
+        options={{
+          readOnly,
+          minimap: { enabled: true },
+          fontSize: 14,
+          lineNumbers: 'on',
+          scrollBeyondLastLine: false,
+          automaticLayout: true,
+          tabSize: 2,
+          insertSpaces: true,
+          detectIndentation: true,
+          folding: true,
+          bracketPairColorization: {
+            enabled: true,
+          },
+          wordWrap: 'on',
+          // XML-specific options
+          formatOnPaste: true,
+          formatOnType: true,
+        }}
+        theme="vs"
+        loading={
+          <div className="flex items-center justify-center h-full">
+            <div className="text-sm text-muted-foreground">Loading editor...</div>
+          </div>
+        }
+      />
+      {/* Custom CSS for error squiggles */}
+      <style jsx global>{`
+        .squiggly-error {
+          text-decoration: underline wavy red;
+          text-decoration-style: wavy;
+          text-decoration-color: #ff0000;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+XMLCodeEditor.displayName = 'XMLCodeEditor';

@@ -26,12 +26,17 @@ import { SelectionManager, TagInfo } from '@/lib/selection/SelectionManager';
 import { ValidationPanel } from '@/components/validation/ValidationPanel';
 import { TagBreadcrumb } from './TagBreadcrumb';
 import { TagEditDialog } from './TagEditDialog';
+import { XMLCodeEditor } from './XMLCodeEditor';
+import { StructuralTagPalette } from './StructuralTagPalette';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 
 interface Issue {
   type: 'error' | 'warning';
   message: string;
   location: { index: number; dialogueIndex?: number };
 }
+
+type ViewMode = 'wysiwyg' | 'xml' | 'split';
 
 export function EditorLayout() {
   const { document, updateDocument, loadingSample, loadingProgress, validationResults, isValidating } = useDocumentContext();
@@ -53,6 +58,43 @@ export function EditorLayout() {
   const [selectedTag, setSelectedTag] = useState<TagInfo | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [tagToEdit, setTagToEdit] = useState<TagInfo | null>(null);
+
+  // Split view editing state
+  const [viewMode, setViewMode] = useState<ViewMode>('wysiwyg');
+  const [codeContent, setCodeContent] = useState<string>('');
+  const [isCodeDirty, setIsCodeDirty] = useState(false);
+  const [scrollSyncEnabled, setScrollSyncEnabled] = useState(true);
+
+  // Refs for scroll synchronization
+  const renderedViewRef = useRef<HTMLDivElement>(null);
+  const codeEditorRef = useRef<any>(null);
+  const isScrollingRef = useRef<{ rendered: boolean; code: boolean }>({
+    rendered: false,
+    code: false,
+  });
+
+  // Load view mode from localStorage on mount
+  useEffect(() => {
+    const savedMode = localStorage.getItem('tei-editor-view-mode') as ViewMode | null;
+    if (savedMode && ['wysiwyg', 'xml', 'split'].includes(savedMode)) {
+      setViewMode(savedMode);
+    }
+  }, []);
+
+  // Save view mode to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('tei-editor-view-mode', viewMode);
+  }, [viewMode]);
+
+  // Sync code content with document
+  useEffect(() => {
+    if (document && !isCodeDirty) {
+      setCodeContent(document.serialize());
+    }
+  }, [document, isCodeDirty]);
+
+  // Debounce code changes for validation
+  const debouncedCodeContent = useDebounce(codeContent, 300);
 
   // Maintain a single SelectionManager instance to avoid inefficient re-instantiation
   const selectionManagerRef = useRef(new SelectionManager());
@@ -517,6 +559,109 @@ export function EditorLayout() {
     };
   }, []); // No dependencies needed
 
+  // Handle code editor changes with debounced validation
+  useEffect(() => {
+    if (!debouncedCodeContent || debouncedCodeContent === codeContent) return;
+
+    // Validate and update document from code changes
+    const updateFromCode = async () => {
+      try {
+        await updateDocument(debouncedCodeContent);
+        setIsCodeDirty(false);
+      } catch (error) {
+        console.error('Failed to update document from code:', error);
+        // Document remains in previous state on validation error
+        showToast('Validation failed - Please fix XML errors', 'error');
+      }
+    };
+
+    updateFromCode();
+  }, [debouncedCodeContent]);
+
+  // Handle view mode switching
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    showToast(`Switched to ${mode.toUpperCase()} view`, 'info');
+  }, [showToast]);
+
+  // Handle code editor content changes
+  const handleCodeChange = useCallback((newCode: string) => {
+    setCodeContent(newCode);
+    setIsCodeDirty(true);
+  }, []);
+
+  // Handle structural tag insertion
+  const handleInsertStructuralTag = useCallback((tagName: string) => {
+    if (!document) return;
+
+    // For now, just show a message
+    // In a full implementation, you would:
+    // 1. Get cursor position from Monaco editor
+    // 2. Insert the tag at that position
+    // 3. Validate the insertion
+    showToast(`Insert <${tagName}> at cursor position`, 'info');
+  }, [document, showToast]);
+
+  // Handle scroll synchronization
+  const handleRenderedViewScroll = useCallback(() => {
+    if (!scrollSyncEnabled || isScrollingRef.current.code) return;
+
+    isScrollingRef.current.rendered = true;
+
+    if (renderedViewRef.current && codeEditorRef.current) {
+      const renderedScrollTop = renderedViewRef.current.scrollTop;
+      const renderedScrollHeight = renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
+      const scrollPercentage = renderedScrollTop / renderedScrollHeight;
+
+      // Sync to code editor (approximate line-based scroll)
+      const editor = codeEditorRef.current;
+      if (editor) {
+        const lineCount = editor.getModel()?.getLineCount() || 1;
+        const targetLine = Math.floor(lineCount * scrollPercentage);
+        editor.revealLine(targetLine);
+      }
+    }
+
+    setTimeout(() => {
+      isScrollingRef.current.rendered = false;
+    }, 100);
+  }, [scrollSyncEnabled]);
+
+  const handleCodeEditorScroll = useCallback(() => {
+    if (!scrollSyncEnabled || isScrollingRef.current.rendered) return;
+
+    isScrollingRef.current.code = true;
+
+    if (codeEditorRef.current && renderedViewRef.current) {
+      const editor = codeEditorRef.current;
+      const visibleRanges = editor.getVisibleRanges();
+      const lineCount = editor.getModel()?.getLineCount() || 1;
+
+      if (visibleRanges.length > 0) {
+        const firstVisibleLine = visibleRanges[0].startLineNumber;
+        const scrollPercentage = firstVisibleLine / lineCount;
+
+        // Sync to rendered view
+        const renderedScrollHeight = renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
+        renderedViewRef.current.scrollTop = scrollPercentage * renderedScrollHeight;
+      }
+    }
+
+    setTimeout(() => {
+      isScrollingRef.current.code = false;
+    }, 100);
+  }, [scrollSyncEnabled]);
+
+  // Handle code editor mounting
+  const handleCodeEditorMount = useCallback((editor: any) => {
+    codeEditorRef.current = editor;
+
+    // Add scroll listener for sync
+    editor.onDidScrollChange(() => {
+      handleCodeEditorScroll();
+    });
+  }, [handleCodeEditorScroll]);
+
   if (!document) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -557,6 +702,45 @@ export function EditorLayout() {
       <div className="flex items-center gap-2 p-2 border-b">
         <MobileNavigation />
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
+
+        {/* View Mode Toggles */}
+        <div className="flex items-center gap-1 border-r pr-2 mr-2">
+          <Button
+            variant={viewMode === 'wysiwyg' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => handleViewModeChange('wysiwyg')}
+            title="WYSIWYG View"
+          >
+            WYSIWYG
+          </Button>
+          <Button
+            variant={viewMode === 'xml' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => handleViewModeChange('xml')}
+            title="XML Code View"
+          >
+            XML
+          </Button>
+          <Button
+            variant={viewMode === 'split' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => handleViewModeChange('split')}
+            title="Split View"
+          >
+            Split
+          </Button>
+        </div>
+
+        {/* Structural Tag Palette (only visible in XML or Split mode) */}
+        {(viewMode === 'xml' || viewMode === 'split') && (
+          <div className="flex items-center gap-1 border-r pr-2 mr-2">
+            <StructuralTagPalette
+              onInsertTag={handleInsertStructuralTag}
+              disabled={false}
+            />
+          </div>
+        )}
+
         <TagToolbar onApplyTag={handleApplyTag} />
         <Button
           variant={bulkPanelOpen ? "default" : "outline"}
@@ -618,53 +802,149 @@ export function EditorLayout() {
         )}
       </div>
       <div className="flex-1 flex overflow-hidden">
-        {/* Left pane - Rendered view with AI suggestions */}
-        <Card className="flex-1 m-2 overflow-auto flex flex-col">
-          <div className="p-4 flex-shrink-0">
-            <h2 className="text-lg font-semibold mb-2">Rendered View</h2>
-          </div>
+        {/* WYSIWYG View (default) */}
+        {viewMode === 'wysiwyg' && (
+          <>
+            {/* Rendered view with AI suggestions */}
+            <Card className="flex-1 m-2 overflow-auto flex flex-col">
+              <div className="p-4 flex-shrink-0">
+                <h2 className="text-lg font-semibold mb-2">Rendered View</h2>
+              </div>
 
-          {/* AI Suggestions Panel */}
-          {aiMode !== 'manual' && suggestions.length > 0 && (
-            <div className="px-4 pb-2 flex-shrink-0">
-              <InlineSuggestions
-                suggestions={suggestions}
-                onAccept={handleAcceptSuggestion}
-                onReject={handleRejectSuggestion}
-                highlightedText={selectedText}
+              {/* AI Suggestions Panel */}
+              {aiMode !== 'manual' && suggestions.length > 0 && (
+                <div className="px-4 pb-2 flex-shrink-0">
+                  <InlineSuggestions
+                    suggestions={suggestions}
+                    onAccept={handleAcceptSuggestion}
+                    onReject={handleRejectSuggestion}
+                    highlightedText={selectedText}
+                  />
+                </div>
+              )}
+
+              {/* Rendered content */}
+              <div className="flex-1 overflow-auto">
+                <RenderedView
+                  isBulkMode={isBulkMode}
+                  selectedPassages={selectedPassages}
+                  onSelectionChange={setSelectedPassages}
+                  onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
+                  highlightedPassageId={highlightedPassageId}
+                  onTagSelect={handleTagSelect}
+                  onTagDoubleClick={handleTagDoubleClick}
+                  selectedTag={selectedTag}
+                />
+              </div>
+            </Card>
+
+            {/* Old Source view (hidden in WYSIWYG mode, shown for backward compatibility) */}
+            <div className="hidden">
+              <Card className="flex-1 m-2 overflow-auto">
+                <div className="p-4">
+                  <h2 className="text-lg font-semibold mb-2">TEI Source</h2>
+                  <pre className="text-sm bg-muted p-2 rounded">
+                    {document.serialize()}
+                  </pre>
+                </div>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {/* XML-only View */}
+        {viewMode === 'xml' && (
+          <Card className="flex-1 m-2 overflow-auto flex flex-col">
+            <div className="p-4 flex-shrink-0">
+              <h2 className="text-lg font-semibold mb-2">XML Code</h2>
+              <p className="text-sm text-muted-foreground">
+                Edit the XML directly. Validation errors will be shown inline.
+              </p>
+            </div>
+
+            {/* Monaco Editor */}
+            <div className="flex-1 overflow-auto">
+              <XMLCodeEditor
+                value={codeContent}
+                onChange={handleCodeChange}
+                onMount={handleCodeEditorMount}
+                errors={validationResults?.errors.map(e => ({
+                  line: e.line || 1,
+                  message: e.message
+                })) || []}
+                readOnly={false}
+                height="100%"
               />
             </div>
-          )}
+          </Card>
+        )}
 
-          {/* Rendered content */}
-          <div className="flex-1 overflow-auto">
-            <RenderedView
-              isBulkMode={isBulkMode}
-              selectedPassages={selectedPassages}
-              onSelectionChange={setSelectedPassages}
-              onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
-              highlightedPassageId={highlightedPassageId}
-              onTagSelect={handleTagSelect}
-              onTagDoubleClick={handleTagDoubleClick}
-              selectedTag={selectedTag}
-            />
-          </div>
-        </Card>
+        {/* Split View */}
+        {viewMode === 'split' && (
+          <>
+            {/* Left pane - Rendered view */}
+            <Card className="flex-1 m-2 overflow-auto flex flex-col">
+              <div className="p-4 flex-shrink-0">
+                <h2 className="text-lg font-semibold mb-2">Rendered View</h2>
+              </div>
 
-        {/* Resizer */}
-        <div
-          className="w-1 bg-border cursor-col-resize hover:bg-primary"
-        />
+              {/* AI Suggestions Panel */}
+              {aiMode !== 'manual' && suggestions.length > 0 && (
+                <div className="px-4 pb-2 flex-shrink-0">
+                  <InlineSuggestions
+                    suggestions={suggestions}
+                    onAccept={handleAcceptSuggestion}
+                    onReject={handleRejectSuggestion}
+                    highlightedText={selectedText}
+                  />
+                </div>
+              )}
 
-        {/* Right pane - Source view */}
-        <Card className="flex-1 m-2 overflow-auto">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold mb-2">TEI Source</h2>
-            <pre className="text-sm bg-muted p-2 rounded">
-              {document.serialize()}
-            </pre>
-          </div>
-        </Card>
+              {/* Rendered content */}
+              <div
+                ref={renderedViewRef}
+                className="flex-1 overflow-auto"
+                onScroll={handleRenderedViewScroll}
+              >
+                <RenderedView
+                  isBulkMode={isBulkMode}
+                  selectedPassages={selectedPassages}
+                  onSelectionChange={setSelectedPassages}
+                  onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
+                  highlightedPassageId={highlightedPassageId}
+                  onTagSelect={handleTagSelect}
+                  onTagDoubleClick={handleTagDoubleClick}
+                  selectedTag={selectedTag}
+                />
+              </div>
+            </Card>
+
+            {/* Resizer */}
+            <div className="w-1 bg-border cursor-col-resize hover:bg-primary" />
+
+            {/* Right pane - XML Code Editor */}
+            <Card className="flex-1 m-2 overflow-auto flex flex-col">
+              <div className="p-4 flex-shrink-0">
+                <h2 className="text-lg font-semibold mb-2">XML Code</h2>
+              </div>
+
+              {/* Monaco Editor */}
+              <div className="flex-1 overflow-auto">
+                <XMLCodeEditor
+                  value={codeContent}
+                  onChange={handleCodeChange}
+                  onMount={handleCodeEditorMount}
+                  errors={validationResults?.errors.map(e => ({
+                    line: e.line || 1,
+                    message: e.message
+                  })) || []}
+                  readOnly={false}
+                  height="100%"
+                />
+              </div>
+            </Card>
+          </>
+        )}
 
         {/* Visualization Panel (toggleable sidebar) */}
         {vizPanelOpen && (
