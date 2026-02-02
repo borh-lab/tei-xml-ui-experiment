@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { CharacterForm } from './CharacterForm';
+import { RelationshipEditor } from './RelationshipEditor';
 import { Plus } from 'lucide-react';
 
 interface EntityEditorPanelProps {
@@ -16,6 +17,7 @@ interface EntityEditorPanelProps {
 export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
   const { document } = useDocumentContext();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [relationships, setRelationships] = useState<any[]>([]);
   const characters = document?.getCharacters() || [];
 
   return (
@@ -68,8 +70,28 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
             )}
           </TabsContent>
 
-          <TabsContent value="relationships">
-            <p className="text-sm text-muted-foreground">Relationship editor coming soon...</p>
+          <TabsContent value="relationships" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">Relationships ({relationships.length})</h3>
+            </div>
+
+            <RelationshipEditor
+              onAddRelation={(relation) => {
+                document?.addRelation(relation);
+                setRelationships([...relationships, relation]);
+              }}
+            />
+
+            {relationships.length > 0 && (
+              <div className="space-y-2">
+                {relationships.map((rel) => (
+                  <div key={rel.id} className="p-3 border rounded-lg text-sm">
+                    <p><strong>{rel.type}</strong>: {rel.from} → {rel.to}</p>
+                    {rel.subtype && <p className="text-xs text-muted-foreground">{rel.subtype}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="ner">
