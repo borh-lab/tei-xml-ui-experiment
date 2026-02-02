@@ -199,4 +199,56 @@ export class TEIDocument {
       element: person
     }));
   }
+
+  addCharacter(character: any): void {
+    // Ensure <standOff> exists
+    if (!this.parsed.TEI.standOff) {
+      this.parsed.TEI.standOff = {};
+    }
+
+    // Ensure <listPerson> exists
+    if (!this.parsed.TEI.standOff.listPerson) {
+      this.parsed.TEI.standOff.listPerson = {};
+    }
+
+    // Build <person> element
+    const personElement: any = {
+      '@_xml:id': character['xml:id'],
+      'persName': character.persName
+    };
+
+    if (character.sex) {
+      personElement['sex'] = { '@_value': character.sex };
+    }
+
+    if (character.age) {
+      personElement['age'] = { '@_value': character.age.toString() };
+    }
+
+    if (character.occupation) {
+      personElement['occupation'] = { '#text': character.occupation };
+    }
+
+    if (character.role) {
+      personElement['role'] = { '@_type': character.role };
+    }
+
+    if (character.traits && character.traits.length > 0) {
+      personElement['trait'] = character.traits.map((t: string) => ({
+        '@_type': 'personality',
+        '#text': t
+      }));
+    }
+
+    // Add to listPerson
+    const listPerson = this.parsed.TEI.standOff.listPerson;
+    if (!listPerson.person) {
+      listPerson.person = personElement;
+    } else {
+      // Convert to array if needed
+      const persons = Array.isArray(listPerson.person) ? listPerson.person : [listPerson.person];
+      persons.push(personElement);
+      listPerson.person = persons;
+    }
+  }
 }

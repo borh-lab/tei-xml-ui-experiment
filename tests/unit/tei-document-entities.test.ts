@@ -136,3 +136,70 @@ describe('TEIDocument - getCharacters', () => {
     expect(characters).toEqual([]);
   });
 });
+
+describe('TEIDocument - addCharacter', () => {
+  test('adds new <person> element to <listPerson>', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text><body><p>Text</p></body></text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.addCharacter({
+      'xml:id': 'bingley',
+      persName: 'Mr. Bingley',
+      sex: 'M',
+      age: 24
+    });
+
+    const characters = doc.getCharacters();
+    expect(characters).toHaveLength(1);
+    expect(characters[0]['xml:id']).toBe('bingley');
+    expect(characters[0].persName).toBe('Mr. Bingley');
+  });
+
+  test('creates <standOff><listPerson> if not exists', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text><body><p>Text</p></body></text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.addCharacter({
+      'xml:id': 'jane',
+      persName: 'Jane Bennet',
+      sex: 'F'
+    });
+
+    const serialized = doc.serialize();
+    expect(serialized).toContain('<standOff>');
+    expect(serialized).toContain('<listPerson>');
+    expect(serialized).toContain('<person xml:id="jane">');
+  });
+
+  test('appends to existing <listPerson>', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <standOff>
+    <listPerson>
+      <person xml:id="darcy">
+        <persName>Mr. Darcy</persName>
+      </person>
+    </listPerson>
+  </standOff>
+  <text><body><p>Text</p></body></text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.addCharacter({
+      'xml:id': 'elizabeth',
+      persName: 'Elizabeth Bennet',
+      sex: 'F'
+    });
+
+    const characters = doc.getCharacters();
+    expect(characters).toHaveLength(2);
+    expect(characters[0]['xml:id']).toBe('darcy');
+    expect(characters[1]['xml:id']).toBe('elizabeth');
+  });
+});
