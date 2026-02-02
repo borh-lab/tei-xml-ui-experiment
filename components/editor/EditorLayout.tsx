@@ -23,6 +23,7 @@ import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { MobileNavigation } from '@/components/navigation/MobileNavigation';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
+import { ValidationPanel } from '@/components/validation/ValidationPanel';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -31,13 +32,14 @@ interface Issue {
 }
 
 export function EditorLayout() {
-  const { document, updateDocument, loadingSample, loadingProgress } = useDocumentContext();
+  const { document, updateDocument, loadingSample, loadingProgress, validationResults, isValidating } = useDocumentContext();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
   const [suggestions, setSuggestions] = useState<DialogueSpan[]>([]);
   const [selectedText, setSelectedText] = useState<string>('');
   const [bulkPanelOpen, setBulkPanelOpen] = useState(false);
   const [vizPanelOpen, setVizPanelOpen] = useState(false);
+  const [validationPanelOpen, setValidationPanelOpen] = useState(false);
   const [selectedPassages, setSelectedPassages] = useState<string[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [highlightedPassageId, setHighlightedPassageId] = useState<string | null>(null);
@@ -394,6 +396,20 @@ export function EditorLayout() {
     ));
   };
 
+  const handleValidationErrorClick = (error: any) => {
+    console.log('Validation error clicked:', error);
+    // TODO: Navigate to error location in editor
+    if (error.line) {
+      showToast(`Error at line ${error.line}: ${error.message}`, 'error');
+    }
+  };
+
+  const handleValidationFixClick = (suggestion: any) => {
+    console.log('Fix suggestion clicked:', suggestion);
+    // TODO: Apply fix to document
+    showToast('Fix suggestions not yet implemented', 'info');
+  };
+
   // Simulate AI detection when in suggest or auto mode
   useEffect(() => {
     let isMounted = true;
@@ -500,6 +516,22 @@ export function EditorLayout() {
         >
           Visualizations
         </Button>
+        <Button
+          variant={validationPanelOpen ? "default" : "outline"}
+          size="sm"
+          onClick={() => setValidationPanelOpen(!validationPanelOpen)}
+          className={validationResults && !validationResults.valid ? "border-red-500 text-red-600" : ""}
+        >
+          Validation
+          {isValidating && (
+            <span className="ml-2 text-xs">Validating...</span>
+          )}
+          {validationResults && !validationResults.valid && (
+            <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">
+              {validationResults.errors.length} errors
+            </span>
+          )}
+        </Button>
         <ExportButton />
         <Button
           variant={entityPanelOpen ? "default" : "outline"}
@@ -576,6 +608,23 @@ export function EditorLayout() {
           <>
             <div className="w-1 bg-border" />
             <VisualizationPanel />
+          </>
+        )}
+
+        {/* Validation Panel (toggleable sidebar) */}
+        {validationPanelOpen && (
+          <>
+            <div className="w-1 bg-border" />
+            <Card className="w-96 m-2 overflow-auto">
+              <div className="p-4">
+                <ValidationPanel
+                  validationResults={validationResults}
+                  onErrorClick={handleValidationErrorClick}
+                  onFixClick={handleValidationFixClick}
+                  visible={validationPanelOpen}
+                />
+              </div>
+            </Card>
           </>
         )}
       </div>

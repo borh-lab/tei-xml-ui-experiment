@@ -62,4 +62,24 @@ export class EditorPage {
   getPassages() {
     return this.page.locator('[id^="passage-"]');
   }
+
+  /**
+   * Loads a sample document from the sample gallery
+   */
+  async loadSample(sampleId: string) {
+    // Click on the sample card with the matching title
+    await this.page.getByRole('button', { name: new RegExp(sampleId, 'i') }).click();
+    // Wait for the "Load Sample" button to appear
+    await expect(this.page.getByRole('button', { name: /load sample/i })).toBeVisible();
+    // Click the Load Sample button
+    await this.page.getByRole('button', { name: /load sample/i }).click();
+  }
+
+  /**
+   * Waits for a document to be loaded in the editor
+   */
+  async waitForDocumentLoaded() {
+    await this.page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 10000 });
+    await this.page.waitForLoadState('networkidle');
+  }
 }

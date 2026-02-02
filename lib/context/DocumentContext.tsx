@@ -6,6 +6,7 @@ import { loadSample as loadSampleContent } from '@/lib/samples/sampleLoader';
 import { useErrorContext } from '@/lib/context/ErrorContext';
 import { toast } from '@/components/ui/use-toast';
 import { categorizeError } from '@/lib/utils/error-categorization';
+import { ValidationResult } from '@/lib/validation/ValidationService';
 
 interface DocumentContextType {
   document: TEIDocument | null;
@@ -17,6 +18,8 @@ interface DocumentContextType {
   loadingSample: boolean;
   loadingProgress: number;
   skipAutoLoad: boolean;
+  validationResults: ValidationResult | null;
+  isValidating: boolean;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
@@ -26,6 +29,8 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
   const [loadingSample, setLoadingSample] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [skipAutoLoad, setSkipAutoLoad] = useState(false);
+  const [validationResults, setValidationResults] = useState<ValidationResult | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
   const autoLoadAttemptedRef = useRef(false);
   const { logError } = useErrorContext();
 
@@ -100,8 +105,83 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateDocument = (xml: string) => {
-    setDocument(new TEIDocument(xml));
+  const updateDocument = async (xml: string) => {
+    // Validate the document first via API
+    setIsValidating(true);
+    try {
+      const response = await fetch('/api/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ xml }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Validation API error: ${response.statusText}`);
+      }
+
+      const validationResult: ValidationResult = await response.json();
+
+      // Store validation results
+      setValidationResults(validationResult);
+
+      // If document is invalid, block the update and show error
+      if (!validationResult.valid) {
+        const errorCount = validationResult.errors.length;
+        const firstError = validationResult.errors[0];
+
+        toast.error(
+          'Validation Failed',
+          {
+            description: `Document has ${errorCount} validation error${errorCount > 1 ? 's' : ''}. ${firstError?.message || 'Please fix the errors before saving.'}`,
+          }
+        );
+
+        logError(
+          new Error(`Validation failed with ${errorCount} errors`),
+          'DocumentContext.updateDocument',
+          {
+            action: 'updateDocument',
+            errorCount,
+            firstError: firstError?.message,
+          }
+        );
+
+        // Don't update the document if validation failed
+        setIsValidating(false);
+        return;
+      }
+
+      // Document is valid, proceed with update
+      setDocument(new TEIDocument(xml));
+    } catch (error) {
+      console.error('Validation error:', error);
+      logError(error as Error, 'DocumentContext', {
+        action: 'updateDocument',
+      });
+
+      // Set empty validation results on error
+      setValidationResults({
+        valid: false,
+        errors: [
+          {
+            message: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+            severity: 'error',
+          },
+        ],
+        warnings: [],
+      });
+
+      toast.error(
+        'Validation Error',
+        {
+          description: 'An error occurred while validating the document. See console for details.',
+        }
+      );
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   const clearDocument = () => {
@@ -114,7 +194,7 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument, clearDocumentAndSkipAutoLoad, loadingSample, loadingProgress, skipAutoLoad }}>
+    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument, clearDocumentAndSkipAutoLoad, loadingSample, loadingProgress, skipAutoLoad, validationResults, isValidating }}>
       {children}
     </DocumentContext.Provider>
   );

@@ -107,6 +107,7 @@ export class SchemaLoader {
         resourceLoader: this.resourceLoader,
         createManifest: false,
         idCheck: false,
+        manifestHashAlgorithm: 'none',
       });
 
       const parsedSchema: ParsedSchema = {
@@ -289,13 +290,17 @@ export class SchemaLoader {
       parser.write(xmlContent);
       parser.close();
 
-      // Finalize validation
-      const endResult = walker.end();
+      // Finalize validation - returns array of errors
+      const endErrors = walker.end();
 
-      // Check if there are any errors from finalization
-      if (endResult && !endResult.complete) {
-        errors.push({
-          message: 'Document validation incomplete - may be missing closing tags or have structural errors',
+      // Add any finalization errors
+      if (endErrors && endErrors.length > 0) {
+        endErrors.forEach((err: any) => {
+          errors.push({
+            message: err.message || 'Unknown validation error',
+            line: err.line,
+            column: err.column,
+          });
         });
       }
 
@@ -341,8 +346,8 @@ export class SchemaLoader {
 
       // Extract element tags from possible events
       for (const event of possible) {
-        if (event[0] === 'enterStartTag') {
-          const namePattern = event[1][0];
+        if ((event as any)[0] === 'enterStartTag') {
+          const namePattern = (event as any)[1]?.[0];
           if (namePattern && typeof namePattern === 'object') {
             const tagInfo = this.extractTagInfo(namePattern);
             if (tagInfo) {
@@ -385,8 +390,8 @@ export class SchemaLoader {
 
       // Extract attribute definitions
       for (const event of possible) {
-        if (event[0] === 'attributeName') {
-          const namePattern = event[1][0];
+        if ((event as any)[0] === 'attributeName') {
+          const namePattern = (event as any)[1]?.[0];
           if (namePattern && typeof namePattern === 'object') {
             const attrInfo = this.extractAttributeInfo(namePattern);
             if (attrInfo) {
@@ -519,7 +524,7 @@ export class SchemaLoader {
     }
   }
 
-  private walkToContext(walker: salve.GrammarWalker, nameResolver: salve.DefaultNameResolver, context: XmlPath): void {
+  private walkToContext(walker: salve.GrammarWalker<any>, nameResolver: salve.DefaultNameResolver, context: XmlPath): void {
     for (const ctx of context) {
       nameResolver.enterContext();
       if (ctx.namespace) {
