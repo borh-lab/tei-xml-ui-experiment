@@ -88,6 +88,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
   if (typeof window !== 'undefined') {
     (window as any).__getErrorStats = getStats;
     (window as any).__getErrorHistory = getHistory;
+    (window as any).__clearErrorHistory = clearHistory;
   }
 
   return (

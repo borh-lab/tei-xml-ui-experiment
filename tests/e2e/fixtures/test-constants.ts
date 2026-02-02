@@ -35,8 +35,8 @@ export const VIEWPORTS = {
 /** Test sample names */
 export const SAMPLES = {
   YELLOW_WALLPAPER: 'yellow-wallpaper',
-  GIFT_OF_THE_MAGI: 'gift-of-magi',
-  PRIDE_AND_PREJUDICE: 'pride-and-prejudice'
+  GIFT_OF_THE_MAGI: 'gift-of-the-magi',
+  PRIDE_AND_PREJUDICE: 'pride-prejudice-ch1'
 } as const;
 
 /** Speaker names for testing */

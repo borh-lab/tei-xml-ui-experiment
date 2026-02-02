@@ -50,7 +50,7 @@ export const RenderedView = React.memo(({
 
   // Extract passages from document
   useEffect(() => {
-    if (!document) return;
+    if (!document || !document.parsed || !document.parsed.TEI) return;
 
     const p = document.parsed.TEI.text.body.p;
 
