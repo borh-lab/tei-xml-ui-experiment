@@ -17,6 +17,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/db/PatternDB';
 import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp';
+import { EntityEditorPanel } from '@/components/editor/EntityEditorPanel';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -43,6 +44,7 @@ export function EditorLayout() {
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
+  const [entityPanelOpen, setEntityPanelOpen] = useState(false);
 
   useHotkeys('mod+k', (e) => {
     e.preventDefault();
@@ -78,6 +80,19 @@ export function EditorLayout() {
   };
 
   // Keyboard shortcut: ? (Shift+/) - Show keyboard shortcuts help
+  useHotkeys('shift+/', (e) => {
+    if (isInputFocused()) return;
+    e.preventDefault();
+    setShortcutHelpOpen(true);
+    showToast('Keyboard shortcuts help opened', 'info');
+  }, [isInputFocused]);
+
+  // Keyboard shortcut: ⌘E - Toggle entity editor
+  useHotkeys('cmd+e', (e) => {
+    if (isInputFocused()) return;
+    e.preventDefault();
+    setEntityPanelOpen(!entityPanelOpen);
+  });
   useHotkeys('shift+/', (e) => {
     if (isInputFocused()) return;
     e.preventDefault();
@@ -429,6 +444,10 @@ export function EditorLayout() {
         open={shortcutHelpOpen}
         onClose={() => setShortcutHelpOpen(false)}
       />
+      <EntityEditorPanel
+        open={entityPanelOpen}
+        onClose={() => setEntityPanelOpen(false)}
+      />
       <div className="flex items-center gap-2 p-2 border-b">
         <MobileNavigation />
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
@@ -452,6 +471,14 @@ export function EditorLayout() {
           Visualizations
         </Button>
         <ExportButton />
+        <Button
+          variant={entityPanelOpen ? "default" : "outline"}
+          size="sm"
+          onClick={() => setEntityPanelOpen(!entityPanelOpen)}
+        >
+          Entities
+          <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘E</kbd>
+        </Button>
         <Button
           variant="ghost"
           size="sm"

@@ -25,4 +25,25 @@ describe('Entity Tagging Workflow', () => {
     expect(serialized).toContain('<said who="#speaker1">');
     expect(serialized).toContain('Hello world');
   });
+
+  test('addCharacter and getCharacters integration', () => {
+    const doc = new TEIDocument(sampleXML);
+
+    // Add a character
+    doc.addCharacter({
+      'xml:id': 'test',
+      persName: 'Test Character',
+      sex: 'M'
+    });
+
+    // Verify getCharacters works
+    const characters = doc.getCharacters();
+    expect(characters).toHaveLength(1);
+    expect(characters[0].persName).toBe('Test Character');
+
+    // Verify it serializes
+    const serialized = doc.serialize();
+    expect(serialized).toContain('<person xml:id="test">');
+    expect(serialized).toContain('Test Character');
+  });
 });
