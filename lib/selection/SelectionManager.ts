@@ -200,4 +200,48 @@ export class SelectionManager {
   clearCache(): void {
     this.cachedSelection = null;
   }
+
+  /**
+   * Get the complete tag hierarchy from the current cursor position
+   * Returns array of TagInfo from root to innermost tag
+   */
+  getTagHierarchy(): TagInfo[] {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+      return [];
+    }
+
+    const range = selection.getRangeAt(0);
+    let container: Node | null = range.commonAncestorContainer;
+
+    // If we selected text, start with the parent element
+    if (container.nodeType === Node.TEXT_NODE) {
+      container = container.parentElement;
+    }
+
+    const hierarchy: TagInfo[] = [];
+
+    // Walk up the DOM tree collecting all tags with data-tag attribute
+    while (container instanceof HTMLElement) {
+      const tagName = container.getAttribute('data-tag');
+      if (tagName) {
+        const attributes: Record<string, string> = {};
+        for (let i = 0; i < container.attributes.length; i++) {
+          const attr = container.attributes[i];
+          // Extract all data-* attributes except data-tag and data-passage-id
+          if (attr.name.startsWith('data-') &&
+              attr.name !== 'data-tag' &&
+              attr.name !== 'data-passage-id') {
+            const attrName = attr.name.replace('data-', '');
+            attributes[attrName] = attr.value;
+          }
+        }
+        // Add to beginning of array so root is first
+        hierarchy.unshift({ tagName, attributes, element: container });
+      }
+      container = container.parentElement;
+    }
+
+    return hierarchy;
+  }
 }
