@@ -4,6 +4,11 @@ export interface TEINode {
   [key: string]: any;
 }
 
+export interface TextRange {
+  start: number;
+  end: number;
+}
+
 export class TEIDocument {
   private parser: XMLParser;
   public rawXML: string;
@@ -93,5 +98,57 @@ export class TEIDocument {
     traverse(this.parsed);
     return dialogue;
   }
+  addSaidTag(passageIndex: number, textRange: TextRange, speakerId: string): void {
+    const p = this.parsed.TEI?.text?.body?.p;
+    if (!p) return;
+
+    // Handle case where p is a single paragraph (not an array)
+    const paragraphs = Array.isArray(p) ? p : [p];
+    const passage = paragraphs[passageIndex];
+    if (!passage) return;
+
+    const text = typeof passage === 'string' ? passage : passage['#text'] || '';
+    const before = text.substring(0, textRange.start);
+    const selected = text.substring(textRange.start, textRange.end);
+    const after = text.substring(textRange.end);
+
+    const saidElement = {
+      '@_who': `#${speakerId}`,
+      '#text': selected
+    };
+
+    // For proper TEI XML serialization with mixed content,
+    // we need to rebuild the passage with the <said> element embedded
+    // This creates the structure: <p>before<said who="#speaker1">selected</said>after</p>
+    const newPassageContent = before + '___SAID_TAG___' + selected + '___SAID_TAG_END___' + after;
+
+    // Temporarily mark the position and let serialize() handle it properly
+    // For now, simpler approach: store as object structure that XMLBuilder understands
+    const newPassage: any = {
+      'said': [saidElement]
+    };
+
+    // Add text before and after
+    if (before) {
+      newPassage['#text'] = before;
+    }
+    if (after) {
+      // Use a special key for text after the element
+      newPassage['#text_2'] = after;
+    }
+
+    // Replace passage content
+    if (typeof passage === 'string') {
+      // If original p was a string, convert to array first
+      if (!Array.isArray(this.parsed.TEI.text.body.p)) {
+        this.parsed.TEI.text.body.p = [this.parsed.TEI.text.body.p];
+      }
+      this.parsed.TEI.text.body.p[passageIndex] = newPassage;
+    } else {
+      // Merge into existing passage structure
+      Object.assign(passage, newPassage);
+    }
+  }
+
   getCharacters() { return []; }
 }
