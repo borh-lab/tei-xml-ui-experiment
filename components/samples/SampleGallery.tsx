@@ -120,7 +120,7 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8">
+    <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
       {error && (
         <div className="mb-4 bg-destructive text-destructive-foreground p-4 rounded">
           <p className="font-semibold">Failed to load sample</p>
@@ -129,32 +129,32 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
       )}
 
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">Welcome to TEI Dialogue Editor</h1>
-        <p className="text-lg text-muted-foreground mb-6">
+        <h1 className="text-2xl md:text-4xl font-bold mb-4">Welcome to TEI Dialogue Editor</h1>
+        <p className="text-base md:text-lg text-muted-foreground mb-6">
           Explore dialogue annotation with our curated sample collection or browse the Wright American
           Fiction corpus. Each document includes pre-annotated dialogue passages with speaker attributions,
           perfect for learning and experimentation.
         </p>
-        <div className="flex gap-4 text-sm text-muted-foreground">
+        <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Badge className="bg-green-100 text-green-800">Beginner</Badge>
-            <span>Simple dialogue patterns</span>
+            <Badge className="bg-green-100 text-green-800 text-xs">Beginner</Badge>
+            <span className="hidden sm:inline">Simple dialogue patterns</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-yellow-100 text-yellow-800">Intermediate</Badge>
-            <span>Mixed narrative styles</span>
+            <Badge className="bg-yellow-100 text-yellow-800 text-xs">Intermediate</Badge>
+            <span className="hidden sm:inline">Mixed narrative styles</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-red-100 text-red-800">Advanced</Badge>
-            <span>Complex attribution</span>
+            <Badge className="bg-red-100 text-red-800 text-xs">Advanced</Badge>
+            <span className="hidden sm:inline">Complex attribution</span>
           </div>
         </div>
       </div>
 
       <Tabs defaultValue="samples" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
-          <TabsTrigger value="samples">Sample Gallery</TabsTrigger>
-          <TabsTrigger value="corpus">Browse Corpus</TabsTrigger>
+        <TabsList className="grid w-full max-w-md grid-cols-2 mb-6 mx-auto md:mx-0">
+          <TabsTrigger value="samples" className="text-sm">Sample Gallery</TabsTrigger>
+          <TabsTrigger value="corpus" className="text-sm">Browse Corpus</TabsTrigger>
         </TabsList>
 
         <TabsContent value="samples" className="space-y-6">

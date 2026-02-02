@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { TEIDocument } from '@/lib/tei/TEIDocument';
 import { loadSample as loadSampleContent } from '@/lib/samples/sampleLoader';
 import { useErrorContext } from '@/lib/context/ErrorContext';
@@ -13,8 +13,10 @@ interface DocumentContextType {
   loadSample: (sampleId: string) => Promise<void>;
   updateDocument: (xml: string) => void;
   clearDocument: () => void;
+  clearDocumentAndSkipAutoLoad: () => void;
   loadingSample: boolean;
   loadingProgress: number;
+  skipAutoLoad: boolean;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
@@ -23,7 +25,24 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
   const [document, setDocument] = useState<TEIDocument | null>(null);
   const [loadingSample, setLoadingSample] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [skipAutoLoad, setSkipAutoLoad] = useState(false);
+  const autoLoadAttemptedRef = useRef(false);
   const { logError } = useErrorContext();
+
+  // Auto-load gift-of-the-magi sample on first visit if document is null
+  useEffect(() => {
+    if (!document && !skipAutoLoad && !autoLoadAttemptedRef.current) {
+      autoLoadAttemptedRef.current = true;
+      const hasVisitedBefore = localStorage.getItem('tei-editor-visited');
+      if (!hasVisitedBefore) {
+        // First visit - auto-load the sample using the existing loadSample function
+        loadSample('gift-of-the-magi').catch(err => {
+          console.error('Failed to auto-load sample:', err);
+        });
+        localStorage.setItem('tei-editor-visited', 'true');
+      }
+    }
+  }, [document, skipAutoLoad]);
 
   const loadDocument = (xml: string) => {
     try {
@@ -87,8 +106,13 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     setDocument(null);
   };
 
+  const clearDocumentAndSkipAutoLoad = () => {
+    setSkipAutoLoad(true);
+    setDocument(null);
+  };
+
   return (
-    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument, loadingSample, loadingProgress }}>
+    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument, clearDocumentAndSkipAutoLoad, loadingSample, loadingProgress, skipAutoLoad }}>
       {children}
     </DocumentContext.Provider>
   );

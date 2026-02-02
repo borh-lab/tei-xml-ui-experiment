@@ -30,20 +30,20 @@ test.describe('TEI Dialogue Editor', () => {
   test('should have annotation controls after auto-load', async ({ page }) => {
     // Should show auto-loaded document with annotation controls
     await expect(page.getByText(/Gift of the Magi/i)).toBeVisible();
-    // Should have content visible
-    await expect(page.locator('div.p-3.rounded-lg')).toBeVisible();
+    // Should have content visible (use .first() for strict mode)
+    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible();
   });
 
   test.describe('Manual Annotation', () => {
     test('should tag dialogue with speaker', async ({ page }) => {
       // Select a passage (click on first paragraph div)
-      await page.locator('div.p-3.rounded-lg').click();
+      await page.locator('div.p-3.rounded-lg').first().click();
 
       // Tag with speaker
       await page.keyboard.press('1');
 
       // Should update selection
-      await expect(page.locator('div.p-3.rounded-lg')).toBeVisible();
+      await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible();
     });
 
     test('should export TEI document', async ({ page }) => {
@@ -444,7 +444,7 @@ test.describe('TEI Dialogue Editor', () => {
       await expect(page.getByText(/Pride and Prejudice/i)).toBeVisible({ timeout: 10000 });
 
       // Editor should be responsive
-      const firstPassage = page.locator('div.p-3.rounded-lg');
+      const firstPassage = page.locator('div.p-3.rounded-lg').first();
       await expect(firstPassage).toBeVisible({ timeout: 5000 });
     });
   });

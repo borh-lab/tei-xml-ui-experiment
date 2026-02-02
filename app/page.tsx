@@ -1,15 +1,32 @@
 'use client';
 
-import { DocumentProvider } from '@/lib/context/DocumentContext';
+import { DocumentProvider, useDocumentContext } from '@/lib/context/DocumentContext';
 import { EditorLayout } from '@/components/editor/EditorLayout';
 import { FileUpload } from '@/components/editor/FileUpload';
+import { SampleGallery } from '@/components/samples/SampleGallery';
+
+function HomeContent() {
+  const { document, loadSample } = useDocumentContext();
+
+  // Show welcome screen with sample gallery when no document is loaded
+  if (!document) {
+    return <SampleGallery onLoadSample={loadSample} onSelect={() => {}} />;
+  }
+
+  // Show editor when document is loaded
+  return (
+    <>
+      <FileUpload />
+      <EditorLayout />
+    </>
+  );
+}
 
 export default function Home() {
   return (
     <DocumentProvider>
       <main className="min-h-screen">
-        <FileUpload />
-        <EditorLayout />
+        <HomeContent />
       </main>
     </DocumentProvider>
   );
