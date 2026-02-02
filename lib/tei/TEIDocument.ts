@@ -273,7 +273,7 @@ export class TEIDocument {
   private preservePassageElements(oldPassage: any, newPassage: any, excludeTags: string[]): void {
     for (const key in oldPassage) {
       if (key.startsWith('#')) continue;
-      if (key.startsWith('@_')) continue;
+      // Don't skip @_ attributes - they're part of the passage structure
       if (excludeTags.includes(key)) continue; // Skip the tag we just added
 
       newPassage[key] = oldPassage[key];
