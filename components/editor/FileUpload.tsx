@@ -16,6 +16,32 @@ export function FileUpload() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // File size checks
+    const fileSizeKB = file.size / 1024;
+    const fileSizeMB = file.size / (1024 * 1024);
+
+    // Reject files larger than 5MB
+    if (fileSizeMB > 5) {
+      const errorMsg = `File size (${fileSizeMB.toFixed(2)}MB) exceeds 5MB limit. Please upload a smaller file.`;
+      logError(new Error(errorMsg), 'FileUpload', {
+        action: 'upload',
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+      });
+      toast.error(errorMsg);
+      // Reset the input so the same file can be selected again if needed
+      event.target.value = '';
+      return;
+    }
+
+    // Show warning for files larger than 100KB
+    if (fileSizeKB > 100) {
+      toast.warning(`Large file detected (${fileSizeKB.toFixed(2)}KB). Processing may take longer.`, {
+        description: 'Consider splitting large files for better performance.',
+      });
+    }
+
     try {
       const text = await file.text();
       loadDocument(text);
