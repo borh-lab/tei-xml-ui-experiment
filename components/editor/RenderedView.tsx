@@ -18,6 +18,9 @@ interface RenderedViewProps {
   onSelectionChange: (passageIds: string[]) => void;
   onPassageClick?: (passageId: string) => void;
   highlightedPassageId?: string | null;
+  onTagSelect?: (tagInfo: { tagName: string; attributes: Record<string, string>; element: HTMLElement }) => void;
+  onTagDoubleClick?: (tagInfo: { tagName: string; attributes: Record<string, string>; element: HTMLElement }) => void;
+  selectedTag?: { tagName: string; element: HTMLElement } | null;
 }
 
 export const RenderedView = React.memo(({
@@ -25,7 +28,10 @@ export const RenderedView = React.memo(({
   selectedPassages,
   onSelectionChange,
   onPassageClick,
-  highlightedPassageId
+  highlightedPassageId,
+  onTagSelect,
+  onTagDoubleClick,
+  selectedTag
 }: RenderedViewProps) => {
   const { document } = useDocumentContext();
   const [passages, setPassages] = useState<Passage[]>([]);
@@ -76,7 +82,14 @@ export const RenderedView = React.memo(({
             // Escape HTML to prevent XSS
             const escapedSpeaker = escapeHtml(speaker || '');
             const escapedText = escapeHtml(saidText);
-            content += `<span data-speaker="${escapedSpeaker}">${escapedText}</span>`;
+
+            // Build data attributes for tag info
+            const dataAttrs = [`data-tag="said"`];
+            if (speaker) {
+              dataAttrs.push(`data-who="${escapedSpeaker}"`);
+            }
+
+            content += `<span ${dataAttrs.join(' ')} class="tei-tag tei-tag-said">${escapedText}</span>`;
           });
 
           if (para['#text_2']) {
@@ -127,6 +140,36 @@ export const RenderedView = React.memo(({
       }, 100);
     }
   }, [highlightedPassageId]);
+
+  // Handle tag click
+  const handleTagClick = useCallback((event: React.MouseEvent) => {
+    const target = event.target as HTMLElement;
+    const tagElement = target.closest('[data-tag]') as HTMLElement;
+
+    if (tagElement) {
+      const tagName = tagElement.getAttribute('data-tag');
+      if (tagName) {
+        const attributes: Record<string, string> = {};
+        for (let i = 0; i < tagElement.attributes.length; i++) {
+          const attr = tagElement.attributes[i];
+          if (attr.name.startsWith('data-') && attr.name !== 'data-tag') {
+            const attrName = attr.name.replace('data-', '');
+            attributes[attrName] = attr.value;
+          }
+        }
+
+        const tagInfo = { tagName, attributes, element: tagElement };
+
+        if (event.detail === 2) {
+          // Double click
+          onTagDoubleClick?.(tagInfo);
+        } else {
+          // Single click
+          onTagSelect?.(tagInfo);
+        }
+      }
+    }
+  }, [onTagSelect, onTagDoubleClick]);
 
   // Handle passage click with multi-select support
   const handlePassageClick = useCallback((passageId: string, index: number, event: React.MouseEvent) => {
@@ -304,6 +347,7 @@ export const RenderedView = React.memo(({
                   <p
                     className="text-sm leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: passage.content }}
+                    onClick={handleTagClick}
                   />
 
                   {/* Metadata */}
