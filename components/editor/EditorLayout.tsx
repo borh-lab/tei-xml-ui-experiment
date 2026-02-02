@@ -22,8 +22,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { MobileNavigation } from '@/components/navigation/MobileNavigation';
-import { SelectionManager } from '@/lib/selection/SelectionManager';
+import { SelectionManager, TagInfo } from '@/lib/selection/SelectionManager';
 import { ValidationPanel } from '@/components/validation/ValidationPanel';
+import { TagBreadcrumb } from './TagBreadcrumb';
+import { TagEditDialog } from './TagEditDialog';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -48,6 +50,9 @@ export function EditorLayout() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
   const [entityPanelOpen, setEntityPanelOpen] = useState(false);
+  const [selectedTag, setSelectedTag] = useState<TagInfo | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [tagToEdit, setTagToEdit] = useState<TagInfo | null>(null);
 
   // Maintain a single SelectionManager instance to avoid inefficient re-instantiation
   const selectionManagerRef = useRef(new SelectionManager());
@@ -410,6 +415,54 @@ export function EditorLayout() {
     showToast('Fix suggestions not yet implemented', 'info');
   };
 
+  // Handle tag selection from RenderedView or Breadcrumb
+  const handleTagSelect = useCallback((tagInfo: TagInfo) => {
+    setSelectedTag(tagInfo);
+    showToast(`Selected tag: <${tagInfo.tagName}>`, 'info');
+
+    // Add visual selection indicator to element
+    if (tagInfo.element) {
+      tagInfo.element.setAttribute('data-selected', 'true');
+    }
+  }, [showToast]);
+
+  // Handle tag double-click to open edit dialog
+  const handleTagDoubleClick = useCallback((tagInfo: TagInfo) => {
+    setTagToEdit(tagInfo);
+    setEditDialogOpen(true);
+    showToast(`Editing tag: <${tagInfo.tagName}>`, 'info');
+  }, [showToast]);
+
+  // Handle tag attribute updates from edit dialog
+  const handleTagAttributeUpdate = useCallback((tagName: string, attributes: Record<string, string>) => {
+    if (!document || !tagToEdit) return;
+
+    try {
+      // Find the element and update its attributes
+      const element = tagToEdit.element;
+      if (!element) {
+        showToast('Element not found', 'error');
+        return;
+      }
+
+      // Update data attributes on the element
+      Object.entries(attributes).forEach(([key, value]) => {
+        element.setAttribute(`data-${key}`, value);
+      });
+
+      // Update the document structure
+      // This is a simplified implementation - in production, you'd want to
+      // update the underlying TEIDocument model and re-serialize
+      const updatedXML = document.serialize();
+      updateDocument(updatedXML);
+
+      showToast(`Updated <${tagName}> attributes`, 'success');
+    } catch (error) {
+      console.error('Failed to update tag attributes:', error);
+      showToast('Failed to update tag attributes', 'error');
+    }
+  }, [document, tagToEdit, updateDocument, showToast]);
+
   // Simulate AI detection when in suggest or auto mode
   useEffect(() => {
     let isMounted = true;
@@ -494,6 +547,13 @@ export function EditorLayout() {
         open={entityPanelOpen}
         onClose={() => setEntityPanelOpen(false)}
       />
+      <TagEditDialog
+        isOpen={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        tagInfo={tagToEdit}
+        onApply={handleTagAttributeUpdate}
+      />
+      <TagBreadcrumb onTagSelect={handleTagSelect} />
       <div className="flex items-center gap-2 p-2 border-b">
         <MobileNavigation />
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
@@ -584,6 +644,9 @@ export function EditorLayout() {
               onSelectionChange={setSelectedPassages}
               onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
               highlightedPassageId={highlightedPassageId}
+              onTagSelect={handleTagSelect}
+              onTagDoubleClick={handleTagDoubleClick}
+              selectedTag={selectedTag}
             />
           </div>
         </Card>
