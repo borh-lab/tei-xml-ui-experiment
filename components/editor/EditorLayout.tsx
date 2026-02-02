@@ -19,6 +19,7 @@ import { db } from '@/lib/db/PatternDB';
 import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -27,7 +28,7 @@ interface Issue {
 }
 
 export function EditorLayout() {
-  const { document, updateDocument } = useDocumentContext();
+  const { document, updateDocument, loadingSample, loadingProgress } = useDocumentContext();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
   const [suggestions, setSuggestions] = useState<DialogueSpan[]>([]);
@@ -437,6 +438,12 @@ export function EditorLayout() {
           <HelpCircle className="h-4 w-4" />
           <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">?</kbd>
         </Button>
+        {loadingSample && (
+          <div className="flex-1 max-w-xs ml-4">
+            <Progress value={loadingProgress} className="h-2" />
+            <p className="text-xs text-muted-foreground mt-1">Loading sample... {loadingProgress}%</p>
+          </div>
+        )}
       </div>
       <div className="flex-1 flex overflow-hidden">
         {/* Left pane - Rendered view with AI suggestions */}
