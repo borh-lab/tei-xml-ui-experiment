@@ -18,7 +18,7 @@ import {
   ValidationWarning,
   FixSuggestion,
 } from '@/lib/validation';
-import { AlertCircle, AlertTriangle, CheckCircle2, XCircle, Wrench } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle2, Wrench } from 'lucide-react';
 
 interface ValidationPanelProps {
   validationResults: ValidationResult | null;
