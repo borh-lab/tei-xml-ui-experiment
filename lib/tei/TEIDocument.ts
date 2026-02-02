@@ -333,4 +333,65 @@ export class TEIDocument {
 
     standOff.listRelation.relation = filtered.length === 0 ? undefined : (filtered.length === 1 ? filtered[0] : filtered);
   }
+
+  getNamedEntities(): any[] {
+    const standOff = this.parsed.TEI?.standOff;
+    if (!standOff) return [];
+
+    const listAnnotation = standOff['listAnnotation'];
+    if (!listAnnotation) return [];
+
+    const annotations = listAnnotation['annotation'];
+    if (!annotations) return [];
+
+    const annotationArray = Array.isArray(annotations) ? annotations : [annotations];
+
+    return annotationArray.map((ann: any) => {
+      const entity = ann['persName'] || ann['placeName'] || ann['orgName'] || ann['date'];
+      return {
+        id: ann['@_xml:id'],
+        type: ann['persName'] ? 'persName' : ann['placeName'] ? 'placeName' : ann['orgName'] ? 'orgName' : 'date',
+        text: entity?.['#text'] || entity,
+        ref: entity?.['@_ref'],
+        passageIndex: 0, // TODO: parse from @span
+        span: { start: 0, end: 0 }, // TODO: parse from @span
+        element: ann
+      };
+    });
+  }
+
+  addNERTag(span: { start: number; end: number }, type: 'persName' | 'placeName' | 'orgName' | 'date', ref?: string): void {
+    // Ensure <standOff> exists
+    if (!this.parsed.TEI.standOff) {
+      this.parsed.TEI.standOff = {};
+    }
+
+    // Ensure <listAnnotation> exists
+    if (!this.parsed.TEI.standOff.listAnnotation) {
+      this.parsed.TEI.standOff.listAnnotation = {};
+    }
+
+    const annotationId = `ann-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    const annotationElement: any = {
+      '@_xml:id': annotationId
+    };
+
+    // Add entity element based on type
+    const entityElement: any = {};
+    if (ref) {
+      entityElement['@_ref'] = `#${ref}`;
+    }
+
+    annotationElement[type] = entityElement;
+
+    const listAnnotation = this.parsed.TEI.standOff.listAnnotation;
+    if (!listAnnotation.annotation) {
+      listAnnotation.annotation = annotationElement;
+    } else {
+      const annotations = Array.isArray(listAnnotation.annotation) ? listAnnotation.annotation : [listAnnotation.annotation];
+      annotations.push(annotationElement);
+      listAnnotation.annotation = annotations;
+    }
+  }
 }

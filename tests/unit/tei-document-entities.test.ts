@@ -203,3 +203,33 @@ describe('TEIDocument - addCharacter', () => {
     expect(characters[1]['xml:id']).toBe('elizabeth');
   });
 });
+
+describe('TEIDocument - addNERTag', () => {
+  test('adds entity to <standOff><listAnnotation>', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text><body><p>Mr. Darcy</p></body></text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.addNERTag({ start: 4, end: 14 }, 'persName', 'darcy');
+
+    const serialized = doc.serialize();
+    expect(serialized).toContain('<listAnnotation>');
+    expect(serialized).toContain('<persName ref="#darcy">');
+  });
+
+  test('handles multiple entities', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text><body><p>Mr. Darcy and Elizabeth</p></body></text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.addNERTag({ start: 4, end: 14 }, 'persName', 'darcy');
+    doc.addNERTag({ start: 19, end: 28 }, 'persName', 'elizabeth');
+
+    const entities = doc.getNamedEntities();
+    expect(entities).toHaveLength(2);
+  });
+});
