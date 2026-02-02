@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { getSelectionRange } from '@/lib/utils/selection';
+import { SelectionManager } from '@/lib/selection/SelectionManager';
 
 interface TagToolbarProps {
   onApplyTag: (tag: string, attrs?: Record<string, string>) => void;
@@ -11,6 +12,7 @@ interface TagToolbarProps {
 export function TagToolbar({ onApplyTag }: TagToolbarProps) {
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [visible, setVisible] = useState(false);
+  const [selectionManager] = useState(() => new SelectionManager());
 
   useEffect(() => {
     const handleSelection = () => {
@@ -44,10 +46,10 @@ export function TagToolbar({ onApplyTag }: TagToolbarProps) {
       document.removeEventListener('mouseup', handleSelection);
       document.removeEventListener('keyup', handleSelection);
     };
-  }, []);
+  }, [selectionManager]);
 
-  const handleApplyTag = (tag: string) => {
-    onApplyTag(tag);
+  const handleApplyTag = (tag: string, attrs?: Record<string, string>) => {
+    onApplyTag(tag, attrs);
     setVisible(false);
   };
 
@@ -67,8 +69,9 @@ export function TagToolbar({ onApplyTag }: TagToolbarProps) {
       <Button
         size="sm"
         variant="outline"
-        onClick={() => handleApplyTag('said')}
+        onClick={() => handleApplyTag('said', { 'who': '#speaker1' })}
         className="text-xs"
+        title="Wrap in said tag (speaker1)"
       >
         &lt;said&gt;
       </Button>
@@ -77,6 +80,7 @@ export function TagToolbar({ onApplyTag }: TagToolbarProps) {
         variant="outline"
         onClick={() => handleApplyTag('q')}
         className="text-xs"
+        title="Wrap in q tag"
       >
         &lt;q&gt;
       </Button>
@@ -85,6 +89,7 @@ export function TagToolbar({ onApplyTag }: TagToolbarProps) {
         variant="outline"
         onClick={() => handleApplyTag('persName')}
         className="text-xs"
+        title="Wrap in persName tag"
       >
         &lt;persName&gt;
       </Button>
