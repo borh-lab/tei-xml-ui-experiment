@@ -22,6 +22,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { MobileNavigation } from '@/components/navigation/MobileNavigation';
+import { SelectionManager } from '@/lib/selection/SelectionManager';
+import { useCallback } from 'react';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -78,6 +80,54 @@ export function EditorLayout() {
     const paragraphs = Array.isArray(p) ? p : (p ? [p] : []);
     return paragraphs.map((_, idx) => `passage-${idx}`);
   };
+
+  // Generic handler for applying tags to selected text
+  const handleApplyTag = useCallback((tag: string, attrs?: Record<string, string>) => {
+    if (!document) return;
+
+    const selectionManager = new SelectionManager();
+    const selectionRange = selectionManager.captureSelection();
+
+    if (!selectionRange) {
+      showToast('No text selected - Select text first, then click tag button', 'error');
+      return;
+    }
+
+    // Extract passage index from passageId
+    const passageIndex = parseInt(selectionRange.passageId.split('-')[1], 10);
+
+    try {
+      // Use the generic wrapTextInTag method
+      document.wrapTextInTag(
+        passageIndex,
+        selectionRange.startOffset,
+        selectionRange.endOffset,
+        tag,
+        attrs
+      );
+
+      // Update document in context
+      const updatedXML = document.serialize();
+      updateDocument(updatedXML);
+
+      // Success message
+      const tagDisplay = attrs ? `<${tag} ${Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ')}>` : `<${tag}>`;
+      showToast(`Applied ${tagDisplay}`, 'success');
+
+      // Restore selection after update
+      setTimeout(() => {
+        selectionManager.restoreSelection({
+          start: selectionRange.startOffset,
+          end: selectionRange.endOffset,
+          passageId: selectionRange.passageId
+        });
+      }, 50);
+
+    } catch (error) {
+      console.error('Failed to apply tag:', error);
+      showToast('Failed to apply tag - See console for details', 'error');
+    }
+  }, [document, updateDocument]);
 
   // Keyboard shortcut: ? (Shift+/) - Show keyboard shortcuts help
   useHotkeys('shift+/', (e) => {
@@ -176,9 +226,8 @@ export function EditorLayout() {
         }
 
         handleApplyTag('said', { '@who': speakerId });
-        showToast(`Tagged as ${speakerId}`, 'success');
       },
-      [isInputFocused]
+      [isInputFocused, handleApplyTag]
     );
   }
 
@@ -321,32 +370,6 @@ export function EditorLayout() {
   const handleConvert = () => {
     console.log('Converting selected passages to dialogue');
     // TODO: Implement conversion logic
-  };
-
-  const handleApplyTag = (tag: string, attrs?: Record<string, string>) => {
-    if (!document) return;
-
-    const selection = window.getSelection();
-    const selectedText = selection?.toString() || '';
-    if (!selectedText) return;
-
-    // Find current passage index
-    const passageId = currentPassageId || 'passage-0';
-    const passageIndex = parseInt(passageId.split('-')[1], 10);
-
-    if (tag === 'said' && attrs?.['@who']) {
-      const speakerId = attrs['@who'].replace('#', '');
-      const range = { start: 0, end: selectedText.length }; // Simplified - would need actual text position
-
-      document.addSaidTag(passageIndex, range, speakerId);
-
-      // Update document in context
-      const updatedXML = document.serialize();
-      updateDocument(updatedXML);
-
-      console.log(`Applied <said who="#${speakerId}"> to passage ${passageIndex}`);
-      showToast(`Tagged as ${speakerId}`, 'success');
-    }
   };
 
   const handleAcceptSuggestion = (suggestion: DialogueSpan) => {
