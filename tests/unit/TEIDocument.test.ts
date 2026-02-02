@@ -140,4 +140,22 @@ describe('wrapTextInTag', () => {
     // Should preserve the existing said tag
     expect(updated).toContain('<said who="#s1">existing quote</said>');
   });
+
+  it('should preserve passage attributes when wrapping', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p xml:id="p1" n="1">Hello</p>
+    </body>
+  </text>
+</TEI>`;
+
+    const doc = new TEIDocument(xml);
+    doc.wrapTextInTag(0, 0, 5, 'said');
+    const updated = doc.serialize();
+    expect(updated).toContain('xml:id="p1"');
+    expect(updated).toContain('n="1"');
+    expect(updated).toContain('<said>Hello</said>');
+  });
 });
