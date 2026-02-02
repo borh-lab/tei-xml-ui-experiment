@@ -22,6 +22,13 @@ An AI-assisted tool for annotating dialogue in TEI XML documents.
 - See dialogue frequency and connections at a glance
 - Click characters to filter their passages
 
+### 👥 Entity Modeling
+
+- **Character Management**: Add, edit, delete characters with full metadata (sex, age, occupation, traits)
+- **Relationship Tracking**: Define relationships between characters (family, romantic, social, professional, antagonistic)
+- **NER Integration**: Automatic detection of personal names, places, and organizations with confidence scoring
+- **Entity Tooltips**: Hover over tagged dialogue to see character information
+
 ### ⚡ Productivity Features
 
 <img src="docs/screenshots/command-palette.png" alt="Command Palette" width="800">
