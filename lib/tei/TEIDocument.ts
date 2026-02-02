@@ -251,4 +251,86 @@ export class TEIDocument {
       listPerson.person = persons;
     }
   }
+
+  getRelationships(): any[] {
+    const standOff = this.parsed.TEI?.standOff;
+    if (!standOff) return [];
+
+    const listRelation = standOff['listRelation'];
+    if (!listRelation) return [];
+
+    const relations = listRelation['relation'];
+    if (!relations) return [];
+
+    const relationArray = Array.isArray(relations) ? relations : [relations];
+
+    return relationArray.map((rel: any) => ({
+      id: rel['@_xml:id'] || `${rel['@_name']}-${rel['@_active']}-${rel['@_passive']}`,
+      from: rel['@_active']?.replace('#', ''),
+      to: rel['@_passive']?.replace('#', ''),
+      type: rel['@_name'],
+      subtype: rel['@_subtype'],
+      mutual: rel['@_mutual'] !== 'false',
+      element: rel
+    }));
+  }
+
+  addRelation(relation: any): void {
+    // Ensure <standOff> exists
+    if (!this.parsed.TEI.standOff) {
+      this.parsed.TEI.standOff = {};
+    }
+
+    // Ensure <listRelation> exists
+    if (!this.parsed.TEI.standOff.listRelation) {
+      this.parsed.TEI.standOff.listRelation = {};
+    }
+
+    const relationElement: any = {
+      '@_name': relation.type,
+      '@_active': `#${relation.from}`,
+      '@_passive': `#${relation.to}`
+    };
+
+    if (relation.subtype) {
+      relationElement['@_subtype'] = relation.subtype;
+    }
+
+    if (relation.mutual === false) {
+      relationElement['@_mutual'] = 'false';
+    }
+
+    if (relation.id) {
+      relationElement['@_xml:id'] = relation.id;
+    }
+
+    const listRelation = this.parsed.TEI.standOff.listRelation;
+    if (!listRelation.relation) {
+      listRelation.relation = relationElement;
+    } else {
+      const relations = Array.isArray(listRelation.relation) ? listRelation.relation : [listRelation.relation];
+      relations.push(relationElement);
+      listRelation.relation = relations;
+    }
+  }
+
+  removeRelation(fromId: string, toId: string, type: string): void {
+    const standOff = this.parsed.TEI?.standOff;
+    if (!standOff?.listRelation) return;
+
+    const relations = standOff.listRelation.relation;
+    if (!relations) return;
+
+    const relationArray = Array.isArray(relations) ? relations : [relations];
+
+    const filtered = relationArray.filter((rel: any) => {
+      const active = rel['@_active']?.replace('#', '');
+      const passive = rel['@_passive']?.replace('#', '');
+      const name = rel['@_name'];
+
+      return !(active === fromId && passive === toId && name === type);
+    });
+
+    standOff.listRelation.relation = filtered.length === 0 ? undefined : (filtered.length === 1 ? filtered[0] : filtered);
+  }
 }
