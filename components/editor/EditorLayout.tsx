@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Card } from '@/components/ui/card';
 import { TagToolbar } from './TagToolbar';
@@ -23,7 +23,6 @@ import { CheckCircle2, X, Navigation, HelpCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { MobileNavigation } from '@/components/navigation/MobileNavigation';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
-import { useCallback } from 'react';
 
 interface Issue {
   type: 'error' | 'warning';
@@ -47,6 +46,9 @@ export function EditorLayout() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
   const [entityPanelOpen, setEntityPanelOpen] = useState(false);
+
+  // Maintain a single SelectionManager instance to avoid inefficient re-instantiation
+  const selectionManagerRef = useRef(new SelectionManager());
 
   useHotkeys('mod+k', (e) => {
     e.preventDefault();
@@ -85,7 +87,7 @@ export function EditorLayout() {
   const handleApplyTag = useCallback((tag: string, attrs?: Record<string, string>) => {
     if (!document) return;
 
-    const selectionManager = new SelectionManager();
+    const selectionManager = selectionManagerRef.current;
     const selectionRange = selectionManager.captureSelection();
 
     if (!selectionRange) {
@@ -93,8 +95,12 @@ export function EditorLayout() {
       return;
     }
 
-    // Extract passage index from passageId
+    // Extract passage index from passageId with validation
     const passageIndex = parseInt(selectionRange.passageId.split('-')[1], 10);
+    if (isNaN(passageIndex)) {
+      showToast('Invalid passage ID', 'error');
+      return;
+    }
 
     try {
       // Use the generic wrapTextInTag method
@@ -114,14 +120,15 @@ export function EditorLayout() {
       const tagDisplay = attrs ? `<${tag} ${Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ')}>` : `<${tag}>`;
       showToast(`Applied ${tagDisplay}`, 'success');
 
-      // Restore selection after update
+      // Wait for React to re-render the updated document before restoring selection
+      // This delay ensures the DOM is updated with the new tag
       setTimeout(() => {
         selectionManager.restoreSelection({
           start: selectionRange.startOffset,
           end: selectionRange.endOffset,
           passageId: selectionRange.passageId
         });
-      }, 50);
+      }, 100);
 
     } catch (error) {
       console.error('Failed to apply tag:', error);
