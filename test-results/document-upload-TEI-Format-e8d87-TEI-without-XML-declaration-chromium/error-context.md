@@ -17,15 +17,18 @@
         - generic [ref=e14]:
           - button "Export HTML" [ref=e15]
           - button "Export TEI" [ref=e16]
-      - generic [ref=e17]:
-        - generic [ref=e18]:
-          - heading "Rendered View" [level=2] [ref=e20]
-          - generic [ref=e24]: No passages found in document
-        - generic [ref=e27]:
-          - heading "TEI Source" [level=2] [ref=e28]
-          - generic [ref=e29]: <TEI xmlns="http://www.tei-c.org/ns/1.0"> <teiHeader> <fileDesc> <titleStmt> <title>Test Document</title> </titleStmt> </fileDesc> </teiHeader> <text> <body> <castList> <castItem> <role xml:id="narrator">narrator</role> </castItem> </castList> <p> <s who="#narrator">Test passage 1</s> </p> <p> <s who="#narrator">Test passage 2</s> </p> <p> <s who="#narrator">Test passage 3</s> </p> </body> </text> </TEI>
+        - button "?" [ref=e17]:
+          - img
+          - generic [ref=e18]: "?"
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - heading "Rendered View" [level=2] [ref=e22]
+          - generic [ref=e26]: No passages found in document
+        - generic [ref=e29]:
+          - heading "TEI Source" [level=2] [ref=e30]
+          - generic [ref=e31]: <TEI xmlns="http://www.tei-c.org/ns/1.0"> <teiHeader> <fileDesc> <titleStmt> <title>Test Document</title> </titleStmt> </fileDesc> </teiHeader> <text> <body> <castList> <castItem> <role xml:id="narrator">narrator</role> </castItem> </castList> <p> <s who="#narrator">Test passage 1</s> </p> <p> <s who="#narrator">Test passage 2</s> </p> <p> <s who="#narrator">Test passage 3</s> </p> </body> </text> </TEI>
   - region "Notifications alt+T"
-  - button "Open Next.js Dev Tools" [ref=e35] [cursor=pointer]:
-    - img [ref=e36]
-  - alert [ref=e39]
+  - button "Open Next.js Dev Tools" [ref=e37] [cursor=pointer]:
+    - img [ref=e38]
+  - alert [ref=e41]
 ```
