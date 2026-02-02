@@ -35,6 +35,19 @@ export const RenderedView = React.memo(({
   const passageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // HTML escape utility to prevent XSS
+  const escapeHtml = (str: string): string => {
+    const htmlEntities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;'
+    };
+    return str.replace(/[&<>"'/]/g, (char) => htmlEntities[char]);
+  };
+
   // Extract passages from document
   useEffect(() => {
     if (!document) return;
@@ -60,7 +73,10 @@ export const RenderedView = React.memo(({
           saidElements.forEach((said: any) => {
             const saidText = said['#text'] || '';
             speaker = said['@_who']?.replace('#', '');
-            content += `<span data-speaker="${speaker}">${saidText}</span>`;
+            // Escape HTML to prevent XSS
+            const escapedSpeaker = escapeHtml(speaker || '');
+            const escapedText = escapeHtml(saidText);
+            content += `<span data-speaker="${escapedSpeaker}">${escapedText}</span>`;
           });
 
           if (para['#text_2']) {

@@ -117,23 +117,19 @@ export class TEIDocument {
       '#text': selected
     };
 
-    // For proper TEI XML serialization with mixed content,
-    // we need to rebuild the passage with the <said> element embedded
+    // Build passage object with mixed content for fast-xml-parser
     // This creates the structure: <p>before<said who="#speaker1">selected</said>after</p>
-    const newPassageContent = before + '___SAID_TAG___' + selected + '___SAID_TAG_END___' + after;
-
-    // Temporarily mark the position and let serialize() handle it properly
-    // For now, simpler approach: store as object structure that XMLBuilder understands
     const newPassage: any = {
       'said': [saidElement]
     };
 
-    // Add text before and after
+    // Add text before
     if (before) {
       newPassage['#text'] = before;
     }
+
+    // Add text after (uses special key for fast-xml-parser)
     if (after) {
-      // Use a special key for text after the element
       newPassage['#text_2'] = after;
     }
 

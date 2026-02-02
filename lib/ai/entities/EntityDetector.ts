@@ -12,7 +12,7 @@ export class EntityDetector {
       'g'
     );
 
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = titlePattern.exec(text)) !== null) {
       entities.push({
         start: match.index,
@@ -38,7 +38,7 @@ export class EntityDetector {
 
       // Skip if already captured by title pattern
       const alreadyCaptured = entities.some(e =>
-        match.index >= e.start && match.index < e.end
+        match!.index >= e.start && match!.index < e.end
       );
       if (alreadyCaptured) {
         continue;
@@ -68,7 +68,7 @@ export class EntityDetector {
     // Pattern: in/at/from/to/near + Capitalized Place
     const placePattern = /\b(in|at|from|to|near)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/g;
 
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = placePattern.exec(text)) !== null) {
       const placeStart = text.indexOf(match[2], match.index);
       entities.push({
@@ -89,7 +89,7 @@ export class EntityDetector {
     // Pattern: "Quote" + said + Name
     const saidPattern = /"([^"]+)"\s+(said|replied|asked|answered|called)\s+([A-Z][a-z]+)/g;
 
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = saidPattern.exec(text)) !== null) {
       const quoteStart = text.indexOf('"', match.index);
       const quoteEnd = text.indexOf('"', quoteStart + 1) + 1;

@@ -49,8 +49,12 @@ export class NERAutoTagger {
     const highConfidence = this.getHighConfidenceEntities(result);
 
     highConfidence.forEach(entity => {
-      // TODO: Add to <standOff><listAnnotation>
-      console.log(`Auto-applying: ${entity.text} (${entity.type})`);
+      // Apply each high-confidence entity to the document
+      document.addNERTag(
+        { start: entity.start, end: entity.end },
+        entity.type,
+        undefined // TODO: match to character ID if persName
+      );
     });
   }
 }
