@@ -5,6 +5,7 @@ import {
   TEIDocument,
   loadDocument,
   addSaidTag,
+  addTag,
   removeTag,
   undoTo,
   redoFrom,
@@ -29,6 +30,7 @@ import type { PassageID, CharacterID, TextRange } from '@/lib/tei/types';
 type DocumentAction =
   | { type: 'LOAD'; xml: string }
   | { type: 'ADD_SAID_TAG'; passageId: PassageID; range: TextRange; speaker: CharacterID }
+  | { type: 'ADD_GENERIC_TAG'; passageId: PassageID; range: TextRange; tagName: string; attributes?: Record<string, string> }
   | { type: 'REMOVE_TAG'; tagId: string }
   | { type: 'UNDO'; targetRevision: number }
   | { type: 'REDO'; fromRevision: number }
@@ -47,6 +49,10 @@ function documentReducer(doc: TEIDocument | null, action: DocumentAction): TEIDo
     case 'ADD_SAID_TAG':
       if (!doc) return null;
       return addSaidTag(doc, action.passageId, action.range, action.speaker);
+
+    case 'ADD_GENERIC_TAG':
+      if (!doc) return null;
+      return addTag(doc, action.passageId, action.range, action.tagName, action.attributes);
 
     case 'REMOVE_TAG':
       if (!doc) return null;
@@ -85,6 +91,7 @@ interface DocumentContextType {
 
   // Tag operations
   addSaidTag: (passageId: PassageID, range: TextRange, speaker: CharacterID) => void;
+  addGenericTag: (passageId: PassageID, range: TextRange, tagName: string, attributes?: Record<string, string>) => void;
   removeTag: (tagId: string) => void;
 
   // Undo/redo
@@ -284,6 +291,10 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'ADD_SAID_TAG', passageId, range, speaker });
   }, []);
 
+  const addGenericTagHandler = useCallback((passageId: PassageID, range: TextRange, tagName: string, attributes?: Record<string, string>) => {
+    dispatch({ type: 'ADD_GENERIC_TAG', passageId, range, tagName, attributes });
+  }, []);
+
   const removeTagHandler = useCallback((tagId: string) => {
     dispatch({ type: 'REMOVE_TAG', tagId });
   }, []);
@@ -307,6 +318,7 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       clearDocument,
       clearDocumentAndSkipAutoLoad,
       addSaidTag: addSaidTagHandler,
+      addGenericTag: addGenericTagHandler,
       removeTag: removeTagHandler,
       undo,
       redo,

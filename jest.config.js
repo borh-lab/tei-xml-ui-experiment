@@ -16,7 +16,7 @@ const customJestConfig = {
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)'
   ],
-  testPathIgnorePatterns: ['<rootDir>/tests/e2e/'],
+  testPathIgnorePatterns: ['<rootDir>/tests/e2e/', '<rootDir>/.worktrees/'],
   transformIgnorePatterns: [
     'node_modules/(?!(react-hotkeys-hook|@ax-llm|@radix-ui)/)',
   ],
