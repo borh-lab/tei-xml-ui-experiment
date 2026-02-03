@@ -19,6 +19,7 @@ export interface Sample {
   readonly year: number;
   readonly wordCount: number;
   readonly dialogueCount: number;
+  readonly characters: number; // Number of characters in the story
   readonly difficulty: 'beginner' | 'intermediate' | 'advanced';
   readonly tags: readonly string[];
   readonly description?: string;
@@ -43,28 +44,69 @@ export interface SampleLoadResult {
  */
 export const SAMPLES: readonly Sample[] = [
   {
-    id: 'gift-of-the-magi',
-    title: 'The Gift of the Magi',
-    author: 'O. Henry',
-    year: 1905,
-    wordCount: 4500,
-    dialogueCount: 25,
-    difficulty: 'beginner',
-    tags: ['short-story', 'third-person', 'irony'],
-    description:
-      'A classic short story about a young couple who sacrifice their most prized possessions to buy Christmas gifts for each other.',
-  },
-  {
     id: 'yellow-wallpaper',
     title: 'The Yellow Wallpaper',
     author: 'Charlotte Perkins Gilman',
     year: 1892,
     wordCount: 6000,
     dialogueCount: 15,
+    characters: 3,
     difficulty: 'intermediate',
-    tags: ['short-story', 'first-person', 'psychological'],
+    tags: ['short-story', 'first-person', 'indirect-speech', 'internal-monologue'],
     description:
       'A semiautobiographical short story about a woman descending into psychosis while confined to her bedroom.',
+  },
+  {
+    id: 'gift-of-the-magi',
+    title: 'The Gift of the Magi',
+    author: 'O. Henry',
+    year: 1905,
+    wordCount: 4500,
+    dialogueCount: 25,
+    characters: 4,
+    difficulty: 'beginner',
+    tags: ['short-story', 'third-person', 'direct-speech', 'dialogue-heavy', 'irony'],
+    description:
+      'A classic short story about a young couple who sacrifice their most prized possessions to buy Christmas gifts for each other.',
+  },
+  {
+    id: 'tell-tale-heart',
+    title: 'The Tell-Tale Heart',
+    author: 'Edgar Allan Poe',
+    year: 1843,
+    wordCount: 2000,
+    dialogueCount: 8,
+    characters: 3,
+    difficulty: 'advanced',
+    tags: ['short-story', 'first-person', 'unreliable-narrator', 'internal-monologue'],
+    description:
+      'A psychological thriller about an unreliable narrator who insists on their sanity while describing a murder.',
+  },
+  {
+    id: 'owl-creek-bridge',
+    title: 'An Occurrence at Owl Creek Bridge',
+    author: 'Ambrose Bierce',
+    year: 1890,
+    wordCount: 3000,
+    dialogueCount: 10,
+    characters: 5,
+    difficulty: 'intermediate',
+    tags: ['short-story', 'third-person', 'direct-speech', 'narrative-shift'],
+    description:
+      'A short story about a man who escapes execution by hanging, only to reveal a surprising twist ending.',
+  },
+  {
+    id: 'pride-prejudice-ch1',
+    title: 'Pride and Prejudice - Chapter 1',
+    author: 'Jane Austen',
+    year: 1813,
+    wordCount: 5000,
+    dialogueCount: 20,
+    characters: 3,
+    difficulty: 'intermediate',
+    tags: ['novel', 'third-person', 'direct-speech', 'dialogue-heavy', 'wit'],
+    description:
+      'The opening chapter of Jane Austen\'s classic novel, featuring the famous opening line and witty banter between Mr. and Mrs. Bennet.',
   },
 ] as const;
 

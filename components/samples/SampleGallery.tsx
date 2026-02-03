@@ -1,81 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CorpusBrowser } from '@/components/samples/CorpusBrowser';
-
-export interface Sample {
-  id: string;
-  title: string;
-  author: string;
-  year: number;
-  wordCount: number;
-  dialogueCount: number;
-  characters: number;
-  patterns: string[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-}
-
-const samples: Sample[] = [
-  {
-    id: 'yellow-wallpaper',
-    title: 'The Yellow Wallpaper',
-    author: 'Charlotte Perkins Gilman',
-    year: 1892,
-    wordCount: 6000,
-    dialogueCount: 15,
-    characters: 3,
-    patterns: ['first-person', 'indirect-speech', 'internal-monologue'],
-    difficulty: 'intermediate'
-  },
-  {
-    id: 'gift-of-the-magi',
-    title: 'The Gift of the Magi',
-    author: 'O. Henry',
-    year: 1905,
-    wordCount: 3000,
-    dialogueCount: 12,
-    characters: 4,
-    patterns: ['third-person', 'direct-speech', 'dialogue-heavy'],
-    difficulty: 'intermediate'
-  },
-  {
-    id: 'tell-tale-heart',
-    title: 'The Tell-Tale Heart',
-    author: 'Edgar Allan Poe',
-    year: 1843,
-    wordCount: 2000,
-    dialogueCount: 8,
-    characters: 3,
-    patterns: ['first-person', 'unreliable-narrator', 'internal-monologue'],
-    difficulty: 'advanced'
-  },
-  {
-    id: 'owl-creek-bridge',
-    title: 'An Occurrence at Owl Creek Bridge',
-    author: 'Ambrose Bierce',
-    year: 1890,
-    wordCount: 3000,
-    dialogueCount: 10,
-    characters: 5,
-    patterns: ['third-person', 'direct-speech', 'narrative-shift'],
-    difficulty: 'intermediate'
-  },
-  {
-    id: 'pride-prejudice-ch1',
-    title: 'Pride and Prejudice - Chapter 1',
-    author: 'Jane Austen',
-    year: 1813,
-    wordCount: 5000,
-    dialogueCount: 20,
-    characters: 3,
-    patterns: ['third-person', 'direct-speech', 'dialogue-heavy', 'wit'],
-    difficulty: 'intermediate'
-  }
-];
+import { SAMPLES, getSamplesByDifficulty, type Sample } from '@/lib/samples/SampleManager';
 
 function getDifficultyColor(difficulty: Sample['difficulty']): string {
   switch (difficulty) {
@@ -96,6 +27,13 @@ interface SampleGalleryProps {
 export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'beginner' | 'intermediate' | 'advanced'>('all');
+
+  // Filter samples by difficulty
+  const filteredSamples = useMemo(() => {
+    if (difficultyFilter === 'all') return SAMPLES;
+    return getSamplesByDifficulty(difficultyFilter);
+  }, [difficultyFilter]);
 
   const handleLoadSample = async (sampleId: string) => {
     setError(null);
@@ -158,8 +96,40 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
         </TabsList>
 
         <TabsContent value="samples" className="space-y-6">
+          {/* Difficulty filter */}
+          <div className="flex gap-2 justify-center">
+            <Badge
+              variant={difficultyFilter === 'all' ? 'default' : 'outline'}
+              className="cursor-pointer"
+              onClick={() => setDifficultyFilter('all')}
+            >
+              All ({SAMPLES.length})
+            </Badge>
+            <Badge
+              variant={difficultyFilter === 'beginner' ? 'default' : 'outline'}
+              className="cursor-pointer"
+              onClick={() => setDifficultyFilter('beginner')}
+            >
+              Beginner ({getSamplesByDifficulty('beginner').length})
+            </Badge>
+            <Badge
+              variant={difficultyFilter === 'intermediate' ? 'default' : 'outline'}
+              className="cursor-pointer"
+              onClick={() => setDifficultyFilter('intermediate')}
+            >
+              Intermediate ({getSamplesByDifficulty('intermediate').length})
+            </Badge>
+            <Badge
+              variant={difficultyFilter === 'advanced' ? 'default' : 'outline'}
+              className="cursor-pointer"
+              onClick={() => setDifficultyFilter('advanced')}
+            >
+              Advanced ({getSamplesByDifficulty('advanced').length})
+            </Badge>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {samples.map((sample) => (
+            {filteredSamples.map((sample) => (
               <Card key={sample.id} className="flex flex-col hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
@@ -171,6 +141,11 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
                   <p className="text-sm text-muted-foreground">
                     {sample.author} • {sample.year}
                   </p>
+                  {sample.description && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                      {sample.description}
+                    </p>
+                  )}
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
                   <div className="space-y-3 mb-4 flex-1">
@@ -180,23 +155,19 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
                         <span className="text-muted-foreground">dialogue passages</span>
                       </div>
                       <div>
-                        <span className="font-medium">{sample.characters}</span>{' '}
-                        <span className="text-muted-foreground">characters</span>
-                      </div>
-                      <div>
                         <span className="font-medium">{sample.wordCount.toLocaleString()}</span>{' '}
                         <span className="text-muted-foreground">words</span>
                       </div>
                     </div>
 
                     <div className="flex flex-wrap gap-1">
-                      {sample.patterns.map((pattern) => (
+                      {sample.tags.map((tag) => (
                         <Badge
-                          key={pattern}
+                          key={tag}
                           variant="outline"
                           className="text-xs"
                         >
-                          {pattern}
+                          {tag}
                         </Badge>
                       ))}
                     </div>
