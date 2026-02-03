@@ -58,3 +58,6 @@ debug-*.png
 
 # submodules
 TEI/
+
+# git worktrees
+.worktrees/
