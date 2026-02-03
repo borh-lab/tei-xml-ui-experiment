@@ -1,4 +1,4 @@
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 import { Node, Edge } from 'reactflow';
 
 export type ProximityMethod = 'paragraph' | 'dialogue' | 'word' | 'combined';

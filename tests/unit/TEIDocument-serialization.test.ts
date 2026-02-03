@@ -1,4 +1,4 @@
-import { TEIDocument } from '../../lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 describe('TEIDocument Serialization', () => {
   test('serialize should produce valid XML', () => {

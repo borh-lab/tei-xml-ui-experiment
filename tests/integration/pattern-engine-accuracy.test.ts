@@ -19,7 +19,7 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 import { AxProvider } from '@/lib/ai/ax-provider';
 import {
   calculateMetrics,

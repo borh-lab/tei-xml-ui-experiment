@@ -1,4 +1,4 @@
-import { TEIDocument } from '../../lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 describe('TEIDocument Query Methods', () => {
   test('getDivisions should extract div structure', () => {

@@ -1,4 +1,4 @@
-import { TEIDocument } from '../../lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 describe('TEIDocument', () => {
   test('should parse basic TEI structure', () => {
