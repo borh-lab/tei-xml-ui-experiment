@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -19,6 +19,9 @@ import {
   FixSuggestion,
 } from '@/lib/validation';
 import { AlertCircle, AlertTriangle, CheckCircle2, Wrench } from 'lucide-react';
+import { SchemaSelectionManager, SchemaSelectionHistory, createSchemaSelection } from '@/lib/schema/SchemaSelection';
+import { createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
+import { SchemaInfo } from '@/lib/schema/SchemaResolver';
 
 interface ValidationPanelProps {
   validationResults: ValidationResult | null;
@@ -37,6 +40,34 @@ export function ValidationPanel({
 }: ValidationPanelProps) {
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
 
+  // Schema selection state
+  const resolver = createDefaultResolver();
+  const selectionManager = new SchemaSelectionManager(resolver);
+
+  const [selectionHistory, setSelectionHistory] = useState<SchemaSelectionHistory>(() => ({
+    current: selectionManager.load(),
+    previous: []
+  }));
+  const [availableSchemas, setAvailableSchemas] = useState<SchemaInfo[]>([]);
+
+  // Load schemas on mount
+  useEffect(() => {
+    fetch('/api/schemas')
+      .then(r => r.json())
+      .then(data => setAvailableSchemas(data.schemas))
+      .catch(err => console.error('Failed to load schemas:', err));
+  }, []);
+
+  // Handle schema change
+  const handleSchemaChange = useCallback((newSchemaId: string) => {
+    setSelectionHistory(prev => selectionManager.transition(prev, newSchemaId));
+  }, []);
+
+  // Get current schema info
+  const currentSchema = useMemo(() => {
+    return availableSchemas.find(s => s.id === selectionHistory.current.schemaId);
+  }, [availableSchemas, selectionHistory.current.schemaId]);
+
   if (!visible) {
     return null;
   }
@@ -48,6 +79,41 @@ export function ValidationPanel({
         <CardHeader>
           <CardTitle>Validation Results</CardTitle>
           <CardDescription>No validation results</CardDescription>
+
+          {/* Schema Selector */}
+          {availableSchemas.length > 0 && (
+            <div className="schema-selector mt-4">
+              <label htmlFor="schema-select" className="text-sm font-medium mb-2 block">
+                Validation Schema
+              </label>
+              <select
+                id="schema-select"
+                value={selectionHistory.current.schemaId}
+                onChange={(e) => handleSchemaChange(e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm"
+                aria-label="Validation Schema"
+              >
+                {availableSchemas.map(schema => (
+                  <option key={schema.id} value={schema.id}>
+                    {schema.name}
+                  </option>
+                ))}
+              </select>
+
+              {currentSchema && (
+                <div className="schema-info mt-3 pt-3 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">{currentSchema.description}</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {currentSchema.tags.map(tag => (
+                      <span key={tag} className="px-2 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
@@ -85,6 +151,41 @@ export function ValidationPanel({
             <CheckCircle2 className="h-6 w-6 text-green-500" />
           )}
         </div>
+
+        {/* Schema Selector */}
+        {availableSchemas.length > 0 && (
+          <div className="schema-selector mt-4">
+            <label htmlFor="schema-select" className="text-sm font-medium mb-2 block">
+              Validation Schema
+            </label>
+            <select
+              id="schema-select"
+              value={selectionHistory.current.schemaId}
+              onChange={(e) => handleSchemaChange(e.target.value)}
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm"
+              aria-label="Validation Schema"
+            >
+              {availableSchemas.map(schema => (
+                <option key={schema.id} value={schema.id}>
+                  {schema.name}
+                </option>
+              ))}
+            </select>
+
+            {currentSchema && (
+              <div className="schema-info mt-3 pt-3 border-t">
+                <p className="text-sm text-muted-foreground mb-2">{currentSchema.description}</p>
+                <div className="flex gap-2 flex-wrap">
+                  {currentSchema.tags.map(tag => (
+                    <span key={tag} className="px-2 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Severity Filter Buttons */}
         {hasIssues && (
