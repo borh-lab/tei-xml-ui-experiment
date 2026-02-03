@@ -1,4 +1,4 @@
-import { FileSchemaResolver } from '@/lib/schema/FileSchemaResolver';
+import { FileSchemaResolver, createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
 import { SchemaInfo } from '@/lib/schema/SchemaResolver';
 
 describe('FileSchemaResolver', () => {
@@ -44,5 +44,20 @@ describe('FileSchemaResolver', () => {
     const resolver = new FileSchemaResolver(mockSchemas, new Set(['test-schema']));
     const info = resolver.getSchemaInfo('test-schema');
     expect(info).toEqual(mockSchemas['test-schema']);
+  });
+});
+
+describe('createDefaultResolver', () => {
+  it('should create resolver with standard schemas', () => {
+    const resolver = createDefaultResolver();
+    expect(resolver.has('tei-minimal')).toBe(true);
+    expect(resolver.has('tei-all')).toBe(true);
+    expect(resolver.has('tei-novel')).toBe(true);
+  });
+
+  it('should not allow arbitrary schema IDs', () => {
+    const resolver = createDefaultResolver();
+    expect(resolver.has('malicious')).toBe(false);
+    expect(resolver.resolve('../../../etc/passwd')).toBeNull();
   });
 });
