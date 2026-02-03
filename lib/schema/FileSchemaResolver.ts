@@ -52,7 +52,7 @@ export class FileSchemaResolver implements SchemaResolver {
 
   constructor(
     schemas: Record<string, SchemaInfo> = SCHEMA_REGISTRY,
-    allowedIds: Set<string> = ALLOWED_SCHEMA_IDS
+    allowedIds: Set<string> | ReadonlySet<string> = ALLOWED_SCHEMA_IDS
   ) {
     this.schemas = Object.freeze({...schemas});
     this.allowedIds = Object.freeze(new Set(allowedIds)) as ReadonlySet<string>;
