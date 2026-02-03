@@ -8,7 +8,11 @@ const mockDocument = {
     TEI: {
       text: {
         body: {
-          p: 'This is sentence one. This is sentence two. This is sentence three.'
+          p: [
+            'This is sentence one.',
+            'This is sentence two.',
+            'This is sentence three.'
+          ]
         }
       }
     }
@@ -181,7 +185,7 @@ describe('RenderedView', () => {
 
       const { container } = render(<RenderedView {...mockProps} isBulkMode={false} />);
 
-      expect(container.querySelector('[data-speaker="darcy"]')).toBeInTheDocument();
+      expect(container.querySelector('[data-who="darcy"]')).toBeInTheDocument();
     });
   });
 });

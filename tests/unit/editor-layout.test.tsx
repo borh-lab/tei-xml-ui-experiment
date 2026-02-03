@@ -41,7 +41,7 @@ describe('React Hooks Dependencies', () => {
     mockRemoveEventListener.mockClear();
   });
 
-  test('should re-run detection when document changes', async () => {
+  test('should render without errors when no document is loaded', async () => {
     const { rerender } = render(
       <ErrorProvider>
 
@@ -53,9 +53,9 @@ describe('React Hooks Dependencies', () => {
     );
 
     // Initial render - component should load without errors
-    // Now shows SampleGallery instead of "No document loaded"
+    // When no document is loaded, shows "No document loaded"
     await waitFor(() => {
-      expect(screen.queryByText(/Welcome to TEI Dialogue Editor/i)).toBeInTheDocument();
+      expect(screen.queryByText(/No document loaded/i)).toBeInTheDocument();
     });
 
     // Re-render with same props (should not cause errors)
@@ -71,7 +71,7 @@ describe('React Hooks Dependencies', () => {
 
     // Should still render correctly without React hooks warnings
     await waitFor(() => {
-      expect(screen.queryByText(/Welcome to TEI Dialogue Editor/i)).toBeInTheDocument();
+      expect(screen.queryByText(/No document loaded/i)).toBeInTheDocument();
     });
   });
 });
@@ -194,7 +194,7 @@ describe('QuickSearchDialog Integration', () => {
 
     // Wait for the component to mount
     await waitFor(() => {
-      expect(screen.queryByText(/Welcome to TEI Dialogue Editor/i)).toBeInTheDocument();
+      expect(screen.queryByText(/No document loaded/i)).toBeInTheDocument();
     });
 
     // Component should render without errors
@@ -214,7 +214,7 @@ describe('QuickSearchDialog Integration', () => {
 
     // Wait for initial render
     await waitFor(() => {
-      expect(screen.queryByText(/Welcome to TEI Dialogue Editor/i)).toBeInTheDocument();
+      expect(screen.queryByText(/No document loaded/i)).toBeInTheDocument();
     });
 
     // Component should render without errors
