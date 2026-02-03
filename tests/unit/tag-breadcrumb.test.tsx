@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TagBreadcrumb } from '@/components/editor/TagBreadcrumb';
-import { TagInfo } from '@/lib/selection/SelectionManager';
 
 // Mock window.getSelection and related methods
 const mockGetSelection = jest.fn();
@@ -42,12 +41,6 @@ describe('TagBreadcrumb', () => {
   });
 
   it('should render breadcrumb for nested tags', async () => {
-    const mockTagInfo: TagInfo = {
-      tagName: 'said',
-      attributes: { who: '#speaker1', ana: '#direct' },
-      element: document.createElement('span'),
-    };
-
     // Mock getSelection to return a range inside a tag
     const mockRange = {
       commonAncestorContainer: document.createElement('span'),
@@ -68,13 +61,13 @@ describe('TagBreadcrumb', () => {
 
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
-    // Trigger the selection handler
-    const clickCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'click'
+    // Trigger the selection handler via keyup event (which uses getTagHierarchyFromSelection)
+    const keyupCallback = mockAddEventListener.mock.calls.find(
+      call => call[0] === 'keyup'
     )?.[1];
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     await waitFor(() => {
@@ -98,13 +91,13 @@ describe('TagBreadcrumb', () => {
 
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
-    // Trigger initial selection
-    const clickCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'click'
+    // Trigger initial selection via keyup
+    const keyupCallback = mockAddEventListener.mock.calls.find(
+      call => call[0] === 'keyup'
     )?.[1];
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     await waitFor(() => {
@@ -121,8 +114,8 @@ describe('TagBreadcrumb', () => {
 
     mockSelection.getRangeAt = () => mockRange2;
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     await waitFor(() => {
@@ -148,13 +141,13 @@ describe('TagBreadcrumb', () => {
 
     render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
-    // Trigger selection
-    const clickCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'click'
+    // Trigger selection via keyup
+    const keyupCallback = mockAddEventListener.mock.calls.find(
+      call => call[0] === 'keyup'
     )?.[1];
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     await waitFor(() => {
@@ -194,13 +187,13 @@ describe('TagBreadcrumb', () => {
 
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
-    // Trigger selection
-    const clickCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'click'
+    // Trigger selection via keyup
+    const keyupCallback = mockAddEventListener.mock.calls.find(
+      call => call[0] === 'keyup'
     )?.[1];
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     await waitFor(() => {
@@ -230,13 +223,13 @@ describe('TagBreadcrumb', () => {
 
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
-    // Trigger selection
-    const clickCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'click'
+    // Trigger selection via keyup
+    const keyupCallback = mockAddEventListener.mock.calls.find(
+      call => call[0] === 'keyup'
     )?.[1];
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     // Should not render breadcrumb when no tag at cursor
@@ -303,13 +296,13 @@ describe('TagBreadcrumb', () => {
 
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
-    // Trigger selection
-    const clickCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'click'
+    // Trigger selection via keyup
+    const keyupCallback = mockAddEventListener.mock.calls.find(
+      call => call[0] === 'keyup'
     )?.[1];
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     await waitFor(() => {
@@ -340,13 +333,13 @@ describe('TagBreadcrumb', () => {
 
     const { container } = render(<TagBreadcrumb />);
 
-    // Trigger selection
-    const clickCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'click'
+    // Trigger selection via keyup
+    const keyupCallback = mockAddEventListener.mock.calls.find(
+      call => call[0] === 'keyup'
     )?.[1];
 
-    if (clickCallback) {
-      clickCallback();
+    if (keyupCallback) {
+      keyupCallback();
     }
 
     await waitFor(() => {

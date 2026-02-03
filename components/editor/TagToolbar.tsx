@@ -11,7 +11,7 @@ interface TagToolbarProps {
 }
 
 export function TagToolbar({ onClose }: TagToolbarProps) {
-  const { document, addSaidTag } = useDocumentContext();
+  const { document, addSaidTag, addGenericTag } = useDocumentContext();
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [visible, setVisible] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<SelectionSnapshot | null>(null);
@@ -65,15 +65,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
         const character = document.state.characters[speakerIndex - 1];
 
         if (character) {
-          addSaidTag(
-            currentSelection.passageId,
-            currentSelection.range,
-            character.id
-          );
-          setVisible(false);
-          setCurrentSelection(null);
-          window.getSelection()?.removeAllRanges();
-          onClose?.();
+          handleApplyTag('said', { who: `#${character.xmlId}` });
         }
       }
 
@@ -99,7 +91,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [visible, currentSelection, document, addSaidTag, onClose]);
+  }, [visible, currentSelection, document, handleApplyTag, onClose]);
 
   const handleApplyTag = useCallback((type: string, attributes?: Record<string, string>) => {
     if (!document || !currentSelection) return;
@@ -117,8 +109,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
       case 'persName':
       case 'placeName':
       case 'orgName':
-        // TODO: Implement generic tag application in DocumentContext
-        console.log(`Apply ${type} tag`, attributes);
+        addGenericTag(currentSelection.passageId, currentSelection.range, type, attributes);
         break;
 
       default:
@@ -130,7 +121,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
     setVisible(false);
     setCurrentSelection(null);
     onClose?.();
-  }, [document, currentSelection, addSaidTag, onClose]);
+  }, [document, currentSelection, addSaidTag, addGenericTag, onClose]);
 
   if (!visible || !currentSelection || !document) {
     return null;
