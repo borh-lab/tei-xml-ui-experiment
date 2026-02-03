@@ -382,6 +382,38 @@ Exports include timestamp:
 
 ## Advanced Features
 
+### Schema Selection
+
+The ValidationPanel supports multiple TEI schemas for different document types:
+
+#### Available Schemas
+
+**TEI Minimal (Dialogue)** - Fast validation for dialogue documents
+- Elements: `sp`, `speaker`, `stage`, `p`, `emph`
+- Best for: Dialogue-heavy documents, screenplays
+
+**TEI P5 Complete** - Full TEI schema
+- All standard TEI elements
+- Best for: Comprehensive validation, complex documents
+
+**TEI for Novels** - Optimized for prose fiction
+- Elements: `div`, `p`, `quote`, `name`, `emph`
+- Best for: Novels, short stories, prose
+
+#### Using Schema Selection
+
+1. Open the ValidationPanel (click Validation button)
+2. Use the "Validation Schema" dropdown
+3. Select your desired schema
+4. Selection persists across sessions
+
+#### Schema Descriptions
+
+Each schema includes:
+- **Description** - What the schema is optimized for
+- **Tags** - Quick indicators of schema type (e.g., "dialogue", "minimal")
+- **Validation Rules** - Customized constraints for that document type
+
 ### Command Palette
 
 <img src="docs/screenshots/command-palette.png" alt="Command Palette" width="800">
