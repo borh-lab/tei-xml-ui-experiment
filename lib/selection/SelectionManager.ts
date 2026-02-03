@@ -1,24 +1,23 @@
-export interface SelectionRange {
-  text: string;
-  startOffset: number;
-  endOffset: number;
-  passageId: string;
-  container: Node;
-}
+/**
+ * Selection Manager (Value-Oriented)
+ *
+ * Pure functions for capturing and restoring text selections.
+ * No mutable cached state - selections are immutable values.
+ */
 
-export interface TagInfo {
-  tagName: string;
-  attributes: Record<string, string>;
-  element: HTMLElement;
-}
+import type {
+  SelectionSnapshot,
+  TextRange,
+  TagInfo,
+} from './types';
+import type { PassageID } from '@/lib/tei/types';
+import type { TEIDocument } from '@/lib/tei/types';
 
 export class SelectionManager {
-  private cachedSelection: SelectionRange | null = null;
-
   /**
-   * Capture current text selection with passage tracking
+   * Pure function: Capture selection as value (no cached state)
    */
-  captureSelection(): SelectionRange | null {
+  captureSelection(): SelectionSnapshot | null {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) {
       return null;
@@ -37,85 +36,125 @@ export class SelectionManager {
       return null;
     }
 
-    const passageId = passageElement.getAttribute('data-passage-id') || 'passage-0';
+    const passageId = passageElement.getAttribute('data-passage-id') as PassageID;
+    if (!passageId) {
+      return null;
+    }
+
     const offsets = this.calculateOffsets(passageElement, range);
 
-    this.cachedSelection = {
-      text,
-      startOffset: offsets.start,
-      endOffset: offsets.end,
+    return {
       passageId,
-      container: range.commonAncestorContainer
+      range: offsets,
+      documentRevision: this.getDocumentRevision(passageElement),
+      text,
+      container: range.commonAncestorContainer,
     };
-
-    return this.cachedSelection;
   }
 
   /**
-   * Calculate character offsets within a passage element
+   * Pure function: Restore selection with validation
+   * Returns true if successful, false if document changed
    */
-  private calculateOffsets(passageElement: HTMLElement, range: Range): { start: number; end: number } {
-    const textRange = document.createRange();
-    textRange.selectNodeContents(passageElement);
-    textRange.setEnd(range.startContainer, range.startOffset);
-    const start = textRange.toString().length;
+  restoreSelection(doc: TEIDocument, snapshot: SelectionSnapshot): boolean {
+    // Validate document hasn't changed
+    if (doc.state.revision !== snapshot.documentRevision) {
+      return false;
+    }
 
-    textRange.setEnd(range.endContainer, range.endOffset);
-    const end = textRange.toString().length;
+    const passageElement = document.querySelector(`[data-passage-id="${snapshot.passageId}"]`);
+    if (!passageElement) {
+      return false;
+    }
 
-    return { start, end };
+    return this.setSelectionInNode(passageElement as HTMLElement, snapshot.range);
   }
 
   /**
-   * Find the passage element containing a node
+   * Pure function: Get containing tag for current selection
    */
+  getContainingTag(doc: TEIDocument, selection: SelectionSnapshot): TagInfo | null {
+    const passage = doc.state.passages.find((p) => p.id === selection.passageId);
+    if (!passage) return null;
+
+    // Find tag that contains the selection range
+    const containingTag = passage.tags.find(
+      (tag) =>
+        selection.range.start >= tag.range.start &&
+        selection.range.end <= tag.range.end
+    );
+
+    if (!containingTag) {
+      return null;
+    }
+
+    return {
+      id: containingTag.id,
+      type: containingTag.type,
+      attributes: containingTag.attributes,
+      range: containingTag.range,
+    };
+  }
+
+  /**
+   * Pure function: Check if selection is within a tag
+   */
+  isSelectionInTag(doc: TEIDocument, selection: SelectionSnapshot): boolean {
+    return this.getContainingTag(doc, selection) !== null;
+  }
+
+  // Helper methods (private)
+
   private findPassageElement(node: Node): HTMLElement | null {
     let current: Node | null = node;
     while (current) {
       if (current instanceof HTMLElement) {
-        if (current.getAttribute('data-passage-id')) {
-          return current;
-        }
+        const passageId = current.getAttribute('data-passage-id');
+        if (passageId) return current;
       }
       current = current.parentNode;
     }
     return null;
   }
 
-  /**
-   * Restore selection at given offsets
-   */
-  restoreSelection(offsets: { start: number; end: number; passageId: string }): void {
-    const passageElement = document.querySelector(`[data-passage-id="${offsets.passageId}"]`) as HTMLElement;
-    if (!passageElement) {
-      return;
-    }
+  private calculateOffsets(passageElement: HTMLElement, range: Range): TextRange {
+    const rangeClone = range.cloneRange();
+    const textRange = document.createRange();
+    textRange.selectNodeContents(passageElement);
+    textRange.setEnd(rangeClone.startContainer, rangeClone.startOffset);
+    const start = textRange.toString().length;
 
-    const textContent = passageElement.textContent || '';
-    const start = Math.max(0, Math.min(offsets.start, textContent.length));
-    const end = Math.max(start, Math.min(offsets.end, textContent.length));
+    textRange.setEnd(rangeClone.endContainer, rangeClone.endOffset);
+    const end = textRange.toString().length;
 
-    // Find text node and offsets
-    this.setSelectionInNode(passageElement, start, end);
+    return { start, end };
   }
 
-  /**
-   * Set selection within a node at character offsets
-   */
-  private setSelectionInNode(node: Node, start: number, end: number): void {
+  private getDocumentRevision(passageElement: HTMLElement): number {
+    // Get revision from data attribute (set by renderer)
+    const rev = passageElement.getAttribute('data-document-revision');
+    return rev ? parseInt(rev, 10) : 0;
+  }
+
+  private setSelectionInNode(element: HTMLElement, range: TextRange): boolean {
     const selection = window.getSelection();
-    if (!selection) return;
+    if (!selection) return false;
 
-    const range = document.createRange();
+    try {
+      const textContent = element.textContent || '';
+      const start = Math.max(0, Math.min(range.start, textContent.length));
+      const end = Math.max(start, Math.min(range.end, textContent.length));
 
-    let currentOffset = 0;
-    let startNode: Node | null = null;
-    let startOffset = 0;
-    let endNode: Node | null = null;
-    let endOffset = 0;
+      const newRange = document.createRange();
+      const nodes = this.findTextNodes(element);
 
-    const traverse = (node: Node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
+      let currentOffset = 0;
+      let startNode: Node | null = null;
+      let startOffset = 0;
+      let endNode: Node | null = null;
+      let endOffset = 0;
+
+      for (const node of nodes) {
         const length = node.textContent?.length || 0;
 
         if (!startNode && currentOffset + length >= start) {
@@ -126,122 +165,41 @@ export class SelectionManager {
         if (!endNode && currentOffset + length >= end) {
           endNode = node;
           endOffset = end - currentOffset;
-          return true; // Stop traversal
+          break; // Found end node
         }
 
         currentOffset += length;
       }
 
-      for (const child of Array.from(node.childNodes || [])) {
-        if (traverse(child)) return true;
+      if (startNode && endNode) {
+        newRange.setStart(startNode, startOffset);
+        newRange.setEnd(endNode, endOffset);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+        return true;
       }
+
       return false;
-    };
+    } catch (e) {
+      console.error('Failed to restore selection:', e);
+      return false;
+    }
+  }
+
+  private findTextNodes(node: Node): Node[] {
+    const textNodes: Node[] = [];
+
+    function traverse(n: Node) {
+      if (n.nodeType === Node.TEXT_NODE) {
+        textNodes.push(n);
+      } else {
+        for (const child of Array.from(n.childNodes || [])) {
+          traverse(child);
+        }
+      }
+    }
 
     traverse(node);
-
-    if (startNode && endNode) {
-      range.setStart(startNode, startOffset);
-      range.setEnd(endNode, endOffset);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  }
-
-  /**
-   * Get information about the tag containing the selection
-   */
-  getContainingTag(): TagInfo | null {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) {
-      return null;
-    }
-
-    const range = selection.getRangeAt(0);
-    let container: Node | null = range.commonAncestorContainer;
-
-    // If we selected text, start with the parent element
-    if (container.nodeType === Node.TEXT_NODE) {
-      container = container.parentElement;
-    }
-
-    while (container instanceof HTMLElement) {
-      const tagName = container.getAttribute('data-tag');
-      if (tagName) {
-        const attributes: Record<string, string> = {};
-        for (let i = 0; i < container.attributes.length; i++) {
-          const attr = container.attributes[i];
-          // Extract all data-* attributes except data-tag and data-passage-id
-          if (attr.name.startsWith('data-') &&
-              attr.name !== 'data-tag' &&
-              attr.name !== 'data-passage-id') {
-            const attrName = attr.name.replace('data-', '');
-            attributes[attrName] = attr.value;
-          }
-        }
-        return { tagName, attributes, element: container };
-      }
-      container = container.parentElement;
-    }
-
-    return null;
-  }
-
-  /**
-   * Get the last cached selection
-   */
-  getCachedSelection(): SelectionRange | null {
-    return this.cachedSelection;
-  }
-
-  /**
-   * Clear the cached selection
-   */
-  clearCache(): void {
-    this.cachedSelection = null;
-  }
-
-  /**
-   * Get the complete tag hierarchy from the current cursor position
-   * Returns array of TagInfo from root to innermost tag
-   */
-  getTagHierarchy(): TagInfo[] {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) {
-      return [];
-    }
-
-    const range = selection.getRangeAt(0);
-    let container: Node | null = range.commonAncestorContainer;
-
-    // If we selected text, start with the parent element
-    if (container.nodeType === Node.TEXT_NODE) {
-      container = container.parentElement;
-    }
-
-    const hierarchy: TagInfo[] = [];
-
-    // Walk up the DOM tree collecting all tags with data-tag attribute
-    while (container instanceof HTMLElement) {
-      const tagName = container.getAttribute('data-tag');
-      if (tagName) {
-        const attributes: Record<string, string> = {};
-        for (let i = 0; i < container.attributes.length; i++) {
-          const attr = container.attributes[i];
-          // Extract all data-* attributes except data-tag and data-passage-id
-          if (attr.name.startsWith('data-') &&
-              attr.name !== 'data-tag' &&
-              attr.name !== 'data-passage-id') {
-            const attrName = attr.name.replace('data-', '');
-            attributes[attrName] = attr.value;
-          }
-        }
-        // Add to beginning of array so root is first
-        hierarchy.unshift({ tagName, attributes, element: container });
-      }
-      container = container.parentElement;
-    }
-
-    return hierarchy;
+    return textNodes;
   }
 }

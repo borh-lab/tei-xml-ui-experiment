@@ -426,6 +426,58 @@ export function removeTag(doc: TEIDocument, tagId: TagID): TEIDocument {
 }
 
 /**
+ * Add a generic tag to a passage
+ * Returns new document with added tag
+ */
+export function addTag(
+  doc: TEIDocument,
+  passageId: PassageID,
+  range: TextRange,
+  tagName: string,
+  attributes?: Record<string, string>
+): TEIDocument {
+  const passage = doc.state.passages.find((p) => p.id === passageId);
+  if (!passage) {
+    throw new Error(`Passage not found: ${passageId}`);
+  }
+
+  const tagId = `tag-${crypto.randomUUID()}` as TagID;
+  const newTag: Tag = {
+    id: tagId,
+    type: tagName as any, // Cast to Tag type union
+    range,
+    attributes: attributes || {},
+  };
+
+  const newPassage: Passage = {
+    ...passage,
+    tags: [...passage.tags, newTag],
+  };
+
+  const updatedPassages = doc.state.passages.map((p) =>
+    p.id === passageId ? newPassage : p
+  );
+
+  const state: DocumentState = {
+    ...doc.state,
+    passages: updatedPassages,
+    revision: doc.state.revision + 1,
+  };
+
+  // For non-said tags, we don't add to dialogue
+  const event: DocumentEvent = {
+    type: 'tagAdded', // We'd need to add this event type to DocumentEvent
+    id: tagId,
+    passageId,
+    range,
+    timestamp: Date.now(),
+    revision: state.revision,
+  } as any; // Cast for now since tagAdded isn't in the event union yet
+
+  return { state, events: [...doc.events, event] };
+}
+
+/**
  * Undo to specific revision
  * Rebuilds state by replaying events up to target revision
  * Keeps full event log for redo capability
