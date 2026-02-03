@@ -717,97 +717,16 @@ function applyRelationRemoved(
 }
 
 // ============================================================================
-// Entity Operations (for future Entity Modeling plan)
+// ============================================================================
+// Entity Operations (re-exported from entity-operations.ts)
 // ============================================================================
 
-/**
- * Add character to document
- */
-export function addCharacter(
-  doc: TEIDocument,
-  character: Character
-): TEIDocument {
-  const state: DocumentState = {
-    ...doc.state,
-    characters: [...doc.state.characters, character],
-    revision: doc.state.revision + 1,
-  };
-
-  const event: DocumentEvent = {
-    type: 'characterAdded',
-    id: character.id,
-    character,
-    timestamp: Date.now(),
-    revision: state.revision,
-  };
-
-  return { state, events: [...doc.events, event] };
-}
-
-/**
- * Remove character from document
- */
-export function removeCharacter(doc: TEIDocument, characterId: CharacterID): TEIDocument {
-  return {
-    state: {
-      ...doc.state,
-      characters: doc.state.characters.filter((c) => c.id !== characterId),
-      revision: doc.state.revision + 1,
-    },
-    events: [
-      ...doc.events,
-      {
-        type: 'characterRemoved',
-        id: characterId,
-        timestamp: Date.now(),
-        revision: doc.state.revision + 1,
-      },
-    ],
-  };
-}
-
-/**
- * Add relationship to document
- */
-export function addRelationship(
-  doc: TEIDocument,
-  relationship: Relationship
-): TEIDocument {
-  const state: DocumentState = {
-    ...doc.state,
-    relationships: [...doc.state.relationships, relationship],
-    revision: doc.state.revision + 1,
-  };
-
-  const event: DocumentEvent = {
-    type: 'relationAdded',
-    id: relationship.id,
-    relation: relationship,
-    timestamp: Date.now(),
-    revision: state.revision,
-  };
-
-  return { state, events: [...doc.events, event] };
-}
-
-/**
- * Remove relationship from document
- */
-export function removeRelationship(doc: TEIDocument, relationId: string): TEIDocument {
-  return {
-    state: {
-      ...doc.state,
-      relationships: doc.state.relationships.filter((r) => r.id !== relationId),
-      revision: doc.state.revision + 1,
-    },
-    events: [
-      ...doc.events,
-      {
-        type: 'relationRemoved',
-        id: relationId,
-        timestamp: Date.now(),
-        revision: doc.state.revision + 1,
-      },
-    ],
-  };
-}
+// Re-export entity operations from entity-operations module
+// These provide complete CRUD operations with validation
+export {
+  addCharacter,
+  updateCharacter,
+  removeCharacter,
+  addRelation as addRelationship,
+  removeRelation as removeRelationship,
+} from './entity-operations';
