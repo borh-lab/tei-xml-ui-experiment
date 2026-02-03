@@ -78,22 +78,69 @@ export interface Passage {
  */
 export interface Character {
   readonly id: CharacterID;
-  readonly xmlId: string;
-  readonly name: string;
+  readonly xmlId: string;           // TEI @xml:id
+  readonly name: string;           // persName content
   readonly sex?: 'M' | 'F' | 'Other';
   readonly age?: number;
+  readonly occupation?: string;
+  readonly traits?: readonly string[];  // Personality traits
+  readonly socialStatus?: string;
+  readonly maritalStatus?: string;
 }
+
+/**
+ * Relationship type union
+ */
+export type RelationshipType =
+  | 'family'
+  | 'romantic'
+  | 'social'
+  | 'professional'
+  | 'antagonistic';
 
 /**
  * Relationship between characters
  */
 export interface Relationship {
   readonly id: string;
+  readonly from: CharacterID;      // Subject
+  readonly to: CharacterID;        // Object
+  readonly type: RelationshipType;
+  readonly subtype?: string;
+  readonly mutual: boolean;
+}
+
+/**
+ * Network node for visualization
+ */
+export interface NetworkNode {
+  readonly id: CharacterID;
+  readonly name: string;
+  readonly sex: Character['sex'];
+  readonly connections: number;  // Derived, not stored
+}
+
+/**
+ * Network edge for visualization
+ */
+export interface NetworkEdge {
   readonly from: CharacterID;
   readonly to: CharacterID;
-  readonly type: string;
-  readonly subtype?: string;
-  readonly mutual?: boolean;
+  readonly type: RelationshipType;
+  readonly mutual: boolean;
+  readonly weight: number;        // Derived from dialogue frequency
+}
+
+/**
+ * Network layout for visualization
+ */
+export interface NetworkLayout {
+  readonly nodes: readonly NetworkNode[];
+  readonly edges: readonly NetworkEdge[];
+  readonly layout: {
+    readonly nodes: readonly { id: string; x: number; y: number }[];
+    readonly edges: readonly { source: string; target: string }[];
+  };
 }
 
 /**
@@ -138,6 +185,7 @@ export type DocumentEvent =
   | { type: 'saidTagAdded'; id: TagID; passageId: PassageID; range: TextRange; speaker: CharacterID; timestamp: number; revision: number }
   | { type: 'tagRemoved'; id: TagID; timestamp: number; revision: number }
   | { type: 'characterAdded'; id: CharacterID; character: Character; timestamp: number; revision: number }
+  | { type: 'characterUpdated'; id: CharacterID; updates: Partial<Omit<Character, 'id' | 'xmlId'>>; timestamp: number; revision: number }
   | { type: 'characterRemoved'; id: CharacterID; timestamp: number; revision: number }
   | { type: 'relationAdded'; id: string; relation: Relationship; timestamp: number; revision: number }
   | { type: 'relationRemoved'; id: string; timestamp: number; revision: number };

@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { TEIDocumentRepository } from '@/lib/entities/EntityRepository';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { CharacterForm } from './CharacterForm';
 import { RelationshipEditor } from './RelationshipEditor';
-import { NERAutoTagger } from '@/lib/ai/entities/NERAutoTagger';
+import { CharacterNetwork } from '@/components/visualization/CharacterNetwork';
 import { Plus } from 'lucide-react';
+import type { CharacterID, Relationship } from '@/lib/tei/types';
+import { toast } from '@/components/ui/use-toast';
 
 interface EntityEditorPanelProps {
   open: boolean;
@@ -16,28 +19,102 @@ interface EntityEditorPanelProps {
 }
 
 export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
-  const { document } = useDocumentContext();
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [relationships, setRelationships] = useState<any[]>([]);
-  const [nerSuggestions, setNerSuggestions] = useState<any[]>([]);
-  const [nerScanned, setNerScanned] = useState(false);
-  const [activeTab, setActiveTab] = useState('characters');
-  const characters = document?.getCharacters() || [];
+  const { document, dispatch } = useDocumentContext();
+  const [showAddCharacter, setShowAddCharacter] = useState(false);
+  const [activeTab, setActiveTab] = useState<'characters' | 'relationships' | 'network'>('characters');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  // Auto-scan for entities when NER tab is opened
-  useEffect(() => {
-    if (!document || activeTab !== 'ner') return;
+  // Create repository from document
+  const repository = React.useMemo(
+    () => (document ? new TEIDocumentRepository(document) : null),
+    [document]
+  );
 
-    const tagger = new NERAutoTagger();
-    const result = tagger.scan(document);
+  const characters = repository?.getCharacters() || [];
+  const relationships = repository?.getRelationships() || [];
 
-    setNerSuggestions([
-      ...result.persNames,
-      ...result.places,
-      ...result.dates
-    ]);
-    setNerScanned(true);
-  }, [document, activeTab]);
+  // Add character handler
+  const handleAddCharacter = useCallback(
+    (character: Character) => {
+      if (!repository) return;
+
+      const validation = repository.validateCharacter(character);
+      if (!validation.valid) {
+        setValidationErrors(validation.errors as string[]);
+        return;
+      }
+
+      try {
+        const newRepo = repository.addCharacter(character);
+        dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+        setShowAddCharacter(false);
+        setValidationErrors([]);
+        toast.success('Character added', {
+          description: `${character.name} has been added.`,
+        });
+      } catch (error) {
+        console.error('Failed to add character:', error);
+        toast.error('Failed to add character', {
+          description: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    },
+    [repository, dispatch]
+  );
+
+  // Remove character handler
+  const handleRemoveCharacter = useCallback(
+    (id: CharacterID) => {
+      if (!repository) return;
+
+      const newRepo = repository.removeCharacter(id);
+      dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+      toast.success('Character removed');
+    },
+    [repository, dispatch]
+  );
+
+  // Add relationship handler
+  const handleAddRelation = useCallback(
+    (relation: Omit<Relationship, 'id'>) => {
+      if (!repository) return;
+
+      const validation = repository.validateRelation(relation as Relationship);
+      if (!validation.valid) {
+        setValidationErrors(validation.errors as string[]);
+        return;
+      }
+
+      try {
+        const newRepo = repository.addRelation(relation);
+        dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+        setValidationErrors([]);
+        toast.success('Relationship added');
+      } catch (error) {
+        console.error('Failed to add relation:', error);
+        toast.error('Failed to add relationship', {
+          description: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    },
+    [repository, dispatch]
+  );
+
+  // Remove relationship handler
+  const handleRemoveRelation = useCallback(
+    (id: string) => {
+      if (!repository) return;
+
+      const newRepo = repository.removeRelation(id);
+      dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+      toast.success('Relationship removed');
+    },
+    [repository, dispatch]
+  );
+
+  if (!document || !repository) {
+    return null;
+  }
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -46,30 +123,51 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
           <SheetTitle>Entity Editor</SheetTitle>
         </SheetHeader>
 
-        <Tabs defaultValue="characters" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+        <Tabs
+          defaultValue="characters"
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as typeof activeTab)}
+          className="mt-4"
+        >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="characters">Characters</TabsTrigger>
-            <TabsTrigger value="relationships">Relationships</TabsTrigger>
-            <TabsTrigger value="ner">NER Tags</TabsTrigger>
+            <TabsTrigger value="characters">
+              Characters ({characters.length})
+            </TabsTrigger>
+            <TabsTrigger value="relationships">
+              Relationships ({relationships.length})
+            </TabsTrigger>
+            <TabsTrigger value="network">Network</TabsTrigger>
           </TabsList>
 
+          {/* Characters Tab */}
           <TabsContent value="characters" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Characters ({characters.length})</h3>
-              <Button size="sm" variant="outline" onClick={() => setShowAddForm(true)}>
+              <h3 className="text-sm font-medium">Characters</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowAddCharacter(!showAddCharacter)}
+              >
                 <Plus className="h-4 w-4 mr-1" />
                 Add
               </Button>
             </div>
 
-            {showAddForm && (
-              <CharacterForm
-                onSave={(character) => {
-                  document?.addCharacter(character);
-                  setShowAddForm(false);
-                }}
-                onCancel={() => setShowAddForm(false)}
-              />
+            {showAddCharacter && (
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <CharacterForm
+                  onSave={handleAddCharacter}
+                  onCancel={() => {
+                    setShowAddCharacter(false);
+                    setValidationErrors([]);
+                  }}
+                  validation={
+                    validationErrors.length > 0
+                      ? { valid: false, errors: validationErrors }
+                      : undefined
+                  }
+                />
+              </div>
             )}
 
             {characters.length === 0 ? (
@@ -78,90 +176,97 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
               </p>
             ) : (
               <div className="space-y-2">
-                {characters.map((char: any) => (
-                  <div key={char['xml:id']} className="p-3 border rounded-lg">
-                    <p className="font-medium">{char.persName}</p>
-                    <p className="text-xs text-muted-foreground">ID: {char['xml:id']}</p>
-                    {char.sex && <p className="text-xs">Sex: {char.sex}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="relationships" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Relationships ({relationships.length})</h3>
-            </div>
-
-            <RelationshipEditor
-              onAddRelation={(relation) => {
-                document?.addRelation(relation);
-                setRelationships([...relationships, relation]);
-              }}
-            />
-
-            {relationships.length > 0 && (
-              <div className="space-y-2">
-                {relationships.map((rel) => (
-                  <div key={rel.id} className="p-3 border rounded-lg text-sm">
-                    <p><strong>{rel.type}</strong>: {rel.from} → {rel.to}</p>
-                    {rel.subtype && <p className="text-xs text-muted-foreground">{rel.subtype}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="ner" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">
-                NER Suggestions {nerScanned && `(${nerSuggestions.length})`}
-              </h3>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const tagger = new NERAutoTagger();
-                  tagger.autoApply(document!, 0.9);
-                  setNerSuggestions([]);
-                }}
-              >
-                Apply High Confidence
-              </Button>
-            </div>
-
-            {!nerScanned ? (
-              <p className="text-sm text-muted-foreground">Scanning document...</p>
-            ) : nerSuggestions.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No entities detected.
-              </p>
-            ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {nerSuggestions.map((entity, idx) => (
-                  <div key={idx} className="p-3 border rounded-lg flex items-center justify-between">
+                {characters.map((char) => (
+                  <div
+                    key={char.id}
+                    className="p-3 border rounded-lg flex items-center justify-between"
+                  >
                     <div>
-                      <p className="font-medium">{entity.text}</p>
+                      <p className="font-medium">{char.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {entity.type} • {Math.round(entity.confidence * 100)}% confidence
+                        {char.sex && `${char.sex} • `}
+                        {char.age && `${char.age} years old • `}
+                        ID: {char.xmlId}
                       </p>
+                      {char.occupation && (
+                        <p className="text-xs text-muted-foreground">{char.occupation}</p>
+                      )}
                     </div>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => {
-                        // Apply this entity - will be implemented in Task 12
-                        console.log('Apply entity:', entity);
-                        setNerSuggestions(nerSuggestions.filter((_, i) => i !== idx));
-                      }}
+                      onClick={() => handleRemoveCharacter(char.id)}
                     >
-                      Apply
+                      Remove
                     </Button>
                   </div>
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Relationships Tab */}
+          <TabsContent value="relationships" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">Relationships</h3>
+            </div>
+
+            <RelationshipEditor
+              characters={characters}
+              onAddRelation={handleAddRelation}
+              validation={
+                validationErrors.length > 0
+                  ? { valid: false, errors: validationErrors }
+                  : undefined
+              }
+            />
+
+            {relationships.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No relationships yet. Add your first relationship to get started.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {relationships.map((rel) => {
+                  const fromChar = characters.find((c) => c.id === rel.from);
+                  const toChar = characters.find((c) => c.id === rel.to);
+                  return (
+                    <div
+                      key={rel.id}
+                      className="p-3 border rounded-lg flex items-center justify-between"
+                    >
+                      <div>
+                        <p className="font-medium capitalize">{rel.type}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {fromChar?.name || rel.from} → {toChar?.name || rel.to}
+                        </p>
+                        {rel.subtype && (
+                          <p className="text-xs text-muted-foreground">{rel.subtype}</p>
+                        )}
+                        {rel.mutual && (
+                          <p className="text-xs text-primary">Mutual</p>
+                        )}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleRemoveRelation(rel.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Network Tab */}
+          <TabsContent value="network" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">Character Network</h3>
+            </div>
+            <CharacterNetwork document={document} />
           </TabsContent>
         </Tabs>
       </SheetContent>

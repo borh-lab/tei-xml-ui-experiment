@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -12,85 +12,111 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import type { Character, Relationship, RelationshipType } from '@/lib/tei/types';
+import type { ValidationResult } from '@/lib/entities/EntityRepository';
 
 interface RelationshipEditorProps {
-  onAddRelation: (relation: any) => void;
+  characters: readonly Character[];
+  onAddRelation: (relation: Omit<Relationship, 'id'>) => void;
+  validation?: ValidationResult;
 }
 
-export function RelationshipEditor({ onAddRelation }: RelationshipEditorProps) {
-  const { document } = useDocumentContext();
-  const characters = document?.getCharacters() || [];
+export function RelationshipEditor({
+  characters,
+  onAddRelation,
+  validation,
+}: RelationshipEditorProps) {
+  const [from, setFrom] = useState<string>('');
+  const [to, setTo] = useState<string>('');
+  const [type, setType] = useState<RelationshipType | undefined>();
+  const [subtype, setSubtype] = useState<string>('');
+  const [mutual, setMutual] = useState<boolean>(true);
 
-  const [formData, setFormData] = useState({
-    from: '',
-    to: '',
-    type: '',
-    subtype: '',
-    mutual: true
-  });
+  // Filter out selected character from "to" options (no self-relationships)
+  const toOptions = from
+    ? characters.filter((c) => c.id !== from)
+    : characters;
 
-  const characterOptions = characters.map((c: any) => ({
-    value: c['xml:id'],
-    label: c.persName
-  }));
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+      if (!from || !to || !type) {
+        return;
+      }
 
-    const relation = {
-      id: `rel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      ...formData
-    };
+      const relation: Omit<Relationship, 'id'> = {
+        from,
+        to,
+        type,
+        subtype: subtype || undefined,
+        mutual,
+      };
 
-    onAddRelation(relation);
+      onAddRelation(relation);
 
-    // Reset form
-    setFormData({
-      from: '',
-      to: '',
-      type: '',
-      subtype: '',
-      mutual: true
-    });
-  };
+      // Reset form
+      setFrom('');
+      setTo('');
+      setType(undefined);
+      setSubtype('');
+      setMutual(true);
+    },
+    [from, to, type, subtype, mutual, onAddRelation]
+  );
+
+  const isValid = from && to && type && from !== to;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="rel-from">From</Label>
-        <Select value={formData.from} onValueChange={(value) => setFormData({ ...formData, from: value })}>
+      {/* From Character */}
+      <div className="space-y-2">
+        <Label htmlFor="rel-from">From *</Label>
+        <Select value={from} onValueChange={setFrom}>
           <SelectTrigger id="rel-from">
             <SelectValue placeholder="Select character" />
           </SelectTrigger>
           <SelectContent>
-            {characterOptions.map(opt => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            {characters.map((char) => (
+              <SelectItem key={char.id} value={char.id}>
+                {char.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      <div>
-        <Label htmlFor="rel-to">To</Label>
-        <Select value={formData.to} onValueChange={(value) => setFormData({ ...formData, to: value })}>
+      {/* To Character */}
+      <div className="space-y-2">
+        <Label htmlFor="rel-to">To *</Label>
+        <Select value={to} onValueChange={setTo} disabled={!from}>
           <SelectTrigger id="rel-to">
             <SelectValue placeholder="Select character" />
           </SelectTrigger>
           <SelectContent>
-            {characterOptions.map(opt => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            {toOptions.map((char) => (
+              <SelectItem key={char.id} value={char.id}>
+                {char.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      <div>
-        <Label htmlFor="rel-type">Relationship Type</Label>
-        <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+      {/* Relationship Type */}
+      <div className="space-y-2">
+        <Label htmlFor="rel-type">Relationship Type *</Label>
+        <Select
+          value={type || 'none'}
+          onValueChange={(value) =>
+            setType(value === 'none' ? undefined : (value as RelationshipType))
+          }
+        >
           <SelectTrigger id="rel-type">
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="none">Select type...</SelectItem>
             <SelectItem value="family">Family</SelectItem>
             <SelectItem value="romantic">Romantic</SelectItem>
             <SelectItem value="social">Social</SelectItem>
@@ -100,17 +126,42 @@ export function RelationshipEditor({ onAddRelation }: RelationshipEditorProps) {
         </Select>
       </div>
 
-      <div>
+      {/* Subtype (Optional) */}
+      <div className="space-y-2">
         <Label htmlFor="rel-subtype">Subtype (optional)</Label>
         <Input
           id="rel-subtype"
-          value={formData.subtype}
-          onChange={(e) => setFormData({ ...formData, subtype: e.target.value })}
+          value={subtype}
+          onChange={(e) => setSubtype(e.target.value)}
           placeholder="e.g., courtship, sibling, spouse"
         />
       </div>
 
-      <Button type="submit" size="sm">Add Relationship</Button>
+      {/* Mutual Checkbox */}
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="rel-mutual"
+          checked={mutual}
+          onCheckedChange={(checked) => setMutual(checked === true)}
+        />
+        <Label htmlFor="rel-mutual" className="cursor-pointer">
+          Mutual (creates reciprocal relationship)
+        </Label>
+      </div>
+
+      {/* Validation Errors */}
+      {validation && !validation.valid && (
+        <div className="text-sm text-destructive">
+          {validation.errors.map((error, i) => (
+            <div key={i}>• {error}</div>
+          ))}
+        </div>
+      )}
+
+      {/* Add Button */}
+      <Button type="submit" size="sm" disabled={!isValid}>
+        Add Relationship
+      </Button>
     </form>
   );
 }

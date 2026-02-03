@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -8,75 +8,90 @@ import ReactFlow, {
   Controls,
   MiniMap,
   BackgroundVariant,
-  NodeTypes,
-  useNodesState,
-  useEdgesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ProximityAnalyzer, ProximityConfig, ProximityMethod, EdgeDirection } from '@/lib/visualization/ProximityAnalyzer';
+import type { TEIDocument } from '@/lib/tei/types';
+import { computeNetworkLayout } from '@/lib/visualization/network-layout';
 
 interface CharacterNetworkProps {
+  document: TEIDocument;
   onNodeClick?: (nodeId: string) => void;
+  width?: number;
+  height?: number;
 }
 
 // Custom node component to display character info
 function CharacterNode({ data }: { data: any }) {
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-200">
+    <div
+      className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-200 min-w-[100px]"
+    >
       <div className="font-bold">{data.label}</div>
-      <div className="text-xs text-gray-500">{data.value} lines</div>
+      {data.connections !== undefined && (
+        <div className="text-xs text-gray-500">{data.connections} connections</div>
+      )}
     </div>
   );
 }
 
-const nodeTypes: NodeTypes = {
+const nodeTypes = {
   character: CharacterNode,
 };
 
-export function CharacterNetwork({ onNodeClick }: CharacterNetworkProps) {
-  const { document } = useDocumentContext();
+export function CharacterNetwork({
+  document,
+  onNodeClick,
+  width = 500,
+  height = 400,
+}: CharacterNetworkProps) {
+  // Compute network layout from document state
+  const layout = useMemo(() => {
+    return computeNetworkLayout(
+      document.state.characters,
+      document.state.relationships,
+      { width, height, algorithm: 'circular' }
+    );
+  }, [document, width, height]);
 
-  // Network configuration state
-  const [proximityMethod, setProximityMethod] = useState<ProximityMethod>('dialogue');
-  const [maxDistance, setMaxDistance] = useState(3);
-  const [edgeDirection, setEdgeDirection] = useState<EdgeDirection>('undirected');
-  const [edgeThreshold, setEdgeThreshold] = useState(1);
+  // Convert layout nodes to ReactFlow nodes
+  const nodes: Node[] = useMemo(() => {
+    return layout.nodes.map((node) => {
+      const position = layout.layout.nodes.find((n) => n.id === node.id);
+      return {
+        id: node.id,
+        type: 'character',
+        data: {
+          label: node.name,
+          connections: node.connections,
+          sex: node.sex,
+        },
+        position: position ? { x: position.x, y: position.y } : { x: 0, y: 0 },
+        style: {
+          background: node.sex === 'M' ? '#dbeafe' : node.sex === 'F' ? '#fce7f3' : '#f3f4f6',
+          border: node.sex === 'M' ? '3px solid #3b82f6' : node.sex === 'F' ? '3px solid #ec4899' : '3px solid #6b7280',
+        },
+      };
+    });
+  }, [layout]);
 
-  // Build proximity config
-  const config: ProximityConfig = useMemo(
-    () => ({
-      method: proximityMethod,
-      maxDistance,
-      edgeDirection,
-      edgeThreshold,
-    }),
-    [proximityMethod, maxDistance, edgeDirection, edgeThreshold]
-  );
-
-  // Extract character interaction data from TEI document using ProximityAnalyzer
-  const graphData = useMemo(() => {
-    if (!document) return { nodes: [], edges: [] };
-
-    const analyzer = new ProximityAnalyzer(document);
-    return analyzer.analyze(config);
-  }, [document, config]);
-
-  const initialNodes = graphData.nodes;
-  const initialEdges = graphData.edges;
-
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  // Convert layout edges to ReactFlow edges
+  const edges: Edge[] = useMemo(() => {
+    return layout.edges.map((edge) => ({
+      id: `${edge.from}-${edge.to}`,
+      source: edge.from,
+      target: edge.to,
+      label: edge.type,
+      animated: edge.mutual,
+      style: {
+        stroke: edge.mutual ? '#10b981' : '#64748b',
+        strokeWidth: edge.weight ? Math.min(3, Math.max(1, edge.weight)) : 1,
+      },
+      markerEnd: {
+        type: 'arrowclosed',
+        color: edge.mutual ? '#10b981' : '#64748b',
+      },
+    }));
+  }, [layout]);
 
   const handleNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
@@ -85,150 +100,50 @@ export function CharacterNetwork({ onNodeClick }: CharacterNetworkProps) {
     [onNodeClick]
   );
 
-  if (!document || initialNodes.length === 0) {
+  if (nodes.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Character Network</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            No dialogue data available. Load a TEI document with dialogue annotations.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-sm text-muted-foreground">
+          No characters to display. Add characters to see the network visualization.
+        </p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Character Network</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Configuration Panel */}
-        <div className="mb-6 space-y-6 p-4 bg-muted rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Proximity Method Selector */}
-            <div className="space-y-2">
-              <Label htmlFor="proximity-method">Proximity Method</Label>
-              <Select
-                value={proximityMethod}
-                onValueChange={(value: ProximityMethod) => setProximityMethod(value)}
-              >
-                <SelectTrigger id="proximity-method">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="paragraph">Paragraph (Same Paragraph)</SelectItem>
-                  <SelectItem value="dialogue">Dialogue (Sequential Turns)</SelectItem>
-                  <SelectItem value="word">Word Distance (Within X Words)</SelectItem>
-                  <SelectItem value="combined">Combined (Multiple Methods)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                How character relationships are detected
-              </p>
-            </div>
+    <div style={{ width: '100%', height: `${height}px` }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodeClick={handleNodeClick}
+        nodeTypes={nodeTypes}
+        fitView
+        nodesDraggable={true}
+        nodesConnectable={false}
+        elementsSelectable={true}
+        attributionPosition="bottom-left"
+      >
+        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+        <Controls />
+        <MiniMap
+          nodeColor={(node) => {
+            const sex = node.data.sex;
+            return sex === 'M' ? '#dbeafe' : sex === 'F' ? '#fce7f3' : '#f3f4f6';
+          }}
+          maskColor="rgb(240, 240, 240, 0.6)"
+        />
+      </ReactFlow>
 
-            {/* Edge Direction Selector */}
-            <div className="space-y-2">
-              <Label htmlFor="edge-direction">Edge Direction</Label>
-              <Select
-                value={edgeDirection}
-                onValueChange={(value: EdgeDirection) => setEdgeDirection(value)}
-              >
-                <SelectTrigger id="edge-direction">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="undirected">Undirected (Relationships)</SelectItem>
-                  <SelectItem value="directed">Directed (Dialogue Flow)</SelectItem>
-                  <SelectItem value="both">Both (Combined)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                How edges are displayed in the graph
-              </p>
-            </div>
-
-            {/* Max Distance Slider */}
-            <div className="space-y-2">
-              <Label htmlFor="max-distance">
-                Max Distance: {maxDistance} {proximityMethod === 'word' ? 'words' : 'turns'}
-              </Label>
-              <Slider
-                id="max-distance"
-                min={1}
-                max={proximityMethod === 'word' ? 100 : 10}
-                step={1}
-                value={[maxDistance]}
-                onValueChange={(value) => setMaxDistance(value[0])}
-              />
-              <p className="text-xs text-muted-foreground">
-                {proximityMethod === 'word'
-                  ? 'Maximum word distance for character proximity'
-                  : 'Maximum dialogue turns between characters'}
-              </p>
-            </div>
-
-            {/* Edge Threshold Slider */}
-            <div className="space-y-2">
-              <Label htmlFor="edge-threshold">Min Strength: {edgeThreshold}</Label>
-              <Slider
-                id="edge-threshold"
-                min={1}
-                max={10}
-                step={1}
-                value={[edgeThreshold]}
-                onValueChange={(value) => setEdgeThreshold(value[0])}
-              />
-              <p className="text-xs text-muted-foreground">
-                Minimum connection strength to display edge
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ReactFlow Graph */}
-        <div style={{ width: '100%', height: '500px' }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onNodeClick={handleNodeClick}
-            nodeTypes={nodeTypes}
-            fitView
-            attributionPosition="bottom-left"
-          >
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-            <Controls />
-            <MiniMap
-              nodeColor={(node) => {
-                return '#b1b1b7';
-              }}
-              maskColor="rgb(240, 240, 240, 0.6)"
-            />
-          </ReactFlow>
-        </div>
-
-        {/* Statistics */}
-        <div className="mt-4 text-sm text-muted-foreground">
-          <p>
-            <strong>Nodes:</strong> {initialNodes.length} characters |{' '}
-            <strong>Edges:</strong> {initialEdges.length} connections
-          </p>
-          <p className="mt-1">
-            <strong>Method:</strong> {proximityMethod} |{' '}
-            <strong>Direction:</strong> {edgeDirection} |{' '}
-            <strong>Threshold:</strong> {edgeThreshold}
-          </p>
-          <p className="mt-1">
-            Drag nodes to rearrange. Scroll to zoom. Click on a character to see details.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Statistics */}
+      <div className="mt-4 text-sm text-muted-foreground">
+        <p>
+          <strong>Nodes:</strong> {nodes.length} characters |{' '}
+          <strong>Edges:</strong> {edges.length} connections
+        </p>
+        <p className="mt-1">
+          Drag nodes to rearrange. Scroll to zoom. Click on a character to see details.
+        </p>
+      </div>
+    </div>
   );
 }

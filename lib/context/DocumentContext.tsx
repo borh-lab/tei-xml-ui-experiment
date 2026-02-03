@@ -10,6 +10,7 @@ import {
   undoTo,
   redoFrom,
   addCharacter,
+  updateCharacter,
   removeCharacter,
   addRelationship,
   removeRelationship,
@@ -21,7 +22,7 @@ import { useErrorContext } from '@/lib/context/ErrorContext';
 import { toast } from '@/components/ui/use-toast';
 import { categorizeError } from '@/lib/utils/error-categorization';
 import { ValidationResult } from '@/lib/validation/ValidationService';
-import type { PassageID, CharacterID, TextRange } from '@/lib/tei/types';
+import type { PassageID, CharacterID, TextRange, Character, Relationship } from '@/lib/tei/types';
 
 // ============================================================================
 // Action Types
@@ -35,7 +36,12 @@ type DocumentAction =
   | { type: 'UNDO'; targetRevision: number }
   | { type: 'REDO'; fromRevision: number }
   | { type: 'SET_DOCUMENT'; document: TEIDocument }
-  | { type: 'CLEAR' };
+  | { type: 'CLEAR' }
+  | { type: 'ADD_CHARACTER'; character: Character }
+  | { type: 'UPDATE_CHARACTER'; characterId: CharacterID; updates: Partial<Omit<Character, 'id' | 'xmlId'>> }
+  | { type: 'REMOVE_CHARACTER'; characterId: CharacterID }
+  | { type: 'ADD_RELATIONSHIP'; relation: Omit<Relationship, 'id'> }
+  | { type: 'REMOVE_RELATIONSHIP'; relationId: string };
 
 // ============================================================================
 // Reducer
@@ -72,6 +78,26 @@ function documentReducer(doc: TEIDocument | null, action: DocumentAction): TEIDo
     case 'CLEAR':
       return null;
 
+    case 'ADD_CHARACTER':
+      if (!doc) return null;
+      return addCharacter(doc, action.character);
+
+    case 'UPDATE_CHARACTER':
+      if (!doc) return null;
+      return updateCharacter(doc, action.characterId, action.updates);
+
+    case 'REMOVE_CHARACTER':
+      if (!doc) return null;
+      return removeCharacter(doc, action.characterId);
+
+    case 'ADD_RELATIONSHIP':
+      if (!doc) return null;
+      return addRelationship(doc, action.relation as Relationship);
+
+    case 'REMOVE_RELATIONSHIP':
+      if (!doc) return null;
+      return removeRelationship(doc, action.relationId);
+
     default:
       return doc;
   }
@@ -93,6 +119,13 @@ interface DocumentContextType {
   addSaidTag: (passageId: PassageID, range: TextRange, speaker: CharacterID) => void;
   addGenericTag: (passageId: PassageID, range: TextRange, tagName: string, attributes?: Record<string, string>) => void;
   removeTag: (tagId: string) => void;
+
+  // Entity operations
+  addCharacter: (character: Character) => void;
+  updateCharacter: (characterId: CharacterID, updates: Partial<Omit<Character, 'id' | 'xmlId'>>) => void;
+  removeCharacter: (characterId: CharacterID) => void;
+  addRelationship: (relation: Omit<Relationship, 'id'>) => void;
+  removeRelationship: (relationId: string) => void;
 
   // Undo/redo
   undo: () => void;
@@ -299,6 +332,27 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'REMOVE_TAG', tagId });
   }, []);
 
+  // Entity operation handlers
+  const addCharacterHandler = useCallback((character: Character) => {
+    dispatch({ type: 'ADD_CHARACTER', character });
+  }, []);
+
+  const updateCharacterHandler = useCallback((characterId: CharacterID, updates: Partial<Omit<Character, 'id' | 'xmlId'>>) => {
+    dispatch({ type: 'UPDATE_CHARACTER', characterId, updates });
+  }, []);
+
+  const removeCharacterHandler = useCallback((characterId: CharacterID) => {
+    dispatch({ type: 'REMOVE_CHARACTER', characterId });
+  }, []);
+
+  const addRelationshipHandler = useCallback((relation: Omit<Relationship, 'id'>) => {
+    dispatch({ type: 'ADD_RELATIONSHIP', relation });
+  }, []);
+
+  const removeRelationshipHandler = useCallback((relationId: string) => {
+    dispatch({ type: 'REMOVE_RELATIONSHIP', relationId });
+  }, []);
+
   const undo = useCallback(() => {
     if (!document || !historyState.canUndo) return;
     dispatch({ type: 'UNDO', targetRevision: Math.max(0, historyState.currentRevision - 1) });
@@ -320,6 +374,11 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       addSaidTag: addSaidTagHandler,
       addGenericTag: addGenericTagHandler,
       removeTag: removeTagHandler,
+      addCharacter: addCharacterHandler,
+      updateCharacter: updateCharacterHandler,
+      removeCharacter: removeCharacterHandler,
+      addRelationship: addRelationshipHandler,
+      removeRelationship: removeRelationshipHandler,
       undo,
       redo,
       canUndo: historyState.canUndo,
