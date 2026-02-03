@@ -1,4 +1,4 @@
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 describe('TEIDocument - addSaidTag', () => {
   test('adds <said> element with @who attribute to passage', () => {

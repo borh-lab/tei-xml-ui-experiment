@@ -1,8 +1,10 @@
 import { QuickSearch, SearchResult } from '@/lib/search/QuickSearch';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 // Mock TEIDocument
-jest.mock('@/lib/tei/TEIDocument');
+jest.mock('@/lib/tei', () => ({
+  TEIDocument: jest.fn(),
+}));
 
 describe('QuickSearch', () => {
   let mockDocument: TEIDocument;

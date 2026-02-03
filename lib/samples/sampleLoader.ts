@@ -1,4 +1,4 @@
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 export interface SampleMetadata {
   id: string;
