@@ -344,4 +344,72 @@ describe('ValidationService', () => {
       expect(error.context).toBeDefined();
     });
   });
+
+  describe('schema-specific validation', () => {
+    it('should validate with tei-minimal schema', async () => {
+      const serviceWithSchema = new ValidationService();
+
+      const validTei = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test Document</title>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Test Publisher</publisher>
+        <date>2024</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Test source</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p>Content</p>
+    </body>
+  </text>
+</TEI>`;
+
+      const result = await serviceWithSchema.validateDocument(validTei, teiSchema);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should return errors for invalid TEI XML', async () => {
+      const serviceWithSchema = new ValidationService();
+
+      const invalidTei = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test</title>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p>Content</p>
+    </body>
+  </text>
+</TEI>`;
+
+      const result = await serviceWithSchema.validateDocument(invalidTei, teiSchema);
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    it('should handle schema with different validation rules', async () => {
+      const serviceWithSchema = new ValidationService();
+
+      // This test verifies that the service can handle different schemas
+      // with different validation requirements
+      const xml = '<root id="test"><item name="test">Item 1</item><item>Item 2</item></root>';
+      const result = await serviceWithSchema.validateDocument(xml, simpleSchema);
+
+      expect(result.valid).toBe(true);
+    });
+  });
 });
