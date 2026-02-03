@@ -54,52 +54,58 @@ export const RenderedView = React.memo(({
     return str.replace(/[&<>"'/]/g, (char) => htmlEntities[char]);
   };
 
-  // Extract passages from document
-  useEffect(() => {
-    if (!document || !document.parsed || !document.parsed.TEI) return;
+  /**
+   * Render passage content with tags as styled spans
+   */
+  const renderPassageContent = useCallback((passage: any) => {
+    if (!passage.tags || passage.tags.length === 0) {
+      return passage.content;
+    }
 
-    const p = document.parsed.TEI.text.body.p;
+    let html = passage.content;
+    const tags = [...passage.tags].sort((a, b) => b.range.start - a.range.start); // Process in reverse order to maintain offsets
 
-    // Handle both array and single paragraph cases
-    const paragraphs = Array.isArray(p) ? p : (p ? [p] : []);
+    tags.forEach((tag) => {
+      const before = html.substring(0, tag.range.start);
+      const selected = html.substring(tag.range.start, tag.range.end);
+      const after = html.substring(tag.range.end);
 
-    const extractedPassages: Passage[] = paragraphs.map((para, idx) => {
-      let content = '';
-      let speaker: string | undefined;
+      // Build data attributes
+      const dataAttrs = [`data-tag="${tag.type}"`, `data-tag-id="${tag.id}"`];
 
-      if (typeof para === 'string') {
-        content = para;
-      } else {
-        // Extract text content from paragraph with <said> tags
-        content = para['#text'] || '';
-
-        if (para['said']) {
-          const saidElements = Array.isArray(para['said']) ? para['said'] : [para['said']];
-
-          saidElements.forEach((said: any) => {
-            const saidText = said['#text'] || '';
-            speaker = said['@_who']?.replace('#', '');
-            // Escape HTML to prevent XSS
-            const escapedSpeaker = escapeHtml(speaker || '');
-            const escapedText = escapeHtml(saidText);
-
-            // Build data attributes for tag info
-            const dataAttrs = [`data-tag="said"`];
-            if (speaker) {
-              dataAttrs.push(`data-who="${escapedSpeaker}"`);
-            }
-
-            content += `<span ${dataAttrs.join(' ')} class="tei-tag tei-tag-said">${escapedText}</span>`;
-          });
-
-          if (para['#text_2']) {
-            content += para['#text_2'];
-          }
-        }
+      if (tag.type === 'said' && tag.attributes.who) {
+        dataAttrs.push(`data-who="${tag.attributes.who}"`);
       }
 
+      // Style classes based on tag type
+      const tagClass = `tei-tag tei-tag-${tag.type} ${
+        tag.type === 'said' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200' :
+        tag.type === 'q' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+        tag.type === 'persName' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200' :
+        'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200'
+      }`;
+
+      const escapedSelected = escapeHtml(selected);
+      html = `${before}<span ${dataAttrs.join(' ')} class="${tagClass}">${escapedSelected}</span>${after}`;
+    });
+
+    return html;
+  }, []);
+
+  // Extract passages from immutable document state
+  useEffect(() => {
+    if (!document || !document.state) return;
+
+    const extractedPassages: Passage[] = document.state.passages.map((passage) => {
+      // Check for dialogue/speaker information
+      const dialogue = document.state.dialogue.find(d => d.passageId === passage.id);
+      const speaker = dialogue?.speaker || undefined;
+
+      // Render content with tags
+      const content = renderPassageContent(passage);
+
       return {
-        id: `passage-${idx}`,
+        id: passage.id,
         content: content.trim(),
         speaker,
         confidence: undefined
@@ -108,7 +114,7 @@ export const RenderedView = React.memo(({
 
     setPassages(extractedPassages);
     setActivePassageId(null); // Reset active passage when passages change
-  }, [document]);
+  }, [document, renderPassageContent]);
 
   // Cleanup passage refs when passages change
   useEffect(() => {
@@ -152,7 +158,7 @@ export const RenderedView = React.memo(({
         const attributes: Record<string, string> = {};
         for (let i = 0; i < tagElement.attributes.length; i++) {
           const attr = tagElement.attributes[i];
-          if (attr.name.startsWith('data-') && attr.name !== 'data-tag') {
+          if (attr.name.startsWith('data-') && attr.name !== 'data-tag' && attr.name !== 'data-tag-id') {
             const attrName = attr.name.replace('data-', '');
             attributes[attrName] = attr.value;
           }
@@ -299,13 +305,15 @@ export const RenderedView = React.memo(({
               <div
                 key={passage.id}
                 id={passage.id}
+                data-passage-id={passage.id}
+                data-document-revision={document.state.revision}
                 ref={(el) => {
                   if (el) passageRefs.current.set(passage.id, el);
                 }}
                 onClick={(e) => handlePassageClick(passage.id, index, e)}
                 onMouseEnter={(e) => {
                   if (passage.speaker) {
-                    const character = document?.getCharacters().find((c: any) => c['xml:id'] === passage.speaker);
+                    const character = document?.state.characters.find((c) => c.xmlId === passage.speaker);
                     if (character) {
                       setHoveredEntity({
                         entity: character,
