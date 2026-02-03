@@ -33,4 +33,11 @@ export interface SchemaResolver {
    * @returns true if schema is available
    */
   has(schemaId: string): boolean;
+
+  /**
+   * Get metadata for a specific schema
+   * @param schemaId - Schema identifier
+   * @returns Schema info or null if not found
+   */
+  getSchemaInfo(schemaId: string): SchemaInfo | null;
 }
