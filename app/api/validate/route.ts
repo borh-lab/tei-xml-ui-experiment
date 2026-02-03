@@ -2,17 +2,20 @@
  * API route for validating TEI documents
  *
  * POST /api/validate
- * Body: { xml: string; schemaPath?: string }
+ * Body: { xml: string; schemaId?: string }
  * Returns: ValidationResult
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ValidationService } from '@/lib/validation/ValidationService';
+import { createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
+
+const resolver = createDefaultResolver();
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { xml, schemaPath } = body;
+    const { xml, schemaId } = body;
 
     if (!xml) {
       return NextResponse.json(
@@ -21,18 +24,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use default TEI schema if not provided
-    const effectiveSchemaPath = schemaPath || '/schemas/tei-all.rng';
+    // Default to tei-minimal for fast validation
+    const effectiveSchemaId = schemaId || 'tei-minimal';
 
-    // Create validation service instance
+    // Constraint: Validate schema ID
+    if (!resolver.has(effectiveSchemaId)) {
+      const availableSchemas = resolver.list();
+      return NextResponse.json(
+        {
+          error: `Unknown schema: ${effectiveSchemaId}`,
+          availableSchemas: availableSchemas.map(s => s.id)
+        },
+        { status: 400 }
+      );
+    }
+
+    // Resolve schema path
+    const schemaPath = resolver.resolve(effectiveSchemaId);
+    if (!schemaPath) {
+      return NextResponse.json(
+        { error: `Schema path not found for: ${effectiveSchemaId}` },
+        { status: 404 }
+      );
+    }
+
+    // Validate
     const validationService = new ValidationService({
-      defaultSchemaPath: effectiveSchemaPath,
+      defaultSchemaPath: schemaPath,
       enableSuggestions: true,
       maxErrors: 100,
     });
 
-    // Validate the document
-    const result = await validationService.validateDocument(xml, effectiveSchemaPath);
+    const result = await validationService.validateDocument(xml, schemaPath);
 
     return NextResponse.json(result);
   } catch (error) {
