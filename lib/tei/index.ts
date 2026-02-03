@@ -5,6 +5,9 @@
 export * from './types';
 export * from './operations';
 
+// Export migration utilities
+export * from './migrate';
+
 // Export old mutable TEIDocument for backwards compatibility during migration
 // TODO: Remove this after migration is complete
 export { TEIDocument as TEIDocumentOld } from './TEIDocument.old';
