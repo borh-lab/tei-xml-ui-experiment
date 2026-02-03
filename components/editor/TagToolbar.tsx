@@ -41,6 +41,36 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
     }
   }, [selectionManager]);
 
+  const handleApplyTag = useCallback((type: string, attributes?: Record<string, string>) => {
+    if (!document || !currentSelection) return;
+
+    switch (type) {
+      case 'said':
+        // For said tag, use the first character as default speaker
+        const speaker = document.state.characters[0];
+        if (speaker) {
+          addSaidTag(currentSelection.passageId, currentSelection.range, speaker.id);
+        }
+        break;
+
+      case 'q':
+      case 'persName':
+      case 'placeName':
+      case 'orgName':
+        addGenericTag(currentSelection.passageId, currentSelection.range, type, attributes);
+        break;
+
+      default:
+        console.warn('Unknown tag type:', type);
+    }
+
+    // Clear selection and hide toolbar
+    window.getSelection()?.removeAllRanges();
+    setVisible(false);
+    setCurrentSelection(null);
+    onClose?.();
+  }, [document, currentSelection, addSaidTag, addGenericTag, onClose]);
+
   useEffect(() => {
     // Listen for mouseup and keyup events to detect text selection
     document.addEventListener('mouseup', handleSelection);
@@ -91,37 +121,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [visible, currentSelection, document, handleApplyTag, onClose]);
-
-  const handleApplyTag = useCallback((type: string, attributes?: Record<string, string>) => {
-    if (!document || !currentSelection) return;
-
-    switch (type) {
-      case 'said':
-        // For said tag, use the first character as default speaker
-        const speaker = document.state.characters[0];
-        if (speaker) {
-          addSaidTag(currentSelection.passageId, currentSelection.range, speaker.id);
-        }
-        break;
-
-      case 'q':
-      case 'persName':
-      case 'placeName':
-      case 'orgName':
-        addGenericTag(currentSelection.passageId, currentSelection.range, type, attributes);
-        break;
-
-      default:
-        console.warn('Unknown tag type:', type);
-    }
-
-    // Clear selection and hide toolbar
-    window.getSelection()?.removeAllRanges();
-    setVisible(false);
-    setCurrentSelection(null);
-    onClose?.();
-  }, [document, currentSelection, addSaidTag, addGenericTag, onClose]);
+  }, [visible, currentSelection, document, handleApplyTag, onClose, addSaidTag, addGenericTag]);
 
   if (!visible || !currentSelection || !document) {
     return null;
