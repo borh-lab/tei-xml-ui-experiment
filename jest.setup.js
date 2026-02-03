@@ -46,3 +46,30 @@ global.IDBIndex = fakeIndexedDB.IDBIndex
 jest.mock('react-hotkeys-hook', () => ({
   useHotkeys: jest.fn(),
 }))
+
+// Mock fetch for sample files
+global.fetch = jest.fn(async (url) => {
+  // Mock sample file responses
+  if (typeof url === 'string' && url.startsWith('/samples/')) {
+    const sampleId = url.replace('/samples/', '').replace('.xml', '')
+    // Return a valid TEI document for all sample requests
+    return {
+      ok: true,
+      status: 200,
+      text: async () => `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>This is a sample TEI document for ${sampleId}.</p>
+    </body>
+  </text>
+</TEI>`
+    }
+  }
+  // Default mock response for other URLs
+  return {
+    ok: false,
+    status: 404,
+    text: async () => 'Not found'
+  }
+})

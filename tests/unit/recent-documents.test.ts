@@ -90,10 +90,15 @@ describe('Recent Documents Storage', () => {
     });
 
     it('should handle corrupted data gracefully', () => {
+      // Suppress console.error for this test since we're testing error handling
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
       localStorage.setItem('tei-recent-docs', 'invalid json');
 
       const result = getRecentDocuments();
       expect(result).toEqual([]);
+
+      consoleSpy.mockRestore();
     });
   });
 

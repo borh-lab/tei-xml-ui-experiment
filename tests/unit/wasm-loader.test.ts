@@ -3,6 +3,7 @@
  */
 
 import { loadPatternEngine, detectSpeaker, isWasmAvailable } from '@/lib/pattern/wasm-loader';
+import { db } from '@/lib/db/PatternDB';
 
 // Mock the WASM module since it may not be built in test environment
 jest.mock('@/lib/pattern/wasm-loader', () => {
@@ -14,9 +15,19 @@ jest.mock('@/lib/pattern/wasm-loader', () => {
 });
 
 describe('Pattern Engine WASM', () => {
+  beforeAll(async () => {
+    // Initialize the database once before all tests
+    await db.init();
+  });
+
   beforeEach(() => {
     // Clear the cached engine before each test
     jest.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    // Close database connection after all tests
+    await db.close();
   });
 
   test('should load WASM module or fallback to mock', async () => {

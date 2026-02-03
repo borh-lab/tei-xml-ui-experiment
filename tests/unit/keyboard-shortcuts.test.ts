@@ -3,8 +3,10 @@ import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 
 // Mock react-hotkeys-hook
 jest.mock('react-hotkeys-hook', () => ({
-  __esModule: true,
-  default: jest.fn(),
+  useHotkeys: jest.fn(),
+  useHotkeysContext: jest.fn(),
+  isHotkeyPressed: jest.fn(),
+  HotkeysProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 describe('useKeyboardShortcuts', () => {
