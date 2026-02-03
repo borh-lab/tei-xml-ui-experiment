@@ -1,9 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DialogueOutline } from '@/components/navigation/DialogueOutline';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 // Mock TEIDocument
-jest.mock('@/lib/tei/TEIDocument');
+jest.mock('@/lib/tei', () => ({
+  TEIDocument: jest.fn(),
+}));
 
 describe('DialogueOutline', () => {
   const mockDocument = {

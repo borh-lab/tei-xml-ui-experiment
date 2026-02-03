@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { DocumentProvider } from '@/lib/context/DocumentContext';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
 
 // Mock SelectionManager

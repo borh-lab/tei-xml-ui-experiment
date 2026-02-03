@@ -5,7 +5,7 @@ import {
   getSampleMetadata,
   sampleExists
 } from '@/lib/samples/sampleLoader';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 // Mock fetch for testing
 global.fetch = jest.fn();

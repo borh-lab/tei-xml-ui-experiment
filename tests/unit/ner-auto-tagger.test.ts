@@ -1,5 +1,5 @@
 import { NERAutoTagger } from '@/lib/ai/entities/NERAutoTagger';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 
 describe('NERAutoTagger', () => {
   test('scans document and detects entities', () => {
