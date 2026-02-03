@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import { TEIDocument } from '@/lib/tei';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { ChevronRight, ChevronDown } from 'lucide-react';

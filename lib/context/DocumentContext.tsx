@@ -1,12 +1,79 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
-import { TEIDocument } from '@/lib/tei/TEIDocument';
+import React, { createContext, useContext, useReducer, useCallback, useRef, useEffect, ReactNode } from 'react';
+import {
+  TEIDocument,
+  loadDocument,
+  addSaidTag,
+  removeTag,
+  undoTo,
+  redoFrom,
+  addCharacter,
+  removeCharacter,
+  addRelationship,
+  removeRelationship,
+  serializeDocument,
+} from '@/lib/tei/operations';
+import { getHistoryState } from '@/lib/history/HistoryManager';
 import { loadSample as loadSampleContent } from '@/lib/samples/sampleLoader';
 import { useErrorContext } from '@/lib/context/ErrorContext';
 import { toast } from '@/components/ui/use-toast';
 import { categorizeError } from '@/lib/utils/error-categorization';
 import { ValidationResult } from '@/lib/validation/ValidationService';
+import type { PassageID, CharacterID, TextRange } from '@/lib/tei/types';
+
+// ============================================================================
+// Action Types
+// ============================================================================
+
+type DocumentAction =
+  | { type: 'LOAD'; xml: string }
+  | { type: 'ADD_SAID_TAG'; passageId: PassageID; range: TextRange; speaker: CharacterID }
+  | { type: 'REMOVE_TAG'; tagId: string }
+  | { type: 'UNDO'; targetRevision: number }
+  | { type: 'REDO'; fromRevision: number }
+  | { type: 'SET_DOCUMENT'; document: TEIDocument }
+  | { type: 'CLEAR' };
+
+// ============================================================================
+// Reducer
+// ============================================================================
+
+function documentReducer(doc: TEIDocument | null, action: DocumentAction): TEIDocument | null {
+  switch (action.type) {
+    case 'LOAD':
+      return loadDocument(action.xml);
+
+    case 'ADD_SAID_TAG':
+      if (!doc) return null;
+      return addSaidTag(doc, action.passageId, action.range, action.speaker);
+
+    case 'REMOVE_TAG':
+      if (!doc) return null;
+      return removeTag(doc, action.tagId);
+
+    case 'UNDO':
+      if (!doc) return null;
+      return undoTo(doc, action.targetRevision);
+
+    case 'REDO':
+      if (!doc) return null;
+      return redoFrom(doc, action.fromRevision);
+
+    case 'SET_DOCUMENT':
+      return action.document;
+
+    case 'CLEAR':
+      return null;
+
+    default:
+      return doc;
+  }
+}
+
+// ============================================================================
+// Context Interface
+// ============================================================================
 
 interface DocumentContextType {
   document: TEIDocument | null;
@@ -15,6 +82,18 @@ interface DocumentContextType {
   updateDocument: (xml: string) => void;
   clearDocument: () => void;
   clearDocumentAndSkipAutoLoad: () => void;
+
+  // Tag operations
+  addSaidTag: (passageId: PassageID, range: TextRange, speaker: CharacterID) => void;
+  removeTag: (tagId: string) => void;
+
+  // Undo/redo
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+
+  // Legacy state
   loadingSample: boolean;
   loadingProgress: number;
   skipAutoLoad: boolean;
@@ -24,15 +103,22 @@ interface DocumentContextType {
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
 
+// ============================================================================
+// Provider
+// ============================================================================
+
 export function DocumentProvider({ children }: { children: ReactNode }) {
-  const [document, setDocument] = useState<TEIDocument | null>(null);
-  const [loadingSample, setLoadingSample] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [skipAutoLoad, setSkipAutoLoad] = useState(false);
-  const [validationResults, setValidationResults] = useState<ValidationResult | null>(null);
-  const [isValidating, setIsValidating] = useState(false);
+  const [document, dispatch] = useReducer(documentReducer, null);
+  const [loadingSample, setLoadingSample] = React.useState(false);
+  const [loadingProgress, setLoadingProgress] = React.useState(0);
+  const [skipAutoLoad, setSkipAutoLoad] = React.useState(false);
+  const [validationResults, setValidationResults] = React.useState<ValidationResult | null>(null);
+  const [isValidating, setIsValidating] = React.useState(false);
   const autoLoadAttemptedRef = useRef(false);
   const { logError } = useErrorContext();
+
+  // Calculate undo/redo state from document
+  const historyState = getHistoryState(document);
 
   // Auto-load gift-of-the-magi sample on first visit if document is null
   useEffect(() => {
@@ -49,26 +135,24 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     }
   }, [document, skipAutoLoad]);
 
-  const loadDocument = (xml: string) => {
+  const loadDocumentHandler = useCallback((xml: string) => {
     try {
-      const newDoc = new TEIDocument(xml);
-      setDocument(newDoc);
+      dispatch({ type: 'LOAD', xml });
+      setValidationResults(null);
     } catch (error) {
       console.error('Failed to load document:', error);
       logError(error as Error, 'DocumentContext', {
         action: 'loadDocument',
       });
-      const errorInfo = categorizeError(error as Error, () => loadDocument(xml));
+      const errorInfo = categorizeError(error as Error, () => loadDocumentHandler(xml));
       toast.error(errorInfo.message, {
         description: errorInfo.description,
         action: errorInfo.action,
       });
-      // Don't set document if loading failed - keep current state or clear it
-      // Don't re-throw to allow app to continue
     }
-  };
+  }, [logError]);
 
-  const loadSample = async (sampleId: string) => {
+  const loadSample = useCallback(async (sampleId: string) => {
     try {
       setLoadingSample(true);
       setLoadingProgress(0);
@@ -81,13 +165,14 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       setLoadingProgress(50);
 
       await new Promise(resolve => setTimeout(resolve, 100));
-      setDocument(new TEIDocument(content));
+      dispatch({ type: 'LOAD', xml: content });
 
       setLoadingProgress(100);
       await new Promise(resolve => setTimeout(resolve, 200));
 
       setLoadingSample(false);
       setLoadingProgress(0);
+      setValidationResults(null);
     } catch (error) {
       console.error('Failed to load sample:', error);
       logError(error as Error, 'DocumentContext', {
@@ -103,9 +188,9 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       setLoadingProgress(0);
       throw error;
     }
-  };
+  }, [logError]);
 
-  const updateDocument = async (xml: string) => {
+  const updateDocument = useCallback(async (xml: string) => {
     // Validate the document first via API
     setIsValidating(true);
     try {
@@ -154,7 +239,7 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       }
 
       // Document is valid, proceed with update
-      setDocument(new TEIDocument(xml));
+      dispatch({ type: 'LOAD', xml });
     } catch (error) {
       console.error('Validation error:', error);
       logError(error as Error, 'DocumentContext', {
@@ -182,23 +267,65 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsValidating(false);
     }
-  };
+  }, [logError]);
 
-  const clearDocument = () => {
-    setDocument(null);
-  };
+  const clearDocument = useCallback(() => {
+    dispatch({ type: 'CLEAR' });
+    setValidationResults(null);
+  }, []);
 
-  const clearDocumentAndSkipAutoLoad = () => {
+  const clearDocumentAndSkipAutoLoad = useCallback(() => {
     setSkipAutoLoad(true);
-    setDocument(null);
-  };
+    dispatch({ type: 'CLEAR' });
+    setValidationResults(null);
+  }, []);
+
+  const addSaidTagHandler = useCallback((passageId: PassageID, range: TextRange, speaker: CharacterID) => {
+    dispatch({ type: 'ADD_SAID_TAG', passageId, range, speaker });
+  }, []);
+
+  const removeTagHandler = useCallback((tagId: string) => {
+    dispatch({ type: 'REMOVE_TAG', tagId });
+  }, []);
+
+  const undo = useCallback(() => {
+    if (!document || !historyState.canUndo) return;
+    dispatch({ type: 'UNDO', targetRevision: Math.max(0, historyState.currentRevision - 1) });
+  }, [document, historyState.canUndo, historyState.currentRevision]);
+
+  const redo = useCallback(() => {
+    if (!document || !historyState.canRedo) return;
+    dispatch({ type: 'REDO', fromRevision: historyState.currentRevision });
+  }, [document, historyState.canRedo, historyState.currentRevision]);
 
   return (
-    <DocumentContext.Provider value={{ document, loadDocument, loadSample, updateDocument, clearDocument, clearDocumentAndSkipAutoLoad, loadingSample, loadingProgress, skipAutoLoad, validationResults, isValidating }}>
+    <DocumentContext.Provider value={{
+      document,
+      loadDocument: loadDocumentHandler,
+      loadSample,
+      updateDocument,
+      clearDocument,
+      clearDocumentAndSkipAutoLoad,
+      addSaidTag: addSaidTagHandler,
+      removeTag: removeTagHandler,
+      undo,
+      redo,
+      canUndo: historyState.canUndo,
+      canRedo: historyState.canRedo,
+      loadingSample,
+      loadingProgress,
+      skipAutoLoad,
+      validationResults,
+      isValidating,
+    }}>
       {children}
     </DocumentContext.Provider>
   );
 }
+
+// ============================================================================
+// Hook
+// ============================================================================
 
 export function useDocumentContext() {
   const context = useContext(DocumentContext);
