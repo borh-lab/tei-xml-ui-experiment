@@ -59,16 +59,24 @@
             echo "Bun version: $(bun --version)"
             echo "Rust version: $(rustc --version)"
             echo ""
-            echo "Available commands:"
-            echo "  npm install    - Install dependencies"
-            echo "  npm run dev    - Start development server"
-            echo "  npm test       - Run tests"
-            echo "  npm run build  - Build for production"
+            echo "Package Management:"
+            echo "  bun install    - Install dependencies (faster)"
+            echo "  npm install    - Alternative: Install dependencies"
             echo ""
-            echo "Corpus Analysis (with Bun):"
-            echo "  npm run corpus:analyze - Analyze TEI corpora"
-            echo "  npm run corpus:split   - Generate train/val/test splits"
-            echo "  npm run corpus:all     - Run all corpus scripts"
+            echo "Development:"
+            echo "  bun run dev    - Start development server (faster)"
+            echo "  npm run dev    - Alternative: Start development server"
+            echo "  bun run build  - Build for production"
+            echo "  bun test       - Run tests"
+            echo ""
+            echo "Corpus Analysis:"
+            echo "  bun run corpus:all     - Setup, analyze & split corpora (recommended)"
+            echo "  bun run corpus:setup   - Clone/update corpus repositories"
+            echo "  bun run corpus:analyze - Analyze TEI corpora"
+            echo "  bun run corpus:split   - Generate train/val/test splits"
+            echo ""
+            echo "E2E Testing:"
+            echo "  npm run test:e2e - Run Playwright tests"
             echo ""
             echo "WASM Build:"
             echo "  cd pattern-engine && wasm-pack build --target web --out-dir ../public/wasm"
@@ -98,8 +106,8 @@
           ];
 
           buildPhase = ''
-            npm install
-            npm run build
+            bun install
+            bun run build
           '';
 
           installPhase = ''
