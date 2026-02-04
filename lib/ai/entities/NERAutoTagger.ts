@@ -62,19 +62,9 @@ export class NERAutoTagger {
       }
 
       // Apply each high-confidence entity to the document
-      // Check if document has addNERTag method (old TEIDocument class)
-      if (typeof (document as any).addNERTag === 'function') {
-        (document as any).addNERTag(
-          { start: entity.start, end: entity.end },
-          entity.type as 'persName' | 'placeName' | 'orgName' | 'date',
-          undefined // TODO: match to character ID if persName
-        );
-      }
-      // For new document model, we would need to implement tag addition via operations
-      // For now, just log that we can't apply tags to the new model
-      else {
-        console.warn(`Cannot apply NER tag to document: addNERTag method not available`);
-      }
+      // TODO: Implement NER tag application via tag operations
+      console.warn(`NER tag application not yet implemented for immutable document model`);
+      console.warn(`Entity: ${entity.type} at [${entity.start}-${entity.end}]`);
     });
   }
 }
