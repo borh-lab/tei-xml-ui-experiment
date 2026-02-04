@@ -1,10 +1,158 @@
 #!/usr/bin/env bun
-import { readdir, mkdir, access } from 'fs/promises';
+import { readdir, mkdir, access, readFile } from 'fs/promises';
 import { join } from 'path';
 import { constants } from 'fs';
 
 const SOURCE_DIR = 'novel-dialogism/data';
 const OUTPUT_DIR = 'corpora/novel-dialogism/';
+
+/**
+ * Interface for a row in quotation_info.csv
+ */
+interface QuotationRow {
+  quoteID: string;
+  quoteText: string;
+  subQuotationList: string;
+  quoteByteSpans: string;
+  speaker: string;
+  addressees: string;
+  quoteType: string;
+  referringExpression: string;
+  mentionTextsList: string;
+  mentionSpansList: string;
+  mentionEntitiesList: string;
+}
+
+/**
+ * Interface for a row in character_info.csv
+ */
+interface CharacterRow {
+  characterId: number;
+  mainName: string;
+  aliases: string;
+  gender: string;
+  category: string;
+}
+
+/**
+ * Generic CSV parser that handles quoted fields with embedded commas and newlines
+ */
+function parseCSV(content: string): string[][] {
+  const rows: string[][] = [];
+  let currentRow: string[] = [];
+  let currentField = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    const nextChar = content[i + 1];
+
+    if (inQuotes) {
+      if (char === '"' && nextChar === '"') {
+        // Escaped quote
+        currentField += '"';
+        i++; // Skip next quote
+      } else if (char === '"') {
+        // End of quoted field
+        inQuotes = false;
+      } else {
+        currentField += char;
+      }
+    } else {
+      if (char === '"') {
+        // Start of quoted field
+        inQuotes = true;
+      } else if (char === ',') {
+        // Field separator
+        currentRow.push(currentField);
+        currentField = '';
+      } else if (char === '\r' && nextChar === '\n') {
+        // Windows line ending
+        currentRow.push(currentField);
+        if (currentRow.length > 0) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentField = '';
+        i++; // Skip \n
+      } else if (char === '\n' || char === '\r') {
+        // Unix or old Mac line ending
+        currentRow.push(currentField);
+        if (currentRow.length > 0) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentField = '';
+      } else {
+        currentField += char;
+      }
+    }
+  }
+
+  // Add last field and row
+  if (currentField || currentRow.length > 0) {
+    currentRow.push(currentField);
+    rows.push(currentRow);
+  }
+
+  return rows;
+}
+
+/**
+ * Parse quotation_info.csv into an array of QuotationRow objects
+ */
+function parseQuotationsCSV(content: string): QuotationRow[] {
+  const rows = parseCSV(content);
+
+  if (rows.length < 2) {
+    throw new Error('CSV file must have at least a header row and one data row');
+  }
+
+  const headers = rows[0];
+  const dataRows = rows.slice(1);
+
+  // Find column indices
+  const colIndex = (header: string) => headers.indexOf(header);
+
+  return dataRows.map((row, idx) => ({
+    quoteID: row[colIndex('quoteID')] || `Q${idx}`,
+    quoteText: row[colIndex('quoteText')] || '',
+    subQuotationList: row[colIndex('subQuotationList')] || '[]',
+    quoteByteSpans: row[colIndex('quoteByteSpans')] || '[]',
+    speaker: row[colIndex('speaker')] || '',
+    addressees: row[colIndex('addressees')] || '[]',
+    quoteType: row[colIndex('quoteType')] || '',
+    referringExpression: row[colIndex('referringExpression')] || '',
+    mentionTextsList: row[colIndex('mentionTextsList')] || '[]',
+    mentionSpansList: row[colIndex('mentionSpansList')] || '[]',
+    mentionEntitiesList: row[colIndex('mentionEntitiesList')] || '[]'
+  }));
+}
+
+/**
+ * Parse character_info.csv into an array of CharacterRow objects
+ */
+function parseCharactersCSV(content: string): CharacterRow[] {
+  const rows = parseCSV(content);
+
+  if (rows.length < 2) {
+    throw new Error('CSV file must have at least a header row and one data row');
+  }
+
+  const headers = rows[0];
+  const dataRows = rows.slice(1);
+
+  // Find column indices
+  const colIndex = (header: string) => headers.indexOf(header);
+
+  return dataRows.map(row => ({
+    characterId: parseInt(row[colIndex('Character ID')] || '0', 10),
+    mainName: row[colIndex('Main Name')] || '',
+    aliases: row[colIndex('Aliases')] || '',
+    gender: row[colIndex('Gender')] || '',
+    category: row[colIndex('Category')] || ''
+  }));
+}
 
 /**
  * Main conversion function
@@ -40,6 +188,51 @@ async function main() {
     .sort();
 
   console.log(`\nFound ${novels.length} novels to convert:\n`);
+
+  // Task 3: Test CSV parsing with first novel
+  if (novels.length > 0) {
+    const firstNovel = novels[0];
+    const novelPath = join(SOURCE_DIR, firstNovel);
+    const characterInfoPath = join(novelPath, 'character_info.csv');
+    const quotationInfoPath = join(novelPath, 'quotation_info.csv');
+
+    console.log(`[Task 3 Test] Parsing CSV files for: ${firstNovel}`);
+
+    try {
+      // Parse quotations
+      const quotationsContent = await readFile(quotationInfoPath, 'utf-8');
+      const quotations = parseQuotationsCSV(quotationsContent);
+      console.log(`  ✓ Parsed ${quotations.length} quotations`);
+      console.log(`    First quotation ID: ${quotations[0]?.quoteID}`);
+      console.log(`    First quotation speaker: ${quotations[0]?.speaker}`);
+      console.log(`    First quote type: ${quotations[0]?.quoteType}`);
+
+      // Parse characters
+      const charactersContent = await readFile(characterInfoPath, 'utf-8');
+      const characters = parseCharactersCSV(charactersContent);
+      console.log(`  ✓ Parsed ${characters.length} characters`);
+      console.log(`    First character: ${characters[0]?.mainName} (${characters[0]?.category})`);
+
+      // Show sample of parsed data
+      console.log(`\n  Sample quotation data:`);
+      console.log(`    Quote ID: ${quotations[0]?.quoteID}`);
+      console.log(`    Speaker: ${quotations[0]?.speaker}`);
+      console.log(`    Text length: ${quotations[0]?.quoteText.length} chars`);
+      console.log(`    Text preview: ${quotations[0]?.quoteText.substring(0, 100)}...`);
+
+      console.log(`\n  Sample character data:`);
+      const majorChars = characters.filter(c => c.category === 'major');
+      console.log(`    Major characters: ${majorChars.length}`);
+      if (majorChars.length > 0) {
+        console.log(`    First major character: ${majorChars[0]?.mainName}`);
+      }
+    } catch (error) {
+      console.error(`  ✗ Error parsing CSV files:`, error);
+    }
+
+    console.log(`\n[Task 3] CSV parsing test complete. Stopping here for now.\n`);
+    process.exit(0);
+  }
 
   // Process each novel
   let successCount = 0;
