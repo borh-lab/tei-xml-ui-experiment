@@ -122,6 +122,17 @@ Visit [http://localhost:3000](http://localhost:3000) to use the application.
 - For detailed setup instructions: [DEPLOYMENT.md](./DEPLOYMENT.md)
 - For feature documentation and user guide: [FEATURES.md](./FEATURES.md)
 
+## 🎬 Video Demos
+
+See the TEI Dialogue Editor in action with short video demonstrations:
+
+- **[Feature Demos](./docs/demos.md)** - Watch UI highlights and complete workflows
+- Command palette, bulk operations, keyboard shortcuts
+- Annotation workflows and AI-assisted sessions
+- Character network visualization
+
+All videos are WebM format (VP9 codec), optimized for web delivery. Total size: ~1.5MB.
+
 ## Testing
 
 The project uses Jest with React Testing Library.

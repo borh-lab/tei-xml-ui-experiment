@@ -29,7 +29,8 @@
     "corpus:convert-novel-dialogism": "bun scripts/convert-novel-dialogism.ts",
     "corpus:all": "bun run corpus:convert-novel-dialogism && bun run corpus:setup && bun run corpus:analyze && bun run corpus:split",
     "docs:videos": "bun run test:e2e --project=doc-videos",
-    "docs:videos:watch": "bun run test:e2e --project=doc-videos --watch",
+    "docs:videos:watch": "bun scripts/watch-doc-videos.ts",
+    "docs:videos:optimize": "bun scripts/optimize-doc-videos.ts",
     "docs:videos:cli": "bun scripts/generate-doc-videos.ts"
   },
   "dependencies": {
