@@ -86,7 +86,7 @@ function extractPassages(parsed: TEINode): readonly Passage[] {
   // Handle single paragraph (not an array)
   const pArray = Array.isArray(paragraphs) ? paragraphs : [paragraphs];
 
-  return pArray.map((p: any, index: number) => {
+  return pArray.map((p: TEINode, index: number) => {
     // Get full text content of passage
     const content = extractPassageText(p);
 
@@ -108,7 +108,7 @@ function extractPassages(parsed: TEINode): readonly Passage[] {
 /**
  * Extract text content from a passage node
  */
-function extractPassageText(passage: any): string {
+function extractPassageText(passage: TEINode): string {
   if (typeof passage === 'string') {
     return passage;
   }
@@ -156,7 +156,7 @@ function extractPassageText(passage: any): string {
  * Extract tags from a passage (said, q, persName, etc.)
  * This parses existing TEI markup into Tag[] format
  */
-function extractTagsFromPassage(passage: any): readonly Tag[] {
+function extractTagsFromPassage(passage: TEINode): readonly Tag[] {
   const tags: Tag[] = [];
 
   // Helper to find text position for a tag
@@ -174,7 +174,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
   if (passage.said) {
     const saidElements = Array.isArray(passage.said) ? passage.said : [passage.said];
 
-    saidElements.forEach((said: any, idx: number) => {
+    saidElements.forEach((said: TEINode, idx: number) => {
       const content = said['#text'] || '';
       const passageText = extractPassageText(passage);
       const range = findTagPosition(passageText, content);
@@ -196,7 +196,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
   if (passage.q) {
     const qElements = Array.isArray(passage.q) ? passage.q : [passage.q];
 
-    qElements.forEach((q: any) => {
+    qElements.forEach((q: TEINode) => {
       const content = q['#text'] || '';
       const passageText = extractPassageText(passage);
       const range = findTagPosition(passageText, content);
@@ -214,7 +214,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
   if (passage.persName) {
     const persNameElements = Array.isArray(passage.persName) ? passage.persName : [passage.persName];
 
-    persNameElements.forEach((persName: any) => {
+    persNameElements.forEach((persName: TEINode) => {
       const content = persName['#text'] || '';
       const passageText = extractPassageText(passage);
       const range = findTagPosition(passageText, content);
@@ -250,7 +250,7 @@ function extractCharacters(parsed: TEINode): readonly Character[] {
 
   const personArray = Array.isArray(persons) ? persons : [persons];
 
-  return personArray.map((person: any) => {
+  return personArray.map((person: TEINode) => {
     const xmlId = person['@_xml:id'] || person['xml:id'] || `char-${`tag-${globalThis.__tagCounter++ || 1}`}`;
 
     return {
@@ -278,7 +278,7 @@ function extractRelationships(parsed: TEINode): readonly Relationship[] {
 
   const relationArray = Array.isArray(relations) ? relations : [relations];
 
-  return relationArray.map((rel: any) => {
+  return relationArray.map((rel: TEINode) => {
     const active = rel['@_active']?.replace('#', '') || '';
     const passive = rel['@_passive']?.replace('#', '') || '';
     const name = rel['@_name'] || 'unknown';
@@ -450,7 +450,7 @@ export function addTag(
   const tagId = `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID;
   const newTag: Tag = {
     id: tagId,
-    type: tagName as any, // Cast to Tag type union
+    type: tagName as Tag['type'], // Cast to Tag type union
     range,
     attributes: attributes || {},
   };
@@ -478,7 +478,7 @@ export function addTag(
     range,
     timestamp: Date.now(),
     revision: state.revision,
-  } as any; // Cast for now since tagAdded isn't in the event union yet
+  } as any; // eslint-disable-line @typescript-eslint/no-explicit-any -- tagAdded event type not yet in DocumentEvent union
 
   return { state, events: [...doc.events, event] };
 }
@@ -525,7 +525,7 @@ export function redoFrom(doc: TEIDocument, fromRevision: number): TEIDocument {
  * Uses existing XMLBuilder to convert state back to XML
  * Handles both new immutable documents (doc.state.parsed) and old TEIDocument class (doc.parsed)
  */
-export function serializeDocument(doc: any): string {
+export function serializeDocument(doc: TEIDocument | { state?: { parsed?: TEINode }; parsed?: TEINode; serialize?: () => string }): string {
   // For old TEIDocument class, use its serialize method if available
   if (typeof doc.serialize === 'function') {
     return doc.serialize();
