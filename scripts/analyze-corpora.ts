@@ -38,6 +38,10 @@ const CORPORA_CONFIG: Record<string, { name: string; url: string }> = {
     name: 'TEI Texts (French Novels)',
     url: 'https://github.com/christofs/tei-texts.git',
   },
+  'novel-dialogism': {
+    name: 'Novel Dialogism Corpus',
+    url: 'https://github.com/Priya22/project-dialogism-novel-corpus.git',
+  },
 };
 
 /**
