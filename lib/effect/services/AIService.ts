@@ -25,11 +25,11 @@ export const OpenAIService: AIService = {
     dialogue: readonly DialogueSpan[]
   ): Effect.Effect<string, AIError> =>
     Effect.tryPromise({
-      try: () => openaiProvider.attributeSpeaker(text, dialogue as any),
+      try: () => openaiProvider.attributeSpeaker(text, [...dialogue] as DialogueSpan[]),
       catch: (error) => toAIError(error, 'attributeSpeaker'),
     }),
 
-  validateConsistency: (document: any): Effect.Effect<readonly Issue[], AIError> =>
+  validateConsistency: (document: unknown): Effect.Effect<readonly Issue[], AIError> =>
     Effect.tryPromise({
       try: () => openaiProvider.validateConsistency(document),
       catch: (error) => toAIError(error, 'validateConsistency'),

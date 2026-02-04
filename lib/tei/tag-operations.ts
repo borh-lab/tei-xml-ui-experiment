@@ -5,7 +5,7 @@
  * All operations return new document values (no mutation).
  */
 
-import { TEIDocument } from './types';
+import { TEIDocument, Tag } from './types';
 import { addSaidTag, removeTag, addTag } from './operations';
 import type { PassageID, TextRange, TagID, CharacterID } from './types';
 import type { SelectionSnapshot, TagOptions, TagApplicationResult } from '@/lib/selection/types';
@@ -109,7 +109,7 @@ export function replaceTag(
   newAttributes?: Record<string, string>
 ): TEIDocument {
   // Find the old tag
-  let oldTag: any = null;
+  let oldTag: Tag | null = null;
   let passageId: PassageID | null = null;
 
   for (const passage of doc.state.passages) {
