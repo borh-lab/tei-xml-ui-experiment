@@ -62,3 +62,21 @@ TEI/
 # git worktrees
 .worktrees/
 
+
+# Nix development environment
+.direnv/
+
+# SWC cache
+.swc/
+
+# Jest cache
+__tests__/
+
+# Pattern engine build artifacts
+pattern-engine/target/
+
+# Annotation ML (separate project)
+annotation-ml/
+
+# Plans (draft documents)
+.plans/
