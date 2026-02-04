@@ -27,7 +27,9 @@
     "corpus:analyze": "bun scripts/analyze-corpora.ts",
     "corpus:split": "bun scripts/generate-splits.ts",
     "corpus:convert-novel-dialogism": "bun scripts/convert-novel-dialogism.ts",
-    "corpus:all": "bun run corpus:convert-novel-dialogism && bun run corpus:setup && bun run corpus:analyze && bun run corpus:split"
+    "corpus:all": "bun run corpus:convert-novel-dialogism && bun run corpus:setup && bun run corpus:analyze && bun run corpus:split",
+    "docs:videos": "bun scripts/generate-doc-videos.ts",
+    "docs:videos:watch": "bun scripts/generate-doc-videos.ts --watch"
   },
   "dependencies": {
     "@ax-llm/ax": "^16.0.10",
