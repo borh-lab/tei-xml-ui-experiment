@@ -111,7 +111,6 @@
             echo "Pre-commit hooks installed (run on 'nix develop')"
           '';
         };
-        };
 
         packages.default = pkgs.mkShell {
           buildInputs = with pkgs; [

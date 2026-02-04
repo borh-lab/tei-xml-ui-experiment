@@ -1,7 +1,7 @@
-import { CorpusBrowserComponent } from '@/components/corpus/CorpusBrowser';
+import { CorpusBrowser } from '@/components/corpus/CorpusBrowser';
 
 export default function CorpusPage() {
-  return <CorpusBrowserComponent />;
+  return <CorpusBrowser />;
 }
 
 export const metadata = {
