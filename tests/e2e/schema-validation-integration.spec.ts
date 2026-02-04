@@ -13,15 +13,27 @@ import { uploadTestDocument } from './fixtures/test-helpers';
 
 test.describe('Schema Validation - Complete Integration', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to home page and wait for it to load
+    // Navigate to home page
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Check if we need to load a document (welcome screen)
+    // Check if we have passages (document loaded)
     const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
 
     if (!hasPassage) {
-      // We're on welcome screen - load a simple valid document first
+      // Look for file input - if it exists, upload directly
+      // If not, we need to load a sample first
+      const fileInput = page.locator('input[type="file"]');
+      const hasFileInput = await fileInput.count();
+
+      if (hasFileInput === 0) {
+        // No file input, load a sample to get into editor mode
+        const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+        await loadButton.click();
+        await page.waitForTimeout(2000);
+      }
+
+      // Now upload a simple document
       const simpleXml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <teiHeader>
@@ -31,7 +43,7 @@ test.describe('Schema Validation - Complete Integration', () => {
       <sourceDesc><p>Test</p></sourceDesc>
     </fileDesc>
   </teiHeader>
-  <text><body><p>Initial document</p></body></text>
+  <text><body><p>Initial document for testing</p></body></text>
 </TEI>`;
 
       await uploadTestDocument(page, {
@@ -40,8 +52,8 @@ test.describe('Schema Validation - Complete Integration', () => {
       });
 
       // Wait for document to load
-      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 10000 });
-      await page.waitForTimeout(500);
+      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 15000 });
+      await page.waitForTimeout(1000);
     }
   });
 
