@@ -4,6 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { exportToHTML, downloadFile } from '@/lib/tei/export';
+import { serializeDocument } from '@/lib/tei/operations';
 
 export function ExportButton() {
   const { document } = useDocumentContext();
@@ -16,7 +17,7 @@ export function ExportButton() {
 
   const handleExportTEI = () => {
     if (!document) return;
-    const xml = document.serialize();
+    const xml = serializeDocument(document);
     downloadFile(xml, 'document.xml', 'application/xml');
   };
 
