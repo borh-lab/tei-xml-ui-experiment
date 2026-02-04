@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'bun:test';
 import { extractQuotes, calculateRankings, buildConversationMatrix, lookupCharacterName } from '../document';
 
 describe('extractQuotes', () => {
