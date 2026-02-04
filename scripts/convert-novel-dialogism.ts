@@ -166,10 +166,23 @@ function parseCharactersCSV(content: string): CharacterRow[] {
 }
 
 /**
+ * Generate a URL-safe slug from a character name
+ * Converts "Sylvia Newport" to "Sylvia-Newport"
+ */
+function generateSlug(name: string): string {
+  return name
+    .replace(/[^\w\s-]/g, '')  // Remove special characters except spaces, hyphens, word chars
+    .replace(/\s+/g, '-')      // Replace spaces with hyphens
+    .replace(/-+/g, '-')       // Replace multiple hyphens with single
+    .trim();
+}
+
+/**
  * Build a character index that allows lookup by ID or alias
  *
  * Creates a Map where keys can be:
- * - Character ID (string)
+ * - Character slug (URL-safe ID like "Sylvia-Newport")
+ * - Original main name
  * - Any alias name
  *
  * All keys point to the same CharacterData object, enabling
@@ -196,16 +209,22 @@ function buildCharacterIndex(characters: CharacterRow[]): Map<string, CharacterD
         .filter(a => a.length > 0);
     }
 
+    // Generate slug from main name for use as xml:id
+    const slug = generateSlug(char.mainName);
+
     const data: CharacterData = {
-      id: String(char.characterId),
+      id: slug,
       mainName: char.mainName,
       aliases: aliases,
       gender: char.gender,
       category: char.category
     };
 
-    // Index by character ID
-    index.set(data.id, data);
+    // Index by slug (primary ID)
+    index.set(slug, data);
+
+    // Index by original main name for lookup from CSV
+    index.set(char.mainName, data);
 
     // Also index by aliases for lookup
     for (const alias of data.aliases) {
@@ -288,23 +307,57 @@ function parseJSONField(field: string): any {
 
   try {
     // Convert Python-style quotes to JSON
-    // Replace single quotes with double quotes, but be careful with nested quotes
-    let normalized = field
-      .replace(/'/g, '"')  // Replace single quotes with double quotes
-      .replace(/\\"/g, "'"); // Fix escaped quotes that got mangled
+    // The challenge: Python uses ' for strings, but text can contain embedded '
+    // Example: ['I'd go'] should become ["I'd go"] not ["I"d go"]
 
-    // Handle Python None/null
+    let normalized = field;
+
+    // Step 1: Replace Python literals
     normalized = normalized.replace(/\bNone\b/g, 'null');
-
-    // Handle Python True/False
     normalized = normalized.replace(/\bTrue\b/g, 'true');
     normalized = normalized.replace(/\bFalse\b/g, 'false');
 
+    // Step 2: Convert Python single-quoted strings to JSON double-quoted strings
+    // We need to find '...' patterns and replace them with "..." while preserving internal quotes
+
+    // This regex finds Python string patterns:
+    // - Match opening ' followed by content (non-greedy) followed by closing '
+    // - But we must handle escaped quotes like \' inside strings
+    normalized = normalized.replace(/'([^'\\]|\\.)*'/g, function(match) {
+      // Remove the outer quotes
+      let content = match.slice(1, -1);
+      // Escape double quotes and backslashes for JSON
+      content = content.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      return '"' + content + '"';
+    });
+
     return JSON.parse(normalized);
   } catch (error) {
-    // If parsing fails, return empty array
-    console.warn(`  ⚠ Warning: Failed to parse JSON field: ${field.substring(0, 50)}...`);
-    return [];
+    // If parsing fails, try a more lenient approach
+    try {
+      // Fallback: Use eval-like approach for simple cases
+      // Replace ' with " but only for string delimiters
+      let normalized = field
+        .replace(/\bNone\b/g, 'null')
+        .replace(/\bTrue\b/g, 'true')
+        .replace(/\bFalse\b/g, 'false');
+
+      // Manually replace the outermost quotes
+      // Start by finding list/array patterns
+      if (normalized.startsWith('[') && normalized.endsWith(']')) {
+        let content = normalized.slice(1, -1);
+        // Replace ' at boundaries with "
+        content = content.replace(/^'/, '"').replace(/'$/, '"');
+        // Replace ', ' with ", "
+        content = content.replace(/', '/g, '", "');
+        normalized = '[' + content + ']';
+      }
+
+      return JSON.parse(normalized);
+    } catch (fallbackError) {
+      console.warn(`  ⚠ Warning: Failed to parse JSON field: ${field.substring(0, 50)}...`);
+      return [];
+    }
   }
 }
 
@@ -408,12 +461,20 @@ function convertQuotationToTEI(quote: QuotationRow, characterIndex: Map<string, 
           const entityList = entities[j];
 
           // Build ref attribute from entity list
+          // Look up each entity name in characterIndex to get the slug
           let refAttr = '';
           if (Array.isArray(entityList) && entityList.length > 0) {
-            const refs = entityList.map((e: any) => `#${e}`).join(' ');
+            const refs = entityList
+              .map((e: any) => {
+                const charData = characterIndex.get(String(e));
+                return charData ? `#${charData.id}` : `#${e}`;
+              })
+              .join(' ');
             refAttr = ` ref="${refs}"`;
           } else if (typeof entityList === 'string') {
-            refAttr = ` ref="#${entityList}"`;
+            const charData = characterIndex.get(entityList);
+            const entityId = charData ? charData.id : entityList;
+            refAttr = ` ref="#${entityId}"`;
           }
 
           // Build span attribute
