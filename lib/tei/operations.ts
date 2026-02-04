@@ -37,11 +37,24 @@ import {
 // ============================================================================
 
 /**
- * Generate passage ID using counter
- * Simple incremental ID generator for passages
+ * Generate content-based passage ID
+ * Simple hash for stable IDs across sessions
  */
 function generatePassageId(content: string, index: number): PassageID {
-  return `passage-${globalThis.__passageCounter++ || 1}` as PassageID;
+  // Simple string hash for browser compatibility
+  let hash = 0;
+  for (let i = 0; i < content.length; i++) {
+    const char = content.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  // Add index to handle same content at different positions
+  hash = hash + index;
+
+  // Convert to hex and pad to 12 characters
+  const hexHash = Math.abs(hash).toString(16).padStart(12, '0').substring(0, 12);
+
+  return `passage-${hexHash}` as PassageID;
 }
 
 /**
@@ -340,7 +353,7 @@ export function addSaidTag(
     throw new Error(`Passage not found: ${passageId}`);
   }
 
-  const tagId = generateTagId();
+  const tagId = `tag-${globalThis.__tagCounter++}` as TagID;
   const newTag: Tag = {
     id: tagId,
     type: 'said',
