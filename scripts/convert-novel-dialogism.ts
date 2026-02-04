@@ -384,13 +384,15 @@ function convertQuotationToTEI(quote: QuotationRow, characterIndex: Map<string, 
 
     // Join sub-quote parts and add the sub-quotation text in an <s> element
     const subQuoteText = Array.isArray(subQuoteParts) ? subQuoteParts.join(' ') : subQuoteParts;
+    // Escape XML first, then convert underscore emphasis to <hi> tags
     const escapedText = subQuoteText
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&apos;');
-    content += `      <s said="direct">${escapedText}</s>\n`;
+    const withEmphasis = convertEmphasis(escapedText);
+    content += `      <s said="direct">${withEmphasis}</s>\n`;
     content += `      <anchor xml:id="${quoteId}-end-${i}"/>\n`;
 
     // Process mentions within this sub-quotation
@@ -466,6 +468,15 @@ function escapeXML(text: string): string {
 }
 
 /**
+ * Convert underscore emphasis to TEI <hi rend="italic"> markup
+ * Handles both _word_ and _multi word phrases_ patterns
+ * IMPORTANT: Call AFTER escapeXML() to avoid escaping the <hi> tags
+ */
+function convertEmphasis(text: string): string {
+  return text.replace(/_([^_]+)_/g, '<hi rend="italic">$1</hi>');
+}
+
+/**
  * Detect if a line looks like a chapter heading
  */
 function isChapterHeading(line: string): boolean {
@@ -531,20 +542,20 @@ function generateTEIBodyWithNarrative(
         if (isChapterHeading(line)) {
           // Flush any pending paragraph
           if (currentParagraph.trim()) {
-            body += `    <p>${escapeXML(currentParagraph.trim())}</p>\n`;
+            body += `    <p>${convertEmphasis(escapeXML(currentParagraph.trim()))}</p>\n`;
             currentParagraph = '';
           }
 
           // Check if this is a chapter title line or subtitle line
           if (inChapter && line.trim()) {
-            body += `    <head type="subtitle">${escapeXML(line.trim())}</head>\n`;
+            body += `    <head type="subtitle">${convertEmphasis(escapeXML(line.trim()))}</head>\n`;
           } else if (line.trim()) {
             // Close previous div if open
             if (inChapter) {
               body += '  </div>\n';
             }
             body += '  <div type="chapter">\n';
-            body += `    <head>${escapeXML(line.trim())}</head>\n`;
+            body += `    <head>${convertEmphasis(escapeXML(line.trim()))}</head>\n`;
             inChapter = true;
           }
         } else if (line.trim()) {
@@ -593,14 +604,14 @@ function generateTEIBodyWithNarrative(
       if (line.trim()) {
         if (isChapterHeading(line)) {
           if (currentParagraph.trim()) {
-            body += `    <p>${escapeXML(currentParagraph.trim())}</p>\n`;
+            body += `    <p>${convertEmphasis(escapeXML(currentParagraph.trim()))}</p>\n`;
             currentParagraph = '';
           }
           if (inChapter) {
             body += '  </div>\n';
           }
           body += '  <div type="chapter">\n';
-          body += `    <head>${escapeXML(line.trim())}</head>\n`;
+          body += `    <head>${convertEmphasis(escapeXML(line.trim()))}</head>\n`;
           inChapter = true;
         } else if (!isJustQuotes(line)) {
           // Skip lines that are just quotation marks
@@ -614,13 +625,13 @@ function generateTEIBodyWithNarrative(
           }
         }
       } else if (currentParagraph.trim()) {
-        body += `    <p>${escapeXML(currentParagraph.trim())}</p>\n`;
+        body += `    <p>${convertEmphasis(escapeXML(currentParagraph.trim()))}</p>\n`;
         currentParagraph = '';
       }
     }
 
     if (currentParagraph.trim()) {
-      body += `    <p>${escapeXML(currentParagraph.trim())}</p>\n`;
+      body += `    <p>${convertEmphasis(escapeXML(currentParagraph.trim()))}</p>\n`;
     }
   }
 
