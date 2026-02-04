@@ -164,6 +164,10 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
                         <span className="font-medium">{sample.wordCount.toLocaleString()}</span>{' '}
                         <span className="text-muted-foreground">words</span>
                       </div>
+                      <div>
+                        <span className="font-medium">{sample.characters}</span>{' '}
+                        <span className="text-muted-foreground">characters</span>
+                      </div>
                     </div>
 
                     <div className="flex flex-wrap gap-1">
