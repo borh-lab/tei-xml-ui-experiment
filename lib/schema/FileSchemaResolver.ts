@@ -11,27 +11,28 @@ const ALLOWED_SCHEMA_IDS = new Set([
 
 /**
  * Schema registry: Metadata for known schemas
+ * Paths are relative to project root for filesystem access
  */
 const SCHEMA_REGISTRY: Readonly<Record<string, SchemaInfo>> = {
   'tei-minimal': {
     id: 'tei-minimal',
     name: 'TEI Minimal (Dialogue)',
     description: 'Core TEI elements for dialogue annotation: sp, speaker, stage',
-    path: '/schemas/tei-minimal.rng',
+    path: 'public/schemas/tei-minimal.rng',
     tags: ['dialogue', 'lightweight', 'fast']
   },
   'tei-all': {
     id: 'tei-all',
     name: 'TEI P5 Complete',
     description: 'Full TEI P5 schema with all standard elements',
-    path: '/schemas/tei-all.rng',
+    path: 'public/schemas/tei-all.rng',
     tags: ['complete', 'comprehensive', 'slow']
   },
   'tei-novel': {
     id: 'tei-novel',
     name: 'TEI for Novels',
     description: 'TEI schema optimized for prose fiction',
-    path: '/schemas/tei-novel.rng',
+    path: 'public/schemas/tei-novel.rng',
     tags: ['novel', 'prose', 'fiction']
   }
 } as const;

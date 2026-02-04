@@ -175,10 +175,51 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     }
   }, [document, skipAutoLoad]);
 
+  // Helper function to validate document without updating it
+  const validateOnly = useCallback(async (xml: string) => {
+    setIsValidating(true);
+    try {
+      const response = await fetch('/api/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ xml }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Validation API error: ${response.statusText}`);
+      }
+
+      const validationResult: ValidationResult = await response.json();
+      setValidationResults(validationResult);
+      return validationResult;
+    } catch (error) {
+      console.error('Validation error:', error);
+      setValidationResults({
+        valid: false,
+        errors: [
+          {
+            message: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+            severity: 'error',
+          },
+        ],
+        warnings: [],
+      });
+      throw error;
+    } finally {
+      setIsValidating(false);
+    }
+  }, []);
+
   const loadDocumentHandler = useCallback((xml: string) => {
     try {
       dispatch({ type: 'LOAD', xml });
       setValidationResults(null);
+      // Auto-validate after loading
+      validateOnly(xml).catch(err => {
+        console.error('Failed to validate after load:', err);
+      });
     } catch (error) {
       console.error('Failed to load document:', error);
       logError(error as Error, 'DocumentContext', {
@@ -190,7 +231,7 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
         action: errorInfo.action,
       });
     }
-  }, [logError]);
+  }, [logError, validateOnly]);
 
   const loadSample = useCallback(async (sampleId: string) => {
     try {
@@ -213,6 +254,11 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       setLoadingSample(false);
       setLoadingProgress(0);
       setValidationResults(null);
+
+      // Auto-validate after loading sample
+      validateOnly(content).catch(err => {
+        console.error('Failed to validate after loading sample:', err);
+      });
     } catch (error) {
       console.error('Failed to load sample:', error);
       logError(error as Error, 'DocumentContext', {
@@ -228,7 +274,7 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
       setLoadingProgress(0);
       throw error;
     }
-  }, [logError]);
+  }, [logError, validateOnly]);
 
   const updateDocument = useCallback(async (xml: string) => {
     // Validate the document first via API
