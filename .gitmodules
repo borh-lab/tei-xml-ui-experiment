@@ -1,9 +1,3 @@
-[submodule "corpora/test-submodule"]
-	path = corpora/test-submodule
-	url = https://github.com/octocat/Hello-World.git
-[submodule "corpora/vscode-submodule"]
-	path = corpora/vscode-submodule
-	url = https://github.com/microsoft/vscode.git
 [submodule "corpora/wright-american-fiction"]
 	path = corpora/wright-american-fiction
 	url = https://github.com/iulibdcs/Wright-American-Fiction.git

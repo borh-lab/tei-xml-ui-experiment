@@ -28,7 +28,7 @@ export function findXMLFiles(dir: string): string[] {
 
 export function validateTEIFile(filePath: string): TEIFileInfo {
   try {
-    const content = readFileSync(filePath, 'utf-8');
+    let content = readFileSync(filePath, 'utf-8');
     const stats = statSync(filePath);
 
     if (content.length < 500) {
@@ -43,7 +43,18 @@ export function validateTEIFile(filePath: string): TEIFileInfo {
     try {
       parser.parse(content);
       return { path: filePath, size: stats.size, isTEI: true, isValid: true };
-    } catch (parseError) {
+    } catch (parseError: any) {
+      // If external entity error, strip DOCTYPE and retry
+      if (parseError?.message?.includes('External entities')) {
+        try {
+          // Remove DOCTYPE declaration and entity declarations
+          const cleanedContent = content.replace(/<!DOCTYPE[^>]*\[[^\]]*\]>/gi, '');
+          parser.parse(cleanedContent);
+          return { path: filePath, size: stats.size, isTEI: true, isValid: true };
+        } catch (retryError) {
+          return { path: filePath, size: stats.size, isTEI: true, isValid: false, error: `Parse error (after DOCTYPE strip): ${retryError}` };
+        }
+      }
       return { path: filePath, size: stats.size, isTEI: true, isValid: false, error: `Parse error: ${parseError}` };
     }
   } catch (error) {
