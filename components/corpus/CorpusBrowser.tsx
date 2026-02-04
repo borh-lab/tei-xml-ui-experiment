@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Effect, Layer, Runtime } from 'effect';
+import { Effect, Layer, pipe } from 'effect';
 import { CorpusBrowser as CorpusBrowserService } from '@/lib/effect/services/CorpusBrowser';
 import { LocalCorpusDataSourceLive } from '@/lib/effect/services/LocalCorpusDataSource';
 import { CorpusBrowserLive } from '@/lib/effect/services/CorpusBrowser';
@@ -9,9 +9,13 @@ import type { BrowserState, DocumentViewState } from '@/lib/effect/services/Corp
 import { CorpusSelector } from './CorpusSelector';
 import { LoadedCorpusView } from './LoadedCorpusView';
 
-const runtime = Runtime.defaultRuntime.pipe(
-  Runtime.provideLayers(Layer.mergeAll(LocalCorpusDataSourceLive, CorpusBrowserLive))
-);
+const layers = Layer.mergeAll(LocalCorpusDataSourceLive, CorpusBrowserLive);
+
+const runEffect = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
+  return Effect.runPromise(
+    pipe(effect, Effect.provide(layers)) as any
+  );
+};
 
 export function CorpusBrowser() {
   const [browserState, setBrowserState] = useState<BrowserState>({ _tag: 'initial' });
@@ -25,7 +29,7 @@ export function CorpusBrowser() {
       return state;
     });
 
-    const promise = Effect.runPromise(program);
+    const promise = runEffect(program);
     promise.then(setBrowserState).catch(() => {
       setBrowserState({ _tag: 'error', error: { _tag: 'IOError', cause: new Error('Failed to initialize') } });
     });
@@ -40,7 +44,7 @@ export function CorpusBrowser() {
     });
 
     try {
-      const state = await Effect.runPromise(program);
+      const state = await runEffect(program);
       setBrowserState(state);
     } catch (error) {
       setBrowserState({ _tag: 'error', error: { _tag: 'IOError', cause: error } });
@@ -56,7 +60,7 @@ export function CorpusBrowser() {
     });
 
     try {
-      const state = await Effect.runPromise(program);
+      const state = await runEffect(program);
       setDocumentState(state);
     } catch (error) {
       setDocumentState({ _tag: 'error', error });
@@ -80,7 +84,7 @@ export function CorpusBrowser() {
     });
 
     try {
-      const state = await Effect.runPromise(program);
+      const state = await runEffect(program);
       if (state._tag === 'loaded') {
         setBrowserState({ ...state, page: newPage });
       }

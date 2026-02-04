@@ -1,20 +1,23 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Effect } from 'effect';
+import { Effect, Layer, pipe } from 'effect';
 import { CorpusBrowser as CorpusBrowserService } from '@/lib/effect/services/CorpusBrowser';
 import { CorpusBrowserLive } from '@/lib/effect/services/CorpusBrowser';
 import { LocalCorpusDataSourceLive } from '@/lib/effect/services/LocalCorpusDataSource';
-import { Layer, Runtime } from 'effect';
 import type { CorpusMetadata, DocumentId } from '@/lib/effect/protocols/CorpusDataSource';
 import type { DocumentViewState } from '@/lib/effect/services/CorpusBrowser';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-const runtime = Runtime.defaultRuntime.pipe(
-  Runtime.provideLayers(Layer.mergeAll(LocalCorpusDataSourceLive, CorpusBrowserLive))
-);
+const layers = Layer.mergeAll(LocalCorpusDataSourceLive, CorpusBrowserLive);
+
+const runEffect = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
+  return Effect.runPromise(
+    pipe(effect, Effect.provide(layers)) as any
+  );
+};
 
 interface LoadedCorpusViewProps {
   metadata: CorpusMetadata;
@@ -51,7 +54,7 @@ export function LoadedCorpusView({
       });
 
       try {
-        const docs = await Effect.runPromise(program);
+        const docs = await runEffect(program);
         setDocuments(docs);
       } catch (err) {
         setError('Failed to load documents');
@@ -112,17 +115,19 @@ export function LoadedCorpusView({
             <CardContent className="space-y-4">
               <div>
                 <div className="text-sm font-medium">Total Documents</div>
-                <div className="text-2xl font-bold">{metadata.totalDocuments.toLocaleString()}</div>
+                <div className="text-2xl font-bold">
+                  {metadata.totalDocuments?.toLocaleString() || 'N/A'}
+                </div>
               </div>
 
               <div>
                 <div className="text-sm font-medium mb-2">Encoding Types</div>
                 <div className="flex flex-wrap gap-1">
-                  {metadata.encodingTypes.map((type) => (
+                  {metadata.encodingTypes?.map((type) => (
                     <Badge key={type} variant="secondary" className="text-xs">
                       {type}
                     </Badge>
-                  ))}
+                  )) || <span className="text-sm text-muted-foreground">N/A</span>}
                 </div>
               </div>
 
