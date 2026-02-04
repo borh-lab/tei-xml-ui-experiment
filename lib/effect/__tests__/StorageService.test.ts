@@ -2,7 +2,7 @@
  * StorageService Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { Effect } from 'effect';
 import { StorageService } from '@/lib/effect/protocols/Storage';
 import { TestStorageService } from '@/lib/effect/services/StorageService';
