@@ -119,8 +119,8 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    window.document.addEventListener('keydown', handleKeyDown);
+    return () => window.document.removeEventListener('keydown', handleKeyDown);
   }, [visible, currentSelection, document, handleApplyTag, onClose, addSaidTag, addGenericTag]);
 
   if (!visible || !currentSelection || !document) {
