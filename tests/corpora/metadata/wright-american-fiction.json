@@ -1,0 +1,18 @@
+{
+  "name": "Wright American Fiction",
+  "sourceUrl": "https://github.com/iulibdcs/Wright-American-Fiction.git",
+  "documentCount": 0,
+  "totalSizeBytes": 0,
+  "teiVersion": [],
+  "tagFrequency": {},
+  "structuralPatterns": {
+    "usesSaid": false,
+    "usesQ": false,
+    "usesSp": false,
+    "usesWhoAttributes": false,
+    "nestingLevels": 0
+  },
+  "encodingType": "minimal-markup",
+  "sampleDocuments": [],
+  "issues": []
+}
