@@ -18,10 +18,14 @@ export function extractQuotes(document: TEIDocument): Quote[] {
  * Calculate character rankings from quotes.
  * Returns array sorted by quote count descending.
  * Pure function - no side effects.
+ * @param quotes - Array of quote objects
+ * @param totalQuotes - Total number of quotes (for percentage calculation)
+ * @param characterLookup - Function to resolve character IDs to names
  */
 export function calculateRankings(
   quotes: readonly Quote[],
-  totalQuotes: number
+  totalQuotes: number,
+  characterLookup: (id: string | null) => string
 ): CharacterRanking[] {
   const counts = new Map<string, number>();
 
@@ -32,7 +36,7 @@ export function calculateRankings(
   return Array.from(counts.entries())
     .map(([characterId, quoteCount]) => ({
       characterId,
-      characterName: characterId,  // TODO: Look up actual name from character index
+      characterName: characterLookup(characterId),
       quoteCount,
       percent: totalQuotes > 0 ? (quoteCount / totalQuotes) * 100 : 0
     }))
