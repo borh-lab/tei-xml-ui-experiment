@@ -48,7 +48,7 @@ An AI-assisted tool for annotating dialogue in TEI XML documents.
 
 ## Key Features
 
-- **TEI Corpus Browser**: Browse and explore 6 TEI corpora with 10,793 documents ([documentation](./docs/corpus-browsing.md))
+- **TEI Corpus Browser**: Browse and explore 7 TEI corpora with 10,819 documents ([documentation](./docs/corpus-browsing.md))
 - Manual dialogue annotation with TEI markup (`<said>`, `<q>`)
 - AI-assisted dialogue detection (Ax framework with NLP fallback)
 - Pattern learning from user corrections for improved accuracy
@@ -167,6 +167,20 @@ bun run corpus:split    # Generate train/val/test splits
 ```
 
 See [scripts/README.md](./scripts/README.md) for details.
+
+### Integrated Corpora
+
+**7 TEI corpora** with **10,819 documents** are integrated:
+
+- **Wright American Fiction** (2,876 docs) - 19th century American novels
+- **Victorian Women Writers** (199 docs) - Victorian-era literature
+- **Indiana Magazine of History** (7,289 docs) - Historical articles
+- **Indiana Authors Books** (394 docs) - Works by Indiana authors
+- **Brevier Legislative Reports** (19 docs) - Legislative proceedings (1858-1887)
+- **TEI Texts** (14 docs) - French novels
+- **Novel Dialogism** (28 docs) - Richly annotated quotations
+
+For detailed corpus statistics, speech tag patterns, and usage recommendations, see the [Corpus Reference](./docs/corpus-reference.md) documentation.
 
 ## Project Structure
 

@@ -40,6 +40,12 @@ const CORPORA = [
     description: 'Collection of TEI-encoded texts',
     icon: '📄',
   },
+  {
+    id: 'novel-dialogism',
+    name: 'Novel Dialogism',
+    description: 'Novels with rich quotation and dialogue annotations',
+    icon: '💬',
+  },
 ];
 
 interface CorpusSelectorProps {
@@ -99,11 +105,11 @@ export function CorpusSelector({ onSelectCorpus }: CorpusSelectorProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <div className="font-medium">Total Documents</div>
-            <div className="text-muted-foreground">3,000+</div>
+            <div className="text-muted-foreground">10,800+</div>
           </div>
           <div>
-            <div className="font-medium">Encoding Types</div>
-            <div className="text-muted-foreground">Mixed</div>
+            <div className="font-medium">Total Corpora</div>
+            <div className="text-muted-foreground">7</div>
           </div>
           <div>
             <div className="font-medium">TEI Versions</div>
