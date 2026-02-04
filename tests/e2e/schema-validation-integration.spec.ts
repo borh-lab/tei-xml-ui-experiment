@@ -13,9 +13,36 @@ import { uploadTestDocument } from './fixtures/test-helpers';
 
 test.describe('Schema Validation - Complete Integration', () => {
   test.beforeEach(async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.waitForDocumentLoaded();
+    // Navigate to home page and wait for it to load
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Check if we need to load a document (welcome screen)
+    const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+
+    if (!hasPassage) {
+      // We're on welcome screen - load a simple valid document first
+      const simpleXml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Test</title></titleStmt>
+      <publicationStmt><publisher>Test</publisher><date>2024</date></publicationStmt>
+      <sourceDesc><p>Test</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text><body><p>Initial document</p></body></text>
+</TEI>`;
+
+      await uploadTestDocument(page, {
+        name: 'initial-test.tei.xml',
+        content: simpleXml,
+      });
+
+      // Wait for document to load
+      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 10000 });
+      await page.waitForTimeout(500);
+    }
   });
 
   test('should validate dialogue document with tei-minimal schema', async ({ page }) => {
@@ -447,10 +474,39 @@ test.describe('Schema Validation - Complete Integration', () => {
 });
 
 test.describe('Schema Validation - Error Cases', () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate to home page and wait for it to load
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Check if we need to load a document
+    const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+
+    if (!hasPassage) {
+      // Load initial document
+      const simpleXml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Test</title></titleStmt>
+      <publicationStmt><publisher>Test</publisher><date>2024</date></publicationStmt>
+      <sourceDesc><p>Test</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text><body><p>Initial document</p></body></text>
+</TEI>`;
+
+      await uploadTestDocument(page, {
+        name: 'initial-test.tei.xml',
+        content: simpleXml,
+      });
+
+      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 10000 });
+      await page.waitForTimeout(500);
+    }
+  });
+
   test('should handle schema that doesn\'t match document type', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.waitForDocumentLoaded();
 
     // Create document with dialogue elements
     const dialogueXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -568,10 +624,39 @@ test.describe('Schema Validation - Error Cases', () => {
 });
 
 test.describe('Schema Selection - User Experience', () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate to home page and wait for it to load
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Check if we need to load a document
+    const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+
+    if (!hasPassage) {
+      // Load initial document
+      const simpleXml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Test</title></titleStmt>
+      <publicationStmt><publisher>Test</publisher><date>2024</date></publicationStmt>
+      <sourceDesc><p>Test</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text><body><p>Initial document</p></body></text>
+</TEI>`;
+
+      await uploadTestDocument(page, {
+        name: 'initial-test.tei.xml',
+        content: simpleXml,
+      });
+
+      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 10000 });
+      await page.waitForTimeout(500);
+    }
+  });
+
   test('should have intuitive default schema selection', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.waitForDocumentLoaded();
 
     // Open validation panel
     await page.getByRole('button', { name: 'Validation' }).click();
