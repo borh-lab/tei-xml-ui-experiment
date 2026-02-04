@@ -5,15 +5,13 @@ import { test, expect } from '@playwright/test';
  *
  * These tests generate WebM videos for documentation purposes.
  * Videos are saved to test-results/ and can be moved to docs/videos/
+ *
+ * Run with: bun run test:e2e --project=doc-videos
  */
-
-test.use({
-  video: 'on', // Enable video recording for all tests in this file
-});
 
 test.beforeEach(async ({ page }) => {
   // Clear localStorage for fresh state
-  await page.goto('http://localhost:3000/');
+  await page.goto('/');
   await page.evaluate(() => {
     localStorage.clear();
   });
@@ -21,7 +19,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Documentation Videos', () => {
   test('test-basic', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(3000);
     await page.keyboard.press('j');
@@ -33,7 +31,7 @@ test.describe('Documentation Videos', () => {
   });
 
   test('command-palette', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
     await page.keyboard.press('Meta+k');
@@ -42,7 +40,7 @@ test.describe('Documentation Videos', () => {
   });
 
   test('bulk-operations', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
     await page.keyboard.press('Meta+b');
@@ -51,7 +49,7 @@ test.describe('Documentation Videos', () => {
   });
 
   test('keyboard-shortcuts', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
     await page.keyboard.press('?');
@@ -60,7 +58,7 @@ test.describe('Documentation Videos', () => {
   });
 
   test('character-network', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.getByRole('button', { name: /Visualizations/i }).click();
     await expect(page.getByText('Character Network')).toBeVisible();
@@ -68,7 +66,7 @@ test.describe('Documentation Videos', () => {
   });
 
   test('annotation-workflow', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.locator('.passage').first().click();
     await page.waitForTimeout(500);
@@ -81,7 +79,7 @@ test.describe('Documentation Videos', () => {
   });
 
   test('ai-assisted-session', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.getByRole('button', { name: /AI Suggest/i }).click();
     await expect(page.getByText('AI Suggestions')).toBeVisible({ timeout: 10000 });
