@@ -9,7 +9,7 @@
  */
 
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import crypto from 'crypto';
+import { nanoid } from 'nanoid';
 import {
   TEIDocument,
   DocumentState,
@@ -48,7 +48,7 @@ function generatePassageId(content: string, index: number): PassageID {
  * Generate unique tag ID using UUID
  */
 function generateTagId(): TagID {
-  return `tag-${crypto.randomUUID()}` as TagID;
+  return `tag-${nanoid()}` as TagID;
 }
 
 /**
@@ -174,7 +174,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${crypto.randomUUID()}` as TagID,
+        id: `tag-${nanoid()}` as TagID,
         type: 'said',
         range,
         attributes: {
@@ -196,7 +196,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${crypto.randomUUID()}` as TagID,
+        id: `tag-${nanoid()}` as TagID,
         type: 'q',
         range,
         attributes: {},
@@ -214,7 +214,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${crypto.randomUUID()}` as TagID,
+        id: `tag-${nanoid()}` as TagID,
         type: 'persName',
         range,
         attributes: {
@@ -245,7 +245,7 @@ function extractCharacters(parsed: TEINode): readonly Character[] {
   const personArray = Array.isArray(persons) ? persons : [persons];
 
   return personArray.map((person: any) => {
-    const xmlId = person['@_xml:id'] || person['xml:id'] || `char-${crypto.randomUUID()}`;
+    const xmlId = person['@_xml:id'] || person['xml:id'] || `char-${nanoid()}`;
 
     return {
       id: `char-${xmlId}` as CharacterID,
@@ -441,7 +441,7 @@ export function addTag(
     throw new Error(`Passage not found: ${passageId}`);
   }
 
-  const tagId = `tag-${crypto.randomUUID()}` as TagID;
+  const tagId = `tag-${nanoid()}` as TagID;
   const newTag: Tag = {
     id: tagId,
     type: tagName as any, // Cast to Tag type union
