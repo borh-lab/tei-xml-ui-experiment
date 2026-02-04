@@ -55,7 +55,7 @@ function formatTimestamp(): string {
  * @param context - Optional context object
  * @returns Formatted log string
  */
-function formatLogEntry(level: string, message: string, context?: Record<string, any>): string {
+function formatLogEntry(level: string, message: string, context?: Record<string, unknown>): string {
   const timestamp = formatTimestamp();
   const levelStr = level.toUpperCase().padEnd(5);
   return `[${timestamp}] [${levelStr}] ${message}`;
@@ -66,14 +66,14 @@ function formatLogEntry(level: string, message: string, context?: Record<string,
  * @param data - Data to stringify
  * @returns Stringified data or placeholder
  */
-function safeStringify(data: any): string {
+function safeStringify(data: unknown): string {
   if (data === undefined) {
     return '';
   }
 
   try {
     return JSON.stringify(data, null, 2);
-  } catch (error) {
+  } catch {
     // Handle circular references or other stringify errors
     return '[Circular or unstringifiable data]';
   }
@@ -83,9 +83,9 @@ function safeStringify(data: any): string {
  * Logger class with contextual logging support
  */
 export class Logger {
-  private context: Record<string, any>;
+  private context: Record<string, unknown>;
 
-  constructor(context: Record<string, any> = {}) {
+  constructor(context: Record<string, unknown> = {}) {
     this.context = context;
   }
 
@@ -94,7 +94,7 @@ export class Logger {
    * @param additionalContext - Context to add to this logger
    * @returns New logger with merged context
    */
-  withContext(additionalContext: Record<string, any>): Logger {
+  withContext(additionalContext: Record<string, unknown>): Logger {
     return new Logger({
       ...this.context,
       ...additionalContext,
@@ -106,7 +106,7 @@ export class Logger {
    * @param message - Log message
    * @param data - Optional data to log
    */
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: unknown): void {
     if (LOG_LEVELS[currentLogLevel] <= LOG_LEVELS.debug) {
       const formatted = formatLogEntry('DEBUG', message, this.context);
       const mergedData = data ? { ...this.context, ...data } : this.context;
@@ -124,7 +124,7 @@ export class Logger {
    * @param message - Log message
    * @param data - Optional data to log
    */
-  info(message: string, data?: any): void {
+  info(message: string, data?: unknown): void {
     if (LOG_LEVELS[currentLogLevel] <= LOG_LEVELS.info) {
       const formatted = formatLogEntry('INFO', message, this.context);
       const mergedData = data ? { ...this.context, ...data } : this.context;
@@ -142,7 +142,7 @@ export class Logger {
    * @param message - Log message
    * @param data - Optional data to log
    */
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: unknown): void {
     if (LOG_LEVELS[currentLogLevel] <= LOG_LEVELS.warn) {
       const formatted = formatLogEntry('WARN', message, this.context);
       const mergedData = data ? { ...this.context, ...data } : this.context;
@@ -160,7 +160,7 @@ export class Logger {
    * @param message - Log message
    * @param error - Optional error object or data
    */
-  error(message: string, error?: any): void {
+  error(message: string, error?: Error | unknown): void {
     if (LOG_LEVELS[currentLogLevel] <= LOG_LEVELS.error) {
       const formatted = formatLogEntry('ERROR', message, this.context);
 
