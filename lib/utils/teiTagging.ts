@@ -3,9 +3,24 @@
  */
 
 /**
+ * Represents a TEI paragraph element
+ */
+interface TEIParagraph {
+  '#text'?: string;
+  [key: string]: string | string[] | TEIParagraph | undefined;
+}
+
+/**
+ * Represents a TEI element with attributes
+ */
+interface TEIElement {
+  [key: string]: string | undefined;
+}
+
+/**
  * Extracts text content from a paragraph, handling both string and object formats
  */
-export function getParagraphText(para: any): string {
+export function getParagraphText(para: string | TEIParagraph): string {
   if (typeof para === 'string') {
     return para;
   }
@@ -24,7 +39,7 @@ export function getParagraphText(para: any): string {
         if (typeof value === 'string') {
           text += value;
         } else if (Array.isArray(value)) {
-          value.forEach((item: any) => {
+          value.forEach((item: string | TEIParagraph) => {
             if (typeof item === 'string') {
               text += item;
             } else if (item && item['#text']) {
@@ -46,11 +61,11 @@ export function getParagraphText(para: any): string {
  * Applies a TEI tag to a specific text within a paragraph
  */
 export function applyTagToParagraph(
-  para: any,
+  para: string | TEIParagraph,
   selectedText: string,
   tag: string,
   attrs?: Record<string, string>
-): any {
+): string | TEIParagraph {
   // If paragraph is a simple string, convert to object structure
   if (typeof para === 'string') {
     const index = para.indexOf(selectedText);
@@ -65,7 +80,7 @@ export function applyTagToParagraph(
     const after = para.substring(index + selectedText.length);
 
     // Create new tagged element structure
-    const taggedElement: any = {};
+    const taggedElement: TEIElement = {};
     taggedElement[`#${tag}`] = selectedText;
 
     // Add attributes if provided (convert to fast-xml-parser format)
@@ -79,7 +94,7 @@ export function applyTagToParagraph(
     }
 
     // Return mixed content array: [beforeText, taggedElement, afterText]
-    const result: any[] = [];
+    const result: (string | TEIElement)[] = [];
     if (before) result.push(before);
     result.push(taggedElement);
     if (after) result.push(after);
@@ -101,7 +116,7 @@ export function applyTagToParagraph(
       const after = fullText.substring(index + selectedText.length);
 
       // Create new object with tagged element
-      const result: any = {};
+      const result: TEIParagraph = {};
 
       // Copy all existing attributes
       Object.entries(para).forEach(([key, value]) => {
@@ -111,10 +126,10 @@ export function applyTagToParagraph(
       });
 
       // Build mixed content
-      const content: any[] = [];
+      const content: (string | TEIElement)[] = [];
       if (before) content.push(before);
 
-      const taggedElement: any = {};
+      const taggedElement: TEIElement = {};
       taggedElement[`#${tag}`] = selectedText;
 
       // Add attributes
@@ -151,7 +166,7 @@ export function applyTagToParagraph(
             const before = itemText.substring(0, itemText.indexOf(selectedText));
             const after = itemText.substring(itemText.indexOf(selectedText) + selectedText.length);
 
-            const taggedElement: any = {};
+            const taggedElement: TEIElement = {};
             taggedElement[`#${tag}`] = selectedText;
 
             if (attrs) {
@@ -164,7 +179,7 @@ export function applyTagToParagraph(
 
             // Replace the current item with split content
             const newContent = [...content];
-            const replacement: any[] = [];
+            const replacement: (string | TEIElement)[] = [];
 
             if (before) replacement.push(before);
             replacement.push(taggedElement);
@@ -173,7 +188,7 @@ export function applyTagToParagraph(
             newContent.splice(i, 1, ...replacement);
 
             // Return updated paragraph
-            const result: any = {};
+            const result: TEIParagraph = {};
             Object.entries(para).forEach(([key, value]) => {
               if (key === contentKey) {
                 result[key] = newContent;
