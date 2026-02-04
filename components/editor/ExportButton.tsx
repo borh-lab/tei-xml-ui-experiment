@@ -5,14 +5,13 @@ import { Button } from '@/components/ui/button';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { exportToHTML, downloadFile } from '@/lib/tei/export';
 import { serializeDocument } from '@/lib/tei/operations';
-import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 /**
- * ExportButton - Effect-based version
+ * ExportButton
  *
- * Uses useDocumentService hook instead of React Context.
+ * Uses Effect-based useDocumentService hook.
  */
-export function EffectExportButton() {
+export function ExportButton() {
   const { document } = useDocumentService();
 
   const handleExportHTML = () => {
@@ -39,18 +38,4 @@ export function EffectExportButton() {
   );
 }
 
-/**
- * ExportButton with feature flag support
- *
- * Automatically switches between React and Effect implementations
- * based on useEffectExport feature flag.
- */
-export default function ExportButton() {
-  if (isFeatureEnabled('useEffectExport')) {
-    return <EffectExportButton />;
-  }
-
-  // Fall back to React version
-  const ReactExportButton = require('./ExportButton.react').ExportButton;
-  return <ReactExportButton />;
-}
+export default ExportButton;

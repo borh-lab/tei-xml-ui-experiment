@@ -2,7 +2,7 @@
  * ValidationService Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { Effect } from 'effect';
 import { ValidationService } from '@/lib/effect/protocols/Validation';
 import { TestValidationService } from '@/lib/effect/services/ValidationService';

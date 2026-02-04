@@ -2,7 +2,7 @@
  * AIService Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { Effect } from 'effect';
 import { AIService } from '@/lib/effect/protocols/AI';
 import { TestAIService } from '@/lib/effect/services/AIService';

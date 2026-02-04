@@ -4,7 +4,7 @@
  * Comprehensive unit tests for DocumentService protocol.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { Effect } from 'effect';
 import { DocumentService } from '@/lib/effect/protocols/Document';
 import { TestDocumentService } from '@/lib/effect/services/DocumentService';

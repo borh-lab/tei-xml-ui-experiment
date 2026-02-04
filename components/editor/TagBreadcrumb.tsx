@@ -3,14 +3,18 @@
 import React from 'react';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import type { TagInfo } from '@/lib/selection/types';
-import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
+
+interface TagBreadcrumbProps {
+  onTagSelect?: (tag: TagInfo) => void;
+}
 
 /**
- * TagBreadcrumb - Effect-based version
+ * TagBreadcrumb
  *
  * Displays breadcrumb trail of selected tags with navigation.
+ * Uses Effect-based useDocumentService hook.
  */
-export function EffectTagBreadcrumb() {
+export function TagBreadcrumb({ onTagSelect }: TagBreadcrumbProps) {
   const { document } = useDocumentService();
   const [selectedTag, setSelectedTag] = React.useState<TagInfo | null>(null);
 
@@ -38,15 +42,4 @@ export function EffectTagBreadcrumb() {
   );
 }
 
-/**
- * TagBreadcrumb with feature flag support
- */
-export default function TagBreadcrumb(props: any) {
-  if (isFeatureEnabled('useEffectTagToolbar')) {
-    return <EffectTagBreadcrumb {...props} />;
-  }
-
-  // Fall back to React version
-  const ReactTagBreadcrumb = require('./TagBreadcrumb.react').TagBreadcrumb;
-  return <ReactTagBreadcrumb {...props} />;
-}
+export default TagBreadcrumb;
