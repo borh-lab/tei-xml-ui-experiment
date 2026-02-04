@@ -16,9 +16,19 @@ export class EditorPage {
     const hasLoaded = await hasDocumentLoaded(this.page);
 
     if (!hasLoaded) {
-      // If no document is auto-loaded, we're on the welcome screen
-      // Wait for user to load a sample or document
-      await expect(this.page.getByText(/Sample Gallery/i)).toBeVisible();
+      // No document loaded, we're on welcome screen
+      // Load a sample to get into editor mode
+      const loadButton = this.page.getByRole('button', { name: 'Load Sample' }).first();
+      const buttonCount = await loadButton.count();
+
+      if (buttonCount > 0) {
+        await loadButton.click();
+        await this.page.waitForLoadState('networkidle');
+        await waitForEditorReady(this.page);
+      } else {
+        // No sample available, this is a test setup issue
+        throw new Error('No Load Sample button available - cannot initialize tests');
+      }
     } else {
       // Document is auto-loaded, ensure editor is ready
       await waitForEditorReady(this.page);

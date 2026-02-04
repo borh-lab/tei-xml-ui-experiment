@@ -6,30 +6,46 @@ import { join } from 'path';
  * Uploads a test document to the editor
  */
 export async function uploadTestDocument(page: Page, doc: { name: string; content: string }): Promise<void> {
-  // First, ensure we're in editor mode (not gallery) by checking if FileUpload button exists
-  const hasFileUpload = await page.locator('input[type="file"]').count();
+  // Check if a document is already loaded
+  const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
 
-  if (hasFileUpload === 0) {
-    // We're on the gallery page, need to load a sample first to get the FileUpload button
-    // Check if a document has already auto-loaded
-    const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+  if (!hasDocument) {
+    // No document loaded, we need to get to the editor first
+    // Navigate to home page if not already there
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
-    if (!hasDocument) {
-      // No auto-loaded document, load a sample manually
-      await page.getByText('The Gift of the Magi', { exact: false }).click();
-      await page.waitForSelector('button:has-text("Load Sample")', { timeout: 5000 });
-      await page.getByRole('button', { name: 'Load Sample' }).click();
+    // Try to load a sample to get into editor mode
+    // The SampleGallery has cards with "Load Sample" buttons
+    // Find any "Load Sample" button and click it
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+
+    const buttonCount = await loadButton.count();
+    if (buttonCount > 0) {
+      await loadButton.click();
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 });
+      await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 10000 });
+    } else {
+      // No Load Sample button found, try direct file upload
+      const fileInput = page.locator('input[type="file"]');
+      const hasFileInput = await fileInput.count();
+
+      if (hasFileInput === 0) {
+        throw new Error('Cannot load document - no Load Sample button and no file input visible');
+      }
     }
-    // If document auto-loaded, FileUpload component should already be visible
   }
 
+  // Now upload the test document
   const tempPath = join(process.cwd(), 'tests/fixtures', 'temp-test.tei.xml');
   writeFileSync(tempPath, doc.content);
 
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles(tempPath);
+
+  // Wait for document to be processed
+  await page.waitForTimeout(500);
+  await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 10000 });
 
   // Clean up
   unlinkSync(tempPath);
