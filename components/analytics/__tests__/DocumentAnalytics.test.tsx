@@ -30,6 +30,10 @@ const mockDocument: TEIDocument = {
       { id: '1', speaker: 'alice', content: 'Hello bob', passageId: 'p1', range: { start: 0, end: 10 } },
       { id: '2', speaker: 'bob', content: 'Hi alice', passageId: 'p1', range: { start: 11, end: 20 } }
     ],
+    passages: [
+      { id: 'p1', index: 0, content: 'Text', tags: [] },
+      { id: 'p2', index: 1, content: 'More text', tags: [] }
+    ],
     characters: []
   }
 } as any;
@@ -48,7 +52,7 @@ jest.mock('@/lib/effect', () => ({
 }));
 
 describe('DocumentAnalytics', () => {
-  it('should display rankings after analysis', async () => {
+  it('should display rankings and sectional breakdown after analysis', async () => {
     render(<DocumentAnalytics />);
 
     // Wait for async analysis to complete
@@ -57,5 +61,8 @@ describe('DocumentAnalytics', () => {
     expect(screen.getByText('Top Speakers')).toBeInTheDocument();
     // Conversation matrix shows "No conversations found" when no addressees
     expect(screen.getByText('No conversations found')).toBeInTheDocument();
+    // Sectional breakdown should be visible with "By Chapter" or "By Passage" buttons
+    const chapterButton = await screen.findByText(/Chapter/i);
+    expect(chapterButton).toBeInTheDocument();
   });
 });

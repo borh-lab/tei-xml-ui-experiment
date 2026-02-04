@@ -3,14 +3,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDocumentService } from '@/lib/effect';
 import { extractQuotes, calculateRankings, buildConversationMatrix, lookupCharacterName } from '@/lib/analytics/document';
+import { groupDialogueBySections, calculateSectionStats, ByPassage } from '@/lib/analytics/sectional';
 import { CharacterRankings } from './CharacterRankings';
 import { ConversationMatrix } from './ConversationMatrix';
-import type { CharacterRanking, ConversationMatrix as MatrixType } from '@/lib/analytics/types';
+import { SectionalBreakdown } from './SectionalBreakdown';
+import type { CharacterRanking, ConversationMatrix as MatrixType, SectionGroupingStrategy, SectionalBreakdown } from '@/lib/analytics/types';
 
 type State =
   | { status: 'idle' }
   | { status: 'analyzing' }
-  | { status: 'analyzed'; rankings: readonly CharacterRanking[]; matrix: MatrixType }
+  | { status: 'analyzed';
+      rankings: readonly CharacterRanking[];
+      matrix: MatrixType;
+      sectionalStats: SectionalBreakdown;
+      groupingStrategy: SectionGroupingStrategy;
+    }
   | { status: 'error'; error: string };
 
 export function DocumentAnalytics() {
@@ -34,10 +41,20 @@ export function DocumentAnalytics() {
       );
       const matrix = buildConversationMatrix(quotes);
 
+      // Calculate sectional breakdown
+      const groups = groupDialogueBySections(
+        document.state.dialogue,
+        document.state.passages,
+        ByPassage
+      );
+      const sectionalStats = calculateSectionStats(groups);
+
       setState({
         status: 'analyzed',
         rankings,
-        matrix
+        matrix,
+        sectionalStats,
+        groupingStrategy: ByPassage
       });
     } catch (error) {
       setState({
@@ -69,6 +86,25 @@ export function DocumentAnalytics() {
     <div className="space-y-6">
       <CharacterRankings rankings={state.rankings} />
       <ConversationMatrix matrix={state.matrix} />
+      <SectionalBreakdown
+        breakdown={state.sectionalStats}
+        currentStrategy={state.groupingStrategy}
+        onStrategyChange={(strategy) => {
+          if (!document) return;
+
+          const groups = groupDialogueBySections(
+            document.state.dialogue,
+            document.state.passages,
+            strategy
+          );
+          const newStats = calculateSectionStats(groups);
+
+          setState(prev => prev.status === 'analyzed'
+            ? { ...prev, sectionalStats: newStats, groupingStrategy: strategy }
+            : prev
+          );
+        }}
+      />
     </div>
   );
 }
