@@ -23,11 +23,6 @@ export const EncodingType = Schema.Union(
 export type EncodingType = typeof EncodingType.Type;
 
 // Document ID as value type - explicitly scoped to corpus
-export interface DocumentId {
-  readonly corpus: CorpusId;
-  readonly path: string;
-}
-
 export const DocumentId = Schema.Class<DocumentId>('DocumentId')({
   corpus: CorpusId,
   path: Schema.String,
@@ -49,17 +44,17 @@ export interface CorpusDataSource {
    * Get corpus metadata - loaded on demand.
    * Returns Effect because this requires file I/O.
    */
-  getCorpusMetadata(corpus: CorpusId): Effect<CorpusMetadata, DataSourceError>;
+  getCorpusMetadata(corpus: CorpusId): Effect.Effect<CorpusMetadata, DataSourceErrorType>;
 
   /**
    * Get document metadata - loaded on demand.
    */
-  getDocumentMetadata(docId: DocumentId): Effect<DocumentMetadata, DataSourceError>;
+  getDocumentMetadata(docId: DocumentId): Effect.Effect<DocumentMetadata, DataSourceErrorType>;
 
   /**
    * Get document content - loaded on demand.
    */
-  getDocumentContent(docId: DocumentId): Effect<string, DataSourceError>;
+  getDocumentContent(docId: DocumentId): Effect.Effect<string, DataSourceErrorType>;
 
   /**
    * List all documents in a corpus - paginated to avoid memory issues.
@@ -67,7 +62,7 @@ export interface CorpusDataSource {
   listDocuments(
     corpus: CorpusId,
     options: { readonly page: number; readonly pageSize: number }
-  ): Effect<readonly DocumentId[], DataSourceError>;
+  ): Effect.Effect<readonly DocumentId[], DataSourceErrorType>;
 
   /**
    * Query documents by encoding type - paginated.
@@ -76,7 +71,7 @@ export interface CorpusDataSource {
     corpus: CorpusId,
     encoding: EncodingType,
     options: { readonly page: number; readonly pageSize: number }
-  ): Effect<readonly DocumentId[], DataSourceError>;
+  ): Effect.Effect<readonly DocumentId[], DataSourceErrorType>;
 }
 
 // ============================================================================
@@ -118,6 +113,7 @@ export const DataSourceError = Schema.Union(
     cause: Schema.Unknown,
   })
 );
+export type DataSourceErrorType = typeof DataSourceError.Type;
 
 // ============================================================================
 // Context Tag for Dependency Injection
