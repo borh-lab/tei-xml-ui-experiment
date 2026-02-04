@@ -3,6 +3,8 @@
  * All types use readonly interfaces for immutability.
  */
 
+import type { Dialogue, Passage } from '../tei/types';
+
 export interface Quote {
   readonly id: string;
   readonly speaker: string;
@@ -43,3 +45,37 @@ export interface NovelMetadata {
 export type ComparisonResult =
   | { readonly _tag: 'available'; readonly percentiles: ReadonlyMap<string, number> }
   | { readonly _tag: 'unavailable'; readonly reason: string };
+
+/**
+ * Section grouping result
+ */
+export interface SectionGroup {
+  readonly label: string;
+  readonly startIndex: number;
+  readonly endIndex: number;
+  readonly dialogueItems: readonly Dialogue[];
+}
+
+/**
+ * Section grouping strategy protocol
+ */
+export interface SectionGroupingStrategy {
+  readonly name: string;
+  readonly description?: string;
+  readonly group: (
+    dialogue: readonly Dialogue[],
+    passages: readonly Passage[]
+  ) => readonly SectionGroup[];
+}
+
+/**
+ * Sectional breakdown statistics
+ */
+export interface SectionalBreakdown {
+  readonly groups: readonly {
+    readonly label: string;
+    readonly quoteCount: number;
+    readonly percent: number;
+  }[];
+  readonly totalQuotes: number;
+}
