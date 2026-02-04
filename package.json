@@ -26,6 +26,7 @@
     "corpus:setup": "scripts/setup-corpora.sh",
     "corpus:analyze": "bun scripts/analyze-corpora.ts",
     "corpus:split": "bun scripts/generate-splits.ts",
+    "corpus:convert-novel-dialogism": "bun scripts/convert-novel-dialogism.ts",
     "corpus:all": "bun run corpus:setup && bun run corpus:analyze && bun run corpus:split"
   },
   "dependencies": {
