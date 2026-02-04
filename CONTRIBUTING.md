@@ -6,8 +6,17 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Prerequisites
 
+**Option 1: Bun (Recommended)**
+- Bun 1.0 or higher
+- Git
+
+**Option 2: npm**
 - Node.js 18 or higher
 - npm (comes with Node.js)
+- Git
+
+**Option 3: Nix (Reproducible Environment)**
+- Nix with flakes enabled
 - Git
 
 ### Getting Started
@@ -19,8 +28,22 @@ Thank you for your interest in contributing! This document provides guidelines f
    ```
 
 2. **Install dependencies**
+
+   **With Bun (Recommended - much faster):**
+   ```bash
+   bun install
+   ```
+
+   **With npm:**
    ```bash
    npm install
+   ```
+
+   **With Nix (automatic dependency setup):**
+   ```bash
+   nix develop
+   # Or with direnv:
+   direnv allow
    ```
 
 3. **Create a feature branch**
@@ -29,11 +52,28 @@ Thank you for your interest in contributing! This document provides guidelines f
    ```
 
 4. **Start development server**
+
+   **With Bun:**
+   ```bash
+   bun run dev
+   ```
+
+   **With npm:**
    ```bash
    npm run dev
    ```
 
    The application will be available at [http://localhost:3000](http://localhost:3000)
+
+### Why Bun?
+
+Bun is recommended for development because it's:
+- **10-100x faster** than npm for installs
+- **Native TypeScript support** - no transpilation needed
+- **Compatible** with Node.js ecosystem and package.json
+- **Faster runtime** - Uses JIT compilation for faster execution
+
+All npm scripts work with `bun run` instead of `npm run`.
 
 ## Project Structure
 
@@ -91,14 +131,17 @@ This project follows TDD practices:
 ### Running Tests
 
 ```bash
-# Run all tests
+# With Bun (recommended - faster)
+bun test
+
+# With npm
 npm test
 
 # Run tests in watch mode
-npm test -- --watch
+bun test -- --watch  # or npm test -- --watch
 
 # Run tests with coverage
-npm test -- --coverage
+bun test -- --coverage
 ```
 
 ### Writing Tests
@@ -163,15 +206,26 @@ refactor(selection): extract text range utilities
 
 1. **Ensure tests pass**
    ```bash
-   npm test
-   npm run build
+   bun test           # or npm test
+   bun run build      # or npm run build
    ```
 
-2. **Update documentation** if you've changed functionality
+2. **Run linting** (if you have pre-commit hooks installed via Nix)
+   Pre-commit hooks will automatically run when you enter the Nix dev shell:
+   ```bash
+   nix develop
+   ```
+
+   Or manually:
+   ```bash
+   bun run lint       # or npm run lint
+   ```
+
+3. **Update documentation** if you've changed functionality
    - Update README.md for user-facing changes
    - Add comments for complex logic
 
-3. **Write descriptive commit messages**
+4. **Write descriptive commit messages**
    - Use conventional commit format
    - Reference related issues
 

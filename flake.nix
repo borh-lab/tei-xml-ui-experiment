@@ -8,6 +8,8 @@
     fenix.inputs.nixpkgs.follows = "nixpkgs";
     playwright.url = "github:pietdevries94/playwright-web-flake";
     playwright.inputs.nixpkgs.follows = "nixpkgs";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+    pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -17,6 +19,7 @@
       flake-utils,
       fenix,
       playwright,
+      pre-commit-hooks,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -30,6 +33,30 @@
         };
         rustToolchain = fenix.packages.${system}.stable.toolchain;
         wasmTargets = fenix.packages.${system}.targets.wasm32-unknown-unknown.stable.toolchain;
+
+        # Pre-commit hooks configuration
+        pre-commit-check = pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            eslint = {
+              enable = true;
+              entry = "bun run lint";
+              passes = 3;
+              files = "\\.(jsx?|tsx?|cts?|mts?)$";
+            };
+            prettier = {
+              enable = false; # Enable if you add Prettier
+              entry = "bun prettier --check";
+              files = "\\.(jsx?|tsx?|css|md|json)$";
+            };
+            trailing-whitespace = {
+              enable = true;
+            };
+            end-of-file-fixer = {
+              enable = true;
+            };
+          };
+        };
       in
       {
         devShells.default = pkgs.mkShell {
@@ -39,9 +66,12 @@
             bun
             git
             wasm-pack
-          ];
+          ] ++ pre-commit-check.enabledPackages;
 
           shellHook = ''
+            # Run pre-commit checks
+            ${pre-commit-check.shellHook}
+
             # Override nixpkgs rust with fenix toolchains
             export PATH="${rustToolchain}/bin:${wasmTargets}/bin:$PATH"
             # Explicitly set RUSTC and CARGO to ensure fenix versions are used
@@ -78,10 +108,9 @@
             echo "E2E Testing:"
             echo "  npm run test:e2e - Run Playwright tests"
             echo ""
-            echo "WASM Build:"
-            echo "  cd pattern-engine && wasm-pack build --target web --out-dir ../public/wasm"
-            echo ""
+            echo "Pre-commit hooks installed (run on 'nix develop')"
           '';
+        };
         };
 
         packages.default = pkgs.mkShell {
