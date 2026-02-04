@@ -15,9 +15,18 @@ const parser = new XMLParser({
 export function findXMLFiles(dir: string): string[] {
   const files: string[] = [];
   const entries = readdirSync(dir, { withFileTypes: true });
+
+  // Directories to exclude from corpus analysis
+  const excludedDirs = new Set(['toolbox', '.git', 'node_modules']);
+
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
+
     if (entry.isDirectory()) {
+      // Skip excluded directories
+      if (excludedDirs.has(entry.name)) {
+        continue;
+      }
       files.push(...findXMLFiles(fullPath));
     } else if (entry.name.endsWith('.xml')) {
       files.push(fullPath);

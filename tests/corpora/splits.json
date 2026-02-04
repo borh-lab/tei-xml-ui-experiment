@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-02-04T11:01:42.686Z",
+  "generatedAt": "2026-02-04T11:21:34.892Z",
   "config": {
     "train": 0.7,
     "validation": 0.15,
@@ -40,33 +40,31 @@
     },
     "tei-texts": {
       "train": [
-        "french/romans/xml/Maupt_Vie.xml",
-        "french/romans/xml/Zola_Nana.xml",
-        "french/romans/xml/Flaubert_Sallambo.xml",
-        "french/romans/xml/Flaubert_Education.xml",
-        "french/romans/xml/Flaubert_Bovary.xml",
-        "french/romans/xml/Maupt_BelAmi.xml",
-        "toolbox/teiheader.xml",
         "french/romans/xml/Zola_Bete.xml",
+        "french/romans/xml/Flaubert_Bovary.xml",
+        "french/romans/xml/Zola_Ventre.xml",
+        "french/romans/xml/Flaubert_Education.xml",
+        "french/romans/xml/Flaubert_Sallambo.xml",
+        "french/romans/xml/Maupt_Pierre.xml",
         "french/romans/xml/Flaubert_Bouvard.xml",
-        "french/romans/xml/Maupt_Fort.xml",
-        "french/romans/xml/Maupt_Pierre.xml"
+        "french/romans/xml/Maupt_BelAmi.xml",
+        "french/romans/xml/Maupt_Mont.xml"
       ],
       "validation": [
-        "french/romans/xml/Maupt_Mont.xml",
-        "french/romans/xml/Zola_Germinal.xml"
+        "french/romans/xml/Maupt_Fort.xml",
+        "french/romans/xml/Maupt_Vie.xml"
       ],
       "test": [
-        "french/romans/xml/Zola_Ventre.xml",
-        "french/romans/xml/Zola_Oeuvre.xml",
-        "toolbox/Zola_Nana.xml"
+        "french/romans/xml/Zola_Nana.xml",
+        "french/romans/xml/Zola_Germinal.xml",
+        "french/romans/xml/Zola_Oeuvre.xml"
       ],
       "excluded": []
     }
   },
   "summary": {
-    "totalDocuments": 16,
-    "trainCount": 11,
+    "totalDocuments": 14,
+    "trainCount": 9,
     "valCount": 2,
     "testCount": 3,
     "excludedCount": 0
