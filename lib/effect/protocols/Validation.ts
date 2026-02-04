@@ -102,7 +102,7 @@ export interface ValidationService {
    * Validate TEI document (parsed)
    */
   readonly validateTEIDocument: (
-    document: any,
+    document: unknown,
     schemaPath: string
   ) => Effect.Effect<ValidationResult, ValidationError>;
 
