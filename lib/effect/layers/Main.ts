@@ -5,11 +5,11 @@
  * This provides all Effect services to the application.
  */
 
-import { Layer, Runtime } from 'effect';
-import { DocumentService } from './services/DocumentService';
-import { StorageService } from './services/StorageService';
-import { ValidationService } from './services/ValidationService';
-import { AIService } from './services/AIService';
+import { Layer } from 'effect';
+import { DocumentService, DocumentServiceLive, TestDocumentService } from '../services/DocumentService';
+import { StorageService, StorageServiceLive, BrowserStorageService, TestStorageService } from '../services/StorageService';
+import { ValidationService, ValidationServiceLive, BrowserValidationService, TestValidationService } from '../services/ValidationService';
+import { AIService, AIServiceLive, OpenAIService, TestAIService } from '../services/AIService';
 
 /**
  * Main Layer
@@ -24,44 +24,14 @@ export const MainLayer = Layer.mergeAll(
   AIServiceLive
 );
 
-/**
- * Effect Runtime
- *
- * Default runtime configured with all services.
- * Use this to run Effect programs in React components.
- */
-export const effectRuntime = Runtime.defaultRuntime.pipe(
-  Runtime.provideLayers(MainLayer)
-);
-
-/**
- * Run Effect Program
- *
- * Convenience function to run Effect programs with all services provided.
- *
- * @example
- * ```tsx
- * import { runEffect } from '@/lib/effect/layers/Main';
- *
- * const result = await runEffect(
- *   DocumentService.getDocument()
- * );
- * ```
- */
-export async function runEffect<A>(program: Effect.Effect<A>): Promise<A> {
-  return Effect.runPromise(program, {
-    runtime: effectRuntime,
-  });
-}
-
 // Re-export service implementations
-export { DocumentServiceLive, TestDocumentService } from './services/DocumentService';
-export { BrowserStorageService, TestStorageService } from './services/StorageService';
-export { BrowserValidationService, TestValidationService } from './services/ValidationService';
-export { OpenAIService, TestAIService } from './services/AIService';
+export { DocumentServiceLive, TestDocumentService } from '../services/DocumentService';
+export { BrowserStorageService, TestStorageService } from '../services/StorageService';
+export { BrowserValidationService, TestValidationService } from '../services/ValidationService';
+export { OpenAIService, TestAIService } from '../services/AIService';
 
 // Re-export protocols
-export { DocumentService } from './protocols/Document';
-export { StorageService } from './protocols/Storage';
-export { ValidationService } from './protocols/Validation';
-export { AIService } from './protocols/AI';
+export { DocumentService } from '../protocols/Document';
+export { StorageService } from '../protocols/Storage';
+export { ValidationService } from '../protocols/Validation';
+export { AIService } from '../protocols/AI';

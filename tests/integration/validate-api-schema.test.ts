@@ -12,7 +12,7 @@ describe('/api/validate with schema selection', () => {
     const resolver = createDefaultResolver();
     const schemaPath = resolver.resolve('tei-minimal');
 
-    expect(schemaPath).toBe('/schemas/tei-minimal.rng');
+    expect(schemaPath).toBe('public/schemas/tei-minimal.rng');
   });
 
   it('should reject unknown schema ID', () => {
@@ -26,13 +26,13 @@ describe('/api/validate with schema selection', () => {
     const resolver = createDefaultResolver();
 
     expect(resolver.has('tei-all')).toBe(true);
-    expect(resolver.resolve('tei-all')).toBe('/schemas/tei-all.rng');
+    expect(resolver.resolve('tei-all')).toBe('public/schemas/tei-all.rng');
 
     expect(resolver.has('tei-minimal')).toBe(true);
-    expect(resolver.resolve('tei-minimal')).toBe('/schemas/tei-minimal.rng');
+    expect(resolver.resolve('tei-minimal')).toBe('public/schemas/tei-minimal.rng');
 
     expect(resolver.has('tei-novel')).toBe(true);
-    expect(resolver.resolve('tei-novel')).toBe('/schemas/tei-novel.rng');
+    expect(resolver.resolve('tei-novel')).toBe('public/schemas/tei-novel.rng');
   });
 
   it('should list available schemas', () => {
