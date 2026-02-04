@@ -73,13 +73,13 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
 
   useEffect(() => {
     // Listen for mouseup and keyup events to detect text selection
-    document.addEventListener('mouseup', handleSelection);
-    document.addEventListener('keyup', handleSelection);
+    window.document.addEventListener('mouseup', handleSelection);
+    window.document.addEventListener('keyup', handleSelection);
 
     // Cleanup event listeners
     return () => {
-      document.removeEventListener('mouseup', handleSelection);
-      document.removeEventListener('keyup', handleSelection);
+      window.document.removeEventListener('mouseup', handleSelection);
+      window.document.removeEventListener('keyup', handleSelection);
     };
   }, [handleSelection]);
 
