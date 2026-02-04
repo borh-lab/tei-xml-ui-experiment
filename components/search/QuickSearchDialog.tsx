@@ -33,6 +33,7 @@ export function QuickSearchDialog({ open, onOpenChange, onResultClick }: QuickSe
 
   // Perform search when query changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Setting state in response to query prop change is intentional
     const state = search.search(query);
     setSearchState(state);
   }, [query, search]);
@@ -98,6 +99,7 @@ export function QuickSearchDialog({ open, onOpenChange, onResultClick }: QuickSe
   // Reset search when dialog closes
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Resetting state on dialog close is intentional
       setQuery('');
       search.clear();
       setSearchState(search.getState());

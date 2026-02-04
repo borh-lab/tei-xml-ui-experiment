@@ -12,8 +12,8 @@ import { LoadedCorpusView } from './LoadedCorpusView';
 // Use browser-compatible fetch data source
 const layers = Layer.mergeAll(FetchCorpusDataSourceLive, CorpusBrowserLive);
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
-  return Effect.runPromise(pipe(effect, Effect.provide(layers)) as any);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, unknown>): Promise<A> => {
+  return Effect.runPromise(pipe(effect, Effect.provide(layers)) as Effect.Effect<A, never, never>);
 };
 
 export function CorpusBrowser() {
@@ -40,7 +40,7 @@ export function CorpusBrowser() {
   const loadCorpus = async (corpus: string) => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(CorpusBrowserService);
-      yield* _(service.loadCorpus(corpus as any));
+      yield* _(service.loadCorpus(corpus));
       const state = yield* _(service.getState());
       return state;
     });
@@ -53,7 +53,7 @@ export function CorpusBrowser() {
     }
   };
 
-  const loadDocument = async (docId: any) => {
+  const loadDocument = async (docId: string) => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(CorpusBrowserService);
       yield* _(service.loadDocument(docId));

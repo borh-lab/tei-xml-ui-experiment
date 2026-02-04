@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface ErrorEntry {
   id: string;
@@ -23,6 +23,12 @@ interface ErrorContextType {
   getStats: () => ErrorStats;
   getHistory: () => ErrorEntry[];
   clearHistory: () => void;
+}
+
+interface DebugWindow extends Window {
+  __getErrorStats?: () => ErrorStats;
+  __getErrorHistory?: () => ErrorEntry[];
+  __clearErrorHistory?: () => void;
 }
 
 const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
@@ -85,11 +91,26 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
   };
 
   // Expose debug endpoint for E2E testing
-  if (typeof window !== 'undefined') {
-    (window as any).__getErrorStats = getStats;
-    (window as any).__getErrorHistory = getHistory;
-    (window as any).__clearErrorHistory = clearHistory;
-  }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const debugWindow = window as DebugWindow;
+      Object.defineProperty(debugWindow, '__getErrorStats', {
+        value: getStats,
+        writable: false,
+        configurable: true,
+      });
+      Object.defineProperty(debugWindow, '__getErrorHistory', {
+        value: getHistory,
+        writable: false,
+        configurable: true,
+      });
+      Object.defineProperty(debugWindow, '__clearErrorHistory', {
+        value: clearHistory,
+        writable: false,
+        configurable: true,
+      });
+    }
+  }, [getStats, getHistory, clearHistory]);
 
   return (
     <ErrorContext.Provider value={{ logError, getStats, getHistory, clearHistory }}>

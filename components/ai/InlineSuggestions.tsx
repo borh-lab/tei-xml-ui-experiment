@@ -45,12 +45,12 @@ export const InlineSuggestions = React.memo(
     const handleAccept = async (suggestion: DialogueSpan) => {
       try {
         // Extract and store patterns
-        const patterns = extract(suggestion.text, (suggestion as any).speaker || '', position);
+        const patterns = extract(suggestion.text, suggestion.speaker || '', position);
 
-        await db.storeLearnedPattern((suggestion as any).speaker || '', patterns);
+        await db.storeLearnedPattern(suggestion.speaker || '', patterns);
 
         logger.info('Pattern learned', {
-          speaker: (suggestion as any).speaker,
+          speaker: suggestion.speaker,
           patternCount: patterns.phrases.size,
         });
 

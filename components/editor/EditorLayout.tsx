@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDocumentService } from '@/lib/effect';
 import { serializeDocument } from '@/lib/tei/operations';
+import type { TEINode } from '@/lib/tei/types';
 import { Card } from '@/components/ui/card';
 import { TagToolbar } from './TagToolbar';
 import { ExportButton } from './ExportButton';
@@ -36,6 +37,23 @@ interface Issue {
   type: 'error' | 'warning';
   message: string;
   location: { index: number; dialogueIndex?: number };
+}
+
+interface MonacoEditor {
+  getModel?: () => { getLineCount: () => number } | null;
+  revealLine: (line: number) => void;
+  getVisibleRanges: () => { startLineNumber: number }[];
+  onDidScrollChange: (callback: () => void) => void;
+}
+
+interface ValidationError {
+  line?: number;
+  message?: string;
+  [key: string]: unknown;
+}
+
+interface FixSuggestion {
+  [key: string]: unknown;
 }
 
 type ViewMode = 'wysiwyg' | 'xml' | 'split';
@@ -78,7 +96,7 @@ export function EditorLayout() {
 
   // Refs for scroll synchronization
   const renderedViewRef = useRef<HTMLDivElement>(null);
-  const codeEditorRef = useRef<any>(null);
+  const codeEditorRef = useRef<MonacoEditor | null>(null);
   const isScrollingRef = useRef<{ rendered: boolean; code: boolean }>({
     rendered: false,
     code: false,
@@ -504,7 +522,7 @@ export function EditorLayout() {
 
     selectedPassages.forEach((index) => {
       if (paragraphs[index] && paragraphs[index].said) {
-        paragraphs[index].said = paragraphs[index].said.map((s: any) => ({
+        paragraphs[index].said = paragraphs[index].said.map((s: Record<string, unknown>) => ({
           ...s,
           '@who': speakerId,
         }));
@@ -526,8 +544,8 @@ export function EditorLayout() {
     const untaggedIndices = new Set<number>();
     const paragraphs = document.parsed.TEI.text.body.p;
 
-    paragraphs.forEach((para: any, index: number) => {
-      const hasUntagged = para.said?.some((s: any) => !s['@who'] || s['@who'] === '');
+    paragraphs.forEach((para: TEINode, index: number) => {
+      const hasUntagged = para.said?.some((s: Record<string, unknown>) => !s['@who'] || s['@who'] === '');
       if (hasUntagged) {
         untaggedIndices.add(index);
       }
@@ -576,7 +594,7 @@ export function EditorLayout() {
           location: { index },
         });
       } else {
-        para.said.forEach((s: any, i: number) => {
+        para.said.forEach((s: Record<string, unknown>, i: number) => {
           if (!s['@who'] || s['@who'] === '') {
             issues.push({
               type: 'error',
@@ -598,7 +616,7 @@ export function EditorLayout() {
     // TODO: Implement conversion logic
   };
 
-  const handleValidationErrorClick = (error: any) => {
+  const handleValidationErrorClick = (error: ValidationError) => {
     console.log('Validation error clicked:', error);
     // TODO: Navigate to error location in editor
     if (error.line) {
@@ -606,7 +624,7 @@ export function EditorLayout() {
     }
   };
 
-  const handleValidationFixClick = (suggestion: any) => {
+  const handleValidationFixClick = (suggestion: FixSuggestion) => {
     console.log('Fix suggestion clicked:', suggestion);
     // TODO: Apply fix to document
     showToast('Fix suggestions not yet implemented', 'info');
@@ -830,7 +848,7 @@ export function EditorLayout() {
 
   // Handle code editor mounting
   const handleCodeEditorMount = useCallback(
-    (editor: any) => {
+    (editor: MonacoEditor) => {
       codeEditorRef.current = editor;
 
       // Add scroll listener for sync

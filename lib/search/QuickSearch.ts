@@ -6,7 +6,7 @@ export interface SearchResult {
   speaker: string;
   chapter?: string;
   index: number;
-  element: any;
+  element: unknown;
 }
 
 export interface SearchState {

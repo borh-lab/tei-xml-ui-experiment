@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -108,20 +108,20 @@ export function TagEditDialog({ isOpen, onClose, tagInfo, onApply }: TagEditDial
   const [editedAttributes, setEditedAttributes] = useState<Record<string, string>>({});
   const [previewXML, setPreviewXML] = useState<string>('');
 
+  const updatePreview = useCallback((tagName: string, attrs: Record<string, string>) => {
+    const attrString = Object.entries(attrs)
+      .map(([key, value]) => ` ${key}="${value}"`)
+      .join('');
+    setPreviewXML(`<${tagName}${attrString}>...</${tagName}>`);
+  }, []);
+
   // Initialize edited attributes when tagInfo changes
   useEffect(() => {
     if (tagInfo) {
       setEditedAttributes({ ...tagInfo.attributes });
       updatePreview(tagInfo.tagName, tagInfo.attributes);
     }
-  }, [tagInfo]);
-
-  const updatePreview = (tagName: string, attrs: Record<string, string>) => {
-    const attrString = Object.entries(attrs)
-      .map(([key, value]) => ` ${key}="${value}"`)
-      .join('');
-    setPreviewXML(`<${tagName}${attrString}>...</${tagName}>`);
-  };
+  }, [tagInfo, updatePreview]);
 
   const handleAttributeChange = (attrName: string, value: string) => {
     const newAttrs = { ...editedAttributes, [attrName]: value };

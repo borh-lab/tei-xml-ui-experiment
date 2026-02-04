@@ -39,12 +39,13 @@ export function EffectTagBreadcrumb() {
 /**
  * TagBreadcrumb with feature flag support
  */
-export default function TagBreadcrumb(props: any) {
+export default function TagBreadcrumb(props: Record<string, unknown>) {
   if (isFeatureEnabled('useEffectTagToolbar')) {
     return <EffectTagBreadcrumb {...props} />;
   }
 
   // Fall back to React version
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic require for feature flag
   const ReactTagBreadcrumb = require('./TagBreadcrumb.react').TagBreadcrumb;
   return <ReactTagBreadcrumb {...props} />;
 }

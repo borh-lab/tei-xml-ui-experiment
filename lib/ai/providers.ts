@@ -13,6 +13,7 @@ export interface DialogueSpan {
   end: number;
   text: string;
   confidence: number;
+  speaker?: string;
 }
 
 /**
@@ -62,5 +63,5 @@ export interface AIProvider {
    * @param document - The TEI document to validate
    * @returns Array of validation issues
    */
-  validateConsistency(document: any): Promise<Issue[]>;
+  validateConsistency(document: unknown): Promise<Issue[]>;
 }

@@ -10,6 +10,18 @@ interface Passage {
   content: string;
   speaker?: string;
   confidence?: number;
+  tags?: Array<{
+    name: string;
+    range: { start: number; end: number };
+    attributes: Record<string, string>;
+  }>;
+}
+
+interface EntityInfo {
+  id: string;
+  name: string;
+  type: string;
+  [key: string]: unknown;
 }
 
 interface RenderedViewProps {
@@ -46,7 +58,7 @@ export const RenderedView = React.memo(
     const [passages, setPassages] = useState<Passage[]>([]);
     const [activePassageId, setActivePassageId] = useState<string | null>(null);
     const [hoveredEntity, setHoveredEntity] = useState<{
-      entity: any;
+      entity: EntityInfo;
       position: { x: number; y: number };
     } | null>(null);
     const lastSelectedIndex = useRef<number | null>(null);
@@ -69,7 +81,7 @@ export const RenderedView = React.memo(
     /**
      * Render passage content with tags as styled spans
      */
-    const renderPassageContent = useCallback((passage: any) => {
+    const renderPassageContent = useCallback((passage: Passage) => {
       if (!passage.tags || passage.tags.length === 0) {
         return passage.content;
       }
