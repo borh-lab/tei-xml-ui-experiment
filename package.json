@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
-    "ax:test": "tsx -e \"import { ax, ai } from '@ax-llm/ax'; console.log('Ax installed');\"",
+    "ax:test": "bun -e \"import { ax, ai } from '@ax-llm/ax'; console.log('Ax installed');\"",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -21,7 +21,7 @@
     "corpus:setup": "scripts/setup-corpora.sh",
     "corpus:analyze": "bun scripts/analyze-corpora.ts",
     "corpus:split": "bun scripts/generate-splits.ts",
-    "corpus:all": "npm run corpus:setup && npm run corpus:analyze && npm run corpus:split"
+    "corpus:all": "bun run corpus:setup && bun run corpus:analyze && bun run corpus:split"
   },
   "dependencies": {
     "@ax-llm/ax": "^16.0.10",
