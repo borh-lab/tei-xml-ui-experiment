@@ -10,6 +10,11 @@
 !.yarn/releases
 !.yarn/versions
 
+# package managers
+package-lock.json
+bun.lockb
+bun.lock
+
 # testing
 /coverage
 

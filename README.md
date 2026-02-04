@@ -73,18 +73,47 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for setup instructions and known limitation
 
 ## Getting Started
 
-Quick setup:
+### Quick Setup (Recommended: Bun)
+
+[Bun](https://bun.sh) is a fast JavaScript runtime and package manager. It's the recommended way to work with this project.
+
+```bash
+# Install dependencies (with Bun - much faster)
+bun install
+
+# Set up environment variables (optional)
+cp .env.local.example .env.local
+
+# Run development server (with Bun)
+bun run dev
+```
+
+### Alternative: npm
 
 ```bash
 # Install dependencies
 npm install
 
-# Set up environment variables (optional)
-cp .env.local.example .env.local
-
 # Run development server
 npm run dev
 ```
+
+### Nix Setup (Reproducible Environment)
+
+For a fully reproducible development environment with all dependencies pinned:
+
+```bash
+# Enter Nix development shell
+nix develop
+
+# Or if using direnv (recommended)
+direnv allow  # Automatically loads on cd
+```
+
+The Nix shell includes:
+- Node.js, Bun, npm
+- Rust toolchains (for WASM builds)
+- Playwright browsers
 
 Visit [http://localhost:3000](http://localhost:3000) to use the application.
 
@@ -96,6 +125,10 @@ Visit [http://localhost:3000](http://localhost:3000) to use the application.
 The project uses Jest with React Testing Library.
 
 ```bash
+# Run tests (with Bun - faster)
+bun test
+
+# Or with npm
 npm test
 ```
 
@@ -104,6 +137,22 @@ Test suites include:
 - AI provider tests (with mocking)
 - Integration tests using Wright American Fiction samples
 - Component tests
+
+## Corpus Analysis
+
+This project includes tools for analyzing TEI corpora:
+
+```bash
+# Setup, analyze, and generate train/val/test splits
+bun run corpus:all
+
+# Individual steps
+bun run corpus:setup    # Clone/update corpus repositories
+bun run corpus:analyze  # Analyze TEI documents
+bun run corpus:split    # Generate train/val/test splits
+```
+
+See [scripts/README.md](./scripts/README.md) for details.
 
 ## Project Structure
 
