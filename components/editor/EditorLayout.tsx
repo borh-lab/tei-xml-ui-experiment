@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { serializeDocument } from '@/lib/tei/operations';
 import { Card } from '@/components/ui/card';
 import { TagToolbar } from './TagToolbar';
 import { ExportButton } from './ExportButton';
@@ -89,7 +90,7 @@ export function EditorLayout() {
   // Sync code content with document
   useEffect(() => {
     if (document && !isCodeDirty) {
-      setCodeContent(document.serialize());
+      setCodeContent(serializeDocument(document));
     }
   }, [document, isCodeDirty]);
 
@@ -162,7 +163,7 @@ export function EditorLayout() {
       );
 
       // Update document in context
-      const updatedXML = document.serialize();
+      const updatedXML = serializeDocument(document);
       updateDocument(updatedXML);
 
       // Success message
@@ -336,7 +337,7 @@ export function EditorLayout() {
     });
 
     // Serialize and update document
-    const updatedXML = document.serialize();
+    const updatedXML = serializeDocument(document);
     updateDocument(updatedXML);
     setSelectedPassages([]);
 
@@ -495,7 +496,7 @@ export function EditorLayout() {
       // Update the document structure
       // This is a simplified implementation - in production, you'd want to
       // update the underlying TEIDocument model and re-serialize
-      const updatedXML = document.serialize();
+      const updatedXML = serializeDocument(document);
       updateDocument(updatedXML);
 
       showToast(`Updated <${tagName}> attributes`, 'success');
@@ -844,7 +845,7 @@ export function EditorLayout() {
                 <div className="p-4">
                   <h2 className="text-lg font-semibold mb-2">TEI Source</h2>
                   <pre className="text-sm bg-muted p-2 rounded">
-                    {document.serialize()}
+                    {serializeDocument(document)}
                   </pre>
                 </div>
               </Card>

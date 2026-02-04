@@ -1,4 +1,5 @@
 import { TEIDocument } from '@/lib/tei';
+import { serializeDocument } from '@/lib/tei/operations';
 import { EntityDetector } from './EntityDetector';
 import { EntitySpan } from './types';
 
@@ -18,7 +19,7 @@ export class NERAutoTagger {
   }
 
   scan(document: TEIDocument): ScanResult {
-    const text = document.serialize();
+    const text = serializeDocument(document);
 
     return {
       persNames: this.detector.detectPersonalNames(text),

@@ -1,7 +1,8 @@
 import { TEIDocument } from './TEIDocument';
+import { serializeDocument } from './operations';
 
 export function exportToHTML(document: TEIDocument): string {
-  const xml = document.serialize();
+  const xml = serializeDocument(document);
 
   // Simplified HTML conversion
   // In production, use TEI stylesheets

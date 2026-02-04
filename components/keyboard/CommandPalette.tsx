@@ -11,6 +11,7 @@ import {
 } from 'cmdk';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { downloadFile } from '@/lib/tei/export';
+import { serializeDocument } from '@/lib/tei/operations';
 import { getSamples } from '@/lib/samples/sampleLoader';
 import {
   FileDown,
@@ -66,7 +67,7 @@ export function CommandPalette({
     }
 
     try {
-      const xml = document.serialize();
+      const xml = serializeDocument(document);
       const timestamp = new Date().toISOString().slice(0, 10);
       downloadFile(xml, `tei-document-${timestamp}.xml`, 'application/xml');
       showToast('success', 'Document saved successfully!');
@@ -86,7 +87,7 @@ export function CommandPalette({
     }
 
     try {
-      const xml = document.serialize();
+      const xml = serializeDocument(document);
       downloadFile(xml, 'document.xml', 'application/xml');
       showToast('success', 'TEI XML exported successfully!');
       onClose();
@@ -105,7 +106,7 @@ export function CommandPalette({
     }
 
     try {
-      const xml = document.serialize();
+      const xml = serializeDocument(document);
 
       // Simplified HTML conversion
       const html = `<!DOCTYPE html>
