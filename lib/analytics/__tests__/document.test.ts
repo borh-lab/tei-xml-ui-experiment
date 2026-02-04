@@ -39,7 +39,7 @@ describe('calculateRankings', () => {
       { id: 'q4', speaker: 'alice', text: 'D' }
     ] as any;
 
-    const rankings = calculateRankings(quotes, 4);
+    const rankings = calculateRankings(quotes, 4, (id) => id);
     expect(rankings).toHaveLength(2);
     expect(rankings[0]).toEqual({
       characterId: 'alice',
@@ -56,7 +56,7 @@ describe('calculateRankings', () => {
   });
 
   it('should handle empty quotes array', () => {
-    const rankings = calculateRankings([], 0);
+    const rankings = calculateRankings([], 0, (id) => id);
     expect(rankings).toEqual([]);
   });
 
@@ -67,7 +67,7 @@ describe('calculateRankings', () => {
       { id: 'q3', speaker: 'alice', text: 'C' }
     ] as any;
 
-    const rankings = calculateRankings(quotes, 3);
+    const rankings = calculateRankings(quotes, 3, (id) => id);
     expect(rankings).toHaveLength(3);
     // All have count 1, so order doesn't matter but should be deterministic
   });
@@ -127,5 +127,27 @@ describe('lookupCharacterName', () => {
   it('should return "Unknown" for null speaker', () => {
     const name = lookupCharacterName(null, mockCharacters);
     expect(name).toBe('Unknown');
+  });
+});
+
+describe('calculateRankings with character lookup', () => {
+  it('should use character names from lookup function', () => {
+    const quotes = [
+      { id: 'q1', speaker: 'char-1', text: 'Hello' },
+      { id: 'q2', speaker: 'char-2', text: 'Hi' },
+      { id: 'q3', speaker: 'char-1', text: 'Goodbye' }
+    ] as any;
+
+    const mockLookup = (id: string | null) =>
+      id === 'char-1' ? 'Alice' :
+      id === 'char-2' ? 'Bob' :
+      'Unknown';
+
+    const rankings = calculateRankings(quotes, 3, mockLookup);
+
+    expect(rankings[0].characterName).toBe('Alice');
+    expect(rankings[0].quoteCount).toBe(2);
+    expect(rankings[1].characterName).toBe('Bob');
+    expect(rankings[1].quoteCount).toBe(1);
   });
 });

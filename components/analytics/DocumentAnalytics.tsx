@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDocumentService } from '@/lib/effect';
-import { extractQuotes, calculateRankings, buildConversationMatrix } from '@/lib/analytics/document';
+import { extractQuotes, calculateRankings, buildConversationMatrix, lookupCharacterName } from '@/lib/analytics/document';
 import { CharacterRankings } from './CharacterRankings';
 import { ConversationMatrix } from './ConversationMatrix';
 import type { CharacterRanking, ConversationMatrix as MatrixType } from '@/lib/analytics/types';
@@ -27,7 +27,11 @@ export function DocumentAnalytics() {
 
     try {
       const quotes = extractQuotes(document);
-      const rankings = calculateRankings(quotes, quotes.length);
+      const rankings = calculateRankings(
+        quotes,
+        quotes.length,
+        (id) => lookupCharacterName(id, document.state.characters)
+      );
       const matrix = buildConversationMatrix(quotes);
 
       setState({
