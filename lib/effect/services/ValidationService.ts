@@ -5,7 +5,7 @@
  */
 
 import { Effect, Layer } from 'effect';
-import { SchemaLoader } from '@/lib/validation/SchemaLoader';
+import { SchemaLoader } from '@/lib/schema/SchemaLoader';
 import {
   ValidationService,
   ValidationError,

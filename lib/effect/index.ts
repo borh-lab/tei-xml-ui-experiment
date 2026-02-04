@@ -34,7 +34,6 @@ export * from './layers/Main';
 // ============================================================================
 
 export * from './react/hooks';
-export * from './providers/DocumentProvider';
 
 // ============================================================================
 // Utilities
