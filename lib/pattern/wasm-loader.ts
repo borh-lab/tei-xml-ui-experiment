@@ -15,7 +15,17 @@
 import { db } from '@/lib/db/PatternDB';
 import { scorePatternMatch, type SpeakerPatternData } from '@/lib/learning/PatternExtractor';
 
-let patternEngine: any = null;
+/**
+ * Interface for the WASM pattern engine
+ */
+interface PatternEngine {
+  detect_speaker(text: string, chapter: string, position: number, allPatternsJson: string): string;
+  detect_speaker(text: string, patterns: unknown): string;
+  update_from_feedback(passage: string, acceptedSpeaker: string, rejectedSpeakersJson: string, currentPatternsJson: string): string;
+  update_from_feedback(db: unknown, passage: string, speaker: string): void;
+}
+
+let patternEngine: PatternEngine | null = null;
 let learnedPatternsCache: Map<string, SpeakerPatternData> | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_TTL = 60000; // 1 minute cache
@@ -30,18 +40,18 @@ export async function loadPatternEngine() {
   try {
     // Try to load the WASM module
     // Note: This will only work if the WASM has been built
-    // @ts-ignore - WASM module is optional, fallback provided below
-    const module = await import('/wasm/pattern_engine.js');
+    // @ts-expect-error - WASM module is optional, fallback provided below
+    const wasmModule = await import('/wasm/pattern_engine.js');
 
     // Initialize the WASM module
-    if (module.default) {
-      patternEngine = await module.default();
+    if (wasmModule.default) {
+      patternEngine = await wasmModule.default();
     } else {
       throw new Error('WASM module does not have a default export');
     }
 
     return patternEngine;
-  } catch (error) {
+  } catch {
     console.warn('WASM pattern engine not available. Using JavaScript fallback.');
     console.warn('To build WASM, see WASM_BUILD_INSTRUCTIONS.md');
     console.warn(
@@ -161,9 +171,9 @@ async function loadLearnedPatterns(): Promise<Map<string, SpeakerPatternData>> {
  */
 export async function detectSpeaker(
   text: string,
-  chapterOrPatterns?: string | any,
+  chapterOrPatterns?: string | unknown,
   position?: number,
-  allPatterns?: Record<string, any>
+  allPatterns?: Record<string, unknown>
 ): Promise<string> {
   const engine = await loadPatternEngine();
 
@@ -218,11 +228,11 @@ export async function detectSpeaker(
  * @returns Promise resolving when update is complete
  */
 export async function updateFromFeedback(
-  passageOrDb: string | any,
+  passageOrDb: string | unknown,
   acceptedSpeakerOrPassage?: string,
   rejectedSpeakers?: string[],
-  currentPatterns?: Record<string, any>
-): Promise<any> {
+  currentPatterns?: Record<string, unknown>
+): Promise<unknown> {
   const engine = await loadPatternEngine();
 
   // Invalidate pattern cache when new feedback is learned
@@ -272,7 +282,7 @@ export async function updateFromFeedback(
 export async function calculateConfidence(
   text: string,
   speaker: string,
-  patternMatchOrPatterns?: any
+  patternMatchOrPatterns?: unknown
 ): Promise<number> {
   const engine = await loadPatternEngine();
 
@@ -327,8 +337,8 @@ export async function storePattern(
   chapter: string,
   position: number,
   dialogueLength: number,
-  currentPattern: Record<string, any>
-): Promise<Record<string, any>> {
+  currentPattern: Record<string, unknown>
+): Promise<Record<string, unknown>> {
   const engine = await loadPatternEngine();
 
   try {
@@ -368,8 +378,8 @@ export async function storePattern(
  */
 export async function getPatterns(
   speaker: string,
-  allPatterns: Record<string, any>
-): Promise<Record<string, any>> {
+  allPatterns: Record<string, unknown>
+): Promise<Record<string, unknown>> {
   const engine = await loadPatternEngine();
 
   try {
@@ -407,7 +417,7 @@ function getJavaScriptFallback() {
   return {
     detect_speaker: (
       text: string,
-      chapterOrPatterns: string | any,
+      chapterOrPatterns: string | unknown,
       position?: number,
       allPatternsJson?: string
     ) => {
@@ -422,8 +432,8 @@ function getJavaScriptFallback() {
 
           // Sort by last_used (most recent first)
           const sorted = speakers.sort((a, b) => {
-            const patternA = a[1] as any;
-            const patternB = b[1] as any;
+            const patternA = a[1] as { last_used?: number };
+            const patternB = b[1] as { last_used?: number };
             return (patternB.last_used || 0) - (patternA.last_used || 0);
           });
 
@@ -437,7 +447,7 @@ function getJavaScriptFallback() {
       }
     },
 
-    calculate_confidence: (text: string, speaker: string, patternMatchOrPatterns: any) => {
+    calculate_confidence: (text: string, speaker: string, patternMatchOrPatterns: unknown) => {
       try {
         let pattern = patternMatchOrPatterns;
 
@@ -467,7 +477,7 @@ function getJavaScriptFallback() {
     },
 
     update_from_feedback: (
-      passageOrDb: string | any,
+      passageOrDb: string | unknown,
       acceptedSpeakerOrPassage?: string,
       rejectedJson?: string,
       currentJson?: string
@@ -580,7 +590,7 @@ function getJavaScriptFallback() {
  */
 export async function isWasmAvailable(): Promise<boolean> {
   try {
-    // @ts-ignore - WASM module is optional
+    // @ts-expect-error - WASM module is optional
     await import('/wasm/pattern_engine.js');
     return true;
   } catch {

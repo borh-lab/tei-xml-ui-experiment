@@ -3,6 +3,32 @@ import { generateTestDocument, uploadTestDocument } from './fixtures/test-helper
 import { URLS, TIMEOUTS } from './fixtures/test-constants';
 
 /**
+ * Test-specific window interface
+ */
+interface TestWindow extends Window {
+  __clearErrorHistory?: () => void;
+  __getErrorHistory?: () => TestError[];
+  __getErrorCount?: () => number;
+  __getErrorFrequency?: () => Record<string, number>;
+  __getErrorStats?: () => {
+    total: number;
+    byType: Record<string, number>;
+    recentErrors: TestError[];
+  };
+}
+
+/**
+ * Test error interface
+ */
+interface TestError {
+  id: string;
+  message: string;
+  component: string;
+  timestamp: number;
+  [key: string]: unknown;
+}
+
+/**
  * Error Analytics E2E Tests
  *
  * Tests the error analytics functionality through the ErrorContext.
@@ -43,7 +69,7 @@ test.describe.skip('Error Analytics', () => {
   test('tracks error frequency by type', async ({ page }) => {
     // Clear any existing errors
     await page.evaluate(() => {
-      const clearFunc = (window as any).__clearErrorHistory;
+      const clearFunc = (window as TestWindow).__clearErrorHistory;
       if (clearFunc) clearFunc();
     });
 
@@ -70,7 +96,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Get error stats from debug endpoint
     const stats = await page.evaluate(() => {
-      return (window as any).__getErrorStats?.() || { total: 0, byType: {} };
+      return (window as TestWindow).__getErrorStats?.() || { total: 0, byType: {} };
     });
 
     // Verify errors were tracked
@@ -88,7 +114,7 @@ test.describe.skip('Error Analytics', () => {
   test('maintains error history', async ({ page }) => {
     // Clear existing errors
     await page.evaluate(() => {
-      const clearFunc = (window as any).__clearErrorHistory;
+      const clearFunc = (window as TestWindow).__clearErrorHistory;
       if (clearFunc) clearFunc();
     });
 
@@ -112,7 +138,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Get error history
     const history = await page.evaluate(() => {
-      return (window as any).__getErrorHistory?.() || [];
+      return (window as TestWindow).__getErrorHistory?.() || [];
     });
 
     // Verify history maintained
@@ -124,7 +150,7 @@ test.describe.skip('Error Analytics', () => {
     }
 
     // Verify each error has required fields
-    history.forEach((error: any) => {
+    history.forEach((error: TestError) => {
       expect(error.id).toBeDefined();
       expect(error.message).toBeDefined();
       expect(error.component).toBeDefined();
@@ -135,7 +161,7 @@ test.describe.skip('Error Analytics', () => {
   test('tracks different error types separately', async ({ page }) => {
     // Clear existing errors
     await page.evaluate(() => {
-      const clearFunc = (window as any).__clearErrorHistory;
+      const clearFunc = (window as TestWindow).__clearErrorHistory;
       if (clearFunc) clearFunc();
     });
 
@@ -160,7 +186,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Get error stats
     const stats = await page.evaluate(() => {
-      return (window as any).__getErrorStats?.() || { total: 0, byType: {} };
+      return (window as TestWindow).__getErrorStats?.() || { total: 0, byType: {} };
     });
 
     // Should have tracked errors
@@ -176,7 +202,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Get current error count
     const initialStats = await page.evaluate(() => {
-      return (window as any).__getErrorStats?.() || { total: 0, byType: {} };
+      return (window as TestWindow).__getErrorStats?.() || { total: 0, byType: {} };
     });
 
     const initialCount = initialStats.total;
@@ -201,7 +227,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Get final stats
     const finalStats = await page.evaluate(() => {
-      return (window as any).__getErrorStats?.() || { total: 0, byType: {} };
+      return (window as TestWindow).__getErrorStats?.() || { total: 0, byType: {} };
     });
 
     // Should have tracked the new errors
@@ -209,7 +235,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Verify history is maintained but bounded
     const history = await page.evaluate(() => {
-      return (window as any).__getErrorHistory?.() || [];
+      return (window as TestWindow).__getErrorHistory?.() || [];
     });
 
     // History should not exceed reasonable bounds (100 as a safety check)
@@ -219,7 +245,7 @@ test.describe.skip('Error Analytics', () => {
   test('provides recent errors in stats', async ({ page }) => {
     // Clear existing
     await page.evaluate(() => {
-      const clearFunc = (window as any).__clearErrorHistory;
+      const clearFunc = (window as TestWindow).__clearErrorHistory;
       if (clearFunc) clearFunc();
     });
 
@@ -242,7 +268,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Get stats
     const stats = await page.evaluate(() => {
-      return (window as any).__getErrorStats?.() || { total: 0, byType: {}, recentErrors: [] };
+      return (window as TestWindow).__getErrorStats?.() || { total: 0, byType: {}, recentErrors: [] };
     });
 
     // Should have recent errors
@@ -253,7 +279,7 @@ test.describe.skip('Error Analytics', () => {
     expect(stats.recentErrors.length).toBeLessThanOrEqual(10);
 
     // Each recent error should have required fields
-    stats.recentErrors.forEach((error: any) => {
+    stats.recentErrors.forEach((error: TestError) => {
       expect(error).toHaveProperty('id');
       expect(error).toHaveProperty('message');
       expect(error).toHaveProperty('timestamp');
