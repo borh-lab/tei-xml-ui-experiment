@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { readdir, mkdir, access, readFile } from 'fs/promises';
+import { readdir, mkdir, access, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { constants } from 'fs';
 
@@ -418,6 +418,107 @@ ${content}    </quote>`;
 }
 
 /**
+ * Generate complete TEI XML document
+ *
+ * Combines all components into a valid TEI XML document:
+ * - XML declaration with model declarations
+ * - TEI root element with namespace declarations
+ * - teiHeader with file description and participant information
+ * - text element with body containing all quotations
+ *
+ * @param novelId - Identifier for the novel
+ * @param teiHeader - Generated TEI header
+ * @param quotationsTEI - Array of converted quotation elements
+ * @returns Complete TEI XML document as string
+ */
+function generateTEIDocument(
+  novelId: string,
+  teiHeader: string,
+  quotationsTEI: string[]
+): string {
+  // Join all quotations with newlines
+  const quotationsContent = quotationsTEI.join('\n');
+
+  // Build complete TEI document
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:novel-dialogism="http://example.org/ns/novel-dialogism">
+${teiHeader}
+  <text>
+    <body>
+${quotationsContent}
+    </body>
+  </text>
+</TEI>`;
+}
+
+/**
+ * Convert a single novel from CSV files to TEI XML
+ *
+ * Processes all data files for a novel:
+ * - Reads and parses character_info.csv
+ * - Reads and parses quotation_info.csv
+ * - Builds character index
+ * - Generates TEI header
+ * - Converts all quotations to TEI format
+ * - Combines everything into complete TEI document
+ * - Writes output to file
+ *
+ * @param novelId - Novel identifier (directory name)
+ * @param sourcePath - Path to novel source directory
+ * @param outputPath - Path where TEI XML should be written
+ * @returns Object with success status and statistics
+ */
+async function convertNovel(
+  novelId: string,
+  sourcePath: string,
+  outputPath: string
+): Promise<{ success: boolean; quotations: number; characters: number; error?: string }> {
+  try {
+    // File paths
+    const characterInfoPath = join(sourcePath, 'character_info.csv');
+    const quotationInfoPath = join(sourcePath, 'quotation_info.csv');
+
+    // Parse character information
+    const charactersContent = await readFile(characterInfoPath, 'utf-8');
+    const characters = parseCharactersCSV(charactersContent);
+
+    // Build character index
+    const characterIndex = buildCharacterIndex(characters);
+
+    // Parse quotation information
+    const quotationsContent = await readFile(quotationInfoPath, 'utf-8');
+    const quotations = parseQuotationsCSV(quotationsContent);
+
+    // Generate TEI header
+    const teiHeader = generateTEIHeader(novelId, characterIndex);
+
+    // Convert all quotations to TEI format
+    const quotationsTEI = quotations.map(q => convertQuotationToTEI(q));
+
+    // Generate complete TEI document
+    const teiDocument = generateTEIDocument(novelId, teiHeader, quotationsTEI);
+
+    // Write output file
+    await writeFile(outputPath, teiDocument, 'utf-8');
+
+    return {
+      success: true,
+      quotations: quotations.length,
+      characters: characters.length
+    };
+  } catch (error) {
+    return {
+      success: false,
+      quotations: 0,
+      characters: 0,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
+/**
  * Main conversion function
  */
 async function main() {
@@ -452,207 +553,72 @@ async function main() {
 
   console.log(`\nFound ${novels.length} novels to convert:\n`);
 
-  // Task 3: Test CSV parsing with first novel
-  if (novels.length > 0) {
-    const firstNovel = novels[0];
-    const novelPath = join(SOURCE_DIR, firstNovel);
-    const characterInfoPath = join(novelPath, 'character_info.csv');
-    const quotationInfoPath = join(novelPath, 'quotation_info.csv');
-
-    console.log(`[Task 3 Test] Parsing CSV files for: ${firstNovel}`);
-
-    try {
-      // Parse quotations
-      const quotationsContent = await readFile(quotationInfoPath, 'utf-8');
-      const quotations = parseQuotationsCSV(quotationsContent);
-      console.log(`  ✓ Parsed ${quotations.length} quotations`);
-      console.log(`    First quotation ID: ${quotations[0]?.quoteID}`);
-      console.log(`    First quotation speaker: ${quotations[0]?.speaker}`);
-      console.log(`    First quote type: ${quotations[0]?.quoteType}`);
-
-      // Parse characters
-      const charactersContent = await readFile(characterInfoPath, 'utf-8');
-      const characters = parseCharactersCSV(charactersContent);
-      console.log(`  ✓ Parsed ${characters.length} characters`);
-      console.log(`    First character: ${characters[0]?.mainName} (${characters[0]?.category})`);
-
-      // Show sample of parsed data
-      console.log(`\n  Sample quotation data:`);
-      console.log(`    Quote ID: ${quotations[0]?.quoteID}`);
-      console.log(`    Speaker: ${quotations[0]?.speaker}`);
-      console.log(`    Text length: ${quotations[0]?.quoteText.length} chars`);
-      console.log(`    Text preview: ${quotations[0]?.quoteText.substring(0, 100)}...`);
-
-      console.log(`\n  Sample character data:`);
-      const majorChars = characters.filter(c => c.category === 'major');
-      console.log(`    Major characters: ${majorChars.length}`);
-      if (majorChars.length > 0) {
-        console.log(`    First major character: ${majorChars[0]?.mainName}`);
-      }
-
-      // Task 4: Test character index building
-      console.log(`\n[Task 4 Test] Building character index...`);
-      const charIndex = buildCharacterIndex(characters);
-      console.log(`  ✓ Character index has ${charIndex.size} entries (including aliases)`);
-
-      // Show sample character
-      const firstChar = characters[0];
-      const charData = charIndex.get(String(firstChar.characterId));
-      if (charData) {
-        console.log(`  ✓ Sample character: ${charData.mainName}`);
-        console.log(`    - ID: ${charData.id}`);
-        console.log(`    - Aliases: ${charData.aliases.length > 0 ? charData.aliases.join(', ') : '(none)'}`);
-        console.log(`    - Gender: ${charData.gender}`);
-        console.log(`    - Category: ${charData.category}`);
-
-        // Test alias lookup if aliases exist
-        if (charData.aliases.length > 0) {
-          const firstAlias = charData.aliases[0];
-          const lookupByAlias = charIndex.get(firstAlias);
-          if (lookupByAlias && lookupByAlias.id === charData.id) {
-            console.log(`  ✓ Alias lookup works: "${firstAlias}" → ${lookupByAlias.mainName}`);
-          }
-        }
-      }
-
-      // Task 5: Test TEI header generation
-      console.log(`\n[Task 5 Test] Generating TEI header...`);
-      const teiHeader = generateTEIHeader(firstNovel, charIndex);
-      console.log(`  ✓ Generated TEI header (${teiHeader.length} chars)`);
-
-      // Show first 5 lines
-      console.log(`\n  First 5 lines of generated header:`);
-      const headerLines = teiHeader.split('\n').slice(0, 5);
-      headerLines.forEach(line => {
-        console.log(`  ${line}`);
-      });
-
-      // Count unique characters in header
-      const uniqueChars = Array.from(charIndex.values())
-        .filter((char, index, self) =>
-          index === self.findIndex((c) => c.id === char.id)
-        );
-      console.log(`\n  ✓ Header includes ${uniqueChars.length} unique characters`);
-
-      // Task 6: Test quotation conversion
-      console.log(`\n[Task 6 Test] Converting quotation to TEI...`);
-
-      if (quotations.length > 0) {
-        // Find a quotation with mentions to test that functionality
-        const quoteWithMentions = quotations.find(q => {
-          const mentions = parseJSONField(q.mentionTextsList);
-          return mentions && mentions.some((m: any) => Array.isArray(m) && m.length > 0);
-        });
-
-        const testQuote = quoteWithMentions || quotations[0];
-
-        console.log(`  Processing quotation: ${testQuote.quoteID}`);
-        console.log(`    - Speaker: ${testQuote.speaker}`);
-        console.log(`    - Type: ${testQuote.quoteType}`);
-        console.log(`    - Sub-quotations: ${parseJSONField(testQuote.subQuotationList).length}`);
-
-        const mentions = parseJSONField(testQuote.mentionTextsList);
-        const mentionCount = mentions ? mentions.reduce((sum: number, m: any) => sum + (Array.isArray(m) ? m.length : 0), 0) : 0;
-        console.log(`    - Total mentions: ${mentionCount}`);
-
-        const quoteTEI = convertQuotationToTEI(testQuote);
-        console.log(`  ✓ Generated TEI quotation (${quoteTEI.length} chars)`);
-
-        // Show first 15 lines of generated quotation
-        console.log(`\n  First 15 lines of generated quotation:`);
-        const quoteLines = quoteTEI.split('\n').slice(0, 15);
-        quoteLines.forEach(line => {
-          console.log(`  ${line}`);
-        });
-
-        // Show structure statistics
-        const anchorCount = (quoteTEI.match(/<anchor/g) || []).length;
-        const rsCount = (quoteTEI.match(/<rs/g) || []).length;
-        console.log(`\n  Structure statistics:`);
-        console.log(`    - <anchor> elements: ${anchorCount}`);
-        console.log(`    - <rs> elements: ${rsCount}`);
-        console.log(`    - <s> elements: ${parseJSONField(testQuote.subQuotationList).length}`);
-      }
-
-      console.log(`\n[Task 6] Quotation to TEI conversion test complete. Stopping here for now.\n`);
-      process.exit(0);
-    } catch (error) {
-      console.error(`  ✗ Error parsing CSV files:`, error);
-    }
-
-    console.log(`\n[Task 5] TEI header generation test complete. Stopping here for now.\n`);
-    process.exit(0);
-  }
-
   // Process each novel
   let successCount = 0;
-  let skipCount = 0;
+  let failCount = 0;
+
+  console.log('\nConversion Process:');
+  console.log('==================\n');
 
   for (const novel of novels) {
     const novelPath = join(SOURCE_DIR, novel);
     const outputPath = join(OUTPUT_DIR, `${novel}.tei.xml`);
+    const index = novels.indexOf(novel) + 1;
 
-    console.log(`[${novels.indexOf(novel) + 1}/${novels.length}] Processing: ${novel}`);
+    console.log(`[${index}/${novels.length}] Processing: ${novel}`);
 
-    // Check if novel has required files
+    // Check if novel has required CSV files
     const characterInfoPath = join(novelPath, 'character_info.csv');
     const quotationInfoPath = join(novelPath, 'quotation_info.csv');
-    const novelTextPath = join(novelPath, 'novel_text.txt');
 
-    let hasAllFiles = true;
+    let hasCSVFiles = true;
 
     try {
       await access(characterInfoPath, constants.F_OK);
     } catch {
       console.log(`  ⚠ Skipping: character_info.csv not found`);
-      skipCount++;
-      hasAllFiles = false;
+      hasCSVFiles = false;
     }
 
     try {
       await access(quotationInfoPath, constants.F_OK);
     } catch {
       console.log(`  ⚠ Skipping: quotation_info.csv not found`);
-      skipCount++;
-      hasAllFiles = false;
+      hasCSVFiles = false;
     }
 
-    try {
-      await access(novelTextPath, constants.F_OK);
-    } catch {
-      console.log(`  ⚠ Skipping: novel_text.txt not found`);
-      skipCount++;
-      hasAllFiles = false;
-    }
-
-    if (!hasAllFiles) {
+    if (!hasCSVFiles) {
+      failCount++;
       continue;
     }
 
-    console.log(`  ✓ Found all required files`);
+    console.log(`  ✓ Found required CSV files`);
 
-    // TODO: Implement actual conversion
-    // TODO: Parse character_info.csv
-    // TODO: Parse quotation_info.csv
-    // TODO: Read novel_text.txt
-    // TODO: Generate TEI header with character index
-    // TODO: Convert quotations to TEI elements
-    // TODO: Write complete TEI document to outputPath
+    // Convert the novel
+    const result = await convertNovel(novel, novelPath, outputPath);
 
-    console.log(`  ⏳ Conversion not yet implemented`);
-    console.log(`  → Target: ${outputPath}`);
+    if (result.success) {
+      console.log(`  ✓ Generated TEI document`);
+      console.log(`    - Quotations: ${result.quotations}`);
+      console.log(`    - Characters: ${result.characters}`);
+      console.log(`    → ${outputPath}`);
+      successCount++;
+    } else {
+      console.log(`  ✗ Conversion failed: ${result.error}`);
+      failCount++;
+    }
 
-    successCount++;
+    console.log('');
   }
 
   // Summary
-  console.log('\n================================');
+  console.log('================================');
   console.log('Conversion Summary:');
   console.log(`  Total novels: ${novels.length}`);
-  console.log(`  Ready to convert: ${successCount}`);
-  console.log(`  Skipped: ${skipCount}`);
-  console.log('\n✓ Script structure complete!');
-  console.log('  TODO: Implement conversion logic in future tasks\n');
+  console.log(`  Successfully converted: ${successCount}`);
+  console.log(`  Failed: ${failCount}`);
+  console.log(`  Output directory: ${OUTPUT_DIR}`);
+  console.log('\n✓ Conversion complete!\n');
 }
 
 main().catch(error => {
