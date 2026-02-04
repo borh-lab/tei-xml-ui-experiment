@@ -302,62 +302,183 @@ ${personElements}
  * @param field - The field value to parse
  * @returns Parsed array or object, or empty array if parsing fails
  */
+/**
+ * Parse Python-style list notation using a state machine
+ *
+ * Handles edge cases like:
+ * - Unescaped quotes in strings: ['Sam's wife']
+ * - Trailing quotes: [['your ']]
+ * - Lone quotes: [["'s", 'Brenda']]
+ * - Nested structures: [[['a', 'b'], ['c']]]
+ */
+function parsePythonList(field: string): any {
+  field = field.trim();
+  if (!field || field === '[]' || field === '""' || field === "''") {
+    if (field === '[]') return [];
+    if (field === '""' || field === "''") return '';
+    return [];
+  }
+
+  // Replace Python literals
+  let normalized = field
+    .replace(/\bNone\b/g, 'null')
+    .replace(/\bTrue\b/g, 'true')
+    .replace(/\bFalse\b/g, 'false');
+
+  // Use a character-by-character state machine
+  const result: any[] = [];
+  const stack: any[] = [];
+  let current: any[] | string = [];
+  let inString = false;
+  let stringChar: '"' | "'" | null = null;
+  let escapeNext = false;
+  let i = 0;
+
+  while (i < normalized.length) {
+    const char = normalized[i];
+    const nextChar = normalized[i + 1] || '';
+
+    if (escapeNext) {
+      (current as string) += char;
+      escapeNext = false;
+      i++;
+      continue;
+    }
+
+    if (char === '\\' && inString) {
+      escapeNext = true;
+      (current as string) += char;
+      i++;
+      continue;
+    }
+
+    if (inString) {
+      if (char === stringChar) {
+        // Check if this is really the end of the string
+        // Look ahead to see if there's a comma, bracket, or end
+        const after = normalized.slice(i + 1).trim();
+        if (after.startsWith(',') || after.startsWith(']') || after.startsWith('}') || after === '') {
+          inString = false;
+          stringChar = null;
+          (current as string) += char;
+        } else {
+          // Not the end - embedded quote like in "it's"
+          (current as string) += char;
+        }
+      } else {
+        (current as string) += char;
+      }
+      i++;
+      continue;
+    }
+
+    // Not in string - check for string start
+    if (char === '"' || char === "'") {
+      inString = true;
+      stringChar = char;
+      current = char;
+      i++;
+      continue;
+    }
+
+    // Check for array start
+    if (char === '[') {
+      if (Array.isArray(current) && current.length === 0) {
+        // Nested array - push current onto stack and start new
+        stack.push(current);
+        current = [];
+      } else if (typeof current === 'string' && current.trim() === '') {
+        current = [];
+      }
+      i++;
+      continue;
+    }
+
+    // Check for array end
+    if (char === ']') {
+      if (stack.length > 0) {
+        const parent = stack.pop() as any[];
+        parent.push(current);
+        current = parent;
+      } else {
+        result.push(current);
+        current = [];
+      }
+      i++;
+      continue;
+    }
+
+    // Check for comma separator
+    if (char === ',') {
+      // Skip if we're not building anything
+      if (Array.isArray(current) || typeof current === 'string') {
+        i++;
+        continue;
+      }
+    }
+
+    // Accumulate whitespace and other characters
+    if (!/\s/.test(char)) {
+      if (typeof current !== 'string') {
+        current = '';
+      }
+      (current as string) += char;
+    }
+    i++;
+  }
+
+  // Don't forget the last item
+  if (Array.isArray(current) && current.length > 0) {
+    result.push(current);
+  } else if (typeof current === 'string' && current.trim()) {
+    result.push(current.trim());
+  }
+
+  // If we have only one result array and it's not nested, return it directly
+  if (result.length === 1 && Array.isArray(result[0])) {
+    return result[0];
+  }
+
+  return result;
+}
+
+/**
+ * Parse JSON field from CSV, handling Python-style quotes
+ *
+ * Converts Python list notation to valid JSON and parses it.
+ * Handles single quotes, empty lists, and malformed data gracefully.
+ *
+ * @param field - The field value to parse
+ * @returns Parsed array or object, or empty array if parsing fails
+ */
 function parseJSONField(field: string): any {
   if (!field || field === '[]' || field === '""') return [];
 
+  const trimmed = field.trim();
+
+  // Check if it's a Python list (starts with [)
+  if (trimmed.startsWith('[')) {
+    try {
+      return parsePythonList(field);
+    } catch (e) {
+      // Fall through to other methods
+    }
+  }
+
+  // Try simple regex-based conversion
   try {
-    // Convert Python-style quotes to JSON
-    // The challenge: Python uses ' for strings, but text can contain embedded '
-    // Example: ['I'd go'] should become ["I'd go"] not ["I"d go"]
+    let normalized = field
+      .replace(/\bNone\b/g, 'null')
+      .replace(/\bTrue\b/g, 'true')
+      .replace(/\bFalse\b/g, 'false');
 
-    let normalized = field;
-
-    // Step 1: Replace Python literals
-    normalized = normalized.replace(/\bNone\b/g, 'null');
-    normalized = normalized.replace(/\bTrue\b/g, 'true');
-    normalized = normalized.replace(/\bFalse\b/g, 'false');
-
-    // Step 2: Convert Python single-quoted strings to JSON double-quoted strings
-    // We need to find '...' patterns and replace them with "..." while preserving internal quotes
-
-    // This regex finds Python string patterns:
-    // - Match opening ' followed by content (non-greedy) followed by closing '
-    // - But we must handle escaped quotes like \' inside strings
-    normalized = normalized.replace(/'([^'\\]|\\.)*'/g, function(match) {
-      // Remove the outer quotes
-      let content = match.slice(1, -1);
-      // Escape double quotes and backslashes for JSON
-      content = content.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      return '"' + content + '"';
-    });
+    // Convert single quotes to double quotes for simple cases
+    normalized = normalized.replace(/'/g, '"');
 
     return JSON.parse(normalized);
   } catch (error) {
-    // If parsing fails, try a more lenient approach
-    try {
-      // Fallback: Use eval-like approach for simple cases
-      // Replace ' with " but only for string delimiters
-      let normalized = field
-        .replace(/\bNone\b/g, 'null')
-        .replace(/\bTrue\b/g, 'true')
-        .replace(/\bFalse\b/g, 'false');
-
-      // Manually replace the outermost quotes
-      // Start by finding list/array patterns
-      if (normalized.startsWith('[') && normalized.endsWith(']')) {
-        let content = normalized.slice(1, -1);
-        // Replace ' at boundaries with "
-        content = content.replace(/^'/, '"').replace(/'$/, '"');
-        // Replace ', ' with ", "
-        content = content.replace(/', '/g, '", "');
-        normalized = '[' + content + ']';
-      }
-
-      return JSON.parse(normalized);
-    } catch (fallbackError) {
-      console.warn(`  ⚠ Warning: Failed to parse JSON field: ${field.substring(0, 50)}...`);
-      return [];
-    }
+    console.warn(`  ⚠ Warning: Failed to parse JSON field: ${field.substring(0, 50)}...`);
+    return [];
   }
 }
 
