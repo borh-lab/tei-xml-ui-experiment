@@ -49,6 +49,40 @@ for repo in "${REPOS[@]}"; do
     fi
 done
 
+# Extract zip files in each corpus
+echo ""
+echo "Extracting corpus zip files..."
+
+for repo in "${REPOS[@]}"; do
+    name="${repo%%|*}"
+    repo_path="$CORPORA_DIR/$name"
+
+    if [ -d "$repo_path" ]; then
+        cd "$repo_path"
+
+        # Find all zip files in the corpus directory
+        for zipfile in *.zip; do
+            # Check if glob matched anything
+            if [ ! -e "$zipfile" ]; then
+                continue
+            fi
+
+            zipname="${zipfile%.zip}"
+
+            # Check if already extracted (look for extraction marker)
+            if [ -f ".${zipname}.extracted" ]; then
+                echo "  ✓ Already extracted: $zipname"
+            else
+                echo "  Extracting: $zipname..."
+                unzip -q -o "$zipfile"
+                touch ".${zipname}.extracted"
+            fi
+        done
+
+        cd - > /dev/null
+    fi
+done
+
 echo ""
 echo "✓ Corpus repositories ready!"
 echo "Corpora are now available in: $CORPORA_DIR/"
