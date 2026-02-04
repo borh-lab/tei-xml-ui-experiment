@@ -42,6 +42,22 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'doc-videos',
+      testMatch: '**/doc-videos.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'on', // Always record videos for doc generation
+      },
+      // Use a different port to avoid conflicts
+      webServer: {
+        command: 'npm run dev',
+        url: 'http://localhost:3001',
+        port: 3001,
+        reuseExistingServer: false, // Always start fresh
+        timeout: 120 * 1000,
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
