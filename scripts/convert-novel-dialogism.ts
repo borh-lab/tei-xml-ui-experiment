@@ -217,6 +217,64 @@ function buildCharacterIndex(characters: CharacterRow[]): Map<string, CharacterD
 }
 
 /**
+ * Generate TEI header with file description and participant description
+ *
+ * Creates a complete TEI header including:
+ * - fileDesc with title and author
+ * - sourceDesc with conversion information
+ * - particDesc with listPerson containing person elements
+ * - Each person has xml:id, novel-dialogism:category, sex, persName, and alias tags
+ * - Filters to unique characters by ID
+ */
+function generateTEIHeader(
+  novelId: string,
+  characterIndex: Map<string, CharacterData>
+): string {
+  // Filter to unique characters by ID (not by alias lookups)
+  const uniqueCharacters = Array.from(characterIndex.values())
+    .filter((char, index, self) =>
+      index === self.findIndex((c) => c.id === char.id)
+    );
+
+  // Generate listPerson with person elements
+  const personElements = uniqueCharacters.map(char => {
+    // Generate alias elements if aliases exist
+    const aliasElements = char.aliases.length > 0
+      ? char.aliases.map(alias => `        <alias>${alias}</alias>`).join('\n')
+      : '';
+
+    return `    <person xml:id="${char.id}" novel-dialogism:category="${char.category}" sex="${char.gender}">
+      <persName>${char.mainName}</persName>
+${aliasElements}
+    </person>`;
+  }).join('\n');
+
+  // Build complete TEI header
+  return `  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>${novelId.replace(/_/g, ' ')}</title>
+        <author>Unknown</author>
+      </titleStmt>
+      <sourceDesc>
+        <p>Converted from novel-dialogism corpus</p>
+        <p>Original source: ${novelId}</p>
+      </sourceDesc>
+    </fileDesc>
+
+    <particDesc>
+      <listPerson>
+${personElements}
+      </listPerson>
+    </particDesc>
+
+    <encodingDesc>
+      <p>Annotations converted from quotation_info.csv and character_info.csv</p>
+    </encodingDesc>
+  </teiHeader>`;
+}
+
+/**
  * Main conversion function
  */
 async function main() {
@@ -313,11 +371,30 @@ async function main() {
           }
         }
       }
+
+      // Task 5: Test TEI header generation
+      console.log(`\n[Task 5 Test] Generating TEI header...`);
+      const teiHeader = generateTEIHeader(firstNovel, charIndex);
+      console.log(`  ✓ Generated TEI header (${teiHeader.length} chars)`);
+
+      // Show first 5 lines
+      console.log(`\n  First 5 lines of generated header:`);
+      const headerLines = teiHeader.split('\n').slice(0, 5);
+      headerLines.forEach(line => {
+        console.log(`  ${line}`);
+      });
+
+      // Count unique characters in header
+      const uniqueChars = Array.from(charIndex.values())
+        .filter((char, index, self) =>
+          index === self.findIndex((c) => c.id === char.id)
+        );
+      console.log(`\n  ✓ Header includes ${uniqueChars.length} unique characters`);
     } catch (error) {
       console.error(`  ✗ Error parsing CSV files:`, error);
     }
 
-    console.log(`\n[Task 4] Character index building test complete. Stopping here for now.\n`);
+    console.log(`\n[Task 5] TEI header generation test complete. Stopping here for now.\n`);
     process.exit(0);
   }
 
