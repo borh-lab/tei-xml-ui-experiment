@@ -1,0 +1,24 @@
+[submodule "corpora/test-submodule"]
+	path = corpora/test-submodule
+	url = https://github.com/octocat/Hello-World.git
+[submodule "corpora/vscode-submodule"]
+	path = corpora/vscode-submodule
+	url = https://github.com/microsoft/vscode.git
+[submodule "corpora/wright-american-fiction"]
+	path = corpora/wright-american-fiction
+	url = https://github.com/iulibdcs/Wright-American-Fiction.git
+[submodule "corpora/victorian-women-writers"]
+	path = corpora/victorian-women-writers
+	url = https://github.com/iulibdcs/Victorian-Women-Writers-Project.git
+[submodule "corpora/indiana-magazine-history"]
+	path = corpora/indiana-magazine-history
+	url = https://github.com/iulibdcs/Indiana-Magazine-of-History.git
+[submodule "corpora/indiana-authors-books"]
+	path = corpora/indiana-authors-books
+	url = https://github.com/iulibdcs/Indiana-Authors-and-Their-Books.git
+[submodule "corpora/brevier-legislative"]
+	path = corpora/brevier-legislative
+	url = https://github.com/iulibdcs/Brevier-Legislative-Reports.git
+[submodule "corpora/tei-texts"]
+	path = corpora/tei-texts
+	url = https://github.com/christofs/tei-texts.git
