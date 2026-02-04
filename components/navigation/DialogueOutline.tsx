@@ -21,7 +21,7 @@ export function DialogueOutline({
   const divisions = document.getDivisions();
 
   // Group dialogue by chapter/division
-  const byChapter = new Map<string, any[]>();
+  const byChapter = new Map<string, Array<Record<string, unknown>>>();
   dialogue.forEach((d, idx) => {
     // Try to find the chapter/division for this dialogue
     let chapter = 'unknown';
@@ -29,11 +29,11 @@ export function DialogueOutline({
     // Check if the dialogue element has a parent division
     if (d.element && typeof d.element === 'object') {
       // Find closest division with @n attribute
-      const findChapter = (obj: any): string => {
+      const findChapter = (obj: Record<string, unknown>): string => {
         if (!obj || typeof obj !== 'object') return '';
 
         if (obj['@_n']) {
-          return obj['@_n'];
+          return String(obj['@_n']);
         }
 
         // Check parent references if available

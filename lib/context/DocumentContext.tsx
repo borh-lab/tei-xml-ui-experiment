@@ -8,8 +8,8 @@
 import { createContext, useContext, ReactNode } from 'react';
 
 export interface DocumentContextType {
-  document: any;
-  setDocument: (doc: any) => void;
+  document: unknown;
+  setDocument: (doc: unknown) => void;
   clearDocument: () => void;
 }
 

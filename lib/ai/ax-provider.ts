@@ -4,10 +4,22 @@ import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 import { nlpDetectDialogue } from './nlp-provider';
 import { logger } from '@/lib/utils/logger';
 
+interface LLMInstance {
+  [key: string]: unknown;
+}
+
+interface DetectedPassage {
+  passageStartIndex: number;
+  passageEndIndex: number;
+  extractedText: string;
+  isDialoguePassage: boolean;
+  detectionConfidence: number;
+}
+
 export class AxProvider implements AIProvider {
   public providerName: string;
   private apiKey: string;
-  private llm: any;
+  private llm: LLMInstance;
   private log;
 
   constructor(providerName: string, apiKey?: string) {
@@ -74,8 +86,8 @@ export class AxProvider implements AIProvider {
 
       // Map result to DialogueSpan format with clear variable names
       const dialogueSpans: DialogueSpan[] = analysisResult.detectedPassages
-        .filter((passage: any) => passage.isDialoguePassage)
-        .map((passage: any) => ({
+        .filter((passage: DetectedPassage) => passage.isDialoguePassage)
+        .map((passage: DetectedPassage) => ({
           start: passage.passageStartIndex,
           end: passage.passageEndIndex,
           text: passage.extractedText,

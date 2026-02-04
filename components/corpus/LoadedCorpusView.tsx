@@ -14,8 +14,8 @@ import { Badge } from '@/components/ui/badge';
 // Use browser-compatible fetch data source
 const layers = Layer.mergeAll(FetchCorpusDataSourceLive, CorpusBrowserLive);
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
-  return Effect.runPromise(pipe(effect, Effect.provide(layers)) as any);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, unknown>): Promise<A> => {
+  return Effect.runPromise(pipe(effect, Effect.provide(layers)) as Effect.Effect<A, never, never>);
 };
 
 interface LoadedCorpusViewProps {

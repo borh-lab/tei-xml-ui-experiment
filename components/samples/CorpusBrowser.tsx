@@ -39,11 +39,11 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
       const files = await response.json();
 
       const novels: Novel[] = files
-        .filter((f: any) => f.name?.endsWith('.xml'))
-        .map((f: any) => ({
-          title: f.name.replace('.xml', ''),
+        .filter((f: { name?: string; download_url?: string }) => f.name?.endsWith('.xml'))
+        .map((f: { name?: string; download_url?: string }) => ({
+          title: f.name?.replace('.xml', '') || '',
           author: 'Various',
-          path: f.download_url,
+          path: f.download_url || '',
         }))
         .slice(0, 20); // Limit to 20 for now
 
@@ -123,7 +123,7 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {filtered.length === 0 ? (
               <p className="text-center text-muted-foreground py-4">
-                No novels found matching "{search}"
+                No novels found matching &quot;{search}&quot;
               </p>
             ) : (
               filtered.map((novel) => (

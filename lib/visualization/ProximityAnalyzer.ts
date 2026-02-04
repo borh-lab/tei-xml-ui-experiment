@@ -1,5 +1,6 @@
 import { TEIDocument } from '@/lib/tei';
 import { Node, Edge } from 'reactflow';
+import type { TEINode } from '@/lib/tei/types';
 
 export type ProximityMethod = 'paragraph' | 'dialogue' | 'word' | 'combined';
 export type EdgeDirection = 'undirected' | 'directed' | 'both';
@@ -63,7 +64,7 @@ export class ProximityAnalyzer {
     const paragraphsArray = Array.isArray(paragraphs) ? paragraphs : [paragraphs];
 
     // Extract characters from each paragraph
-    paragraphsArray.forEach((para: any) => {
+    paragraphsArray.forEach((para: TEINode) => {
       const charactersInPara = this.extractCharactersFromParagraph(para);
 
       // Create pairwise connections

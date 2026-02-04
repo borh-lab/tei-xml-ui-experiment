@@ -97,7 +97,7 @@ export class EntityDetector {
     return entities;
   }
 
-  detectDialogueSpeakers(text: string, currentSpeakers: any[]): DialogueSpan[] {
+  detectDialogueSpeakers(text: string, currentSpeakers: string[]): DialogueSpan[] {
     const dialogues: DialogueSpan[] = [];
 
     // Pattern: "Quote" + said + Name

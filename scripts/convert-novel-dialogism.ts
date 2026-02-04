@@ -311,7 +311,7 @@ ${personElements}
  * - Lone quotes: [["'s", 'Brenda']]
  * - Nested structures: [[['a', 'b'], ['c']]]
  */
-function parsePythonList(field: string): any {
+function parsePythonList(field: string): unknown {
   field = field.trim();
   if (!field || field === '[]' || field === '""' || field === "''") {
     if (field === '[]') return [];
@@ -320,15 +320,15 @@ function parsePythonList(field: string): any {
   }
 
   // Replace Python literals
-  let normalized = field
+  const normalized = field
     .replace(/\bNone\b/g, 'null')
     .replace(/\bTrue\b/g, 'true')
     .replace(/\bFalse\b/g, 'false');
 
   // Use a character-by-character state machine
-  const result: any[] = [];
-  const stack: any[] = [];
-  let current: any[] | string = [];
+  const result: unknown[] = [];
+  const stack: unknown[] = [];
+  let current: unknown[] | string = [];
   let inString = false;
   let stringChar: '"' | "'" | null = null;
   let escapeNext = false;
@@ -397,7 +397,7 @@ function parsePythonList(field: string): any {
     // Check for array end
     if (char === ']') {
       if (stack.length > 0) {
-        const parent = stack.pop() as any[];
+        const parent = stack.pop() as unknown[];
         parent.push(current);
         current = parent;
       } else {
@@ -451,7 +451,7 @@ function parsePythonList(field: string): any {
  * @param field - The field value to parse
  * @returns Parsed array or object, or empty array if parsing fails
  */
-function parseJSONField(field: string): any {
+function parseJSONField(field: string): unknown {
   if (!field || field === '[]' || field === '""') return [];
 
   const trimmed = field.trim();
@@ -476,7 +476,7 @@ function parseJSONField(field: string): any {
     normalized = normalized.replace(/'/g, '"');
 
     return JSON.parse(normalized);
-  } catch (error) {
+  } catch {
     console.warn(`  ⚠ Warning: Failed to parse JSON field: ${field.substring(0, 50)}...`);
     return [];
   }
@@ -586,7 +586,7 @@ function convertQuotationToTEI(quote: QuotationRow, characterIndex: Map<string, 
           let refAttr = '';
           if (Array.isArray(entityList) && entityList.length > 0) {
             const refs = entityList
-              .map((e: any) => {
+              .map((e: string | number) => {
                 const charData = characterIndex.get(String(e));
                 return charData ? `#${charData.id}` : `#${e}`;
               })

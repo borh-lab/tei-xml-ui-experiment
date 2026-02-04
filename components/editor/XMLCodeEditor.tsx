@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import type { editor } from 'monaco-editor';
 
@@ -36,15 +36,7 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-sm text-muted-foreground">Loading editor...</div>
-      </div>
-    );
-  }
-
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: any) => {
+  const handleEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor, _monaco: typeof import('monaco-editor')) => {
     editorRef.current = editor;
 
     // Configure XML language options
@@ -67,19 +59,19 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
       formatOnPaste: true,
       formatOnType: true,
     });
-  };
+  }, [onDidChangeSelection, onMount]);
 
-  const handleEditorChange = (newValue: string | undefined) => {
+  const handleEditorChange = useCallback((newValue: string | undefined) => {
     if (newValue !== undefined && onChange) {
       setHasPendingChange(true);
       onChange(newValue);
       // Debounce is handled by the parent component
     }
-  };
+  }, [onChange]);
 
   // Update error markers (squiggles) when errors change
   useEffect(() => {
-    if (!editorRef.current) return;
+    if (!editorRef.current || !mounted) return;
 
     const monacoEditor = editorRef.current;
     const model = monacoEditor.getModel();
@@ -114,7 +106,7 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
       // Apply decorations
       decorationRefs.current = monacoEditor.deltaDecorations(oldDecorations, newDecorations);
     });
-  }, [errors]);
+  }, [errors, mounted]);
 
   // Clear pending change flag after a delay
   useEffect(() => {
@@ -125,6 +117,14 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
       return () => clearTimeout(timer);
     }
   }, [hasPendingChange]);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-sm text-muted-foreground">Loading editor...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full">
