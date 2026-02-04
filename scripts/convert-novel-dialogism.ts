@@ -345,9 +345,14 @@ function convertQuotationToTEI(quote: QuotationRow): string {
   const whoAttr = `who="#${speaker}"`;
 
   // Build addr attribute if addressees exist
-  const addrAttr = addressees && addressees !== '[]'
-    ? `addr="${addressees}"`
-    : '';
+  let addrAttr = '';
+  if (addressees && addressees.trim() !== '[]') {
+    const parsedAddressees = parseJSONField(addressees);
+    if (Array.isArray(parsedAddressees) && parsedAddressees.length > 0) {
+      const addresseeIds = parsedAddressees.map(a => `#${a.trim()}`).join(' ');
+      addrAttr = `addr="${addresseeIds}"`;
+    }
+  }
 
   let content = '';
 
