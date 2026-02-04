@@ -7,6 +7,7 @@ Implemented the `handleApplyTag` function in `EditorLayout.tsx` that allows user
 ## Files Modified
 
 ### 1. `/home/bor/Projects/tei-xml/components/editor/EditorLayout.tsx`
+
 - **Lines 26**: Added import for `getParagraphText` and `applyTagToParagraph` utility functions
 - **Lines 297-361**: Implemented `handleApplyTag` function with the following features:
   - Gets current text selection from the browser
@@ -19,16 +20,21 @@ Implemented the `handleApplyTag` function in `EditorLayout.tsx` that allows user
   - Includes comprehensive error handling
 
 ### 2. `/home/bor/Projects/tei-xml/lib/utils/teiTagging.ts` (NEW FILE)
+
 Created a utility module with two key functions:
 
 #### `getParagraphText(para: any): string`
+
 Extracts text content from a paragraph, handling multiple formats:
+
 - Simple string paragraphs
 - Object paragraphs with `#text` property
 - Complex nested structures with mixed content
 
 #### `applyTagToParagraph(para: any, selectedText: string, tag: string, attrs?: Record<string, string>): any`
+
 Applies a TEI tag to selected text within a paragraph:
+
 - Handles simple string paragraphs
 - Handles object paragraphs with `#text` property
 - Handles complex mixed content (arrays of strings and elements)
@@ -38,7 +44,9 @@ Applies a TEI tag to selected text within a paragraph:
 - Returns original paragraph if text is not found (with warning)
 
 ### 3. `/home/bor/Projects/tei-xml/tests/unit/teiTagging.test.ts` (NEW FILE)
+
 Comprehensive test suite covering:
+
 - Text extraction from various paragraph formats
 - Tag application to simple string paragraphs
 - Tag application with custom attributes
@@ -50,6 +58,7 @@ Comprehensive test suite covering:
 ## How It Works
 
 ### User Flow
+
 1. User opens a TEI document in the editor
 2. User selects text in the rendered view
 3. TagToolbar appears above the selection with buttons for:
@@ -63,7 +72,9 @@ Comprehensive test suite covering:
 ### Technical Implementation
 
 #### Tag Format
+
 Tags are applied using the fast-xml-parser format:
+
 ```javascript
 {
   "#said": "the selected text",  // Element name and content
@@ -73,17 +84,21 @@ Tags are applied using the fast-xml-parser format:
 ```
 
 #### XML Output Example
+
 Before:
+
 ```xml
 <p>Hello world this is a test</p>
 ```
 
 After tagging "world" with `<said>`:
+
 ```xml
 <p>Hello <said rend="plain">world</said> this is a test</p>
 ```
 
 After tagging with speaker:
+
 ```xml
 <p>Hello <said who="#della" rend="plain">world</said> this is a test</p>
 ```
@@ -105,6 +120,7 @@ After tagging with speaker:
 ## Error Handling
 
 The implementation includes robust error handling:
+
 - Validates document existence before processing
 - Checks for valid text selection
 - Handles cases where selected text cannot be found
@@ -114,7 +130,9 @@ The implementation includes robust error handling:
 ## Testing
 
 ### Unit Tests
+
 Created comprehensive unit tests in `tests/unit/teiTagging.test.ts`:
+
 - ✅ Text extraction from various formats
 - ✅ Tag application to simple strings
 - ✅ Tag application with custom attributes
@@ -122,7 +140,9 @@ Created comprehensive unit tests in `tests/unit/teiTagging.test.ts`:
 - ✅ Mixed content handling
 
 ### Manual Testing
+
 To test manually:
+
 1. Start the dev server: `npm run dev`
 2. Open http://localhost:3000
 3. Load a sample document (e.g., "The Gift of the Magi")
@@ -141,6 +161,7 @@ To test manually:
 ## Future Enhancements
 
 Potential improvements for future iterations:
+
 1. Support for nested tags (tags within tags)
 2. Undo/redo functionality for tag operations
 3. Visual highlighting of tagged elements in rendered view
@@ -151,6 +172,7 @@ Potential improvements for future iterations:
 ## Integration with Existing Code
 
 The implementation seamlessly integrates with:
+
 - **DocumentContext**: Uses `updateDocument()` to persist changes
 - **TagToolbar**: Receives tag selection via `onApplyTag` callback
 - **TEIDocument**: Leverages `serialize()` for XML generation

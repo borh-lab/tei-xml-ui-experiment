@@ -9,7 +9,7 @@ const METADATA_DIR = 'tests/corpora/metadata';
 const OUTPUT_FILE = 'tests/corpora/splits.json';
 
 const SPLIT_CONFIG = {
-  train: 0.70,
+  train: 0.7,
   validation: 0.15,
   test: 0.15,
   seed: 42,
@@ -68,7 +68,10 @@ function getValidFiles(corpusPath: string): string[] {
 /**
  * Split files into train/val/test
  */
-function splitFiles(files: string[], rng: SeededRandom): {
+function splitFiles(
+  files: string[],
+  rng: SeededRandom
+): {
   train: string[];
   validation: string[];
   test: string[];
@@ -92,7 +95,9 @@ function splitFiles(files: string[], rng: SeededRandom): {
 async function main() {
   console.log('Generating TEI Corpus Splits');
   console.log('===========================\n');
-  console.log(`Config: ${SPLIT_CONFIG.train * 100}% train, ${SPLIT_CONFIG.validation * 100}% val, ${SPLIT_CONFIG.test * 100}% test`);
+  console.log(
+    `Config: ${SPLIT_CONFIG.train * 100}% train, ${SPLIT_CONFIG.validation * 100}% val, ${SPLIT_CONFIG.test * 100}% test`
+  );
   console.log(`Seed: ${SPLIT_CONFIG.seed}\n`);
 
   // Read metadata

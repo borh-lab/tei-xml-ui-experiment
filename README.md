@@ -112,6 +112,7 @@ direnv allow  # Automatically loads on cd
 ```
 
 The Nix shell includes:
+
 - Node.js, Bun, npm
 - Rust toolchains (for WASM builds)
 - Playwright browsers
@@ -134,6 +135,7 @@ npm test
 ```
 
 Test suites include:
+
 - Unit tests for TEI document operations
 - AI provider tests (with mocking)
 - Integration tests using Wright American Fiction samples
@@ -187,6 +189,7 @@ To use AI-assisted dialogue detection, set up an OpenAI API key:
 ## TEI XML Support
 
 This tool works with TEI-encoded novels and follows the TEI Guidelines for:
+
 - `<said>` elements for speech attribution
 - `<q>` elements for quotations
 - `<sp>` (speech) and `<speaker>` elements for dramatic text

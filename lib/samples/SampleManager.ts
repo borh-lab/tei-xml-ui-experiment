@@ -106,7 +106,7 @@ export const SAMPLES: readonly Sample[] = [
     difficulty: 'intermediate',
     tags: ['novel', 'third-person', 'direct-speech', 'dialogue-heavy', 'wit'],
     description:
-      'The opening chapter of Jane Austen\'s classic novel, featuring the famous opening line and witty banter between Mr. and Mrs. Bennet.',
+      "The opening chapter of Jane Austen's classic novel, featuring the famous opening line and witty banter between Mr. and Mrs. Bennet.",
   },
 ] as const;
 
@@ -207,9 +207,7 @@ export function getAllSamples(): readonly Sample[] {
  * @param difficulty - Difficulty level
  * @returns Samples matching the difficulty level
  */
-export function getSamplesByDifficulty(
-  difficulty: Sample['difficulty']
-): readonly Sample[] {
+export function getSamplesByDifficulty(difficulty: Sample['difficulty']): readonly Sample[] {
   return SAMPLES.filter((s) => s.difficulty === difficulty);
 }
 

@@ -23,7 +23,7 @@ export interface SchemaSelectionHistory {
 export function createSchemaSelection(schemaId: string): SchemaSelection {
   return Object.freeze({
     schemaId,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }
 
@@ -39,7 +39,7 @@ export function transitionSchemaSelection(
 
   return Object.freeze({
     current: newSelection,
-    previous: [history.current, ...history.previous.slice(0, 9)]
+    previous: [history.current, ...history.previous.slice(0, 9)],
   });
 }
 
@@ -77,10 +77,7 @@ export class SchemaSelectionManager {
     return selection;
   }
 
-  transition(
-    history: SchemaSelectionHistory,
-    newSchemaId: string
-  ): SchemaSelectionHistory {
+  transition(history: SchemaSelectionHistory, newSchemaId: string): SchemaSelectionHistory {
     const newHistory = transitionSchemaSelection(history, newSchemaId);
     this.save(newHistory.current);
     return newHistory;

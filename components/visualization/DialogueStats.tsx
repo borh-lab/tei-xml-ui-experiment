@@ -15,15 +15,19 @@ export function DialogueStats() {
 
     return {
       totalDialogue: dialogue.length,
-      totalChapters: divisions.filter(d => d.type === 'chapter').length,
-      dialoguePerChapter: divisions.map(div => {
+      totalChapters: divisions.filter((d) => d.type === 'chapter').length,
+      dialoguePerChapter: divisions.map((div) => {
         return { name: `${div.type} ${div.n}`, count: 0 }; // Placeholder
-      })
+      }),
     };
   }, [document]);
 
   if (!stats) {
-    return <Card><CardContent className="p-6">No document loaded</CardContent></Card>;
+    return (
+      <Card>
+        <CardContent className="p-6">No document loaded</CardContent>
+      </Card>
+    );
   }
 
   return (

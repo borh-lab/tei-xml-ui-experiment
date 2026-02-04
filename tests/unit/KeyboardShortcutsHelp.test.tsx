@@ -4,34 +4,19 @@ import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp
 
 describe('KeyboardShortcutsHelp', () => {
   test('should render dialog when open', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={() => {}} />);
 
     expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();
   });
 
   test('should not render dialog when closed', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={false}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={false} onClose={() => {}} />);
 
     expect(screen.queryByText('Keyboard Shortcuts')).not.toBeInTheDocument();
   });
 
   test('should display all keyboard shortcuts', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={() => {}} />);
 
     // Check for main shortcuts
     expect(screen.getByText('Cmd+K')).toBeInTheDocument();
@@ -48,36 +33,21 @@ describe('KeyboardShortcutsHelp', () => {
   });
 
   test('should display navigation shortcuts', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={() => {}} />);
 
     expect(screen.getByText('J / K')).toBeInTheDocument();
     expect(screen.getByText(/Navigate to next/i)).toBeInTheDocument();
   });
 
   test('should display tagging shortcuts', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={() => {}} />);
 
     expect(screen.getByText('1-9')).toBeInTheDocument();
     expect(screen.getByText(/Quick tag/i)).toBeInTheDocument();
   });
 
   test('should display AI shortcuts', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={() => {}} />);
 
     expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.getByText(/Accept/i)).toBeInTheDocument();
@@ -87,12 +57,7 @@ describe('KeyboardShortcutsHelp', () => {
   });
 
   test('should display help shortcut', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={() => {}} />);
 
     expect(screen.getByText('?')).toBeInTheDocument();
     expect(screen.getByText(/Show this keyboard shortcuts help/i)).toBeInTheDocument();
@@ -101,12 +66,7 @@ describe('KeyboardShortcutsHelp', () => {
   test('should call onClose when dialog is closed', () => {
     const handleClose = jest.fn();
 
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={handleClose}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={handleClose} />);
 
     // The Dialog component from shadcn/ui should trigger onClose when closed
     // This is a basic test - in a real scenario you'd click the close button/overlay
@@ -114,12 +74,7 @@ describe('KeyboardShortcutsHelp', () => {
   });
 
   test('should render shortcuts with proper formatting', () => {
-    render(
-      <KeyboardShortcutHelp
-        open={true}
-        onClose={() => {}}
-      />
-    );
+    render(<KeyboardShortcutHelp open={true} onClose={() => {}} />);
 
     // Check that shortcut keys are displayed
     expect(screen.getByText('Cmd+K')).toBeInTheDocument();

@@ -5,12 +5,14 @@
 **Goal:** Fix the broken TEI RelaxNG schema integration by implementing configurable schema selection with protocol-based architecture.
 
 **Architecture:**
+
 - **Protocol-first design**: SchemaResolver interface enables composition and testing
 - **Explicit constraints**: Allow-list prevents arbitrary file access
 - **Value-oriented state**: Immutable SchemaSelection values track state changes
 - **Layered approach**: Protocol → Implementation → API → UI
 
 **Tech Stack:**
+
 - `salve-annos` (v1.2.4) - RelaxNG validation
 - Next.js API routes
 - React hooks (useState, useEffect, useMemo)
@@ -21,6 +23,7 @@
 ## Task 1: SchemaResolver Protocol
 
 **Files:**
+
 - Create: `lib/schema/SchemaResolver.ts`
 
 **Step 1: Create the protocol interface**
@@ -83,6 +86,7 @@ git commit -m "feat: add SchemaResolver protocol interface"
 ## Task 2: FileSchemaResolver Implementation
 
 **Files:**
+
 - Create: `lib/schema/FileSchemaResolver.ts`
 - Test: `tests/unit/file-schema-resolver.test.ts`
 
@@ -101,8 +105,8 @@ describe('FileSchemaResolver', () => {
       name: 'Test Schema',
       description: 'A test schema',
       path: '/schemas/test.rng',
-      tags: ['test']
-    }
+      tags: ['test'],
+    },
   };
 
   it('should resolve known schema ID to path', () => {
@@ -160,11 +164,8 @@ export class FileSchemaResolver implements SchemaResolver {
   private readonly schemas: Readonly<Record<string, SchemaInfo>>;
   private readonly allowedIds: ReadonlySet<string>;
 
-  constructor(
-    schemas: Record<string, SchemaInfo> = {},
-    allowedIds: Set<string> = new Set()
-  ) {
-    this.schemas = Object.freeze({...schemas});
+  constructor(schemas: Record<string, SchemaInfo> = {}, allowedIds: Set<string> = new Set()) {
+    this.schemas = Object.freeze({ ...schemas });
     this.allowedIds = new ReadonlySet(allowedIds);
   }
 
@@ -210,6 +211,7 @@ git commit -m "feat: add FileSchemaResolver with allow-list constraints"
 ## Task 3: Schema Registry with Default Schemas
 
 **Files:**
+
 - Modify: `lib/schema/FileSchemaResolver.ts`
 
 **Step 1: Add default schema registry**
@@ -220,11 +222,7 @@ Add to `lib/schema/FileSchemaResolver.ts` after imports:
 /**
  * Explicit constraint: Only these schema IDs are allowed
  */
-const ALLOWED_SCHEMA_IDS = new ReadonlySet([
-  'tei-minimal',
-  'tei-all',
-  'tei-novel'
-]);
+const ALLOWED_SCHEMA_IDS = new ReadonlySet(['tei-minimal', 'tei-all', 'tei-novel']);
 
 /**
  * Schema registry: Metadata for known schemas
@@ -235,22 +233,22 @@ const SCHEMA_REGISTRY: Readonly<Record<string, SchemaInfo>> = {
     name: 'TEI Minimal (Dialogue)',
     description: 'Core TEI elements for dialogue annotation: sp, speaker, stage',
     path: '/schemas/tei-minimal.rng',
-    tags: ['dialogue', 'lightweight', 'fast']
+    tags: ['dialogue', 'lightweight', 'fast'],
   },
   'tei-all': {
     id: 'tei-all',
     name: 'TEI P5 Complete',
     description: 'Full TEI P5 schema with all standard elements',
     path: '/schemas/tei-all.rng',
-    tags: ['complete', 'comprehensive', 'slow']
+    tags: ['complete', 'comprehensive', 'slow'],
   },
   'tei-novel': {
     id: 'tei-novel',
     name: 'TEI for Novels',
     description: 'TEI schema optimized for prose fiction',
     path: '/schemas/tei-novel.rng',
-    tags: ['novel', 'prose', 'fiction']
-  }
+    tags: ['novel', 'prose', 'fiction'],
+  },
 } as const;
 
 /**
@@ -315,6 +313,7 @@ git commit -m "feat: add default schema registry with security constraints"
 ## Task 4: Schema Selection State Management
 
 **Files:**
+
 - Create: `lib/schema/SchemaSelection.ts`
 - Test: `tests/unit/schema-selection.test.ts`
 
@@ -326,7 +325,7 @@ Create `tests/unit/schema-selection.test.ts`:
 import {
   createSchemaSelection,
   transitionSchemaSelection,
-  SchemaSelectionManager
+  SchemaSelectionManager,
 } from '@/lib/schema/SchemaSelection';
 import { FileSchemaResolver } from '@/lib/schema/FileSchemaResolver';
 import { SchemaInfo } from '@/lib/schema/SchemaResolver';
@@ -334,7 +333,7 @@ import { SchemaInfo } from '@/lib/schema/SchemaResolver';
 // Mock localStorage
 const mockStorage = {
   getItem: jest.fn(),
-  setItem: jest.fn()
+  setItem: jest.fn(),
 };
 
 (global as any).localStorage = mockStorage;
@@ -352,7 +351,7 @@ describe('transitionSchemaSelection', () => {
   it('should create new history state', () => {
     const history = {
       current: createSchemaSelection('tei-minimal'),
-      previous: []
+      previous: [],
     };
 
     const newHistory = transitionSchemaSelection(history, 'tei-all');
@@ -364,7 +363,7 @@ describe('transitionSchemaSelection', () => {
   it('should keep last 10 previous selections', () => {
     let history = {
       current: createSchemaSelection('tei-minimal'),
-      previous: []
+      previous: [],
     };
 
     // Add 15 selections
@@ -387,8 +386,8 @@ describe('SchemaSelectionManager', () => {
         name: 'TEI Minimal',
         description: 'Test',
         path: '/schemas/tei-minimal.rng',
-        tags: []
-      }
+        tags: [],
+      },
     };
 
     resolver = new FileSchemaResolver(mockSchemas, new Set(['tei-minimal']));
@@ -408,7 +407,7 @@ describe('SchemaSelectionManager', () => {
   it('should load stored selection if valid', () => {
     const stored = JSON.stringify({
       schemaId: 'tei-minimal',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
     mockStorage.getItem.mockReturnValue(stored);
 
@@ -420,7 +419,7 @@ describe('SchemaSelectionManager', () => {
   it('should return default if stored schema no longer exists', () => {
     const stored = JSON.stringify({
       schemaId: 'deleted-schema',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
     mockStorage.getItem.mockReturnValue(stored);
 
@@ -476,7 +475,7 @@ export interface SchemaSelectionHistory {
 export function createSchemaSelection(schemaId: string): SchemaSelection {
   return Object.freeze({
     schemaId,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }
 
@@ -492,7 +491,7 @@ export function transitionSchemaSelection(
 
   return Object.freeze({
     current: newSelection,
-    previous: [history.current, ...history.previous.slice(0, 9)]
+    previous: [history.current, ...history.previous.slice(0, 9)],
   });
 }
 
@@ -530,10 +529,7 @@ export class SchemaSelectionManager {
     return selection;
   }
 
-  transition(
-    history: SchemaSelectionHistory,
-    newSchemaId: string
-  ): SchemaSelectionHistory {
+  transition(history: SchemaSelectionHistory, newSchemaId: string): SchemaSelectionHistory {
     const newHistory = transitionSchemaSelection(history, newSchemaId);
     this.save(newHistory.current);
     return newHistory;
@@ -558,6 +554,7 @@ git commit -m "feat: add value-oriented schema selection state management"
 ## Task 5: Schema Registry API Endpoint
 
 **Files:**
+
 - Create: `app/api/schemas/route.ts`
 - Test: `tests/integration/schemas-api.test.ts`
 
@@ -610,19 +607,16 @@ export async function GET() {
     const schemas = resolver.list();
 
     return NextResponse.json({
-      schemas: schemas.map(s => ({
+      schemas: schemas.map((s) => ({
         id: s.id,
         name: s.name,
         description: s.description,
-        tags: s.tags
-      }))
+        tags: s.tags,
+      })),
     });
   } catch (error) {
     console.error('Schema list API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to list schemas' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to list schemas' }, { status: 500 });
   }
 }
 ```
@@ -644,6 +638,7 @@ git commit -m "feat: add schemas registry API endpoint"
 ## Task 6: Update Validation API
 
 **Files:**
+
 - Modify: `app/api/validate/route.ts`
 - Test: `tests/integration/validate-api-schema.test.ts`
 
@@ -665,8 +660,8 @@ describe('/api/validate with schema selection', () => {
   it('should use default schema when none provided', async () => {
     const request = {
       json: async () => ({
-        xml: '<TEI></TEI>'
-      })
+        xml: '<TEI></TEI>',
+      }),
     } as any;
 
     await POST(request);
@@ -675,7 +670,7 @@ describe('/api/validate with schema selection', () => {
     const { ValidationService } = require('@/lib/validation/ValidationService');
     expect(ValidationService).toHaveBeenCalledWith(
       expect.objectContaining({
-        defaultSchemaPath: '/schemas/tei-minimal.rng'
+        defaultSchemaPath: '/schemas/tei-minimal.rng',
       })
     );
   });
@@ -684,8 +679,8 @@ describe('/api/validate with schema selection', () => {
     const request = {
       json: async () => ({
         xml: '<TEI></TEI>',
-        schemaId: 'unknown-schema'
-      })
+        schemaId: 'unknown-schema',
+      }),
     } as any;
 
     const response = await POST(request);
@@ -700,8 +695,8 @@ describe('/api/validate with schema selection', () => {
     const request = {
       json: async () => ({
         xml: '<TEI></TEI>',
-        schemaId: 'tei-all'
-      })
+        schemaId: 'tei-all',
+      }),
     } as any;
 
     await POST(request);
@@ -709,7 +704,7 @@ describe('/api/validate with schema selection', () => {
     const { ValidationService } = require('@/lib/validation/ValidationService');
     expect(ValidationService).toHaveBeenCalledWith(
       expect.objectContaining({
-        defaultSchemaPath: '/schemas/tei-all.rng'
+        defaultSchemaPath: '/schemas/tei-all.rng',
       })
     );
   });
@@ -738,10 +733,7 @@ export async function POST(request: NextRequest) {
     const { xml, schemaId } = body;
 
     if (!xml) {
-      return NextResponse.json(
-        { error: 'Missing XML content' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing XML content' }, { status: 400 });
     }
 
     // Default to tei-minimal for fast validation
@@ -753,7 +745,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: `Unknown schema: ${effectiveSchemaId}`,
-          availableSchemas: availableSchemas.map(s => s.id)
+          availableSchemas: availableSchemas.map((s) => s.id),
         },
         { status: 400 }
       );
@@ -814,6 +806,7 @@ git commit -m "feat: update validation API with schema resolver"
 ## Task 7: Create TEI Minimal Schema
 
 **Files:**
+
 - Create: `public/schemas/tei-minimal.rng`
 
 **Step 1: Create minimal TEI schema**
@@ -925,6 +918,7 @@ git commit -m "feat: add TEI minimal schema for dialogue"
 ## Task 8: Copy TEI All Schema
 
 **Files:**
+
 - Create: `public/schemas/tei-all.rng`
 
 **Step 1: Copy schema from TEI source**
@@ -948,6 +942,7 @@ git commit -m "feat: add full TEI P5 schema"
 ## Task 9: Create TEI Novel Schema
 
 **Files:**
+
 - Create: `public/schemas/tei-novel.rng`
 
 **Step 1: Create novel-focused TEI schema**
@@ -1070,6 +1065,7 @@ git commit -m "feat: add TEI novel schema"
 ## Task 10: Update ValidationPanel Component
 
 **Files:**
+
 - Modify: `components/validation/ValidationPanel.tsx`
 - Test: `tests/unit/validation-panel-schema.test.tsx`
 
@@ -1235,6 +1231,7 @@ git commit -m "feat: add schema selection UI to ValidationPanel"
 ## Task 11: Add Styles for Schema Selector
 
 **Files:**
+
 - Modify: `components/validation/ValidationPanel.module.css` (or appropriate CSS file)
 
 **Step 1: Add schema selector styles**
@@ -1306,6 +1303,7 @@ git commit -m "style: add schema selector styles"
 ## Task 12: E2E Tests for Schema Selection
 
 **Files:**
+
 - Modify: `tests/e2e/document-validation.spec.ts`
 
 **Step 1: Add E2E tests**
@@ -1379,6 +1377,7 @@ git commit -m "test: add E2E tests for schema selection"
 ## Task 13: Update ValidationService Tests
 
 **Files:**
+
 - Modify: `tests/unit/validation-service.test.ts`
 
 **Step 1: Add tests with different schemas**
@@ -1389,10 +1388,11 @@ Add to existing validation service tests:
 describe('ValidationService with schema selection', () => {
   it('should validate with tei-minimal schema', async () => {
     const service = new ValidationService({
-      defaultSchemaPath: 'tests/fixtures/schemas/test-tei.rng'
+      defaultSchemaPath: 'tests/fixtures/schemas/test-tei.rng',
     });
 
-    const xml = '<TEI><teiHeader><fileDesc><titleStmt><title>Test</title></titleStmt><publicationStmt><publisher>Test</publisher><date>2024</date></publicationStmt><sourceDesc><p>Test</p></sourceDesc></fileDesc></teiHeader><text><body><p>Content</p></body></text></TEI>';
+    const xml =
+      '<TEI><teiHeader><fileDesc><titleStmt><title>Test</title></titleStmt><publicationStmt><publisher>Test</publisher><date>2024</date></publicationStmt><sourceDesc><p>Test</p></sourceDesc></fileDesc></teiHeader><text><body><p>Content</p></body></text></TEI>';
 
     const result = await service.validateDocument(xml);
 
@@ -1401,7 +1401,7 @@ describe('ValidationService with schema selection', () => {
 
   it('should return errors for invalid XML', async () => {
     const service = new ValidationService({
-      defaultSchemaPath: 'tests/fixtures/schemas/test-tei.rng'
+      defaultSchemaPath: 'tests/fixtures/schemas/test-tei.rng',
     });
 
     const xml = '<TEI><invalidElement /></TEI>';
@@ -1431,6 +1431,7 @@ git commit -m "test: add schema-specific validation tests"
 ## Task 14: Documentation
 
 **Files:**
+
 - Modify: `FEATURES.md` (add schema selection section)
 - Create: `docs/schema-integration.md` (technical documentation)
 
@@ -1469,7 +1470,7 @@ The ValidationPanel supports multiple TEI schemas for different document types:
 
 Create `docs/schema-integration.md`:
 
-```markdown
+````markdown
 # TEI Schema Integration
 
 ## Architecture
@@ -1485,10 +1486,12 @@ interface SchemaResolver {
   has(schemaId: string): boolean;
 }
 ```
+````
 
 ### Security
 
 Schema IDs are constrained to an allow-list to prevent path traversal:
+
 - Only pre-approved schema IDs can be resolved
 - Arbitrary file paths are rejected
 - Returns 400 error for unknown schemas
@@ -1503,17 +1506,19 @@ Schema IDs are constrained to an allow-list to prevent path traversal:
 ### State Management
 
 Schema selection uses immutable values:
+
 - `SchemaSelection` - Current selection with timestamp
 - `SchemaSelectionHistory` - Tracks last 10 selections
 - Persisted to localStorage for convenience
-```
+
+````
 
 **Step 3: Commit**
 
 ```bash
 git add FEATURES.md docs/schema-integration.md
 git commit -m "docs: add schema selection documentation"
-```
+````
 
 ---
 
@@ -1571,12 +1576,14 @@ Fixes broken /schemas/tei-all.rng default path issue."
 After implementation:
 
 1. **API endpoints working:**
+
    ```bash
    curl http://localhost:3000/api/schemas
    curl -X POST http://localhost:3000/api/validate -d '{"xml":"<TEI>...</TEI>","schemaId":"tei-minimal"}'
    ```
 
 2. **Schema files accessible:**
+
    ```bash
    curl http://localhost:3000/schemas/tei-minimal.rng
    ```

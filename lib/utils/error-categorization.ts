@@ -3,21 +3,21 @@ export enum ErrorType {
   FILE_ERROR = 'file_error',
   NETWORK_ERROR = 'network_error',
   VALIDATION_ERROR = 'validation_error',
-  UNKNOWN_ERROR = 'unknown_error'
+  UNKNOWN_ERROR = 'unknown_error',
 }
 
 export interface ErrorInfo {
-  type: ErrorType
-  message: string
-  description: string
+  type: ErrorType;
+  message: string;
+  description: string;
   action?: {
-    label: string
-    onClick: () => void
-  }
+    label: string;
+    onClick: () => void;
+  };
 }
 
 export function categorizeError(error: Error, retryCallback?: () => void): ErrorInfo {
-  const message = (error.message || '').toLowerCase()
+  const message = (error.message || '').toLowerCase();
 
   // Parse errors (most specific - check first)
   if (
@@ -29,24 +29,22 @@ export function categorizeError(error: Error, retryCallback?: () => void): Error
       type: ErrorType.PARSE_ERROR,
       message: 'Invalid TEI format',
       description: 'Unable to parse the XML document. Please check the file format and try again.',
-    }
+    };
   }
 
   // Network errors (check before file errors to avoid misclassification)
-  if (
-    message.includes('network') ||
-    message.includes('fetch') ||
-    message.includes('connection')
-  ) {
+  if (message.includes('network') || message.includes('fetch') || message.includes('connection')) {
     return {
       type: ErrorType.NETWORK_ERROR,
       message: 'Connection failed',
       description: 'Please check your internet connection and try again.',
-      action: retryCallback ? {
-        label: 'Retry',
-        onClick: retryCallback
-      } : undefined,
-    }
+      action: retryCallback
+        ? {
+            label: 'Retry',
+            onClick: retryCallback,
+          }
+        : undefined,
+    };
   }
 
   // File errors (more specific - after network check)
@@ -59,7 +57,7 @@ export function categorizeError(error: Error, retryCallback?: () => void): Error
       type: ErrorType.FILE_ERROR,
       message: 'Failed to read file',
       description: 'The file could not be read. Please check it is a valid TEI XML file.',
-    }
+    };
   }
 
   // Validation errors
@@ -72,7 +70,7 @@ export function categorizeError(error: Error, retryCallback?: () => void): Error
       type: ErrorType.VALIDATION_ERROR,
       message: 'Invalid document',
       description: 'The document is missing required tags or structure.',
-    }
+    };
   }
 
   // Default fallback
@@ -80,5 +78,5 @@ export function categorizeError(error: Error, retryCallback?: () => void): Error
     type: ErrorType.UNKNOWN_ERROR,
     message: 'An error occurred',
     description: error.message || 'Please try again.',
-  }
+  };
 }

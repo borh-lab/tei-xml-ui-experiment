@@ -73,8 +73,8 @@ const makeLocalCorpusDataSource = Effect.succeed({
             ? docId.path
             : `corpora/${docId.corpus}/${docId.path}`;
 
-          docInfo = corpusData.sampleDocuments.find((d: string) =>
-            d.endsWith(docId.path) || d === relativePath
+          docInfo = corpusData.sampleDocuments.find(
+            (d: string) => d.endsWith(docId.path) || d === relativePath
           );
         }
 
@@ -162,9 +162,7 @@ const makeLocalCorpusDataSource = Effect.succeed({
         const end = start + options.pageSize;
         const pagePaths = docPaths.slice(start, end);
 
-        return pagePaths.map((docPath) =>
-          new DocumentId({ corpus, path: docPath })
-        );
+        return pagePaths.map((docPath) => new DocumentId({ corpus, path: docPath }));
       },
       catch: (error): DataSourceErrorType => ({
         _tag: 'CorpusNotFound',
@@ -215,9 +213,7 @@ const makeLocalCorpusDataSource = Effect.succeed({
         const end = start + options.pageSize;
         const pagePaths = docPaths.slice(start, end);
 
-        return pagePaths.map((docPath) =>
-          new DocumentId({ corpus, path: docPath })
-        );
+        return pagePaths.map((docPath) => new DocumentId({ corpus, path: docPath }));
       },
       catch: (error): DataSourceErrorType => ({
         _tag: 'CorpusNotFound',
@@ -231,7 +227,4 @@ const makeLocalCorpusDataSource = Effect.succeed({
 // Layer
 // ============================================================================
 
-export const LocalCorpusDataSourceLive = Layer.effect(
-  CorpusDataSource,
-  makeLocalCorpusDataSource
-);
+export const LocalCorpusDataSourceLive = Layer.effect(CorpusDataSource, makeLocalCorpusDataSource);

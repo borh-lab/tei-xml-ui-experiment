@@ -43,7 +43,9 @@ test.describe('Split View Editing', () => {
 
       // Should show XML code editor
       // Monaco editor loads dynamically, so wait for it
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
 
       // The "Rendered View" heading should not be visible in XML-only mode
       const renderedView = page.getByText('Rendered View');
@@ -83,7 +85,9 @@ test.describe('Split View Editing', () => {
       await expect(page.getByText('Rendered View')).toBeVisible();
 
       // Monaco editor may take time to load
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
     });
 
     test('should persist view mode preference', async ({ page }) => {
@@ -93,14 +97,18 @@ test.describe('Split View Editing', () => {
       // Switch to XML mode
       await page.getByRole('button', { name: 'XML' }).click();
       await page.waitForTimeout(300);
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
 
       // Refresh page
       await page.reload();
       await page.waitForLoadState('networkidle');
 
       // Should restore XML mode (localStorage persistence)
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
     });
   });
 
@@ -115,7 +123,9 @@ test.describe('Split View Editing', () => {
 
       // Verify both views are visible
       await expect(page.getByText('Rendered View')).toBeVisible();
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
 
       // Monaco editor interaction is complex in headless mode
       // Just verify the split view is functional
@@ -132,7 +142,9 @@ test.describe('Split View Editing', () => {
       await page.waitForTimeout(500);
 
       // Verify Monaco editor is visible
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
 
       // Verify validation button exists
       await expect(page.getByRole('button', { name: 'Validation' })).toBeVisible();
@@ -147,7 +159,9 @@ test.describe('Split View Editing', () => {
       await page.waitForTimeout(500);
 
       // Verify Monaco editor is visible
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
 
       // Editor should be visible and functional
       const editor = page.locator('.monaco-editor').or(page.getByText('Loading editor')).first();
@@ -166,7 +180,9 @@ test.describe('Split View Editing', () => {
 
       // Verify both views are visible
       await expect(page.getByText('Rendered View')).toBeVisible();
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
 
       // Verify document has passages
       const passageCount = await page.locator('[id^="passage-"]').count();
@@ -185,7 +201,9 @@ test.describe('Split View Editing', () => {
 
       // Verify both views are visible
       await expect(page.getByText('Rendered View')).toBeVisible();
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
 
       // Scroll sync is implemented but hard to test in E2E
       // Just verify the views exist
@@ -203,7 +221,9 @@ test.describe('Split View Editing', () => {
 
       // Verify both views are visible
       await expect(page.getByText('Rendered View')).toBeVisible();
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
     });
   });
 
@@ -292,7 +312,9 @@ test.describe('Split View Editing', () => {
       await page.waitForTimeout(500);
 
       // Verify Monaco editor and validation button exist
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
       await expect(page.getByRole('button', { name: 'Validation' })).toBeVisible();
     });
 
@@ -306,7 +328,9 @@ test.describe('Split View Editing', () => {
 
       // Verify both views exist
       await expect(page.getByText('Rendered View')).toBeVisible();
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
     });
   });
 
@@ -340,7 +364,9 @@ test.describe('Split View Editing', () => {
 
       // Both panes should still be visible
       await expect(page.getByText('Rendered View')).toBeVisible();
-      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.monaco-editor').or(page.getByText('Loading editor'))).toBeVisible(
+        { timeout: 5000 }
+      );
     });
   });
 });

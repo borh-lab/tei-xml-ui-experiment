@@ -9,6 +9,7 @@
 Fix the broken RelaxNG schema integration where the default schema path `/schemas/tei-all.rng` doesn't exist. The solution makes schemas configurable through a protocol-based architecture, explicit constraints for security, and improved state modeling.
 
 **Key improvements over typical approach:**
+
 - Protocol-based design (SchemaResolver) for composability
 - Explicit constraints (schema allow-list) for security
 - Value-oriented state modeling for schema selection
@@ -89,6 +90,7 @@ export interface SchemaResolver {
 ```
 
 **Design rationale:**
+
 - **Protocol-first**: Any implementation can work (filesystem, database, remote)
 - **Readonly types**: Immutable values, safe to share
 - **Composable**: Can wrap with caching, logging, fallback behavior
@@ -110,11 +112,7 @@ import { SchemaResolver, SchemaInfo } from './SchemaResolver';
  * Explicit constraint: Only these schema IDs are allowed
  * This prevents arbitrary file access and makes debugging easier
  */
-const ALLOWED_SCHEMA_IDS = new ReadonlySet([
-  'tei-minimal',
-  'tei-all',
-  'tei-novel'
-]);
+const ALLOWED_SCHEMA_IDS = new ReadonlySet(['tei-minimal', 'tei-all', 'tei-novel']);
 
 /**
  * Schema registry: Metadata for known schemas
@@ -126,22 +124,22 @@ const SCHEMA_REGISTRY: Readonly<Record<string, SchemaInfo>> = {
     name: 'TEI Minimal (Dialogue)',
     description: 'Core TEI elements for dialogue annotation: sp, speaker, stage',
     path: '/schemas/tei-minimal.rng',
-    tags: ['dialogue', 'lightweight', 'fast']
+    tags: ['dialogue', 'lightweight', 'fast'],
   },
   'tei-all': {
     id: 'tei-all',
     name: 'TEI P5 Complete',
     description: 'Full TEI P5 schema with all standard elements',
     path: '/schemas/tei-all.rng',
-    tags: ['complete', 'comprehensive', 'slow']
+    tags: ['complete', 'comprehensive', 'slow'],
   },
   'tei-novel': {
     id: 'tei-novel',
     name: 'TEI for Novels',
     description: 'TEI schema optimized for prose fiction',
     path: '/schemas/tei-novel.rng',
-    tags: ['novel', 'prose', 'fiction']
-  }
+    tags: ['novel', 'prose', 'fiction'],
+  },
 } as const;
 
 /**
@@ -160,7 +158,7 @@ export class FileSchemaResolver implements SchemaResolver {
     allowedIds: Set<string> = ALLOWED_SCHEMA_IDS
   ) {
     // Freeze to prevent mutation
-    this.schemas = Object.freeze({...schemas});
+    this.schemas = Object.freeze({ ...schemas });
     this.allowedIds = new ReadonlySet(allowedIds);
   }
 
@@ -196,6 +194,7 @@ export class FileSchemaResolver implements SchemaResolver {
 ```
 
 **Design rationale:**
+
 - **Explicit constraints**: `ALLOWED_SCHEMA_IDS` prevents arbitrary file access
 - **Immutable data**: `Readonly` types, `Object.freeze()` prevent mutation
 - **Value-oriented**: Returns new values, doesn't mutate internal state
@@ -223,19 +222,16 @@ export async function GET() {
     const schemas = resolver.list();
 
     return NextResponse.json({
-      schemas: schemas.map(s => ({
+      schemas: schemas.map((s) => ({
         id: s.id,
         name: s.name,
         description: s.description,
-        tags: s.tags
-      }))
+        tags: s.tags,
+      })),
     });
   } catch (error) {
     console.error('Schema list API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to list schemas' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to list schemas' }, { status: 500 });
   }
 }
 ```
@@ -262,10 +258,7 @@ export async function POST(request: NextRequest) {
     const { xml, schemaId } = body;
 
     if (!xml) {
-      return NextResponse.json(
-        { error: 'Missing XML content' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing XML content' }, { status: 400 });
     }
 
     // Default to tei-minimal for fast validation
@@ -277,7 +270,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: `Unknown schema: ${effectiveSchemaId}`,
-          availableSchemas: availableSchemas.map(s => s.id)
+          availableSchemas: availableSchemas.map((s) => s.id),
         },
         { status: 400 }
       );
@@ -322,6 +315,7 @@ export async function POST(request: NextRequest) {
 ```
 
 **Design improvements:**
+
 - **Protocol-based**: Uses `SchemaResolver` interface, not concrete class
 - **Explicit validation**: Checks `resolver.has()` before resolving
 - **Better errors**: Returns available schemas on 400 error
@@ -364,7 +358,7 @@ export interface SchemaSelectionHistory {
 export function createSchemaSelection(schemaId: string): SchemaSelection {
   return {
     schemaId,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
 }
 
@@ -380,7 +374,7 @@ export function transitionSchemaSelection(
 
   return {
     current: newSelection,
-    previous: [history.current, ...history.previous.slice(0, 9)] // Keep last 10
+    previous: [history.current, ...history.previous.slice(0, 9)], // Keep last 10
   };
 }
 
@@ -435,10 +429,7 @@ export class SchemaSelectionManager {
    * Transition to new schema
    * Returns new history value
    */
-  transition(
-    history: SchemaSelectionHistory,
-    newSchemaId: string
-  ): SchemaSelectionHistory {
+  transition(history: SchemaSelectionHistory, newSchemaId: string): SchemaSelectionHistory {
     const newHistory = transitionSchemaSelection(history, newSchemaId);
     this.save(newHistory.current);
     return newHistory;
@@ -447,6 +438,7 @@ export class SchemaSelectionManager {
 ```
 
 **Design rationale:**
+
 - **Value-oriented**: State is immutable values, not mutable places
 - **Explicit time**: History tracks schema changes over time
 - **Validation**: Checks schema exists before using it
@@ -467,26 +459,26 @@ import { SchemaInfo } from '@/lib/schema/SchemaResolver';
 export function ValidationPanel() {
   const [selectionHistory, setSelectionHistory] = useState<SchemaSelectionHistory>(() => ({
     current: selectionManager.load(),
-    previous: []
+    previous: [],
   }));
   const [availableSchemas, setAvailableSchemas] = useState<SchemaInfo[]>([]);
 
   // Load available schemas on mount
   useEffect(() => {
     fetch('/api/schemas')
-      .then(r => r.json())
-      .then(data => setAvailableSchemas(data.schemas));
+      .then((r) => r.json())
+      .then((data) => setAvailableSchemas(data.schemas));
   }, []);
 
   // Handle schema change
   const handleSchemaChange = useCallback((newSchemaId: string) => {
     const manager = new SchemaSelectionManager(resolver);
-    setSelectionHistory(prev => manager.transition(prev, newSchemaId));
+    setSelectionHistory((prev) => manager.transition(prev, newSchemaId));
   }, []);
 
   // Get current schema info
   const currentSchema = useMemo(() => {
-    return availableSchemas.find(s => s.id === selectionHistory.current.schemaId);
+    return availableSchemas.find((s) => s.id === selectionHistory.current.schemaId);
   }, [availableSchemas, selectionHistory.current.schemaId]);
 }
 ```
@@ -500,7 +492,7 @@ export function ValidationPanel() {
     value={selectionHistory.current.schemaId}
     onChange={(e) => handleSchemaChange(e.target.value)}
   >
-    {availableSchemas.map(schema => (
+    {availableSchemas.map((schema) => (
       <option key={schema.id} value={schema.id}>
         {schema.name}
       </option>
@@ -511,8 +503,10 @@ export function ValidationPanel() {
     <div className="schema-info">
       <p>{currentSchema.description}</p>
       <div className="tags">
-        {currentSchema.tags.map(tag => (
-          <span key={tag} className="tag">{tag}</span>
+        {currentSchema.tags.map((tag) => (
+          <span key={tag} className="tag">
+            {tag}
+          </span>
         ))}
       </div>
     </div>
@@ -573,6 +567,7 @@ re-validate with new schema
 ## Error Handling
 
 ### Schema Not Found (404)
+
 ```json
 {
   "error": "Schema path not found for: tei-minimal",
@@ -581,6 +576,7 @@ re-validate with new schema
 ```
 
 ### Invalid Schema ID (400)
+
 ```json
 {
   "error": "Unknown schema: unknown-id",
@@ -589,6 +585,7 @@ re-validate with new schema
 ```
 
 ### Validation Error (200 with errors)
+
 ```json
 {
   "valid": false,
@@ -666,6 +663,7 @@ resolve('tei-minimal') → '/schemas/tei-minimal.rng'
 ### Schema File Validation
 
 Before loading schemas:
+
 1. Check schema ID is in allow-list
 2. Verify file exists
 3. Validate file is readable
@@ -684,22 +682,26 @@ Before loading schemas:
 ## Migration Path
 
 ### Phase 1: Protocol Layer (No breaking changes)
+
 1. Add `SchemaResolver` protocol
 2. Add `FileSchemaResolver` implementation
 3. Add allow-list constraints
 4. Update API to use resolver (still supports path-based)
 
 ### Phase 2: State Management
+
 1. Add `SchemaSelectionManager`
 2. Update ValidationPanel to use new state model
 3. Add schema selector UI
 
 ### Phase 3: Schema Files
+
 1. Create `tei-minimal.rng`
 2. Create `tei-novel.rng`
 3. Copy `tei-all.rng` to `public/schemas/`
 
 ### Phase 4: Cleanup
+
 1. Update documentation
 2. Remove old path-based API (after transition period)
 3. Add monitoring for schema usage
@@ -718,11 +720,11 @@ Before loading schemas:
 
 ## Summary of Hickey-Style Improvements
 
-| Principle | Implementation |
-|-----------|----------------|
-| **Simplicity** | Protocol separates resolution from implementation |
-| **Values over Places** | SchemaSelection as immutable values |
-| **Composition** | SchemaResolver protocol allows any implementation |
-| **Time Modeling** | SchemaSelectionHistory tracks state changes |
-| **Protocols** | First-class SchemaResolver interface |
-| **Constraints** | ALLOWED_SCHEMA_IDS prevents arbitrary access |
+| Principle              | Implementation                                    |
+| ---------------------- | ------------------------------------------------- |
+| **Simplicity**         | Protocol separates resolution from implementation |
+| **Values over Places** | SchemaSelection as immutable values               |
+| **Composition**        | SchemaResolver protocol allows any implementation |
+| **Time Modeling**      | SchemaSelectionHistory tracks state changes       |
+| **Protocols**          | First-class SchemaResolver interface              |
+| **Constraints**        | ALLOWED_SCHEMA_IDS prevents arbitrary access      |

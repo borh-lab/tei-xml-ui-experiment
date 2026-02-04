@@ -3,11 +3,11 @@
 // Mock the Ax framework to avoid TransformStream polyfill issues
 jest.mock('@ax-llm/ax', () => ({
   ax: jest.fn(),
-  ai: jest.fn(() => ({ name: 'mocked-ai' }))
+  ai: jest.fn(() => ({ name: 'mocked-ai' })),
 }));
 
 jest.mock('@ax-llm/ax-ai-sdk-provider', () => ({
-  createOpenAI: jest.fn()
+  createOpenAI: jest.fn(),
 }));
 
 import { AxProvider } from '@/lib/ai/ax-provider';
@@ -62,7 +62,7 @@ describe('Ax Dialogue Detection', () => {
   });
 
   test('should handle nested quotes', async () => {
-    const text = 'She said, "He told me, \'I\'ll be there soon,\' and then left."';
+    const text = "She said, \"He told me, 'I'll be there soon,' and then left.\"";
     const result = await provider.detectDialogue(text);
 
     expect(result.length).toBeGreaterThanOrEqual(1);

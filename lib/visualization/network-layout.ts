@@ -41,9 +41,7 @@ export function computeNetworkLayout(
     id: char.id,
     name: char.name,
     sex: char.sex,
-    connections: relationships.filter(
-      (r) => r.from === char.id || r.to === char.id
-    ).length,
+    connections: relationships.filter((r) => r.from === char.id || r.to === char.id).length,
   }));
 
   // Build edge list
@@ -74,10 +72,7 @@ export function computeNetworkLayout(
  * TODO: Implement dialogue frequency analysis
  * For now, return 1 for all edges.
  */
-function calculateWeight(
-  relation: Relationship,
-  _characters: readonly Character[]
-): number {
+function calculateWeight(relation: Relationship, _characters: readonly Character[]): number {
   // TODO: Implement dialogue frequency analysis
   // For now, return 1 for all edges
   return 1;

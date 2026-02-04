@@ -31,22 +31,26 @@ cargo install wasm-pack
 On some systems, you may need to install the `lld` linker:
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt-get install lld
 ```
 
 **macOS:**
+
 ```bash
 brew install llvm
 ```
 
 **Arch Linux:**
+
 ```bash
 sudo pacman -S lld
 ```
 
 **NixOS/Nix:**
 Add to your `flake.nix` or `shell.nix`:
+
 ```nix
 {
   buildInputs = with pkgs; [
@@ -86,6 +90,7 @@ If successful, you should see:
 ```
 
 Generated files:
+
 - `public/wasm/pattern_engine.js` - JavaScript glue code
 - `public/wasm/pattern_engine_bg.wasm` - Compiled WASM binary
 - `public/wasm/pattern_engine.d.ts` - TypeScript definitions
@@ -110,6 +115,7 @@ Install the linker as shown in the Prerequisites section above.
 If you cannot install the WASM toolchain, the application includes a JavaScript fallback implementation. The `lib/pattern/wasm-loader.ts` module automatically falls back to mock implementations when the WASM module is not available.
 
 The fallback provides:
+
 - `detect_speaker()` - Returns default speaker
 - `calculate_confidence()` - Returns default confidence
 - `store_pattern()` - No-op

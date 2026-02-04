@@ -21,7 +21,10 @@ import {
 // ============================================================================
 
 export const BrowserValidationService: ValidationService = {
-  validateDocument: (xmlContent: string, schemaPath: string): Effect.Effect<ValidationResult, ValidationError> =>
+  validateDocument: (
+    xmlContent: string,
+    schemaPath: string
+  ): Effect.Effect<ValidationResult, ValidationError> =>
     Effect.tryPromise({
       try: async () => {
         const schemaLoader = new SchemaLoader();
@@ -47,10 +50,15 @@ export const BrowserValidationService: ValidationService = {
         }),
     }),
 
-  validateTEIDocument: (document: any, schemaPath: string): Effect.Effect<ValidationResult, ValidationError> =>
+  validateTEIDocument: (
+    document: any,
+    schemaPath: string
+  ): Effect.Effect<ValidationResult, ValidationError> =>
     Effect.gen(function* (_) {
       // Schema validation
-      const schemaResult = yield* _(BrowserValidationService.validateDocument(document.state.xml, schemaPath));
+      const schemaResult = yield* _(
+        BrowserValidationService.validateDocument(document.state.xml, schemaPath)
+      );
 
       // Additional business rule validation
       const businessErrors: ValidationError[] = [];
@@ -58,7 +66,9 @@ export const BrowserValidationService: ValidationService = {
       // Check that all speaker IDs exist
       for (const dialogue of document.state.dialogue || []) {
         if (dialogue.speaker) {
-          const characterExists = (document.state.characters || []).some((c: any) => c.id === dialogue.speaker);
+          const characterExists = (document.state.characters || []).some(
+            (c: any) => c.id === dialogue.speaker
+          );
           if (!characterExists) {
             businessErrors.push(
               new ValidationError({
@@ -92,7 +102,10 @@ export const BrowserValidationService: ValidationService = {
         }),
     }),
 
-  getAllowedTags: (schemaPath: string, context: XmlPath): Effect.Effect<readonly TagDefinition[], SchemaLoadError> =>
+  getAllowedTags: (
+    schemaPath: string,
+    context: XmlPath
+  ): Effect.Effect<readonly TagDefinition[], SchemaLoadError> =>
     Effect.try({
       try: () => {
         const schemaLoader = new SchemaLoader();
@@ -106,7 +119,10 @@ export const BrowserValidationService: ValidationService = {
         }),
     }),
 
-  getTagAttributes: (schemaPath: string, tagName: string): Effect.Effect<readonly AttributeDefinition[], SchemaLoadError> =>
+  getTagAttributes: (
+    schemaPath: string,
+    tagName: string
+  ): Effect.Effect<readonly AttributeDefinition[], SchemaLoadError> =>
     Effect.try({
       try: () => {
         const schemaLoader = new SchemaLoader();

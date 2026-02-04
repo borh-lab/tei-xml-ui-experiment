@@ -77,9 +77,7 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
     });
 
     toast.success(`Auto-applied ${highConfidence.length} high-confidence suggestions`);
-    setSuggestions((prev) =>
-      prev.filter((s) => !highConfidence.includes(s))
-    );
+    setSuggestions((prev) => prev.filter((s) => !highConfidence.includes(s)));
   }, [suggestions, autoApplyThreshold, handleApplySuggestion]);
 
   // Clear suggestions
@@ -88,11 +86,14 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
   }, []);
 
   // Get character name from ID
-  const getCharacterName = useCallback((speakerId: string) => {
-    if (!document) return speakerId;
-    const char = document.state.characters.find((c: Character) => c.id === speakerId);
-    return char?.name || speakerId;
-  }, [document]);
+  const getCharacterName = useCallback(
+    (speakerId: string) => {
+      if (!document) return speakerId;
+      const char = document.state.characters.find((c: Character) => c.id === speakerId);
+      return char?.name || speakerId;
+    },
+    [document]
+  );
 
   if (!document) {
     return (
@@ -170,9 +171,7 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
         {suggestions.length > 0 && (
           <div className="space-y-3 max-h-96 overflow-y-auto">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                {suggestions.length} suggestions
-              </span>
+              <span className="text-sm font-medium">{suggestions.length} suggestions</span>
               <Button size="sm" variant="ghost" onClick={handleClear}>
                 Clear All
               </Button>
@@ -185,19 +184,17 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
               >
                 {/* Dialogue text */}
                 <p className="text-sm italic">
-                  "{detection.text.length > 100
+                  "
+                  {detection.text.length > 100
                     ? detection.text.substring(0, 100) + '...'
-                    : detection.text
-                  }"
+                    : detection.text}
+                  "
                 </p>
 
                 {/* Speakers */}
                 <div className="space-y-1">
                   {detection.detectedSpeakers.map((speaker, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between text-sm"
-                    >
+                    <div key={idx} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={speaker.confidence >= 0.9 ? 'default' : 'secondary'}

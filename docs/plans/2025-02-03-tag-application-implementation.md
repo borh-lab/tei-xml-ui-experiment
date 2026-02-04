@@ -17,6 +17,7 @@ This plan implements **tag application workflow** where users select text and ap
 ### Key Changes from Original Plan
 
 **Before (position-based, fragile):**
+
 ```typescript
 // ❌ Positional indices break when document changes
 const passageIndex = parseInt(passageId.split('-')[1], 10);
@@ -32,6 +33,7 @@ restoreSelection(offsets): void {
 ```
 
 **After (stable IDs, explicit time):**
+
 ```typescript
 // ✅ Stable content-addressable IDs
 const passageId: PassageID = 'passage-abc123';
@@ -46,10 +48,7 @@ interface SelectionSnapshot {
 }
 
 // ✅ Time-aware selection validation
-function restoreSelection(
-  doc: TEIDocument,
-  snapshot: SelectionSnapshot
-): boolean {
+function restoreSelection(doc: TEIDocument, snapshot: SelectionSnapshot): boolean {
   if (doc.state.revision !== snapshot.documentRevision) {
     return false; // ✌ Document changed, can't restore
   }
@@ -65,9 +64,11 @@ function restoreSelection(
 ### 1. Selection Types
 
 **Files:**
+
 - Create: `lib/selection/types.ts`
 
 **Type Definitions:**
+
 ```typescript
 // lib/selection/types.ts
 
@@ -77,13 +78,13 @@ import type { PassageID, TagID, CharacterID } from '@/lib/tei/types';
 export interface SelectionSnapshot {
   readonly passageId: PassageID;
   readonly range: TextRange;
-  readonly documentRevision: number;  // ✅ Validates document hasn't changed
+  readonly documentRevision: number; // ✅ Validates document hasn't changed
   readonly text: string;
-  readonly container: Node;  // ✌ DOM node reference (for restoration)
+  readonly container: Node; // ✌ DOM node reference (for restoration)
 }
 
 export interface TextRange {
-  readonly start: number;  // Character offset within passage
+  readonly start: number; // Character offset within passage
   readonly end: number;
 }
 
@@ -107,9 +108,11 @@ export interface TagApplicationResult {
 ### 2. SelectionManager (Value-Oriented)
 
 **Files:**
+
 - Refactor: `lib/selection/SelectionManager.ts`
 
 **Refactored Implementation:**
+
 ```typescript
 // lib/selection/SelectionManager.ts
 
@@ -147,7 +150,7 @@ export class SelectionManager {
       range: offsets,
       documentRevision: this.getDocumentRevision(passageElement),
       text,
-      container: range.commonAncestorContainer
+      container: range.commonAncestorContainer,
     };
   }
 
@@ -173,13 +176,12 @@ export class SelectionManager {
    * ✅ Pure function: Get containing tag for current selection
    */
   getContainingTag(doc: TEIDocument, selection: SelectionSnapshot): TagInfo | null {
-    const passage = doc.state.passages.find(p => p.id === selection.passageId);
+    const passage = doc.state.passages.find((p) => p.id === selection.passageId);
     if (!passage) return null;
 
     // Find tag that contains the selection range
-    const containingTag = passage.tags.find(tag =>
-      selection.range.start >= tag.range.start &&
-      selection.range.end <= tag.range.end
+    const containingTag = passage.tags.find(
+      (tag) => selection.range.start >= tag.range.start && selection.range.end <= tag.range.end
     );
 
     return containingTag || null;
@@ -306,9 +308,11 @@ export interface TagInfo {
 ### 3. Tag Operations (Pure Functions)
 
 **Files:**
+
 - Create: `lib/tei/tag-operations.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/tei/tag-operations.ts
 
@@ -400,7 +404,7 @@ export function replaceTag(
 // Helper: Find tag by ID
 function findTag(doc: TEIDocument, tagId: TagID): Tag | null {
   for (const passage of doc.state.passages) {
-    const tag = passage.tags.find(t => t.id === tagId);
+    const tag = passage.tags.find((t) => t.id === tagId);
     if (tag) return tag;
   }
   return null;
@@ -422,10 +426,12 @@ interface Tag {
 ### 4. TagToolbar Component
 
 **Files:**
+
 - Create: `components/editor/TagToolbar.tsx`
 - Test: `components/editor/__tests__/TagToolbar.test.tsx`
 
 **Implementation:**
+
 ```typescript
 // components/editor/TagToolbar.tsx
 'use client';
@@ -528,9 +534,11 @@ export function TagToolbar({ position, visible, onClose }: TagToolbarProps) {
 ### 5. RenderedView with Stable Passage IDs
 
 **Files:**
+
 - Modify: `components/editor/RenderedView.tsx`
 
 **Key Changes:**
+
 ```typescript
 // components/editor/RenderedView.tsx
 
@@ -560,62 +568,73 @@ const passages = doc.state.passages.map((passage, index) => ({
 ## Implementation Tasks
 
 ### Task 1: Create Selection Types
+
 - Create `lib/selection/types.ts` with SelectionSnapshot, TagOptions, etc.
 - Define stable ID types (PassageID, TagID, CharacterID)
 - Add JSDoc comments
 
 ### Task 2: Refactor SelectionManager
+
 - Rename existing to `SelectionManager.old.ts`
 - Create new `SelectionManager.ts` with pure functions
 - Remove mutable `cachedSelection` field
 - Add document revision validation to `restoreSelection`
 
 ### Task 3: Create Tag Operations Module
+
 - Create `lib/tei/tag-operations.ts`
 - Implement `applyTagToSelection` (pure function)
 - Implement `replaceTag`, `removeTag`
 - Add helper functions
 
 ### Task 4: Update TEI Operations (Foundation Plan Integration)
+
 - Extend `lib/tei/operations.ts` with generic tag support
 - Add `addGenericTag` function (handles q, persName, placeName, orgName)
 - Update `addSaidTag` to use PassageID instead of index
 
 ### Task 5: Create TagToolbar Component
+
 - Create `components/editor/TagToolbar.tsx`
 - Integrate with DocumentContext (dispatch actions)
 - Add keyboard shortcuts (1-9 for speaker1-9)
 - Position toolbar above selection
 
 ### Task 6: Update RenderedView with Stable IDs
+
 - Modify `components/editor/RenderedView.tsx` to use stable passage IDs
 - Add `data-document-revision` attribute for validation
 - Update passage rendering to show tags as styled spans
 
 ### Task 7: Create Tag Editor Component
+
 - Create `components/editor/TagEditor.tsx`
 - Allow editing tag attributes (e.g., change speaker)
 - Show tag information when tag is clicked
 - Support tag deletion
 
 ### Task 8: Keyboard Shortcuts Integration
+
 - Integrate with existing keyboard shortcuts system
 - Add shortcuts: 1-9 for speaker tags, Ctrl+Q for q tag, Ctrl+P for persName
 - Show shortcut hints in UI
 
 ### Task 9: Unit Tests
+
 - Test SelectionManager captures/restores correctly
 - Test `applyTagToSelection` returns new document (no mutation)
 - Test tag operations with various scenarios
 - Test toolbar button actions
 
 ### Task 10: Integration Tests
+
 - Test tag application workflow end-to-end
 - Test keyboard shortcuts apply correct tags
 - Test tag editor updates document
 - Test undo/redo with tag operations
 
 ### Task 11: E2E Tests
+
 - Test user selects text and applies tag
 - Test tag appears in document with correct attributes
 - Test keyboard shortcuts work
@@ -626,21 +645,25 @@ const passages = doc.state.passages.map((passage, index) => ({
 ## Success Criteria
 
 ✅ **Stable IDs:**
+
 - Passages use content-addressable IDs (not positional indices)
 - Tags have stable IDs that don't change when document is modified
 - Selection references remain valid across document updates
 
 ✅ **Time-Aware Selection:**
+
 - SelectionManager validates document hasn't changed before restoring
 - Selection includes document revision for validation
 - Failed restore returns gracefully (no error)
 
 ✅ **Immutable Operations:**
+
 - All tag operations return new document values
 - No mutation of input document
 - Unit tests verify immutability
 
 ✅ **User Experience:**
+
 - Tag toolbar appears above text selection
 - Keyboard shortcuts work for common tags
 - Can edit tag attributes after application
@@ -651,11 +674,13 @@ const passages = doc.state.passages.map((passage, index) => ({
 ## Dependencies
 
 **Requires:**
+
 - Foundation Plan (immutable TEIDocument types)
 - Existing: React 19, shadcn/ui components
 - Existing: keyboard shortcuts system
 
 **No changes to:**
+
 - XML parsing/serialization (keep existing)
 - TEI data structures (keep parsed format)
 - Rendering pipeline (extend to show tags)

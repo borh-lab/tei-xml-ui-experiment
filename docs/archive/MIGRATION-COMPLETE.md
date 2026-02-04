@@ -16,6 +16,7 @@ I've successfully executed the first 2 phases of the Effect migration and establ
 ## ✅ Phase 1: Foundation Setup (COMPLETE)
 
 ### Deliverables
+
 - ✅ Effect dependencies installed (effect@3.19.15, @effect/schema, @effect/platform)
 - ✅ Parallel directory structure created (`lib/effect/`)
 - ✅ Feature flag system implemented (8 feature flags)
@@ -23,6 +24,7 @@ I've successfully executed the first 2 phases of the Effect migration and establ
 - ✅ No breaking changes to existing codebase
 
 ### Files Created
+
 1. `lib/effect/utils/featureFlags.ts` - 280 lines
 2. `lib/effect/utils/test-helpers.ts` - 450 lines
 
@@ -33,6 +35,7 @@ I've successfully executed the first 2 phases of the Effect migration and establ
 ### Deliverables - 4 Core Protocols
 
 #### 1. DocumentService Protocol (Event Sourcing)
+
 - **Files:** `lib/effect/protocols/Document.ts` (350+ lines), `lib/effect/services/DocumentService.ts` (500+ lines)
 - **Features:**
   - Load/save/export documents
@@ -43,6 +46,7 @@ I've successfully executed the first 2 phases of the Effect migration and establ
   - History state queries
 
 #### 2. StorageService Protocol
+
 - **Files:** `lib/effect/protocols/Storage.ts` (120+ lines), `lib/effect/services/StorageService.ts` (200+ lines)
 - **Features:**
   - get/set/remove/clear operations
@@ -52,6 +56,7 @@ I've successfully executed the first 2 phases of the Effect migration and establ
   - Browser + test implementations
 
 #### 3. ValidationService Protocol
+
 - **Files:** `lib/effect/protocols/Validation.ts` (140+ lines), `lib/effect/services/ValidationService.ts` (150+ lines)
 - **Features:**
   - Validate XML against RelaxNG schemas
@@ -60,6 +65,7 @@ I've successfully executed the first 2 phases of the Effect migration and establ
   - Get allowed tags/attributes
 
 #### 4. AIService Protocol
+
 - **Files:** `lib/effect/protocols/AI.ts` (100+ lines), `lib/effect/services/AIService.ts` (150+ lines)
 - **Features:**
   - Detect dialogue
@@ -68,12 +74,14 @@ I've successfully executed the first 2 phases of the Effect migration and establ
   - Bulk dialogue detection
 
 ### Additional Deliverables
+
 - **React Integration Hooks:** `lib/effect/react/hooks.ts` (300+ lines)
   - `useDocumentService()`, `useStorageService()`, `useValidationService()`, `useAIService()`
 - **Comprehensive Tests:** 4 test files covering all protocols
 - **Documentation:** 3 phase completion reports
 
 ### Total Lines of Code
+
 **Phase 1+2:** ~3,626 lines of production TypeScript code
 
 ---
@@ -81,16 +89,19 @@ I've successfully executed the first 2 phases of the Effect migration and establ
 ## 🔄 Phase 3: Component Migration (STARTED)
 
 ### Completed
+
 - ✅ ExportButton migrated to Effect
 - ✅ ExportButton.effect.tsx created with feature flag support
 - ✅ Pattern established for remaining components
 
 ### Remaining Work (19 components)
+
 **Leaf Components (4):** TagBreadcrumb, FileUpload, EntityTooltip
 **Panel Components (4):** BulkOperationsPanel, ValidationResultsDialog, EntityEditorPanel, StructuralTagPalette
 **Complex Components (4):** TagToolbar, RenderedView, XMLCodeEditor, EditorLayout
 
 ### Critical Migration: EditorLayout
+
 **Current State:** 22 useState hooks, 995 lines
 **Target State:** 0 useState hooks, ~400 lines (60% reduction)
 **Approach:** Extract state to EditorStateService, use Effect services
@@ -100,6 +111,7 @@ I've successfully executed the first 2 phases of the Effect migration and establ
 ## ⏳ Phase 4: Full Effect Migration (PENDING)
 
 ### Tasks (Week 13-16)
+
 1. **Remove React Context** - Replace with Effect layers
 2. **Remove all useState** - Target: 0 hooks (pure Effect)
 3. **Pure Effect Architecture** - All logic in Effect, React for rendering only
@@ -111,14 +123,14 @@ I've successfully executed the first 2 phases of the Effect migration and establ
 
 ### Current vs Target
 
-| Metric | Current | Target | Status |
-|--------|---------|--------|--------|
-| **useState hooks** | 30+ | 0 | 🔄 In Progress |
-| **Component complexity** | High | 60% reduction | 🔄 In Progress |
-| **Test reliability** | 70% | 99% | 🔄 In Progress |
-| **Test speed** | 5s | 50ms | 🔄 In Progress |
-| **Composability** | ❌ | ✅ | ✅ Complete |
-| **Time modeling** | ❌ | ✅ | ✅ Complete |
+| Metric                   | Current | Target        | Status         |
+| ------------------------ | ------- | ------------- | -------------- |
+| **useState hooks**       | 30+     | 0             | 🔄 In Progress |
+| **Component complexity** | High    | 60% reduction | 🔄 In Progress |
+| **Test reliability**     | 70%     | 99%           | 🔄 In Progress |
+| **Test speed**           | 5s      | 50ms          | 🔄 In Progress |
+| **Composability**        | ❌      | ✅            | ✅ Complete    |
+| **Time modeling**        | ❌      | ✅            | ✅ Complete    |
 
 ### What's Been Achieved
 
@@ -202,6 +214,7 @@ Documentation:
 ### Code Patterns to Follow
 
 **Pattern 1: Replace Context with Hook**
+
 ```tsx
 // Before
 const { document, dispatch } = useDocumentContext();
@@ -211,6 +224,7 @@ const { document, loadDocument, addTag } = useDocumentService();
 ```
 
 **Pattern 2: Replace useState with Service**
+
 ```tsx
 // Before
 const [bulkOpen, setBulkOpen] = useState(false);
@@ -222,6 +236,7 @@ await togglePanel('bulk');
 ```
 
 **Pattern 3: Replace useEffect with Effect.runPromise**
+
 ```tsx
 // Before
 useEffect(() => {
@@ -242,6 +257,7 @@ useEffect(() => {
 ### Why This Matters
 
 **Before (React State):**
+
 - ❌ 30+ independent mutable state locations
 - ❌ Hidden temporal coupling (state updates must happen in order)
 - ❌ No composition (can't retry, cache, layer)
@@ -249,6 +265,7 @@ useEffect(() => {
 - ❌ Time implicit (mutation erases history)
 
 **After (Effect Services):**
+
 - ✅ Explicit state (succession of values)
 - ✅ Composable (retry, cache, logging layers)
 - ✅ Testable (deterministic, fast, no browser)
@@ -277,13 +294,13 @@ useEffect(() => {
 
 ## 📈 Progress Summary
 
-| Phase | Status | Completion |
-|-------|--------|------------|
-| **Phase 1: Foundation** | ✅ Complete | 100% |
-| **Phase 2: Protocols** | ✅ Complete | 100% |
-| **Phase 3: Components** | 🔄 In Progress | 5% (1/20) |
-| **Phase 4: Full Migration** | ⏳ Pending | 0% |
-| **Overall Progress** | 🔄 | ~35% |
+| Phase                       | Status         | Completion |
+| --------------------------- | -------------- | ---------- |
+| **Phase 1: Foundation**     | ✅ Complete    | 100%       |
+| **Phase 2: Protocols**      | ✅ Complete    | 100%       |
+| **Phase 3: Components**     | 🔄 In Progress | 5% (1/20)  |
+| **Phase 4: Full Migration** | ⏳ Pending     | 0%         |
+| **Overall Progress**        | 🔄             | ~35%       |
 
 ---
 
@@ -324,10 +341,12 @@ Review the work completed in this worktree and approve merging to main branch.
 ## 📝 Files Modified
 
 **Main Branch Fixes (Pre-existing TypeScript Errors):**
+
 - `components/ai/AIAssistant.tsx` - Fixed type annotations
 - `components/editor/EditorLayout.tsx` - Fixed imports
 
 **New Effect Code:**
+
 - 15 new TypeScript files in `lib/effect/`
 - 4 protocol interfaces
 - 4 service implementations
@@ -344,6 +363,7 @@ Review the work completed in this worktree and approve merging to main branch.
 I've successfully laid the foundation for the Effect migration and established clear patterns for completing the remaining work. The architecture is sound, the protocols are composable, and the testing infrastructure is in place.
 
 **The hard part is done.** The remaining work is following the established patterns:
+
 1. Replace React Context with useDocumentService hook
 2. Replace useState with Effect services
 3. Replace useEffect with Effect.runPromise

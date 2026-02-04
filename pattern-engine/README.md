@@ -7,12 +7,14 @@ This is a Rust-based pattern matching engine compiled to WebAssembly for high-pe
 ### Required Tools
 
 1. **Rust toolchain** (with wasm32 target):
+
    ```bash
    rustc --version
    rustup target list | grep wasm32
    ```
 
 2. **wasm-pack** - Build tool for Rust-WASM:
+
    ```bash
    cargo install wasm-pack
    ```
@@ -24,6 +26,7 @@ This is a Rust-based pattern matching engine compiled to WebAssembly for high-pe
 ### Installing the Linker
 
 #### NixOS/nix:
+
 ```bash
 # Add to your shell.nix or flake.nix:
 buildInputs = [ rustc cargo llvm ];
@@ -33,11 +36,13 @@ nix-shell -p rustc cargo llvm
 ```
 
 #### Ubuntu/Debian:
+
 ```bash
 sudo apt install lld
 ```
 
 #### macOS:
+
 ```bash
 brew install llvm
 ```
@@ -52,6 +57,7 @@ wasm-pack build --target web --out-dir ../public/wasm
 ```
 
 This will generate:
+
 - `../public/wasm/pattern_engine.js` - JavaScript glue code
 - `../public/wasm/pattern_engine_bg.wasm` - WebAssembly binary
 - `../public/wasm/pattern_engine.d.ts` - TypeScript definitions
@@ -76,12 +82,15 @@ cargo test
 The compiled WASM module exports these JavaScript functions:
 
 ### `detect_speaker(text: string, patterns: object): string`
+
 Analyzes text and suggests a speaker ID based on pattern matching.
 
 ### `update_from_feedback(db: object, passage: string, speaker: string): void`
+
 Updates the pattern database based on user corrections.
 
 ### `calculate_confidence(text: string, speaker: string, patterns: object): number`
+
 Calculates a confidence score (0-1) for speaker detection.
 
 ## JavaScript Integration
@@ -101,14 +110,17 @@ const confidence = await calculateConfidence(text, speaker, patterns);
 ## Troubleshooting
 
 ### "linker `lld` not found"
+
 Install the lld linker (see Prerequisites above).
 
 ### "wasm32-unknown-unknown target not found"
+
 ```bash
 rustup target add wasm32-unknown-unknown
 ```
 
 ### WASM module fails to load
+
 1. Ensure the WASM has been built: `ls public/wasm/pattern_engine.js`
 2. Check browser console for specific errors
 3. The loader includes a fallback mock implementation for development

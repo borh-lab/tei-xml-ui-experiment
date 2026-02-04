@@ -9,7 +9,7 @@ import {
   generateTestDocument,
   createMinimalTEI,
   createMalformedTEI,
-  waitForEditorReady
+  waitForEditorReady,
 } from './fixtures/test-helpers';
 import { TIMEOUTS, SPEAKERS } from './fixtures/test-constants';
 import { WelcomePage } from './pages/WelcomePage';
@@ -39,17 +39,20 @@ test.describe('Document Upload - Basic Operations', () => {
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA, SPEAKERS.JIM],
       passages: 5,
       namespaces: true,
-      declarations: true
+      declarations: true,
     });
 
     await uploadTestDocument(page, {
       name: 'valid-test.tei.xml',
-      content: validTEI
+      content: validTEI,
     });
 
     // Wait for document to load
     await page.waitForLoadState('networkidle');
-    await page.waitForSelector('[id^="passage-"]', { state: 'visible', timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await page.waitForSelector('[id^="passage-"]', {
+      state: 'visible',
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
     const passages = page.locator('[id^="passage-"]');
     await expect(passages).toHaveCount(5);
   });
@@ -84,7 +87,7 @@ test.describe('Document Upload - Basic Operations', () => {
 
   test('should reject binary file (.jpg)', async ({ page }) => {
     const tempPath = join(process.cwd(), 'test-image.jpg');
-    writeFileSync(tempPath, Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]));
+    writeFileSync(tempPath, Buffer.from([0xff, 0xd8, 0xff, 0xe0]));
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(tempPath);
@@ -101,7 +104,7 @@ test.describe('Document Upload - Basic Operations', () => {
     // Create a larger document to ensure visible loading
     const largeTEI = generateTestDocument({
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA],
-      passages: 50
+      passages: 50,
     });
 
     const tempPath = join(process.cwd(), 'tests/fixtures', 'large-test.tei.xml');
@@ -157,12 +160,12 @@ test.describe('TEI Format Variants', () => {
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA],
       passages: 5,
       namespaces: true,
-      declarations: true
+      declarations: true,
     });
 
     await uploadTestDocument(page, {
       name: 'with-namespace.tei.xml',
-      content: teiWithNS
+      content: teiWithNS,
     });
 
     await page.waitForLoadState('networkidle');
@@ -176,12 +179,12 @@ test.describe('TEI Format Variants', () => {
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA],
       passages: 5,
       namespaces: false,
-      declarations: true
+      declarations: true,
     });
 
     await uploadTestDocument(page, {
       name: 'without-namespace.tei.xml',
-      content: teiWithoutNS
+      content: teiWithoutNS,
     });
 
     await page.waitForLoadState('networkidle');
@@ -195,12 +198,12 @@ test.describe('TEI Format Variants', () => {
       speakers: [SPEAKERS.NARRATOR],
       passages: 3,
       namespaces: true,
-      declarations: false
+      declarations: false,
     });
 
     await uploadTestDocument(page, {
       name: 'no-declaration.tei.xml',
-      content: teiNoDecl
+      content: teiNoDecl,
     });
 
     await page.waitForLoadState('networkidle');
@@ -228,7 +231,7 @@ test.describe('TEI Format Variants', () => {
 
     await uploadTestDocument(page, {
       name: 'custom-header.tei.xml',
-      content: customTEI
+      content: customTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -240,13 +243,14 @@ test.describe('TEI Format Variants', () => {
     // TEI P5 with standard namespace
     let teiP5 = '<?xml version="1.0" encoding="UTF-8"?>\n';
     teiP5 += '<TEI xmlns="http://www.tei-c.org/ns/1.0" version="5.0">\n';
-    teiP5 += '  <teiHeader><fileDesc><titleStmt><title>P5</title></titleStmt></fileDesc></teiHeader>\n';
+    teiP5 +=
+      '  <teiHeader><fileDesc><titleStmt><title>P5</title></titleStmt></fileDesc></teiHeader>\n';
     teiP5 += '  <text><body><p><s who="#narrator">P5 content</s></p></body></text>\n';
     teiP5 += '</TEI>\n';
 
     await uploadTestDocument(page, {
       name: 'tei-p5.tei.xml',
-      content: teiP5
+      content: teiP5,
     });
 
     await page.waitForLoadState('networkidle');
@@ -265,7 +269,7 @@ test.describe('Edge Cases', () => {
 
     await uploadTestDocument(page, {
       name: 'empty.tei.xml',
-      content: emptyTEI
+      content: emptyTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -297,7 +301,7 @@ test.describe('Edge Cases', () => {
 
     await uploadTestDocument(page, {
       name: 'speakers-only.tei.xml',
-      content: speakersOnly
+      content: speakersOnly,
     });
 
     await page.waitForLoadState('networkidle');
@@ -309,7 +313,7 @@ test.describe('Edge Cases', () => {
     // Generate a large TEI document with enough passages to exceed 100KB
     const largeTEI = generateTestDocument({
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA, SPEAKERS.JIM, SPEAKERS.PROTAGONIST],
-      passages: 1500  // Increased to ensure file size > 100KB
+      passages: 1500, // Increased to ensure file size > 100KB
     });
 
     const tempPath = join(process.cwd(), 'tests/fixtures', 'large-test.tei.xml');
@@ -327,7 +331,10 @@ test.describe('Edge Cases', () => {
 
     // Wait for load
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForSelector('[id^="passage-"]', { state: 'visible', timeout: TIMEOUTS.ELEMENT_VISIBLE * 2 });
+    await page.waitForSelector('[id^="passage-"]', {
+      state: 'visible',
+      timeout: TIMEOUTS.ELEMENT_VISIBLE * 2,
+    });
 
     // Verify some passages are rendered (may not show all for performance)
     const firstPassage = page.locator('[id^="passage-"]').first();
@@ -339,26 +346,32 @@ test.describe('Edge Cases', () => {
   test('should handle very large document (>500 passages)', async ({ page }) => {
     const veryLargeTEI = generateTestDocument({
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA],
-      passages: 600
+      passages: 600,
     });
 
     await uploadTestDocument(page, {
       name: 'very-large.tei.xml',
-      content: veryLargeTEI
+      content: veryLargeTEI,
     });
 
     // Give extra time for very large document
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForSelector('[id^="passage-"]', { state: 'visible', timeout: TIMEOUTS.ELEMENT_VISIBLE * 2 });
+    await page.waitForSelector('[id^="passage-"]', {
+      state: 'visible',
+      timeout: TIMEOUTS.ELEMENT_VISIBLE * 2,
+    });
 
     // At minimum, should show first passage
-    await expect(page.locator('[id^="passage-"]').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible({
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
   });
 
   test('should handle documents with Unicode characters', async ({ page }) => {
     let unicodeTEI = '<?xml version="1.0" encoding="UTF-8"?>\n';
     unicodeTEI += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
-    unicodeTEI += '  <teiHeader><fileDesc><titleStmt><title>Unicode Test</title></titleStmt></fileDesc></teiHeader>\n';
+    unicodeTEI +=
+      '  <teiHeader><fileDesc><titleStmt><title>Unicode Test</title></titleStmt></fileDesc></teiHeader>\n';
     unicodeTEI += '  <text><body>\n';
     unicodeTEI += '    <p><s who="#speaker1">Hello 世界 مرحبا हिनी</s></p>\n';
     unicodeTEI += '    <p><s who="#speaker2">Café résumé naïve</s></p>\n';
@@ -368,7 +381,7 @@ test.describe('Edge Cases', () => {
 
     await uploadTestDocument(page, {
       name: 'unicode.tei.xml',
-      content: unicodeTEI
+      content: unicodeTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -382,7 +395,8 @@ test.describe('Edge Cases', () => {
   test('should handle documents with emoji characters', async ({ page }) => {
     let emojiTEI = '<?xml version="1.0" encoding="UTF-8"?>\n';
     emojiTEI += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
-    emojiTEI += '  <teiHeader><fileDesc><titleStmt><title>Emoji Test</title></titleStmt></fileDesc></teiHeader>\n';
+    emojiTEI +=
+      '  <teiHeader><fileDesc><titleStmt><title>Emoji Test</title></titleStmt></fileDesc></teiHeader>\n';
     emojiTEI += '  <text><body>\n';
     emojiTEI += '    <p><s who="#speaker1">Hello 😊 👍 🎉</s></p>\n';
     emojiTEI += '    <p><s who="#speaker2">Emoji test 🚀 ✨</s></p>\n';
@@ -391,7 +405,7 @@ test.describe('Edge Cases', () => {
 
     await uploadTestDocument(page, {
       name: 'emoji.tei.xml',
-      content: emojiTEI
+      content: emojiTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -405,7 +419,8 @@ test.describe('Edge Cases', () => {
   test('should handle documents with special XML characters', async ({ page }) => {
     let specialCharsTEI = '<?xml version="1.0" encoding="UTF-8"?>\n';
     specialCharsTEI += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
-    specialCharsTEI += '  <teiHeader><fileDesc><titleStmt><title>Special Chars</title></titleStmt></fileDesc></teiHeader>\n';
+    specialCharsTEI +=
+      '  <teiHeader><fileDesc><titleStmt><title>Special Chars</title></titleStmt></fileDesc></teiHeader>\n';
     specialCharsTEI += '  <text><body>\n';
     specialCharsTEI += '    <p><s who="#speaker1">&lt;tag&gt; &amp; &quot;quotes&quot;</s></p>\n';
     specialCharsTEI += '    <p><s who="#speaker2">Apostrophe&apos;s and more</s></p>\n';
@@ -414,7 +429,7 @@ test.describe('Edge Cases', () => {
 
     await uploadTestDocument(page, {
       name: 'special-chars.tei.xml',
-      content: specialCharsTEI
+      content: specialCharsTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -426,7 +441,8 @@ test.describe('Edge Cases', () => {
     // Test document with <div> wrapper (which parser may not handle)
     let nestedTEI = '<?xml version="1.0" encoding="UTF-8"?>\n';
     nestedTEI += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
-    nestedTEI += '  <teiHeader><fileDesc><titleStmt><title>Nested</title></titleStmt></fileDesc></teiHeader>\n';
+    nestedTEI +=
+      '  <teiHeader><fileDesc><titleStmt><title>Nested</title></titleStmt></fileDesc></teiHeader>\n';
     nestedTEI += '  <text><body>\n';
     nestedTEI += '    <p><s who="#speaker1">First passage</s></p>\n';
     nestedTEI += '    <p><s who="#speaker2">Second passage</s></p>\n';
@@ -435,7 +451,7 @@ test.describe('Edge Cases', () => {
 
     await uploadTestDocument(page, {
       name: 'nested.tei.xml',
-      content: nestedTEI
+      content: nestedTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -447,7 +463,8 @@ test.describe('Edge Cases', () => {
   test('should handle document with multiple paragraphs per passage', async ({ page }) => {
     let multiParaTEI = '<?xml version="1.0" encoding="UTF-8"?>\n';
     multiParaTEI += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
-    multiParaTEI += '  <teiHeader><fileDesc><titleStmt><title>Multi Para</title></titleStmt></fileDesc></teiHeader>\n';
+    multiParaTEI +=
+      '  <teiHeader><fileDesc><titleStmt><title>Multi Para</title></titleStmt></fileDesc></teiHeader>\n';
     multiParaTEI += '  <text><body>\n';
     multiParaTEI += '    <p><s who="#speaker1">First paragraph</s></p>\n';
     multiParaTEI += '    <p><s who="#speaker2">Second paragraph</s></p>\n';
@@ -457,7 +474,7 @@ test.describe('Edge Cases', () => {
 
     await uploadTestDocument(page, {
       name: 'multi-para.tei.xml',
-      content: multiParaTEI
+      content: multiParaTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -477,7 +494,7 @@ test.describe('Validation and Error Handling', () => {
 
     await uploadTestDocument(page, {
       name: 'malformed-unclosed.tei.xml',
-      content: malformedTEI
+      content: malformedTEI,
     });
 
     // Should not crash or show content
@@ -490,7 +507,7 @@ test.describe('Validation and Error Handling', () => {
 
     await uploadTestDocument(page, {
       name: 'malformed-entity.tei.xml',
-      content: malformedTEI
+      content: malformedTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -502,7 +519,7 @@ test.describe('Validation and Error Handling', () => {
 
     await uploadTestDocument(page, {
       name: 'malformed-root.tei.xml',
-      content: malformedTEI
+      content: malformedTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -546,7 +563,7 @@ test.describe('Validation and Error Handling', () => {
 
     await uploadTestDocument(page, {
       name: 'incomplete.tei.xml',
-      content: incompleteTEI
+      content: incompleteTEI,
     });
 
     // Parser may still accept this depending on strictness
@@ -557,7 +574,11 @@ test.describe('Validation and Error Handling', () => {
   test('should handle XML with encoding issues', async ({ page }) => {
     // Create file with mismatched encoding declaration vs content
     const tempPath = join(process.cwd(), 'tests/fixtures', 'encoding-test.tei.xml');
-    writeFileSync(tempPath, '<?xml version="1.0" encoding="ISO-8859-1"?>\n<TEI>Content</TEI>', 'utf-8');
+    writeFileSync(
+      tempPath,
+      '<?xml version="1.0" encoding="ISO-8859-1"?>\n<TEI>Content</TEI>',
+      'utf-8'
+    );
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(tempPath);
@@ -580,12 +601,12 @@ test.describe('Upload UI Interactions', () => {
     // Load a valid document first
     const validTEI = generateTestDocument({
       speakers: [SPEAKERS.NARRATOR],
-      passages: 3
+      passages: 3,
     });
 
     await uploadTestDocument(page, {
       name: 'initial.tei.xml',
-      content: validTEI
+      content: validTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -608,18 +629,18 @@ test.describe('Upload UI Interactions', () => {
   test('should allow re-uploading different documents', async ({ page }) => {
     const tei1 = generateTestDocument({
       speakers: ['speaker1'],
-      passages: 2
+      passages: 2,
     });
 
     const tei2 = generateTestDocument({
       speakers: ['speaker2', 'speaker3'],
-      passages: 4
+      passages: 4,
     });
 
     // Upload first document
     await uploadTestDocument(page, {
       name: 'first.tei.xml',
-      content: tei1
+      content: tei1,
     });
 
     await page.waitForLoadState('networkidle');
@@ -628,7 +649,7 @@ test.describe('Upload UI Interactions', () => {
     // Upload second document (should replace first)
     await uploadTestDocument(page, {
       name: 'second.tei.xml',
-      content: tei2
+      content: tei2,
     });
 
     // Wait longer for document replacement
@@ -654,18 +675,18 @@ test.describe('Performance and Stress Tests', () => {
   test('should handle document with 1000 passages', async ({ page }) => {
     const massiveTEI = generateTestDocument({
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA, SPEAKERS.JIM],
-      passages: 1000
+      passages: 1000,
     });
 
     const startTime = Date.now();
 
     await uploadTestDocument(page, {
       name: 'massive.tei.xml',
-      content: massiveTEI
+      content: massiveTEI,
     });
 
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
 
     const loadTime = Date.now() - startTime;
 
@@ -673,7 +694,9 @@ test.describe('Performance and Stress Tests', () => {
     expect(loadTime).toBeLessThan(30000);
 
     // Should at least render first passage
-    await expect(page.locator('[id^="passage-"]').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('[id^="passage-"]').first()).toBeVisible({
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
   });
 
   test('should handle multiple rapid uploads without memory issues', async ({ page }) => {
@@ -682,13 +705,13 @@ test.describe('Performance and Stress Tests', () => {
       generateTestDocument({ speakers: ['s2'], passages: 20 }),
       generateTestDocument({ speakers: ['s3'], passages: 30 }),
       generateTestDocument({ speakers: ['s4'], passages: 40 }),
-      generateTestDocument({ speakers: ['s5'], passages: 50 })
+      generateTestDocument({ speakers: ['s5'], passages: 50 }),
     ];
 
     for (let i = 0; i < documents.length; i++) {
       await uploadTestDocument(page, {
         name: `rapid-${i}.tei.xml`,
-        content: documents[i]
+        content: documents[i],
       });
 
       await page.waitForLoadState('networkidle');

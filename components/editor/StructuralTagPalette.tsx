@@ -69,7 +69,7 @@ export const StructuralTagPalette: React.FC<StructuralTagPaletteProps> = ({
       // 4. If validation passes, insert tag
 
       // Simulate validation delay
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Call the insert callback
       onInsertTag(tagName);

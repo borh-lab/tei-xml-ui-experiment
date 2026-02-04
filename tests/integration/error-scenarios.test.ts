@@ -60,39 +60,35 @@ describe('Error Scenarios', () => {
 
   test('should handle database init errors gracefully', async () => {
     // Mock Dexie open to fail
-    const mockOpen = jest.spyOn(db as any, 'open')
+    const mockOpen = jest
+      .spyOn(db as any, 'open')
       .mockRejectedValue(new Error('IndexedDB blocked'));
 
-    await expect(
-      db.init()
-    ).rejects.toThrow('IndexedDB blocked');
+    await expect(db.init()).rejects.toThrow('IndexedDB blocked');
 
     mockOpen.mockRestore();
   });
 
   test('should handle pattern storage errors', async () => {
     // Mock storeLearnedPattern to fail
-    const mockStore = jest.spyOn(db, 'storeLearnedPattern')
+    const mockStore = jest
+      .spyOn(db, 'storeLearnedPattern')
       .mockRejectedValue(new Error('Storage quota exceeded'));
 
     // Should not throw, but log error
-    await expect(
-      db.storeLearnedPattern('#speaker1', 'test pattern')
-    ).rejects.toThrow('Storage quota exceeded');
+    await expect(db.storeLearnedPattern('#speaker1', 'test pattern')).rejects.toThrow(
+      'Storage quota exceeded'
+    );
 
     mockStore.mockRestore();
   });
 
   test('should handle malformed pattern data', async () => {
     // Empty string is acceptable
-    await expect(
-      db.storeLearnedPattern('', 'pattern')
-    ).resolves.not.toThrow();
+    await expect(db.storeLearnedPattern('', 'pattern')).resolves.not.toThrow();
 
     // Undefined will throw from IndexedDB - this is expected behavior
-    await expect(
-      db.storeLearnedPattern(undefined as any, 'pattern')
-    ).rejects.toThrow();
+    await expect(db.storeLearnedPattern(undefined as any, 'pattern')).rejects.toThrow();
   });
 
   test('should handle concurrent database operations', async () => {

@@ -51,7 +51,7 @@ describe('TEIDocument - Relationships', () => {
       from: 'darcy',
       to: 'elizabeth',
       type: 'romantic',
-      subtype: 'courtship'
+      subtype: 'courtship',
     });
 
     const relationships = doc.getRelationships();

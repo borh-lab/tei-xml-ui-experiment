@@ -18,7 +18,11 @@ import { Effect, Context } from 'effect';
 
 export class StorageError extends Error {
   readonly _tag = 'StorageError';
-  constructor(message: string, public readonly key?: string, public readonly cause?: unknown) {
+  constructor(
+    message: string,
+    public readonly key?: string,
+    public readonly cause?: unknown
+  ) {
     super(message);
     this.name = 'StorageError';
   }
@@ -34,7 +38,11 @@ export class StorageKeyNotFoundError extends StorageError {
 
 export class StorageQuotaExceededError extends StorageError {
   readonly _tag = 'StorageQuotaExceededError';
-  constructor(message: string, public readonly quota: number, public readonly attempted: number) {
+  constructor(
+    message: string,
+    public readonly quota: number,
+    public readonly attempted: number
+  ) {
     super(message);
     this.name = 'StorageQuotaExceededError';
   }
@@ -81,54 +89,42 @@ export interface StorageService {
    * @param key - Storage key
    * @returns Effect that produces the stored value or throws StorageKeyNotFoundError
    */
-  readonly get: <T>(
-    key: string
-  ) => Effect.Effect<T, StorageKeyNotFoundError>;
+  readonly get: <T>(key: string) => Effect.Effect<T, StorageKeyNotFoundError>;
 
   /**
    * Check if a key exists
    *
    * @param key - Storage key to check
    */
-  readonly has: (
-    key: string
-  ) => Effect.Effect<boolean, never>;
+  readonly has: (key: string) => Effect.Effect<boolean, never>;
 
   /**
    * Delete a key
    *
    * @param key - Storage key to delete
    */
-  readonly remove: (
-    key: string
-  ) => Effect.Effect<void, StorageError>;
+  readonly remove: (key: string) => Effect.Effect<void, StorageError>;
 
   /**
    * List all stored keys
    *
    * @param prefix - Optional prefix filter (e.g., 'autosave-')
    */
-  readonly list: (
-    prefix?: string
-  ) => Effect.Effect<readonly string[], StorageError>;
+  readonly list: (prefix?: string) => Effect.Effect<readonly string[], StorageError>;
 
   /**
    * Get metadata for a key
    *
    * @param key - Storage key
    */
-  readonly getMetadata: (
-    key: string
-  ) => Effect.Effect<StorageMetadata, StorageKeyNotFoundError>;
+  readonly getMetadata: (key: string) => Effect.Effect<StorageMetadata, StorageKeyNotFoundError>;
 
   /**
    * Clear all keys
    *
    * @param prefix - Optional prefix filter
    */
-  readonly clear: (
-    prefix?: string
-  ) => Effect.Effect<void, StorageError>;
+  readonly clear: (prefix?: string) => Effect.Effect<void, StorageError>;
 }
 
 // ============================================================================

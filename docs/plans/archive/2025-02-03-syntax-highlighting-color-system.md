@@ -5,12 +5,14 @@
 **Goal:** Implement comprehensive syntax highlighting for TEI XML in both editor views and establish a consistent semantic color system across the entire application.
 
 **Architecture:**
+
 - Use Prism.js for TEI XML syntax highlighting in the rendered view (WYSIWYG mode)
 - Customize Monaco Editor's XML theme in the code view to match semantic colors
 - Define CSS variables for all semantic colors with light/dark mode variants
 - Apply consistent colors across CharacterNetwork, validation states, and UI elements
 
 **Tech Stack:**
+
 - Prism.js (XML grammar with custom TEI token definition)
 - Monaco Editor (custom theme definition)
 - CSS custom properties (oklch color space)
@@ -21,6 +23,7 @@
 ## Task 1: Install Prism.js Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 - Test: N/A (dependency installation)
 
@@ -47,6 +50,7 @@ git commit -m "feat: add Prism.js dependency for syntax highlighting"
 ## Task 2: Create TEI Language Definition for Prism.js
 
 **Files:**
+
 - Create: `lib/syntax/tei-prism.ts`
 - Test: `lib/syntax/__tests__/tei-prism.test.ts`
 
@@ -105,70 +109,70 @@ Prism.languages.tei = Prism.languages.extend('markup', {
   'said-tag': {
     pattern: /<\/?(?:said)(?=\s|\/?>)[\s\S]*?>/i,
     inside: {
-      'tag': /^<\/?[^>\s]*/,
+      tag: /^<\/?[^>\s]*/,
       'attr-name': {
         pattern: /\s[a-zA-Z-]+(?==)/,
         inside: {
-          'punctuation': /\s+/,
-        }
+          punctuation: /\s+/,
+        },
       },
       'attr-value': {
         pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+)/,
         inside: {
-          'punctuation': [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }]
-        }
+          punctuation: [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }],
+        },
       },
-      'punctuation': /\/?>/
-    }
+      punctuation: /\/?>/,
+    },
   },
 
   // TEI entity reference tags
   'entity-tag': {
     pattern: /<\/?(?:persName|placeName|orgName)(?=\s|\/?>)[\s\S]*?>/i,
     inside: {
-      'tag': /^<\/?[^>\s]*/,
+      tag: /^<\/?[^>\s]*/,
       'attr-name': /\s[a-zA-Z-]+(?==)/,
       'attr-value': {
         pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+)/,
         inside: {
-          'punctuation': [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }]
-        }
+          punctuation: [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }],
+        },
       },
-      'punctuation': /\/?>/
-    }
+      punctuation: /\/?>/,
+    },
   },
 
   // TEI structural tags
   'structural-tag': {
     pattern: /<\/?(?:div|p|sp|l|lg|head)(?=\s|\/?>)[\s\S]*?>/i,
     inside: {
-      'tag': /^<\/?[^>\s]*/,
+      tag: /^<\/?[^>\s]*/,
       'attr-name': /\s[a-zA-Z-]+(?==)/,
       'attr-value': {
         pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+)/,
         inside: {
-          'punctuation': [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }]
-        }
+          punctuation: [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }],
+        },
       },
-      'punctuation': /\/?>/
-    }
+      punctuation: /\/?>/,
+    },
   },
 
   // TEI metadata tags
   'metadata-tag': {
     pattern: /<\/?(?:author|title|date|publisher|bibl)(?=\s|\/?>)[\s\S]*?>/i,
     inside: {
-      'tag': /^<\/?[^>\s]*/,
+      tag: /^<\/?[^>\s]*/,
       'attr-name': /\s[a-zA-Z-]+(?==)/,
       'attr-value': {
         pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+)/,
         inside: {
-          'punctuation': [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }]
-        }
+          punctuation: [/^=/, { pattern: /^(\s*)["']|["']$/, lookbehind: true }],
+        },
       },
-      'punctuation': /\/?>/
-    }
-  }
+      punctuation: /\/?>/,
+    },
+  },
 });
 
 // Highlight function for TEI content
@@ -203,6 +207,7 @@ git commit -m "feat: add TEI language definition for Prism.js"
 ## Task 3: Update RenderedView to Use Prism.js Highlighting
 
 **Files:**
+
 - Modify: `components/editor/RenderedView.tsx`
 - Test: `components/editor/__tests__/RenderedView.test.tsx`
 
@@ -312,6 +317,7 @@ git commit -m "feat: apply Prism.js syntax highlighting to rendered view"
 ## Task 4: Define Semantic Color System CSS Variables
 
 **Files:**
+
 - Modify: `app/globals.css`
 - Test: N/A (visual changes, manual verification)
 
@@ -420,34 +426,34 @@ git commit -m "feat: apply Prism.js syntax highlighting to rendered view"
 /* Replace lines 159-178 in globals.css with: */
 
 .tei-tag-said,
-.token.tag[data-tag="said"] {
+.token.tag[data-tag='said'] {
   background-color: var(--tei-said-bg);
   border-left: 2px solid var(--tei-said-border);
   color: var(--tei-said-text);
 }
 
 .tei-tag-entity,
-.token.tag[data-tag="persName"],
-.token.tag[data-tag="placeName"],
-.token.tag[data-tag="orgName"] {
+.token.tag[data-tag='persName'],
+.token.tag[data-tag='placeName'],
+.token.tag[data-tag='orgName'] {
   background-color: var(--tei-entity-bg);
   border-left: 2px solid var(--tei-entity-border);
   color: var(--tei-entity-text);
 }
 
 .tei-tag-structural,
-.token.tag[data-tag="p"],
-.token.tag[data-tag="div"],
-.token.tag[data-tag="sp"] {
+.token.tag[data-tag='p'],
+.token.tag[data-tag='div'],
+.token.tag[data-tag='sp'] {
   background-color: var(--tei-structural-bg);
   border-left: 2px solid var(--tei-structural-border);
   color: var(--tei-structural-text);
 }
 
 .tei-tag-metadata,
-.token.tag[data-tag="author"],
-.token.tag[data-tag="title"],
-.token.tag[data-tag="date"] {
+.token.tag[data-tag='author'],
+.token.tag[data-tag='title'],
+.token.tag[data-tag='date'] {
   background-color: var(--tei-metadata-bg);
   border-left: 2px solid var(--tei-metadata-border);
   color: var(--tei-metadata-text);
@@ -463,14 +469,14 @@ git commit -m "feat: apply Prism.js syntax highlighting to rendered view"
   outline: 1px solid var(--state-hover-border);
 }
 
-.tei-tag[data-selected="true"] {
+.tei-tag[data-selected='true'] {
   outline: 2px solid var(--state-selected-border);
   outline-offset: 2px;
   background-color: var(--state-selected-bg);
   color: var(--state-selected-text);
 }
 
-.dark .tei-tag[data-selected="true"] {
+.dark .tei-tag[data-selected='true'] {
   outline: 2px solid var(--state-selected-border);
   background-color: var(--state-selected-bg);
   color: var(--state-selected-text);
@@ -511,6 +517,7 @@ git commit -m "feat: add semantic color system CSS variables"
 ## Task 5: Create Monaco Editor Custom Theme
 
 **Files:**
+
 - Create: `lib/syntax/monaco-theme.ts`
 - Modify: `components/editor/XMLCodeEditor.tsx`
 - Test: `components/editor/__tests__/XMLCodeEditor.test.tsx`
@@ -644,6 +651,7 @@ git commit -m "feat: add custom Monaco Editor theme matching semantic colors"
 ## Task 6: Update CharacterNetwork to Use Consistent Colors
 
 **Files:**
+
 - Modify: `components/visualization/CharacterNetwork.tsx`
 - Test: `components/visualization/__tests__/CharacterNetwork.test.tsx`
 
@@ -750,6 +758,7 @@ git commit -m "feat: use semantic CSS variables in CharacterNetwork"
 ## Task 7: Update Validation UI Components to Use Semantic Colors
 
 **Files:**
+
 - Modify: `components/validation/ValidationPanel.tsx` (or similar)
 - Test: `components/validation/__tests__/ValidationPanel.test.tsx`
 
@@ -813,19 +822,19 @@ const getValidationStyles = (type: 'valid' | 'invalid' | 'warning') => {
       return {
         backgroundColor: 'var(--validation-valid-bg)',
         borderColor: 'var(--validation-valid-border)',
-        color: 'var(--validation-valid-text)'
+        color: 'var(--validation-valid-text)',
       };
     case 'invalid':
       return {
         backgroundColor: 'var(--validation-invalid-bg)',
         borderColor: 'var(--validation-invalid-border)',
-        color: 'var(--validation-invalid-text)'
+        color: 'var(--validation-invalid-text)',
       };
     case 'warning':
       return {
         backgroundColor: 'var(--validation-warning-bg)',
         borderColor: 'var(--validation-warning-border)',
-        color: 'var(--validation-warning-text)'
+        color: 'var(--validation-warning-text)',
       };
   }
 };
@@ -848,6 +857,7 @@ git commit -m "feat: use semantic CSS variables for validation states"
 ## Task 8: Add Visual Regression Tests
 
 **Files:**
+
 - Create: `tests/visual/syntax-highlighting.test.ts`
 - Test: `tests/visual/syntax-highlighting.test.ts`
 
@@ -865,16 +875,19 @@ test.describe('Syntax Highlighting Visual Tests', () => {
   test('rendered view syntax highlighting', async ({ page }) => {
     // Load a document with various TEI tags
     await page.evaluate(() => {
-      window.localStorage.setItem('tei-document', JSON.stringify({
-        raw: `<?xml version="1.0"?>
+      window.localStorage.setItem(
+        'tei-document',
+        JSON.stringify({
+          raw: `<?xml version="1.0"?>
 <TEI>
   <text>
     <body>
       <p>Text with <said who="#speaker1">dialogue</said> and <persName>names</persName>.</p>
     </body>
   </text>
-</TEI>`
-      }));
+</TEI>`,
+        })
+      );
     });
     await page.reload();
 
@@ -885,9 +898,12 @@ test.describe('Syntax Highlighting Visual Tests', () => {
 
   test('code view syntax highlighting', async ({ page }) => {
     await page.evaluate(() => {
-      window.localStorage.setItem('tei-document', JSON.stringify({
-        raw: `<?xml version="1.0"?><TEI><text><body><p>Test</p></body></text></TEI>`
-      }));
+      window.localStorage.setItem(
+        'tei-document',
+        JSON.stringify({
+          raw: `<?xml version="1.0"?><TEI><text><body><p>Test</p></body></text></TEI>`,
+        })
+      );
     });
     await page.reload();
 
@@ -901,23 +917,26 @@ test.describe('Syntax Highlighting Visual Tests', () => {
 
   test('color consistency across views', async ({ page }) => {
     await page.evaluate(() => {
-      window.localStorage.setItem('tei-document', JSON.stringify({
-        raw: `<?xml version="1.0"?>
+      window.localStorage.setItem(
+        'tei-document',
+        JSON.stringify({
+          raw: `<?xml version="1.0"?>
 <TEI>
   <text>
     <body>
       <p><said who="#sp1">Dialogue</said></p>
     </body>
   </text>
-</TEI>`
-      }));
+</TEI>`,
+        })
+      );
     });
     await page.reload();
 
     // Get color from rendered view
     const renderedTag = page.locator('.tei-tag-said').first();
-    const renderedColor = await renderedTag.evaluate(el =>
-      window.getComputedStyle(el).backgroundColor
+    const renderedColor = await renderedTag.evaluate(
+      (el) => window.getComputedStyle(el).backgroundColor
     );
 
     // Switch to code view
@@ -949,6 +968,7 @@ git commit -m "test: add visual regression tests for syntax highlighting"
 ## Task 9: Update Documentation
 
 **Files:**
+
 - Modify: `README.md` (or create `docs/syntax-highlighting.md`)
 
 **Step 1: Add documentation for syntax highlighting**
@@ -978,29 +998,29 @@ The TEI Editor provides comprehensive syntax highlighting for TEI XML documents 
 
 ### TEI Tag Colors
 
-| Tag Type | Light Mode | Dark Mode | Usage |
-|----------|-----------|-----------|-------|
-| Dialogue (`<said>`) | Purple | Light Purple | Character dialogue |
-| Entity References | Green | Light Green | Person, place, org names |
-| Structural | Indigo | Light Indigo | Paragraphs, divisions |
-| Metadata | Orange | Light Orange | Authors, titles, dates |
+| Tag Type            | Light Mode | Dark Mode    | Usage                    |
+| ------------------- | ---------- | ------------ | ------------------------ |
+| Dialogue (`<said>`) | Purple     | Light Purple | Character dialogue       |
+| Entity References   | Green      | Light Green  | Person, place, org names |
+| Structural          | Indigo     | Light Indigo | Paragraphs, divisions    |
+| Metadata            | Orange     | Light Orange | Authors, titles, dates   |
 
 ### Validation States
 
-| State | Color | Description |
-|-------|-------|-------------|
-| Valid | Green | Schema-compliant elements |
-| Invalid | Red | Schema violations |
-| Warning | Yellow | Potential issues |
+| State   | Color  | Description               |
+| ------- | ------ | ------------------------- |
+| Valid   | Green  | Schema-compliant elements |
+| Invalid | Red    | Schema violations         |
+| Warning | Yellow | Potential issues          |
 
 ### Character Network Colors
 
-| Element | Color | Description |
-|---------|-------|-------------|
-| Male Character | Blue-ish | Male characters |
-| Female Character | Purple-ish | Female characters |
-| Strong Relationship | Green | Strong connections |
-| Weak Relationship | Light Green | Weak connections |
+| Element             | Color       | Description        |
+| ------------------- | ----------- | ------------------ |
+| Male Character      | Blue-ish    | Male characters    |
+| Female Character    | Purple-ish  | Female characters  |
+| Strong Relationship | Green       | Strong connections |
+| Weak Relationship   | Light Green | Weak connections   |
 
 ## Customization
 
@@ -1029,6 +1049,7 @@ git commit -m "docs: add syntax highlighting and color system documentation"
 ## Task 10: Final Integration Testing
 
 **Files:**
+
 - All modified files
 - Test: All test suites
 
@@ -1055,6 +1076,7 @@ npm run dev
 ```
 
 Verify:
+
 - [ ] Syntax highlighting works in rendered view
 - [ ] Syntax highlighting works in code view
 - [ ] Colors are consistent between views
@@ -1084,6 +1106,7 @@ This implementation plan adds:
 6. **Comprehensive tests** for syntax highlighting and color scheme
 
 **Files Created:**
+
 - `lib/syntax/tei-prism.ts` - TEI language definition for Prism
 - `lib/syntax/monaco-theme.ts` - Custom Monaco theme
 - `lib/syntax/__tests__/tei-prism.test.ts` - Prism tests
@@ -1091,6 +1114,7 @@ This implementation plan adds:
 - `docs/syntax-highlighting.md` - Documentation
 
 **Files Modified:**
+
 - `components/editor/RenderedView.tsx` - Add Prism highlighting
 - `components/editor/XMLCodeEditor.tsx` - Add Monaco theme
 - `components/visualization/CharacterNetwork.tsx` - Use CSS variables

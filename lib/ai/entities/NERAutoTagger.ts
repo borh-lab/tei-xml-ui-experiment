@@ -24,24 +24,30 @@ export class NERAutoTagger {
     return {
       persNames: this.detector.detectPersonalNames(text),
       places: this.detector.detectPlaces(text),
-      dates: [] // TODO: implement date detection
+      dates: [], // TODO: implement date detection
     };
   }
 
   getHighConfidenceEntities(result: ScanResult): EntitySpan[] {
     return [
-      ...result.persNames.filter(e => e.confidence >= this.confidenceThreshold),
-      ...result.places.filter(e => e.confidence >= this.confidenceThreshold),
-      ...result.dates.filter(e => e.confidence >= this.confidenceThreshold)
+      ...result.persNames.filter((e) => e.confidence >= this.confidenceThreshold),
+      ...result.places.filter((e) => e.confidence >= this.confidenceThreshold),
+      ...result.dates.filter((e) => e.confidence >= this.confidenceThreshold),
     ];
   }
 
   getMediumConfidenceEntities(result: ScanResult): EntitySpan[] {
     const threshold = this.confidenceThreshold - 0.2;
     return [
-      ...result.persNames.filter(e => e.confidence >= threshold && e.confidence < this.confidenceThreshold),
-      ...result.places.filter(e => e.confidence >= threshold && e.confidence < this.confidenceThreshold),
-      ...result.dates.filter(e => e.confidence >= threshold && e.confidence < this.confidenceThreshold)
+      ...result.persNames.filter(
+        (e) => e.confidence >= threshold && e.confidence < this.confidenceThreshold
+      ),
+      ...result.places.filter(
+        (e) => e.confidence >= threshold && e.confidence < this.confidenceThreshold
+      ),
+      ...result.dates.filter(
+        (e) => e.confidence >= threshold && e.confidence < this.confidenceThreshold
+      ),
     ];
   }
 
@@ -49,7 +55,7 @@ export class NERAutoTagger {
     const result = this.scan(document);
     const highConfidence = this.getHighConfidenceEntities(result);
 
-    highConfidence.forEach(entity => {
+    highConfidence.forEach((entity) => {
       // Skip dialogue entities - those are handled separately
       if (entity.type === 'dialogue') {
         return;

@@ -204,10 +204,7 @@ export class MockAIService {
   /**
    * Attribute speaker to dialogue
    */
-  attributeSpeaker(
-    text: string,
-    dialogue: readonly DialogueSpan[]
-  ): Effect.Effect<string, never> {
+  attributeSpeaker(text: string, dialogue: readonly DialogueSpan[]): Effect.Effect<string, never> {
     return Effect.sync(() => this.speakerAttribution);
   }
 
@@ -394,12 +391,8 @@ export function createTestLayer(): Layer.Layer<never> {
  * });
  * ```
  */
-export async function runEffectTest<A>(
-  effect: Effect.Effect<A, never, TestContext>
-): Promise<A> {
-  return Effect.runPromise(
-    Effect.provide(effect, createTestLayer())
-  );
+export async function runEffectTest<A>(effect: Effect.Effect<A, never, TestContext>): Promise<A> {
+  return Effect.runPromise(Effect.provide(effect, createTestLayer()));
 }
 
 /**
@@ -575,9 +568,28 @@ export interface Relationship {
  * Document event
  */
 export type DocumentEvent =
-  | { readonly type: 'loaded'; readonly xml: string; readonly timestamp: number; readonly revision: number }
-  | { readonly type: 'tag-added'; readonly id: string; readonly passageId: string; readonly range: TextRange; readonly tagName: string; readonly attributes?: Record<string, string>; readonly timestamp: number; readonly revision: number }
-  | { readonly type: 'tag-removed'; readonly id: string; readonly timestamp: number; readonly revision: number };
+  | {
+      readonly type: 'loaded';
+      readonly xml: string;
+      readonly timestamp: number;
+      readonly revision: number;
+    }
+  | {
+      readonly type: 'tag-added';
+      readonly id: string;
+      readonly passageId: string;
+      readonly range: TextRange;
+      readonly tagName: string;
+      readonly attributes?: Record<string, string>;
+      readonly timestamp: number;
+      readonly revision: number;
+    }
+  | {
+      readonly type: 'tag-removed';
+      readonly id: string;
+      readonly timestamp: number;
+      readonly revision: number;
+    };
 
 /**
  * Text range

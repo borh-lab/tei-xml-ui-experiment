@@ -39,9 +39,7 @@ export interface ShortcutRegistry {
  * @param shortcuts - Optional initial shortcuts
  * @returns New shortcut registry
  */
-export function createShortcutRegistry(
-  shortcuts: readonly Shortcut[] = []
-): ShortcutRegistry {
+export function createShortcutRegistry(shortcuts: readonly Shortcut[] = []): ShortcutRegistry {
   // Sort by key for predictable matching (longer keys first for better matching)
   const sorted = [...shortcuts].sort((a, b) => {
     // First sort by length (longer keys first)
@@ -64,10 +62,7 @@ export function createShortcutRegistry(
  * @param shortcut - Shortcut to add
  * @returns New shortcut registry with added shortcut
  */
-export function addShortcut(
-  registry: ShortcutRegistry,
-  shortcut: Shortcut
-): ShortcutRegistry {
+export function addShortcut(registry: ShortcutRegistry, shortcut: Shortcut): ShortcutRegistry {
   // Check for duplicate key
   if (registry.shortcuts.some((s) => s.key === shortcut.key)) {
     throw new Error(`Shortcut with key "${shortcut.key}" already exists`);
@@ -96,10 +91,7 @@ export function removeShortcut(registry: ShortcutRegistry, key: string): Shortcu
  * @param event - Keyboard event to match
  * @returns Matched shortcut or null if no match
  */
-export function matchShortcut(
-  registry: ShortcutRegistry,
-  event: KeyboardEvent
-): Shortcut | null {
+export function matchShortcut(registry: ShortcutRegistry, event: KeyboardEvent): Shortcut | null {
   const pressedKey = formatKeyEvent(event);
 
   for (const shortcut of registry.shortcuts) {
@@ -207,9 +199,8 @@ export function formatShortcutForDisplay(
 
   // Detect platform if not specified
   if (!platform) {
-    platform = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform)
-      ? 'mac'
-      : 'windows';
+    platform =
+      typeof navigator !== 'undefined' && /Mac/.test(navigator.platform) ? 'mac' : 'windows';
   }
 
   for (const part of parts) {

@@ -13,6 +13,7 @@
 ## Task 1: Install sonner dependency
 
 **Files:**
+
 - Modify: `package.json` (via npm install)
 
 **Step 1: Install sonner package**
@@ -20,6 +21,7 @@
 Run: `npm install sonner`
 
 Expected output:
+
 ```
 added 1 package, and audited 351 packages in 3s
 ```
@@ -42,6 +44,7 @@ git commit -m "deps: install sonner for toast notifications"
 ## Task 2: Create Toaster UI component
 
 **Files:**
+
 - Create: `components/ui/toaster.tsx`
 - Create: `components/ui/use-toast.ts`
 
@@ -104,49 +107,49 @@ export function Toaster() {
 Create `components/ui/use-toast.ts`:
 
 ```typescript
-import { toast as sonnerToast } from 'sonner'
+import { toast as sonnerToast } from 'sonner';
 
 type ToastProps = {
-  description?: string
+  description?: string;
   action?: {
-    label: string
-    onClick: () => void
-  }
-}
+    label: string;
+    onClick: () => void;
+  };
+};
 
 export const toast = {
   error: (message: string, props?: ToastProps) => {
     return sonnerToast.error(message, {
       description: props?.description,
       action: props?.action,
-    })
+    });
   },
 
   success: (message: string, props?: ToastProps) => {
     return sonnerToast.success(message, {
       description: props?.description,
       action: props?.action,
-    })
+    });
   },
 
   warning: (message: string, props?: ToastProps) => {
     return sonnerToast.warning(message, {
       description: props?.description,
       action: props?.action,
-    })
+    });
   },
 
   info: (message: string, props?: ToastProps) => {
     return sonnerToast.info(message, {
       description: props?.description,
       action: props?.action,
-    })
+    });
   },
 
   dismiss: () => {
-    sonnerToast.dismiss()
+    sonnerToast.dismiss();
   },
-}
+};
 ```
 
 **Step 5: Run test to verify it passes**
@@ -167,6 +170,7 @@ git commit -m "feat: add Toaster component and toast hook"
 ## Task 3: Add Toaster to app layout
 
 **Files:**
+
 - Modify: `app/layout.tsx`
 
 **Step 1: Write test for Toaster presence**
@@ -264,6 +268,7 @@ git commit -m "feat: add Toaster to root layout for global notifications"
 ## Task 4: Create error categorization utility
 
 **Files:**
+
 - Create: `lib/utils/error-categorization.ts`
 - Test: `tests/unit/error-categorization.test.ts`
 
@@ -272,43 +277,43 @@ git commit -m "feat: add Toaster to root layout for global notifications"
 Create `tests/unit/error-categorization.test.ts`:
 
 ```typescript
-import { categorizeError, ErrorType } from '@/lib/utils/error-categorization'
+import { categorizeError, ErrorType } from '@/lib/utils/error-categorization';
 
 describe('categorizeError', () => {
   test('categorizes XML parse errors', () => {
-    const error = new Error('XML parse error: unexpected close tag')
-    const result = categorizeError(error)
+    const error = new Error('XML parse error: unexpected close tag');
+    const result = categorizeError(error);
 
-    expect(result.type).toBe(ErrorType.PARSE_ERROR)
-    expect(result.message).toBe('Invalid TEI format')
-    expect(result.description).toBeDefined()
-  })
+    expect(result.type).toBe(ErrorType.PARSE_ERROR);
+    expect(result.message).toBe('Invalid TEI format');
+    expect(result.description).toBeDefined();
+  });
 
   test('categorizes network errors', () => {
-    const error = new Error('Network request failed')
-    const result = categorizeError(error)
+    const error = new Error('Network request failed');
+    const result = categorizeError(error);
 
-    expect(result.type).toBe(ErrorType.NETWORK_ERROR)
-    expect(result.message).toBe('Connection failed')
-    expect(result.action).toBeDefined()
-  })
+    expect(result.type).toBe(ErrorType.NETWORK_ERROR);
+    expect(result.message).toBe('Connection failed');
+    expect(result.action).toBeDefined();
+  });
 
   test('categorizes file read errors', () => {
-    const error = new Error('Failed to read file')
-    const result = categorizeError(error)
+    const error = new Error('Failed to read file');
+    const result = categorizeError(error);
 
-    expect(result.type).toBe(ErrorType.FILE_ERROR)
-    expect(result.message).toBe('Failed to read file')
-  })
+    expect(result.type).toBe(ErrorType.FILE_ERROR);
+    expect(result.message).toBe('Failed to read file');
+  });
 
   test('returns unknown error for unrecognized types', () => {
-    const error = new Error('Something unexpected happened')
-    const result = categorizeError(error)
+    const error = new Error('Something unexpected happened');
+    const result = categorizeError(error);
 
-    expect(result.type).toBe(ErrorType.UNKNOWN_ERROR)
-    expect(result.message).toBe('An error occurred')
-  })
-})
+    expect(result.type).toBe(ErrorType.UNKNOWN_ERROR);
+    expect(result.message).toBe('An error occurred');
+  });
+});
 ```
 
 **Step 2: Run test to verify it fails**
@@ -327,21 +332,21 @@ export enum ErrorType {
   FILE_ERROR = 'file_error',
   NETWORK_ERROR = 'network_error',
   VALIDATION_ERROR = 'validation_error',
-  UNKNOWN_ERROR = 'unknown_error'
+  UNKNOWN_ERROR = 'unknown_error',
 }
 
 export interface ErrorInfo {
-  type: ErrorType
-  message: string
-  description: string
+  type: ErrorType;
+  message: string;
+  description: string;
   action?: {
-    label: string
-    onClick: () => void
-  }
+    label: string;
+    onClick: () => void;
+  };
 }
 
 export function categorizeError(error: Error): ErrorInfo {
-  const message = error.message.toLowerCase()
+  const message = error.message.toLowerCase();
 
   // Parse errors
   if (
@@ -353,15 +358,11 @@ export function categorizeError(error: Error): ErrorInfo {
       type: ErrorType.PARSE_ERROR,
       message: 'Invalid TEI format',
       description: 'Unable to parse the XML document. Please check the file format and try again.',
-    }
+    };
   }
 
   // Network errors
-  if (
-    message.includes('network') ||
-    message.includes('fetch') ||
-    message.includes('connection')
-  ) {
+  if (message.includes('network') || message.includes('fetch') || message.includes('connection')) {
     return {
       type: ErrorType.NETWORK_ERROR,
       message: 'Connection failed',
@@ -370,23 +371,19 @@ export function categorizeError(error: Error): ErrorInfo {
         label: 'Retry',
         onClick: () => {
           // Retry logic will be implemented by caller
-          console.log('Retry action clicked')
+          console.log('Retry action clicked');
         },
       },
-    }
+    };
   }
 
   // File errors
-  if (
-    message.includes('file') ||
-    message.includes('read') ||
-    message.includes('encoding')
-  ) {
+  if (message.includes('file') || message.includes('read') || message.includes('encoding')) {
     return {
       type: ErrorType.FILE_ERROR,
       message: 'Failed to read file',
       description: 'The file could not be read. Please check it is a valid TEI XML file.',
-    }
+    };
   }
 
   // Validation errors
@@ -399,7 +396,7 @@ export function categorizeError(error: Error): ErrorInfo {
       type: ErrorType.VALIDATION_ERROR,
       message: 'Invalid document',
       description: 'The document is missing required tags or structure.',
-    }
+    };
   }
 
   // Default fallback
@@ -407,7 +404,7 @@ export function categorizeError(error: Error): ErrorInfo {
     type: ErrorType.UNKNOWN_ERROR,
     message: 'An error occurred',
     description: error.message || 'Please try again.',
-  }
+  };
 }
 ```
 
@@ -435,6 +432,7 @@ git commit -m "feat: add error categorization utility"
 ## Task 5: Add error handling to FileUpload component
 
 **Files:**
+
 - Modify: `components/editor/FileUpload.tsx`
 
 **Step 1: Read current implementation**
@@ -523,8 +521,8 @@ Modify `components/editor/FileUpload.tsx`:
 Find the `handleFileUpload` function and wrap it with try-catch:
 
 ```typescript
-import { toast } from '@/components/ui/use-toast'
-import { categorizeError } from '@/lib/utils/error-categorization'
+import { toast } from '@/components/ui/use-toast';
+import { categorizeError } from '@/lib/utils/error-categorization';
 
 // In the component:
 const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -569,6 +567,7 @@ git commit -m "feat: add error handling to FileUpload with toast notifications"
 ## Task 6: Add error handling to DocumentContext
 
 **Files:**
+
 - Modify: `lib/context/DocumentContext.tsx`
 
 **Step 1: Read current implementation**
@@ -664,9 +663,10 @@ Expected: FAIL (toast.error not called)
 Modify `lib/context/DocumentContext.tsx`:
 
 Add imports:
+
 ```typescript
-import { toast } from '@/components/ui/use-toast'
-import { categorizeError } from '@/lib/utils/error-categorization'
+import { toast } from '@/components/ui/use-toast';
+import { categorizeError } from '@/lib/utils/error-categorization';
 ```
 
 Modify the `loadSample` function:
@@ -729,6 +729,7 @@ git commit -m "feat: add error handling to DocumentContext with toast notificati
 ## Task 7: Write E2E tests for error handling UI
 
 **Files:**
+
 - Create: `tests/e2e/error-handling-ui.spec.ts`
 
 **Step 1: Create E2E test file**
@@ -736,50 +737,50 @@ git commit -m "feat: add error handling to DocumentContext with toast notificati
 Create `tests/e2e/error-handling-ui.spec.ts`:
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test.describe('Error Handling UI', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-  })
+    await page.goto('/');
+  });
 
   test('shows toast notification on invalid file upload', async ({ page }) => {
     // Create invalid XML content
-    const invalidXml = 'invalid {{{ xml'
+    const invalidXml = 'invalid {{{ xml';
 
     // Upload file
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'invalid.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from(invalidXml),
-    })
+    });
 
     // Wait for toast to appear
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible({ timeout: 5000 })
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible({ timeout: 5000 });
 
     // Verify error message
-    await expect(toast).toContainText('Invalid TEI format', { timeout: 3000 })
-  })
+    await expect(toast).toContainText('Invalid TEI format', { timeout: 3000 });
+  });
 
   test('toast auto-dismisses after 5 seconds', async ({ page }) => {
-    const invalidXml = 'invalid {{{ xml'
+    const invalidXml = 'invalid {{{ xml';
 
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'invalid.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from(invalidXml),
-    })
+    });
 
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible()
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible();
 
     // Wait for auto-dismiss (5 seconds + buffer)
-    await page.waitForTimeout(6000)
-    await expect(toast).not.toBeVisible()
-  })
+    await page.waitForTimeout(6000);
+    await expect(toast).not.toBeVisible();
+  });
 
   test('shows success toast on valid document upload', async ({ page }) => {
     const validXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -789,62 +790,62 @@ test.describe('Error Handling UI', () => {
       <p>Test content</p>
     </body>
   </text>
-</TEI>`
+</TEI>`;
 
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'valid.tei.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from(validXml),
-    })
+    });
 
     // Wait for success toast
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible({ timeout: 5000 })
-    await expect(toast).toContainText('uploaded successfully')
-  })
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast).toContainText('uploaded successfully');
+  });
 
   test('dismissible toasts can be closed manually', async ({ page }) => {
-    const invalidXml = 'invalid {{{ xml'
+    const invalidXml = 'invalid {{{ xml';
 
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'invalid.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from(invalidXml),
-    })
+    });
 
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible()
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible();
 
     // Click close button
-    const closeButton = toast.locator('button[aria-label="close"]')
-    await closeButton.click()
+    const closeButton = toast.locator('button[aria-label="close"]');
+    await closeButton.click();
 
     // Toast should disappear immediately
-    await expect(toast).not.toBeVisible()
-  })
+    await expect(toast).not.toBeVisible();
+  });
 
   test('multiple toasts stack correctly', async ({ page }) => {
     // Trigger multiple errors
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
 
     for (let i = 0; i < 3; i++) {
       await fileInput.setInputFiles({
         name: `invalid${i}.xml`,
         mimeType: 'text/xml',
         buffer: Buffer.from('invalid {{{ xml'),
-      })
+      });
 
       // Wait a bit between uploads
-      await page.waitForTimeout(500)
+      await page.waitForTimeout(500);
     }
 
     // Should see multiple toasts
-    const toasts = page.locator('[data-sonner-toast]')
-    await expect(toasts).toHaveCount(3)
-  })
-})
+    const toasts = page.locator('[data-sonner-toast]');
+    await expect(toasts).toHaveCount(3);
+  });
+});
 ```
 
 **Step 2: Run E2E tests**
@@ -865,6 +866,7 @@ git commit -m "test: add E2E tests for error handling UI"
 ## Task 8: Run full test suite and verify improvements
 
 **Files:**
+
 - No file changes (verification only)
 
 **Step 1: Run all unit tests**
@@ -882,6 +884,7 @@ Expected: Significant improvement in test pass rate
 **Step 3: Compare results**
 
 Check:
+
 - Error Scenarios suite: Should improve from 23/38 to ~31/38
 - Document Upload suite: Should improve from 6/31 to ~11/31
 - Overall: Should improve from 152/234 to ~164-167/234
@@ -904,6 +907,7 @@ git commit -m "docs: complete error handling UI implementation plan"
 After completing all tasks:
 
 ✅ **Unit Tests:**
+
 - Toaster component renders correctly
 - Error categorization works for all error types
 - FileUpload shows error toasts
@@ -911,6 +915,7 @@ After completing all tasks:
 - All 479+ unit tests pass
 
 ✅ **E2E Tests:**
+
 - Toast appears on invalid file upload
 - Toast auto-dismisses after 5 seconds
 - Success toast appears on valid upload
@@ -918,12 +923,14 @@ After completing all tasks:
 - Multiple toasts stack correctly
 
 ✅ **Test Suite Improvements:**
+
 - Error Scenarios: +8 tests (23→31)
 - Document Upload: +5 tests (6→11)
 - Overall: +12-15 tests (152→164-167)
 - Pass rate: 65% → 70-71%
 
 ✅ **Code Quality:**
+
 - No regressions in existing tests
 - Clean git history with frequent commits
 - All changes follow TDD process
@@ -958,11 +965,13 @@ npm run test:e2e:debug
 ## Dependencies
 
 **Required:**
+
 - sonner (npm package)
 - Existing: React 19, Next.js 16, TypeScript
 - Existing: shadcn/ui components
 
 **Files Created:**
+
 - `components/ui/toaster.tsx`
 - `components/ui/use-toast.ts`
 - `lib/utils/error-categorization.ts`
@@ -974,6 +983,7 @@ npm run test:e2e:debug
 - `tests/e2e/error-handling-ui.spec.ts`
 
 **Files Modified:**
+
 - `package.json` (sonner dependency)
 - `app/layout.tsx` (add Toaster)
 - `components/editor/FileUpload.tsx` (error handling)

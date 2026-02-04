@@ -26,12 +26,15 @@ export interface SplitDefinition {
     test: number;
     seed: number;
   };
-  corpora: Record<string, {
-    train: string[];
-    validation: string[];
-    test: string[];
-    excluded: string[];
-  }>;
+  corpora: Record<
+    string,
+    {
+      train: string[];
+      validation: string[];
+      test: string[];
+      excluded: string[];
+    }
+  >;
   summary: {
     totalDocuments: number;
     trainCount: number;

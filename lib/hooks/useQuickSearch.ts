@@ -22,6 +22,6 @@ export function useQuickSearch() {
     open,
     close,
     selectedResult,
-    onResultClick: handleResultClick
+    onResultClick: handleResultClick,
   };
 }

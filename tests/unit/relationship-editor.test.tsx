@@ -7,7 +7,7 @@ describe('RelationshipEditor', () => {
 
   test('has correct props interface', () => {
     const props = {
-      onAddRelation: () => {}
+      onAddRelation: () => {},
     };
 
     // Just verify component can be instantiated

@@ -37,9 +37,12 @@ export function FileUpload() {
 
     // Show warning for files larger than 100KB
     if (fileSizeKB > 100) {
-      toast.warning(`Large file detected (${fileSizeKB.toFixed(2)}KB). Processing may take longer.`, {
-        description: 'Consider splitting large files for better performance.',
-      });
+      toast.warning(
+        `Large file detected (${fileSizeKB.toFixed(2)}KB). Processing may take longer.`,
+        {
+          description: 'Consider splitting large files for better performance.',
+        }
+      );
     }
 
     try {
@@ -70,9 +73,7 @@ export function FileUpload() {
         onChange={handleFileUpload}
         className="hidden"
       />
-      <Button onClick={() => fileInputRef.current?.click()}>
-        Upload TEI File
-      </Button>
+      <Button onClick={() => fileInputRef.current?.click()}>Upload TEI File</Button>
     </div>
   );
 }

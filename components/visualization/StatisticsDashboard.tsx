@@ -57,9 +57,7 @@ export function StatisticsDashboard() {
       }
     });
 
-    const topCharacters: CharacterDialogueData[] = Array.from(
-      characterDialogueCount.entries()
-    )
+    const topCharacters: CharacterDialogueData[] = Array.from(characterDialogueCount.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([name, count], index) => ({
@@ -74,12 +72,10 @@ export function StatisticsDashboard() {
       relationshipTypes.set(r.type, (relationshipTypes.get(r.type) || 0) + 1);
     });
 
-    const relationshipData = Array.from(relationshipTypes.entries()).map(
-      ([type, count]) => ({
-        name: type,
-        value: count,
-      })
-    );
+    const relationshipData = Array.from(relationshipTypes.entries()).map(([type, count]) => ({
+      name: type,
+      value: count,
+    }));
 
     // Tag type distribution
     const tagTypes = new Map<string, number>();
@@ -113,9 +109,7 @@ export function StatisticsDashboard() {
           <CardTitle>Document Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            No document loaded
-          </p>
+          <p className="text-sm text-muted-foreground">No document loaded</p>
         </CardContent>
       </Card>
     );
@@ -138,9 +132,7 @@ export function StatisticsDashboard() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Passages
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Passages</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalPassages}</div>
@@ -149,9 +141,7 @@ export function StatisticsDashboard() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Characters
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Characters</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalCharacters}</div>

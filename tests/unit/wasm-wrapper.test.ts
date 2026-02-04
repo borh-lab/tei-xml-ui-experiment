@@ -13,23 +13,23 @@ import {
   getPatterns,
   updateFromFeedback,
   clearPatternCache,
-  isWasmAvailable
+  isWasmAvailable,
 } from '@/lib/pattern/wasm-loader';
 
 // Mock the PatternDB module
 jest.mock('@/lib/db/PatternDB', () => ({
   db: {
     getAllLearnedPatterns: jest.fn().mockResolvedValue([]),
-    getSpeakers: jest.fn().mockResolvedValue({})
-  }
+    getSpeakers: jest.fn().mockResolvedValue({}),
+  },
 }));
 
 // Mock the PatternExtractor module
 jest.mock('@/lib/learning/PatternExtractor', () => ({
   scorePatternMatch: jest.fn().mockReturnValue(0),
   type: {
-    SpeakerPatternData: {}
-  }
+    SpeakerPatternData: {},
+  },
 }));
 
 describe('WASM Pattern Engine Loader', () => {
@@ -74,16 +74,11 @@ describe('WASM Pattern Engine Loader', () => {
           common_followers: [],
           common_preceders: [],
           chapter_affinity: { chapter1: 5 },
-          dialogue_length_avg: 10
-        }
+          dialogue_length_avg: 10,
+        },
       };
 
-      const speaker = await detectSpeaker(
-        'Test text',
-        'chapter1',
-        5,
-        patterns
-      );
+      const speaker = await detectSpeaker('Test text', 'chapter1', 5, patterns);
 
       expect(speaker).toBeDefined();
       expect(typeof speaker).toBe('string');
@@ -102,7 +97,7 @@ describe('WASM Pattern Engine Loader', () => {
         chapter_frequency: 0.8,
         turn_taking: true,
         name_mention: true,
-        dialogue_length_score: 0.9
+        dialogue_length_score: 0.9,
       };
 
       const confidence = await calculateConfidence('Test text', 'speaker1', patternMatch);
@@ -117,7 +112,7 @@ describe('WASM Pattern Engine Loader', () => {
         chapter_frequency: 0.1,
         turn_taking: false,
         name_mention: false,
-        dialogue_length_score: 0.2
+        dialogue_length_score: 0.2,
       };
 
       const confidence = await calculateConfidence('Test text', 'speaker1', patternMatch);
@@ -138,13 +133,7 @@ describe('WASM Pattern Engine Loader', () => {
     test('should store new pattern', async () => {
       const currentPattern = {};
 
-      const updated = await storePattern(
-        'speaker1',
-        'chapter1',
-        5,
-        15.0,
-        currentPattern
-      );
+      const updated = await storePattern('speaker1', 'chapter1', 5, 15.0, currentPattern);
 
       expect(updated).toBeDefined();
       expect(updated.xml_id).toBe('speaker1');
@@ -160,16 +149,10 @@ describe('WASM Pattern Engine Loader', () => {
         position_frequency: {},
         common_followers: [],
         common_preceders: [],
-        chapter_affinity: {}
+        chapter_affinity: {},
       };
 
-      const updated = await storePattern(
-        'speaker1',
-        'chapter1',
-        6,
-        30.0,
-        currentPattern
-      );
+      const updated = await storePattern('speaker1', 'chapter1', 6, 30.0, currentPattern);
 
       // EMA: 20.0 * 0.8 + 30.0 * 0.2 = 22.0
       expect(updated.dialogue_length_avg).toBeCloseTo(22.0, 1);
@@ -180,16 +163,10 @@ describe('WASM Pattern Engine Loader', () => {
       const currentPattern = {
         xml_id: 'speaker1',
         position_frequency: {},
-        chapter_affinity: {}
+        chapter_affinity: {},
       };
 
-      const updated = await storePattern(
-        'speaker1',
-        'chapter1',
-        5,
-        15.0,
-        currentPattern
-      );
+      const updated = await storePattern('speaker1', 'chapter1', 5, 15.0, currentPattern);
 
       expect(updated.position_frequency['chapter1_5']).toBe(1);
     });
@@ -205,8 +182,8 @@ describe('WASM Pattern Engine Loader', () => {
           common_followers: [],
           common_preceders: [],
           chapter_affinity: {},
-          dialogue_length_avg: 25.0
-        }
+          dialogue_length_avg: 25.0,
+        },
       };
 
       const pattern = await getPatterns('speaker1', allPatterns);
@@ -251,18 +228,13 @@ describe('WASM Pattern Engine Loader', () => {
           common_followers: [],
           common_preceders: [],
           chapter_affinity: {},
-          dialogue_length_avg: 20.0
-        }
+          dialogue_length_avg: 20.0,
+        },
       };
 
       const originalLastUsed = currentPatterns.speaker2.last_used;
 
-      const updated = await updateFromFeedback(
-        'Test',
-        'speaker1',
-        ['speaker2'],
-        currentPatterns
-      );
+      const updated = await updateFromFeedback('Test', 'speaker1', ['speaker2'], currentPatterns);
 
       expect(updated['speaker2'].last_used).toBeLessThan(originalLastUsed);
     });
@@ -301,30 +273,21 @@ describe('WASM Pattern Engine Loader', () => {
       // 2. Detect speaker
       const allPatterns = {
         speaker1: updated1,
-        speaker2: updated2
+        speaker2: updated2,
       };
 
-      const detected = await detectSpeaker(
-        'Sample dialogue text',
-        'chapter1',
-        3,
-        allPatterns
-      );
+      const detected = await detectSpeaker('Sample dialogue text', 'chapter1', 3, allPatterns);
 
       expect(detected).toBeDefined();
 
       // 3. Get confidence
-      const confidence = await calculateConfidence(
-        'Sample dialogue text',
-        detected,
-        {
-          recent: true,
-          chapter_frequency: 0.5,
-          turn_taking: false,
-          name_mention: false,
-          dialogue_length_score: 0.7
-        }
-      );
+      const confidence = await calculateConfidence('Sample dialogue text', detected, {
+        recent: true,
+        chapter_frequency: 0.5,
+        turn_taking: false,
+        name_mention: false,
+        dialogue_length_score: 0.7,
+      });
 
       expect(confidence).toBeGreaterThanOrEqual(0);
       expect(confidence).toBeLessThanOrEqual(1);
@@ -339,8 +302,8 @@ describe('WASM Pattern Engine Loader', () => {
           position_frequency: {},
           common_followers: [],
           common_preceders: [],
-          chapter_affinity: {}
-        }
+          chapter_affinity: {},
+        },
       };
 
       // Simulate user correction

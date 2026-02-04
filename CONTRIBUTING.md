@@ -7,21 +7,25 @@ Thank you for your interest in contributing! This document provides guidelines f
 ### Prerequisites
 
 **Option 1: Bun (Recommended)**
+
 - Bun 1.0 or higher
 - Git
 
 **Option 2: npm**
+
 - Node.js 18 or higher
 - npm (comes with Node.js)
 - Git
 
 **Option 3: Nix (Reproducible Environment)**
+
 - Nix with flakes enabled
 - Git
 
 ### Getting Started
 
 1. **Fork and clone the repository**
+
    ```bash
    git clone https://github.com/your-username/tei-dialogue-editor.git
    cd tei-dialogue-editor
@@ -30,16 +34,19 @@ Thank you for your interest in contributing! This document provides guidelines f
 2. **Install dependencies**
 
    **With Bun (Recommended - much faster):**
+
    ```bash
    bun install
    ```
 
    **With npm:**
+
    ```bash
    npm install
    ```
 
    **With Nix (automatic dependency setup):**
+
    ```bash
    nix develop
    # Or with direnv:
@@ -47,6 +54,7 @@ Thank you for your interest in contributing! This document provides guidelines f
    ```
 
 3. **Create a feature branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -54,11 +62,13 @@ Thank you for your interest in contributing! This document provides guidelines f
 4. **Start development server**
 
    **With Bun:**
+
    ```bash
    bun run dev
    ```
 
    **With npm:**
+
    ```bash
    npm run dev
    ```
@@ -68,6 +78,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ### Why Bun?
 
 Bun is recommended for development because it's:
+
 - **10-100x faster** than npm for installs
 - **Native TypeScript support** - no transpilation needed
 - **Compatible** with Node.js ecosystem and package.json
@@ -153,6 +164,7 @@ bun test -- --coverage
 - Test components, utilities, and business logic
 
 Example test structure:
+
 ```typescript
 describe('TEIDocument', () => {
   describe('tagDialogue', () => {
@@ -205,6 +217,7 @@ refactor(selection): extract text range utilities
 ### Before Submitting
 
 1. **Ensure tests pass**
+
    ```bash
    bun test           # or npm test
    bun run build      # or npm run build
@@ -212,11 +225,13 @@ refactor(selection): extract text range utilities
 
 2. **Run linting** (if you have pre-commit hooks installed via Nix)
    Pre-commit hooks will automatically run when you enter the Nix dev shell:
+
    ```bash
    nix develop
    ```
 
    Or manually:
+
    ```bash
    bun run lint       # or npm run lint
    ```
@@ -232,6 +247,7 @@ refactor(selection): extract text range utilities
 ### Submitting a Pull Request
 
 1. **Push your branch**
+
    ```bash
    git push origin feature/your-feature-name
    ```

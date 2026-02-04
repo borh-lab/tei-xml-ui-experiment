@@ -32,16 +32,19 @@ A web-based tool for annotating novel dialogue in TEI XML, with support for both
 The application is a **single-page React application** using TypeScript, organized around a central document state. The architecture follows a **unidirectional data flow** pattern using React Context and hooks.
 
 **Core Document Model:**
+
 - `TEIDocument` class maintains both raw XML and parsed object representation
 - All edits flow through this central state
 - Automatic serialization back to valid TEI XML
 
 **Three Processing Layers:**
+
 1. **Parsing Layer**: TEI XML ↔ JavaScript objects using fast-xml-parser
 2. **Annotation Layer**: Editing interface, user interactions, AI integration
 3. **Visualization Layer**: Statistics, network graphs, character views
 
 **Validation Strategy:**
+
 - Client-side: Well-formedness checks, basic TEI validation
 - Optional server-side: Full Relax NG validation via API
 - Progressive enhancement approach
@@ -57,6 +60,7 @@ The application is a **single-page React application** using TypeScript, organiz
 ### 3.1 Editor View (Primary Interface)
 
 Split-pane layout:
+
 - **Left Pane**: Rendered text view with dialogue highlights
   - Click text to select passages
   - Floating toolbar for TEI tag application
@@ -69,6 +73,7 @@ Split-pane layout:
 ### 3.2 Character Management View
 
 Progressive interface:
+
 - **Basic Mode**: Simple character name list
 - **Advanced Mode**: Full TEI `listPerson` editor
   - `persName`, dates, biographical notes
@@ -78,6 +83,7 @@ Progressive interface:
 ### 3.3 Analysis Dashboard
 
 Four visualization panels:
+
 1. **Dialogue Statistics**: Distribution per chapter, character speech counts (D3.js, Recharts)
 2. **Social Network Graph**: Character interaction network (React Flow)
 3. **Character Dialogue Browser**: Filter by character, view speeches with context
@@ -86,6 +92,7 @@ Four visualization panels:
 ### 3.4 Project Management
 
 For handling multiple files:
+
 - File upload (.txt or .xml)
 - Batch processing queue
 - Export options (TEI XML, HTML)
@@ -93,6 +100,7 @@ For handling multiple files:
 ### 3.5 AI Assistant Panel
 
 Floating panel available in all views:
+
 - Dialogue detection suggestions
 - Speaker attribution predictions
 - Consistency validation
@@ -102,11 +110,13 @@ Floating panel available in all views:
 ### 4.1 Input Stage
 
 **Plaintext Mode:**
+
 1. Upload .txt file
 2. Optional AI pre-processing suggests paragraphs and dialogue
 3. Load into editor as unparsed text
 
 **TEI Mode:**
+
 1. Parse uploaded .xml using fast-xml-parser
 2. Validate basic TEI structure
 3. Create TEIDocument object model
@@ -115,10 +125,10 @@ Floating panel available in all views:
 
 ```typescript
 class TEIDocument {
-  rawXML: string;              // Source representation
-  parsed: object;              // Queryable object model
-  metadata: object;            // Header information
-  changes: ChangeHistory[];    // Undo/redo stack
+  rawXML: string; // Source representation
+  parsed: object; // Queryable object model
+  metadata: object; // Header information
+  changes: ChangeHistory[]; // Undo/redo stack
 
   // Query methods
   getDivisions(): Division[];
@@ -152,6 +162,7 @@ interface AIProvider {
 ```
 
 Supported providers:
+
 - OpenAI (GPT-4)
 - Anthropic (Claude)
 - Local models via Ollama
@@ -168,18 +179,21 @@ Supported providers:
 ### 5.1 Multi-Level Validation
 
 **Level 1: Real-time Well-Formedness (Client)**
+
 - Balanced tags, proper attributes, valid UTF-8
 - Browser's DOMParser for basic XML validation
 - Inline error markers in source pane
 - Non-blocking warnings vs. blocking errors
 
 **Level 2: TEI Structural Validation (Client)**
+
 - `<div>` hierarchy integrity
 - Required attributes (`@who` on `<said>`)
 - ID references valid (`@who` → `xml:id`)
 - Namespace correctness
 
 **Level 3: Schema Validation (Optional API)**
+
 - Full TEI Relax NG validation
 - Against TEI All, TEI Simple, or custom ODD
 - Detailed validation reports
@@ -202,6 +216,7 @@ Supported providers:
 ### 5.4 AI-Assisted Error Correction
 
 AI suggestions for common issues:
+
 - Missing `@who` attributes
 - Duplicate character entries
 - Inconsistent encoding patterns
@@ -225,6 +240,7 @@ AI suggestions for common issues:
 ### 6.3 Validation Testing with Real Corpora
 
 Test against actual TEI examples:
+
 - Wright American Fiction (TEI P4→P5 patterns)
 - Victorian Women Writers Project (different encoding approaches)
 - Christof Schöch's French novels (clean, simple structures)
@@ -352,27 +368,32 @@ tei-dialogue-editor/
 ## 9. Implementation Phases
 
 ### Phase 1: Core Editor (MVP)
+
 - Basic TEI parsing and serialization
 - Split-pane editor (rendered + source)
 - Manual dialogue tagging with `<said>` and `<q>`
 - File upload/download
 
 ### Phase 2: Character Management
+
 - Basic character list
 - Speaker attribution with `@who`
 - Auto-generate `listPerson` from dialogue
 
 ### Phase 3: AI Integration
+
 - AI provider interface
 - Dialogue detection
 - Speaker attribution suggestions
 
 ### Phase 4: Visualizations
+
 - Dialogue statistics
 - Character dialogue browser
 - Network graph (Phase 4.5)
 
 ### Phase 5: Advanced Features
+
 - Full prosopography editor
 - Batch processing
 - HTML export

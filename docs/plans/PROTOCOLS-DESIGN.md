@@ -39,7 +39,7 @@ These protocols replace the current tightly-coupled React state management with 
 Effect is a **composable program** that describes:
 
 ```typescript
-Effect<R, E, A>
+Effect<R, E, A>;
 //   ^  ^  ^
 //   |  |  |
 //   |  |  +-- Success value (A)
@@ -51,18 +51,19 @@ Effect<R, E, A>
 
 ```typescript
 // ✅ Pure computation (no context, no errors)
-Effect<never, never, string>
+Effect<never, never, string>;
 
 // ✅ File system operation (requires FileSystem, can fail with IOError)
-Effect<FileSystem, IOError, string>
+Effect<FileSystem, IOError, string>;
 
 // ✅ Network request (requires HttpClient, can fail with ApiError)
-Effect<HttpClient, ApiError, ValidationResult>
+Effect<HttpClient, ApiError, ValidationResult>;
 ```
 
 ### Why This Matters for Protocols
 
 **Current (React) approach:**
+
 ```typescript
 // ❌ Mutation hidden, no composition
 const [document, setDocument] = useState<TEIDocument | null>(null);
@@ -72,6 +73,7 @@ setDocument(loadDocument(xml));
 ```
 
 **Effect approach:**
+
 ```typescript
 // ✅ Explicit program, composable
 const loadDoc = (xml: string) =>
@@ -84,8 +86,8 @@ const loadDoc = (xml: string) =>
 // Can compose, retry, log, cache
 const program = pipe(
   loadDoc(xml),
-  Effect.retry(Schedule.exponential("100 millis")),
-  Effect.tapError((e) => Effect.logError("Load failed", e))
+  Effect.retry(Schedule.exponential('100 millis')),
+  Effect.tapError((e) => Effect.logError('Load failed', e))
 );
 ```
 
@@ -107,7 +109,14 @@ Manage TEI document lifecycle: load, save, export, and manipulate. Replaces the 
  * Documents are immutable values - operations return new values.
  */
 import { Effect } from 'effect';
-import type { TEIDocument, PassageID, CharacterID, TextRange, Character, Relationship } from '@/lib/tei/types';
+import type {
+  TEIDocument,
+  PassageID,
+  CharacterID,
+  TextRange,
+  Character,
+  Relationship,
+} from '@/lib/tei/types';
 
 // ============================================================================
 // Error Types
@@ -116,10 +125,13 @@ import type { TEIDocument, PassageID, CharacterID, TextRange, Character, Relatio
 /**
  * Base error type for document operations
  */
-export class DocumentError extends TagClass('DocumentError')<DocumentError, {
-  readonly message: string;
-  readonly cause?: unknown;
-}> {}
+export class DocumentError extends TagClass('DocumentError')<
+  DocumentError,
+  {
+    readonly message: string;
+    readonly cause?: unknown;
+  }
+> {}
 
 /**
  * Specific error types
@@ -165,9 +177,7 @@ export class DocumentOperations extends Context.Tag('DocumentOperations')<
      * - Loaded entities
      * - Initial event log
      */
-    readonly loadDocument: (
-      xml: string
-    ) => Effect.Effect<never, DocumentParseError, TEIDocument>;
+    readonly loadDocument: (xml: string) => Effect.Effect<never, DocumentParseError, TEIDocument>;
 
     /**
      * Save a TEI document to XML string
@@ -245,9 +255,7 @@ export class DocumentOperations extends Context.Tag('DocumentOperations')<
       fromRevision: number
     ) => Effect.Effect<never, InvalidOperationError, TEIDocument>;
 
-    readonly getHistoryState: (
-      doc: TEIDocument
-    ) => Effect.Effect<never, never, HistoryState>;
+    readonly getHistoryState: (doc: TEIDocument) => Effect.Effect<never, never, HistoryState>;
   }
 >() {}
 
@@ -283,6 +291,7 @@ export interface HistoryState {
 ### How This Enables Composition
 
 **Problem 1: Load and validate together**
+
 ```typescript
 // ✅ Compose load + validate
 const loadAndValidate = (xml: string) =>
@@ -290,13 +299,14 @@ const loadAndValidate = (xml: string) =>
     const doc = yield* DocumentOperations.loadDocument(xml);
     const validationResult = yield* ValidationService.validateDocument(doc);
     if (!validationResult.valid) {
-      yield* Effect.logError("Document loaded with validation errors", validationResult.errors);
+      yield* Effect.logError('Document loaded with validation errors', validationResult.errors);
     }
     return doc;
   });
 ```
 
 **Problem 2: Add tag with auto-save**
+
 ```typescript
 // ✅ Compose add tag + save
 const addTagAndSave = (
@@ -379,11 +389,14 @@ import type { DialogueSpan, Character, Issue } from '@/lib/ai/providers';
 // Error Types
 // ============================================================================
 
-export class AIError extends TagClass('AIError')<AIError, {
-  readonly message: string;
-  readonly provider: string;
-  readonly cause?: unknown;
-}> {}
+export class AIError extends TagClass('AIError')<
+  AIError,
+  {
+    readonly message: string;
+    readonly provider: string;
+    readonly cause?: unknown;
+  }
+> {}
 
 export class AIRateLimitError extends AIError {
   readonly _tag = 'AIRateLimitError';
@@ -411,10 +424,8 @@ export class AIProvider extends Context.Tag('AIProvider')<
      * Returns spans of text that appear to be dialogue
      * with confidence scores.
      */
-    readonly detectDialogue: (
-      text: string
-    ) => Effect.Effect<
-      never,  // No special context needed
+    readonly detectDialogue: (text: string) => Effect.Effect<
+      never, // No special context needed
       AIError,
       readonly DialogueSpan[]
     >;
@@ -431,7 +442,7 @@ export class AIProvider extends Context.Tag('AIProvider')<
     ) => Effect.Effect<
       never,
       AIError,
-      CharacterID  // Returns character ID, not string
+      CharacterID // Returns character ID, not string
     >;
 
     /**
@@ -444,11 +455,7 @@ export class AIProvider extends Context.Tag('AIProvider')<
      */
     readonly validateConsistency: (
       document: TEIDocument
-    ) => Effect.Effect<
-      never,
-      AIError,
-      readonly Issue[]
-    >;
+    ) => Effect.Effect<never, AIError, readonly Issue[]>;
 
     /**
      * Bulk detect dialogue in multiple passages
@@ -457,11 +464,7 @@ export class AIProvider extends Context.Tag('AIProvider')<
      */
     readonly bulkDetectDialogue: (
       passages: readonly string[]
-    ) => Effect.Effect<
-      never,
-      AIError,
-      readonly ReadonlyArray<readonly DialogueSpan[]>
-    >;
+    ) => Effect.Effect<never, AIError, readonly ReadonlyArray<readonly DialogueSpan[]>>;
   }
 >() {}
 ```
@@ -469,6 +472,7 @@ export class AIProvider extends Context.Tag('AIProvider')<
 ### How This Enables Composition
 
 **Problem 1: Retry on rate limit**
+
 ```typescript
 // ✅ Compose detectDialogue with retry
 const detectDialogueWithRetry = (text: string) =>
@@ -476,12 +480,13 @@ const detectDialogueWithRetry = (text: string) =>
     AIProvider.detectDialogue(text),
     Effect.retry({
       while: (error) => error instanceof AIRateLimitError,
-      schedule: Schedule.exponential("100 millis", "2s")
+      schedule: Schedule.exponential('100 millis', '2s'),
     })
   );
 ```
 
 **Problem 2: Cache results**
+
 ```typescript
 // ✅ Compose with cache
 const cache = new Map<string, readonly DialogueSpan[]>();
@@ -498,6 +503,7 @@ const detectDialogueCached = (text: string) =>
 ```
 
 **Problem 3: Log all AI calls**
+
 ```typescript
 // ✅ Compose with logging
 const detectDialogueLogged = (text: string) =>
@@ -506,9 +512,7 @@ const detectDialogueLogged = (text: string) =>
     Effect.tap((spans) =>
       Effect.logInfo(`Detected ${spans.length} dialogue spans in ${text.length} chars`)
     ),
-    Effect.tapError((error) =>
-      Effect.logError("AI detection failed", error)
-    )
+    Effect.tapError((error) => Effect.logError('AI detection failed', error))
   );
 ```
 
@@ -527,22 +531,19 @@ export const MockAIProvider = {
         start: 0,
         end: Math.min(50, text.length),
         text: text.substring(0, Math.min(50, text.length)),
-        confidence: 0.95
-      }
+        confidence: 0.95,
+      },
     ]),
 
   attributeSpeaker: (context: string, characters: readonly Character[]) =>
     Effect.succeed(characters[0]?.id || 'char-unknown'),
 
-  validateConsistency: (document: TEIDocument) =>
-    Effect.succeed<readonly Issue[]>([]),  // No issues in test
+  validateConsistency: (document: TEIDocument) => Effect.succeed<readonly Issue[]>([]), // No issues in test
 
   bulkDetectDialogue: (passages: readonly string[]) =>
     Effect.sync(() =>
-      passages.map(() => [
-        { start: 0, end: 50, text: 'Sample dialogue', confidence: 0.9 }
-      ])
-    )
+      passages.map(() => [{ start: 0, end: 50, text: 'Sample dialogue', confidence: 0.9 }])
+    ),
 };
 ```
 
@@ -569,11 +570,14 @@ import { Effect } from 'effect';
 // Error Types
 // ============================================================================
 
-export class StorageError extends TagClass('StorageError')<StorageError, {
-  readonly message: string;
-  readonly key?: string;
-  readonly cause?: unknown;
-}> {}
+export class StorageError extends TagClass('StorageError')<
+  StorageError,
+  {
+    readonly message: string;
+    readonly key?: string;
+    readonly cause?: unknown;
+  }
+> {}
 
 export class StorageKeyNotFoundError extends StorageError {
   readonly _tag = 'StorageKeyNotFoundError';
@@ -612,46 +616,34 @@ export class DocumentStorage extends Context.Tag('DocumentStorage')<
      * @param key - Document identifier
      * @returns XML content or throws StorageKeyNotFoundError
      */
-    readonly get: (
-      key: string
-    ) => Effect.Effect<never, StorageError, string>;
+    readonly get: (key: string) => Effect.Effect<never, StorageError, string>;
 
     /**
      * Check if a key exists
      */
-    readonly has: (
-      key: string
-    ) => Effect.Effect<never, never, boolean>;
+    readonly has: (key: string) => Effect.Effect<never, never, boolean>;
 
     /**
      * Delete a document by key
      */
-    readonly delete: (
-      key: string
-    ) => Effect.Effect<never, StorageError, void>;
+    readonly delete: (key: string) => Effect.Effect<never, StorageError, void>;
 
     /**
      * List all stored document keys
      *
      * @param prefix - Optional prefix filter (e.g., 'autosave-')
      */
-    readonly list: (
-      prefix?: string
-    ) => Effect.Effect<never, StorageError, readonly string[]>;
+    readonly list: (prefix?: string) => Effect.Effect<never, StorageError, readonly string[]>;
 
     /**
      * Get storage metadata (size, last modified, etc.)
      */
-    readonly getMetadata: (
-      key: string
-    ) => Effect.Effect<never, StorageError, StorageMetadata>;
+    readonly getMetadata: (key: string) => Effect.Effect<never, StorageError, StorageMetadata>;
 
     /**
      * Clear all stored documents
      */
-    readonly clear: (
-      prefix?: string
-    ) => Effect.Effect<never, StorageError, void>;
+    readonly clear: (prefix?: string) => Effect.Effect<never, StorageError, void>;
   }
 >() {}
 
@@ -671,6 +663,7 @@ export interface StorageMetadata {
 ### How This Enables Composition
 
 **Problem 1: Auto-save with debouncing**
+
 ```typescript
 // ✅ Compose storage with debounce
 const autoSave = pipe(
@@ -679,14 +672,15 @@ const autoSave = pipe(
       DocumentStorage.set(key, content, {
         storedAt: new Date(),
         size: content.length,
-        contentType: 'application/xml'
+        contentType: 'application/xml',
       }),
-    "2 seconds"
+    '2 seconds'
   )
 );
 ```
 
 **Problem 2: Cache + persistent storage**
+
 ```typescript
 // ✅ Layer memory cache over persistent storage
 const cachedStorage = {
@@ -707,11 +701,12 @@ const cachedStorage = {
       // Update both cache and storage
       yield* Effect.sync(() => memoryCache.set(key, value));
       yield* DocumentStorage.set(key, value, metadata);
-    })
+    }),
 };
 ```
 
 **Problem 3: Storage with encryption**
+
 ```typescript
 // ✅ Layer encryption over storage
 const encryptedStorage = {
@@ -719,18 +714,18 @@ const encryptedStorage = {
     pipe(
       DocumentStorage.get(key),
       Effect.flatMap((encrypted) =>
-        decrypt(encrypted).pipe(Effect.mapError((e) => new StorageError({ message: 'Decryption failed', cause: e })))
+        decrypt(encrypted).pipe(
+          Effect.mapError((e) => new StorageError({ message: 'Decryption failed', cause: e }))
+        )
       )
     ),
 
   set: (key: string, content: string, metadata?: StorageMetadata) =>
     pipe(
       encrypt(content),
-      Effect.flatMap((encrypted) =>
-        DocumentStorage.set(key, encrypted, metadata)
-      ),
+      Effect.flatMap((encrypted) => DocumentStorage.set(key, encrypted, metadata)),
       Effect.mapError((e) => new StorageError({ message: 'Encryption failed', cause: e }))
-    )
+    ),
 };
 ```
 
@@ -756,8 +751,8 @@ export const BrowserDocumentStorage: DocumentStorage = {
         new StorageError({
           message: `Failed to get ${key}`,
           key,
-          cause: error
-        })
+          cause: error,
+        }),
     }),
 
   set: (key: string, content: string, metadata?: StorageMetadata) =>
@@ -773,22 +768,20 @@ export const BrowserDocumentStorage: DocumentStorage = {
           return new StorageQuotaExceededError({
             message: 'Storage quota exceeded',
             key,
-            quota: 5 * 1024 * 1024,  // 5MB typical localStorage limit
-            attempted: content.length
+            quota: 5 * 1024 * 1024, // 5MB typical localStorage limit
+            attempted: content.length,
           });
         }
         return new StorageError({ message: `Failed to set ${key}`, key, cause: error });
-      }
+      },
     }),
 
-  has: (key: string) =>
-    Effect.sync(() => localStorage.getItem(key) !== null),
+  has: (key: string) => Effect.sync(() => localStorage.getItem(key) !== null),
 
   delete: (key: string) =>
     Effect.try({
       try: () => localStorage.removeItem(key),
-      catch: (error) =>
-        new StorageError({ message: `Failed to delete ${key}`, key, cause: error })
+      catch: (error) => new StorageError({ message: `Failed to delete ${key}`, key, cause: error }),
     }),
 
   list: (prefix?: string) =>
@@ -813,7 +806,7 @@ export const BrowserDocumentStorage: DocumentStorage = {
         return JSON.parse(metadataJson) as StorageMetadata;
       },
       catch: (error) =>
-        new StorageError({ message: `Failed to get metadata for ${key}`, key, cause: error })
+        new StorageError({ message: `Failed to get metadata for ${key}`, key, cause: error }),
     }),
 
   clear: (prefix?: string) =>
@@ -831,7 +824,7 @@ export const BrowserDocumentStorage: DocumentStorage = {
       } else {
         localStorage.clear();
       }
-    })
+    }),
 };
 ```
 
@@ -916,7 +909,7 @@ Validate TEI documents against RelaxNG schemas with detailed error reporting. Re
 ```typescript
 // ❌ Current: Tight coupling, no composition
 class ValidationService {
-  private schemaLoader: SchemaLoader;  // Mutable instance
+  private schemaLoader: SchemaLoader; // Mutable instance
 
   async validateDocument(xmlContent: string, schemaPath?: string) {
     // Side effects hidden: caches schemas, throws exceptions
@@ -942,12 +935,15 @@ import type { TEIDocument } from '@/lib/tei/types';
 // Error Types
 // ============================================================================
 
-export class ValidationError extends TagClass('ValidationError')<ValidationError, {
-  readonly message: string;
-  readonly line?: number;
-  readonly column?: number;
-  readonly context?: string;
-}> {}
+export class ValidationError extends TagClass('ValidationError')<
+  ValidationError,
+  {
+    readonly message: string;
+    readonly line?: number;
+    readonly column?: number;
+    readonly context?: string;
+  }
+> {}
 
 export class SchemaLoadError extends ValidationError {
   readonly _tag = 'SchemaLoadError';
@@ -978,11 +974,7 @@ export class ValidationService extends Context.Tag('ValidationService')<
     readonly validateDocument: (
       xmlContent: string,
       schemaPath: string
-    ) => Effect.Effect<
-      never,
-      ValidationError,
-      ValidationResult
-    >;
+    ) => Effect.Effect<never, ValidationError, ValidationResult>;
 
     /**
      * Validate TEI document (parsed)
@@ -995,24 +987,14 @@ export class ValidationService extends Context.Tag('ValidationService')<
     readonly validateTEIDocument: (
       document: TEIDocument,
       schemaPath: string
-    ) => Effect.Effect<
-      never,
-      ValidationError,
-      ValidationResult
-    >;
+    ) => Effect.Effect<never, ValidationError, ValidationResult>;
 
     /**
      * Preload schema for faster subsequent validations
      *
      * Schema loading is expensive - preload when app initializes
      */
-    readonly preloadSchema: (
-      schemaPath: string
-    ) => Effect.Effect<
-      never,
-      SchemaLoadError,
-      void
-    >;
+    readonly preloadSchema: (schemaPath: string) => Effect.Effect<never, SchemaLoadError, void>;
 
     /**
      * Get allowed tags for current XML context
@@ -1022,11 +1004,7 @@ export class ValidationService extends Context.Tag('ValidationService')<
     readonly getAllowedTags: (
       schemaPath: string,
       context: XmlPath
-    ) => Effect.Effect<
-      never,
-      SchemaLoadError,
-      readonly TagDefinition[]
-    >;
+    ) => Effect.Effect<never, SchemaLoadError, readonly TagDefinition[]>;
 
     /**
      * Get attributes allowed for a tag
@@ -1036,18 +1014,12 @@ export class ValidationService extends Context.Tag('ValidationService')<
     readonly getTagAttributes: (
       schemaPath: string,
       tagName: string
-    ) => Effect.Effect<
-      never,
-      SchemaLoadError,
-      readonly AttributeDefinition[]
-    >;
+    ) => Effect.Effect<never, SchemaLoadError, readonly AttributeDefinition[]>;
 
     /**
      * Clear schema cache
      */
-    readonly clearCache: (
-      schemaPath?: string
-    ) => Effect.Effect<never, never, void>;
+    readonly clearCache: (schemaPath?: string) => Effect.Effect<never, never, void>;
   }
 >() {}
 
@@ -1098,6 +1070,7 @@ export type XmlPath = ReadonlyArray<{ name: string; namespace?: string }>;
 ### How This Enables Composition
 
 **Problem 1: Validate on document load**
+
 ```typescript
 // ✅ Compose load + validate
 const loadAndValidateDocument = (xml: string) =>
@@ -1106,13 +1079,14 @@ const loadAndValidateDocument = (xml: string) =>
     const schemaPath = getDefaultSchemaPath();
     const validation = yield* ValidationService.validateTEIDocument(doc, schemaPath);
     if (!validation.valid) {
-      yield* Effect.logError("Document validation failed", validation.errors);
+      yield* Effect.logError('Document validation failed', validation.errors);
     }
     return { document: doc, validation };
   });
 ```
 
 **Problem 2: Auto-validate on changes**
+
 ```typescript
 // ✅ Compose document operations with validation
 const addTagAndValidate = (
@@ -1130,6 +1104,7 @@ const addTagAndValidate = (
 ```
 
 **Problem 3: Cache validation results**
+
 ```typescript
 // ✅ Layer cache over validation
 const validationCache = new Map<string, ValidationResult>();
@@ -1165,26 +1140,32 @@ export const BrowserValidationService: ValidationService = {
         const result = await schemaLoader.validate(xmlContent, schemaPath);
         return {
           valid: result.valid,
-          errors: result.errors.map((e) => new ValidationError({
-            message: e.message || 'Unknown error',
-            line: e.line,
-            column: e.column,
-            context: e.context
-          })),
+          errors: result.errors.map(
+            (e) =>
+              new ValidationError({
+                message: e.message || 'Unknown error',
+                line: e.line,
+                column: e.column,
+                context: e.context,
+              })
+          ),
           warnings: [],
-          suggestions: []
+          suggestions: [],
         };
       },
       catch: (error) =>
         new ValidationError({
-          message: `Validation failed: ${error instanceof Error ? error.message : String(error)}`
-        })
+          message: `Validation failed: ${error instanceof Error ? error.message : String(error)}`,
+        }),
     }),
 
   validateTEIDocument: (document: TEIDocument, schemaPath: string) =>
     Effect.gen(function* (_) {
       // Schema validation
-      const schemaResult = yield* ValidationService.validateDocument(document.state.xml, schemaPath);
+      const schemaResult = yield* ValidationService.validateDocument(
+        document.state.xml,
+        schemaPath
+      );
 
       // Additional business rule validation
       const businessErrors: ValidationError[] = [];
@@ -1197,7 +1178,7 @@ export const BrowserValidationService: ValidationService = {
             businessErrors.push(
               new ValidationError({
                 message: `Speaker ${dialogue.speaker} not found in character list`,
-                context: `Dialogue ${dialogue.id} in passage ${dialogue.passageId}`
+                context: `Dialogue ${dialogue.id} in passage ${dialogue.passageId}`,
               })
             );
           }
@@ -1208,7 +1189,7 @@ export const BrowserValidationService: ValidationService = {
         valid: schemaResult.valid && businessErrors.length === 0,
         errors: [...schemaResult.errors, ...businessErrors],
         warnings: schemaResult.warnings,
-        suggestions: schemaResult.suggestions
+        suggestions: schemaResult.suggestions,
       };
     }),
 
@@ -1222,8 +1203,8 @@ export const BrowserValidationService: ValidationService = {
         new SchemaLoadError({
           message: `Failed to load schema: ${error instanceof Error ? error.message : String(error)}`,
           schemaPath,
-          cause: error
-        })
+          cause: error,
+        }),
     }),
 
   getAllowedTags: (schemaPath: string, context: XmlPath) =>
@@ -1236,8 +1217,8 @@ export const BrowserValidationService: ValidationService = {
         new SchemaLoadError({
           message: `Failed to get allowed tags: ${error instanceof Error ? error.message : String(error)}`,
           schemaPath,
-          cause: error
-        })
+          cause: error,
+        }),
     }),
 
   getTagAttributes: (schemaPath: string, tagName: string) =>
@@ -1250,15 +1231,15 @@ export const BrowserValidationService: ValidationService = {
         new SchemaLoadError({
           message: `Failed to get tag attributes: ${error instanceof Error ? error.message : String(error)}`,
           schemaPath,
-          cause: error
-        })
+          cause: error,
+        }),
     }),
 
   clearCache: (schemaPath?: string) =>
     Effect.sync(() => {
       // Clear cache in SchemaLoader singleton
       SchemaLoader.clearCache();
-    })
+    }),
 };
 ```
 
@@ -1293,7 +1274,7 @@ export class MockValidationService implements ValidationService {
         valid: true,
         errors: [],
         warnings: [],
-        suggestions: []
+        suggestions: [],
       };
     });
   }
@@ -1313,14 +1294,14 @@ export class MockValidationService implements ValidationService {
     return Effect.succeed([
       { name: 'said', required: false, repeatable: true },
       { name: 'q', required: false, repeatable: true },
-      { name: 'persName', required: false, repeatable: true }
+      { name: 'persName', required: false, repeatable: true },
     ]);
   }
 
   getTagAttributes(schemaPath: string, tagName: string) {
     return Effect.succeed([
       { name: 'who', required: false, type: 'string' },
-      { name: 'direct', required: false, type: 'boolean' }
+      { name: 'direct', required: false, type: 'boolean' },
     ]);
   }
 
@@ -1355,7 +1336,7 @@ const cachedStorage = {
     pipe(
       storage.get(key),
       Effect.cached // Built-in Effect caching
-    )
+    ),
 };
 
 // Layer 2: Add logging
@@ -1365,7 +1346,7 @@ const loggedStorage = {
     pipe(
       cachedStorage.get(key),
       Effect.tap((value) => Effect.logInfo(`Retrieved ${key}, size: ${value.length}`))
-    )
+    ),
 };
 
 // Layer 3: Add metrics
@@ -1375,7 +1356,7 @@ const measuredStorage = {
     pipe(
       loggedStorage.get(key),
       Effect.tap((value) => Effect.incrementCounter('storage.get.count'))
-    )
+    ),
 };
 ```
 
@@ -1390,7 +1371,7 @@ const robustAIDetection = (text: string) =>
     // Retry on rate limit
     Effect.retry({
       while: (error) => error instanceof AIRateLimitError,
-      schedule: Schedule.exponential("100 millis", "10s")
+      schedule: Schedule.exponential('100 millis', '10s'),
     }),
     // Fallback to mock on authentication error
     Effect.catchIf(
@@ -1398,9 +1379,7 @@ const robustAIDetection = (text: string) =>
       () => MockAIProvider.detectDialogue(text)
     ),
     // Log all errors
-    Effect.tapError((error) =>
-      Effect.logError("AI detection failed after retries", error)
-    )
+    Effect.tapError((error) => Effect.logError('AI detection failed after retries', error))
   );
 ```
 
@@ -1432,11 +1411,14 @@ Execute independent operations in parallel:
 
 ```typescript
 const validateAndAnalyze = (xml: string) =>
-  Effect.all([
-    ValidationService.validateDocument(xml, schemaPath),
-    AIProvider.detectDialogue(xml),
-    DocumentOperations.loadDocument(xml)
-  ], { concurrency: 'inherit' });
+  Effect.all(
+    [
+      ValidationService.validateDocument(xml, schemaPath),
+      AIProvider.detectDialogue(xml),
+      DocumentOperations.loadDocument(xml),
+    ],
+    { concurrency: 'inherit' }
+  );
 ```
 
 ---
@@ -1519,27 +1501,23 @@ const validateAndAnalyze = (xml: string) =>
 **Goal:** Add features enabled by composition
 
 1. **Auto-save with debouncing**
+
    ```typescript
    const autoSave = Effect.debounce(
      (doc: TEIDocument) => DocumentStorage.save('autosave', doc),
-     "2 seconds"
+     '2 seconds'
    );
    ```
 
 2. **Offline support**
+
    ```typescript
-   const storage = pipe(
-     DocumentStorage,
-     Effect.fallback(NetworkStorage, LocalStorage)
-   );
+   const storage = pipe(DocumentStorage, Effect.fallback(NetworkStorage, LocalStorage));
    ```
 
 3. **Real-time collaboration**
    ```typescript
-   const sync = pipe(
-     DocumentStorage,
-     Effect.websocket(WebsocketSync)
-   );
+   const sync = pipe(DocumentStorage, Effect.websocket(WebsocketSync));
    ```
 
 **Deliverable:** Production-ready with advanced features
@@ -1559,10 +1537,7 @@ describe('DocumentOperations', () => {
   it('should load and validate document', async () => {
     const program = Effect.gen(function* (_) {
       const doc = yield* DocumentOperations.loadDocument(sampleXML);
-      const validation = yield* ValidationService.validateDocument(
-        doc.state.xml,
-        schemaPath
-      );
+      const validation = yield* ValidationService.validateDocument(doc.state.xml, schemaPath);
       expect(validation.valid).toBe(true);
       return doc;
     });

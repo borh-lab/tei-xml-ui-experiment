@@ -75,7 +75,7 @@ describe('NLP Dialogue Detection', () => {
     });
 
     test('should handle single quotes with speech indicators', () => {
-      const text = 'She replied \'Yes\' and nodded.';
+      const text = "She replied 'Yes' and nodded.";
       const spans = nlpDetectDialogue(text);
 
       // Should detect if speech verb present
@@ -106,7 +106,7 @@ describe('NLP Dialogue Detection', () => {
       const spans = nlpDetectDialogue(text);
 
       // Latin phrases and citations should be filtered
-      const latinPhrase = spans.find(s => s.text.includes('et cetera'));
+      const latinPhrase = spans.find((s) => s.text.includes('et cetera'));
       expect(latinPhrase).toBeUndefined();
     });
   });
@@ -143,7 +143,7 @@ describe('NLP Dialogue Detection', () => {
     });
 
     test('should handle very long dialogue passages', () => {
-      const longDialogue = 'Lorem ipsum dolor sit amet ' .repeat(10);
+      const longDialogue = 'Lorem ipsum dolor sit amet '.repeat(10);
       const text = `"${longDialogue}" she said.`;
       const spans = nlpDetectDialogue(text);
 

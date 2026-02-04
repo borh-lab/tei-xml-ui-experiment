@@ -17,6 +17,7 @@ This plan implements **entity modeling features** for managing characters, defin
 ### Key Changes from Original Plan
 
 **Before (mutation-heavy, tight coupling):**
+
 ```typescript
 // ❌ Mutates document in-place
 doc.addCharacter(character);
@@ -35,6 +36,7 @@ const [nodes, setNodes] = useState([]); // ❌ Hidden state
 ```
 
 **After (immutable, protocol-based):**
+
 ```typescript
 // ✅ Pure functions return new document
 const newDoc = addCharacter(doc, character);
@@ -58,21 +60,23 @@ const networkLayout = computeNetworkLayout(doc.characters, doc.relationships);
 ### 1. Entity Types
 
 **Files:**
+
 - Extend: `lib/tei/types.ts` (add entity types)
 
 **Type Definitions:**
+
 ```typescript
 // lib/tei/types.ts (additions)
 
 // Character as immutable value
 export interface Character {
   readonly id: CharacterID;
-  readonly xmlId: string;           // TEI @xml:id
-  readonly name: string;           // persName content
+  readonly xmlId: string; // TEI @xml:id
+  readonly name: string; // persName content
   readonly sex?: 'M' | 'F' | 'Other';
   readonly age?: number;
   readonly occupation?: string;
-  readonly traits?: readonly string[];  // Personality traits
+  readonly traits?: readonly string[]; // Personality traits
   readonly socialStatus?: string;
   readonly maritalStatus?: string;
 }
@@ -80,26 +84,21 @@ export interface Character {
 // Relationship as immutable value
 export interface Relationship {
   readonly id: string;
-  readonly from: CharacterID;      // Subject
-  readonly to: CharacterID;        // Object
+  readonly from: CharacterID; // Subject
+  readonly to: CharacterID; // Object
   readonly type: RelationshipType;
   readonly subtype?: string;
   readonly mutual: boolean;
 }
 
-export type RelationshipType =
-  | 'family'
-  | 'romantic'
-  | 'social'
-  | 'professional'
-  | 'antagonistic';
+export type RelationshipType = 'family' | 'romantic' | 'social' | 'professional' | 'antagonistic';
 
 // Network visualization types
 export interface NetworkNode {
   readonly id: CharacterID;
   readonly name: string;
   readonly sex: Character['sex'];
-  readonly connections: number;  // Derived, not stored
+  readonly connections: number; // Derived, not stored
 }
 
 export interface NetworkEdge {
@@ -107,7 +106,7 @@ export interface NetworkEdge {
   readonly to: CharacterID;
   readonly type: RelationshipType;
   readonly mutual: boolean;
-  readonly weight: number;        // Derived from dialogue frequency
+  readonly weight: number; // Derived from dialogue frequency
 }
 
 export interface NetworkLayout {
@@ -127,9 +126,11 @@ export interface NetworkLayout {
 ### 2. Character CRUD Operations
 
 **Files:**
+
 - Create: `lib/tei/entity-operations.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/tei/entity-operations.ts
 
@@ -141,7 +142,7 @@ import type { CharacterID, Character, Relationship } from './types';
  */
 export function addCharacter(doc: TEIDocument, character: Character): TEIDocument {
   // Check for duplicate xml:id
-  const existing = doc.state.characters.find(c => c.xmlId === character.xmlId);
+  const existing = doc.state.characters.find((c) => c.xmlId === character.xmlId);
   if (existing) {
     throw new Error(`Character with xml:id "${character.xmlId}" already exists`);
   }
@@ -151,7 +152,7 @@ export function addCharacter(doc: TEIDocument, character: Character): TEIDocumen
   const state = {
     ...doc.state,
     characters: updatedCharacters,
-    revision: doc.state.revision + 1
+    revision: doc.state.revision + 1,
   };
 
   const event = {
@@ -159,7 +160,7 @@ export function addCharacter(doc: TEIDocument, character: Character): TEIDocumen
     id: character.id,
     character,
     timestamp: Date.now(),
-    revision: state.revision
+    revision: state.revision,
   };
 
   return { state, events: [...doc.events, event] };
@@ -173,24 +174,24 @@ export function updateCharacter(
   characterId: CharacterID,
   updates: Partial<Omit<Character, 'id' | 'xmlId'>>
 ): TEIDocument {
-  const character = doc.state.characters.find(c => c.id === characterId);
+  const character = doc.state.characters.find((c) => c.id === characterId);
   if (!character) {
     throw new Error(`Character not found: ${characterId}`);
   }
 
   const updatedCharacter: Character = {
     ...character,
-    ...updates
+    ...updates,
   };
 
-  const updatedCharacters = doc.state.characters.map(c =>
+  const updatedCharacters = doc.state.characters.map((c) =>
     c.id === characterId ? updatedCharacter : c
   );
 
   const state = {
     ...doc.state,
     characters: updatedCharacters,
-    revision: doc.state.revision + 1
+    revision: doc.state.revision + 1,
   };
 
   // Use generic event for character updates
@@ -199,7 +200,7 @@ export function updateCharacter(
     id: characterId,
     updates,
     timestamp: Date.now(),
-    revision: state.revision
+    revision: state.revision,
   };
 
   return { state, events: [...doc.events, event] };
@@ -212,16 +213,16 @@ export function removeCharacter(doc: TEIDocument, characterId: CharacterID): TEI
   // Also remove all relationships involving this character
   const state = doc.state;
 
-  const updatedCharacters = state.characters.filter(c => c.id !== characterId);
+  const updatedCharacters = state.characters.filter((c) => c.id !== characterId);
   const updatedRelationships = state.relationships.filter(
-    r => r.from !== characterId && r.to !== characterId
+    (r) => r.from !== characterId && r.to !== characterId
   );
 
   const event = {
     type: 'characterRemoved' as const,
     id: characterId,
     timestamp: Date.now(),
-    revision: state.revision + 1
+    revision: state.revision + 1,
   };
 
   return {
@@ -229,9 +230,9 @@ export function removeCharacter(doc: TEIDocument, characterId: CharacterID): TEI
       ...state,
       characters: updatedCharacters,
       relationships: updatedRelationships,
-      revision: state.revision + 1
+      revision: state.revision + 1,
     },
-    events: [...doc.events, event]
+    events: [...doc.events, event],
   };
 }
 ```
@@ -241,21 +242,20 @@ export function removeCharacter(doc: TEIDocument, characterId: CharacterID): TEI
 ### 3. Relationship Operations
 
 **Files:**
+
 - Extend: `lib/tei/entity-operations.ts`
 
 **Implementation:**
+
 ```typescript
 /**
  * ✅ Pure function: Add relationship
  */
-export function addRelation(
-  doc: TEIDocument,
-  relation: Omit<Relationship, 'id'>
-): TEIDocument {
+export function addRelation(doc: TEIDocument, relation: Omit<Relationship, 'id'>): TEIDocument {
   // Validate characters exist
   const charactersExist =
-    doc.state.characters.some(c => c.id === relation.from) &&
-    doc.state.characters.some(c => c.id === relation.to);
+    doc.state.characters.some((c) => c.id === relation.from) &&
+    doc.state.characters.some((c) => c.id === relation.to);
 
   if (!charactersExist) {
     throw new Error('One or both characters not found');
@@ -263,7 +263,7 @@ export function addRelation(
 
   // Check for duplicate
   const existing = doc.state.relationships.find(
-    r => r.from === relation.from && r.to === relation.to && r.type === relation.type
+    (r) => r.from === relation.from && r.to === relation.to && r.type === relation.type
   );
   if (existing) {
     throw new Error('Relationship already exists');
@@ -273,8 +273,8 @@ export function addRelation(
   const relations: Relationship[] = [...doc.state.relationships];
   const newRelation: Relationship = {
     id: crypto.randomUUID(),
-    mutual: false,  // Will be set to true if mutual
-    ...relation
+    mutual: false, // Will be set to true if mutual
+    ...relation,
   };
 
   relations.push(newRelation);
@@ -286,14 +286,14 @@ export function addRelation(
       to: relation.from,
       type: relation.type,
       subtype: relation.subtype,
-      mutual: true
+      mutual: true,
     });
   }
 
   const state = {
     ...doc.state,
     relationships: relations,
-    revision: doc.state.revision + 1
+    revision: doc.state.revision + 1,
   };
 
   const event = {
@@ -301,7 +301,7 @@ export function addRelation(
     id: newRelation.id,
     relation: newRelation,
     timestamp: Date.now(),
-    revision: state.revision
+    revision: state.revision,
   };
 
   return { state, events: [...doc.events, event] };
@@ -311,34 +311,34 @@ export function addRelation(
  * ✅ Pure function: Remove relationship
  */
 export function removeRelation(doc: TEIDocument, relationId: string): TEIDocument {
-  const relation = doc.state.relationships.find(r => r.id === relationId);
+  const relation = doc.state.relationships.find((r) => r.id === relationId);
   if (!relation) {
     throw new Error(`Relationship not found: ${relationId}`);
   }
 
   // If mutual, also remove reciprocal
-  let updatedRelationships = doc.state.relationships.filter(r => r.id !== relationId);
+  let updatedRelationships = doc.state.relationships.filter((r) => r.id !== relationId);
 
   if (relation.mutual) {
     const reciprocal = updatedRelationships.find(
-      r => r.from === relation.to && r.to === relation.from && r.type === relation.type
+      (r) => r.from === relation.to && r.to === relation.from && r.type === relation.type
     );
     if (reciprocal) {
-      updatedRelationships = updatedRelationships.filter(r => r.id !== reciprocal.id);
+      updatedRelationships = updatedRelationships.filter((r) => r.id !== reciprocal.id);
     }
   }
 
   const state = {
     ...doc.state,
     relationships: updatedRelationships,
-    revision: doc.state.revision + 1
+    revision: doc.state.revision + 1,
   };
 
   const event = {
     type: 'relationRemoved' as const,
     id: relationId,
     timestamp: Date.now(),
-    revision: state.revision
+    revision: state.revision,
   };
 
   return { state, events: [...doc.events, event] };
@@ -352,9 +352,11 @@ export function removeRelation(doc: TEIDocument, relationId: string): TEIDocumen
 ### 4. Repository Interface
 
 **Files:**
+
 - Create: `lib/entities/EntityRepository.ts`
 
 **Protocol Definition:**
+
 ```typescript
 // lib/entities/EntityRepository.ts
 
@@ -395,7 +397,7 @@ export class TEIDocumentRepository implements EntityRepository {
   }
 
   getCharacter(id: CharacterID): Character | null {
-    return this.doc.state.characters.find(c => c.id === id) || null;
+    return this.doc.state.characters.find((c) => c.id === id) || null;
   }
 
   getRelationships(): readonly Relationship[] {
@@ -404,7 +406,7 @@ export class TEIDocumentRepository implements EntityRepository {
 
   getRelationshipsForCharacter(characterId: CharacterID): readonly Relationship[] {
     return this.doc.state.relationships.filter(
-      r => r.from === characterId || r.to === characterId
+      (r) => r.from === characterId || r.to === characterId
     );
   }
 
@@ -446,7 +448,7 @@ export class TEIDocumentRepository implements EntityRepository {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -459,7 +461,7 @@ export class TEIDocumentRepository implements EntityRepository {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -482,9 +484,11 @@ export interface ValidationResult {
 ### 5. Network Layout (Computed, Not Stored)
 
 **Files:**
+
 - Create: `lib/visualization/network-layout.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/visualization/network-layout.ts
 
@@ -509,22 +513,20 @@ export function computeNetworkLayout(
   const height = options?.height || 600;
 
   // Build node list
-  const nodes = characters.map(char => ({
+  const nodes = characters.map((char) => ({
     id: char.id,
     name: char.name,
     sex: char.sex,
-    connections: relationships.filter(
-      r => r.from === char.id || r.to === char.id
-    ).length
+    connections: relationships.filter((r) => r.from === char.id || r.to === char.id).length,
   }));
 
   // Build edge list
-  const edges = relationships.map(rel => ({
+  const edges = relationships.map((rel) => ({
     from: rel.from,
     to: rel.to,
     type: rel.type,
     mutual: rel.mutual,
-    weight: calculateWeight(rel, characters)
+    weight: calculateWeight(rel, characters),
   }));
 
   // Compute layout using force-directed algorithm
@@ -536,10 +538,7 @@ export function computeNetworkLayout(
 /**
  * ✅ Pure function: Calculate edge weight based on dialogue frequency
  */
-function calculateWeight(
-  relation: Relationship,
-  characters: readonly Character[]
-): number {
+function calculateWeight(relation: Relationship, characters: readonly Character[]): number {
   // TODO: Implement dialogue frequency analysis
   // For now, return 1 for all edges
   return 1;
@@ -552,7 +551,7 @@ function forceDirectedLayout(
   nodes: readonly NetworkNode[],
   edges: readonly NetworkEdge[],
   options: { width: number; height: number }
-): { nodes: { id: string; x: number; y: number }[], edges: { source: string; target: string }[] } {
+): { nodes: { id: string; x: number; y: number }[]; edges: { source: string; target: string }[] } {
   // Simplified force-directed layout
   // In production, use d3-force or similar library
 
@@ -567,16 +566,16 @@ function forceDirectedLayout(
     return {
       id: node.id,
       x: centerX + radius * Math.cos(angle),
-      y: centerY + radius * Math.sin(angle)
+      y: centerY + radius * Math.sin(angle),
     };
   });
 
   return {
     nodes: positionedNodes,
-    edges: edges.map(e => ({
+    edges: edges.map((e) => ({
       source: e.from,
-      target: e.to
-    }))
+      target: e.to,
+    })),
   };
 }
 ```
@@ -588,9 +587,11 @@ function forceDirectedLayout(
 ### 6. Entity Editor Panel
 
 **Files:**
+
 - Create: `components/editor/EntityEditorPanel.tsx`
 
 **Implementation:**
+
 ```typescript
 // components/editor/EntityEditorPanel.tsx
 'use client';
@@ -737,9 +738,11 @@ export function EntityEditorPanel() {
 ### 7. Character Network Visualization
 
 **Files:**
+
 - Create: `components/visualization/CharacterNetwork.tsx`
 
 **Implementation:**
+
 ```typescript
 // components/visualization/CharacterNetwork.tsx
 'use client';
@@ -806,75 +809,88 @@ export function CharacterNetworkVisualization() {
 ## Implementation Tasks
 
 ### Task 1: Extend Types for Entities
+
 - Add `Character`, `Relationship`, `NetworkNode`, `NetworkEdge` to `lib/tei/types.ts`
 - Add `CharacterID`, `TagID`, `PassageID` type aliases
 - Export all entity types
 
 ### Task 2: Create Entity Operations Module
+
 - Create `lib/tei/entity-operations.ts`
 - Implement `addCharacter`, `updateCharacter`, `removeCharacter`
 - Implement `addRelation`, `removeRelation`
 - Use pure functions, return new document values
 
 ### Task 3: Create Entity Repository Protocol
+
 - Create `lib/entities/EntityRepository.ts`
 - Define `EntityRepository` interface
 - Implement `TEIDocumentRepository` class
 - Add validation methods
 
 ### Task 4: Update TEI Operations (Foundation Integration)
+
 - Add character CRUD to `lib/tei/operations.ts`
 - Add relationship CRUD to `lib/tei/operations.ts`
 - Update `serialize()` to include characters/relationships in TEI XML
 
 ### Task 5: Create Network Layout Module
+
 - Create `lib/visualization/network-layout.ts`
 - Implement `computeNetworkLayout` (pure function)
 - Implement force-directed layout algorithm
 - Add edge weight calculation
 
 ### Task 6: Create Character Form Component
+
 - Create `components/editor/CharacterForm.tsx`
 - Implement form fields (name, xml:id, sex, age, etc.)
 - Add validation
 - Connect to repository
 
 ### Task 7: Create Relationship Editor Component
+
 - Create `components/editor/RelationshipEditor.tsx`
 - Implement character dropdowns (from/to)
 - Implement relationship type selector
 - Connect to repository
 
 ### Task 8: Create Entity Editor Panel
+
 - Create `components/editor/EntityEditorPanel.tsx`
 - Integrate with DocumentContext
 - Add tabs for characters, relationships, network
 - Wire up all actions
 
 ### Task 9: Create Character Network Visualization
+
 - Create `components/visualization/CharacterNetwork.tsx`
 - Integrate ReactFlow for network rendering
 - Use `computeNetworkLayout` for positions
 - Add visual differentiation for node types (sex)
 
 ### Task 10: Integrate with Undo/Redo
+
 - Ensure entity operations work with undo/redo
 - Test character/relationship operations undo
 - Test undo/redo updates network visualization
 
 ### Task 11: Unit Tests
+
 - Test entity operations return new documents (no mutation)
 - Test repository interface contract
 - Test network layout computation
 - Test validation logic
 
 ### Task 12: Integration Tests
+
 - Test entity editor panel integration
 - Test character CRUD workflow
 - Test relationship CRUD workflow
 - Test network visualization updates
 
 ### Task 13: E2E Tests
+
 - Test user adds character via form
 - Test user creates relationship
 - Test network visualization displays correctly
@@ -885,26 +901,31 @@ export function CharacterNetworkVisualization() {
 ## Success Criteria
 
 ✅ **Immutability:**
+
 - All character/relationship operations return new document values
 - Repository interface enforces value semantics
 - Unit tests verify no mutation
 
 ✅ **Protocol-Based Design:**
+
 - `EntityRepository` interface decouples UI from TEIDocument
 - Can swap implementations (e.g., REST API backend) without changing UI
 - Clear contract for operations
 
 ✅ **Network Visualization:**
+
 - Layout is computed from current state (no stale layout state)
 - Changes to characters/relationships immediately reflected
 - Visual differentiation for node types
 
 ✅ **Validation:**
+
 - Character/relationship validation before applying
 - Clear error messages for validation failures
 - Prevents invalid state
 
 ✅ **Undo/Redo:**
+
 - Entity operations work with undo/redo system
 - Can undo character addition, relationship creation
 - Network visualization updates on undo/redo
@@ -914,11 +935,13 @@ export function CharacterNetworkVisualization() {
 ## Dependencies
 
 **Requires:**
+
 - Foundation Plan (immutable TEIDocument)
 - Existing: React 19, shadcn/ui components
 - New: `reactflow` (for network visualization)
 
 **No changes to:**
+
 - XML parsing/serialization (extend to include entities)
 - Rendering pipeline (extend to show entities)
 - Tag application (independent, but complementary)

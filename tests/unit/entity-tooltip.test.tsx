@@ -7,16 +7,10 @@ describe('EntityTooltip', () => {
       'xml:id': 'darcy',
       persName: 'Mr. Darcy',
       sex: 'M',
-      age: 28
+      age: 28,
     };
 
-    render(
-      <EntityTooltip
-        entity={character}
-        position={{ x: 100, y: 100 }}
-        visible={true}
-      />
-    );
+    render(<EntityTooltip entity={character} position={{ x: 100, y: 100 }} visible={true} />);
 
     expect(screen.getByText('Mr. Darcy')).toBeInTheDocument();
     expect(screen.getByText('Sex:')).toBeInTheDocument();

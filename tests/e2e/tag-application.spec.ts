@@ -154,7 +154,7 @@ test.describe('Tag Application', () => {
     await page.waitForTimeout(500);
 
     // Verify success toast appears with speaker info
-    await expect(page.getByText(/Applied.*said.*who/si)).toBeVisible({ timeout: 2000 });
+    await expect(page.getByText(/Applied.*said.*who/is)).toBeVisible({ timeout: 2000 });
   });
 
   test('should hide toolbar after tag is applied', async ({ page }) => {
@@ -212,7 +212,7 @@ test.describe('Tag Application', () => {
     await page.waitForTimeout(500);
 
     // Verify success toast appears
-    await expect(page.getByText(/Applied.*said/si)).toBeVisible({ timeout: 2000 });
+    await expect(page.getByText(/Applied.*said/is)).toBeVisible({ timeout: 2000 });
   });
 
   test('should handle rapid tag applications', async ({ page }) => {

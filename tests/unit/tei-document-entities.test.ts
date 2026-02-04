@@ -12,7 +12,7 @@ describe('TEIDocument - addSaidTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.addSaidTag(0, {start: 0, end: 11}, 'speaker1');
+    doc.addSaidTag(0, { start: 0, end: 11 }, 'speaker1');
 
     const serialized = doc.serialize();
     expect(serialized).toContain('<said who="#speaker1">');
@@ -31,7 +31,7 @@ describe('TEIDocument - addSaidTag', () => {
 
     const doc = new TEIDocument(xml);
     // Select from index 7 to 11 (the word "text")
-    doc.addSaidTag(0, {start: 7, end: 11}, 'speaker1');
+    doc.addSaidTag(0, { start: 7, end: 11 }, 'speaker1');
 
     const serialized = doc.serialize();
     expect(serialized).toContain('Before ');
@@ -149,7 +149,7 @@ describe('TEIDocument - addCharacter', () => {
       'xml:id': 'bingley',
       persName: 'Mr. Bingley',
       sex: 'M',
-      age: 24
+      age: 24,
     });
 
     const characters = doc.getCharacters();
@@ -168,7 +168,7 @@ describe('TEIDocument - addCharacter', () => {
     doc.addCharacter({
       'xml:id': 'jane',
       persName: 'Jane Bennet',
-      sex: 'F'
+      sex: 'F',
     });
 
     const serialized = doc.serialize();
@@ -194,7 +194,7 @@ describe('TEIDocument - addCharacter', () => {
     doc.addCharacter({
       'xml:id': 'elizabeth',
       persName: 'Elizabeth Bennet',
-      sex: 'F'
+      sex: 'F',
     });
 
     const characters = doc.getCharacters();

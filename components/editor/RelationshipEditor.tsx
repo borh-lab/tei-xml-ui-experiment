@@ -33,9 +33,7 @@ export function RelationshipEditor({
   const [mutual, setMutual] = useState<boolean>(true);
 
   // Filter out selected character from "to" options (no self-relationships)
-  const toOptions = from
-    ? characters.filter((c) => c.id !== from)
-    : characters;
+  const toOptions = from ? characters.filter((c) => c.id !== from) : characters;
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {

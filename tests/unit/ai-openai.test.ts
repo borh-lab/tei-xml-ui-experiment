@@ -41,7 +41,7 @@ describe('OpenAI Provider', () => {
     const provider = new OpenAIProvider('test-key');
     const characters = [
       { xmlId: 'char1', name: 'Alice' },
-      { xmlId: 'char2', name: 'Bob' }
+      { xmlId: 'char2', name: 'Bob' },
     ];
 
     const result = await provider.attributeSpeaker('Some dialogue', characters);

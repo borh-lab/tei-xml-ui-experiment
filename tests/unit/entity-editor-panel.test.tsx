@@ -10,7 +10,7 @@ describe('EntityEditorPanel', () => {
   test('has correct props interface', () => {
     const props = {
       open: true,
-      onClose: () => {}
+      onClose: () => {},
     };
 
     // Just verify component can be instantiated

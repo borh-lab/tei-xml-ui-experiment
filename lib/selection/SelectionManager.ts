@@ -5,11 +5,7 @@
  * No mutable cached state - selections are immutable values.
  */
 
-import type {
-  SelectionSnapshot,
-  TextRange,
-  TagInfo,
-} from './types';
+import type { SelectionSnapshot, TextRange, TagInfo } from './types';
 import type { PassageID } from '@/lib/tei/types';
 import type { TEIDocument } from '@/lib/tei/types';
 
@@ -79,9 +75,7 @@ export class SelectionManager {
 
     // Find tag that contains the selection range
     const containingTag = passage.tags.find(
-      (tag) =>
-        selection.range.start >= tag.range.start &&
-        selection.range.end <= tag.range.end
+      (tag) => selection.range.start >= tag.range.start && selection.range.end <= tag.range.end
     );
 
     if (!containingTag) {

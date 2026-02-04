@@ -274,7 +274,7 @@ test.describe('Export Validation - Export Format Variants', () => {
 
     // Verify no extremely long lines (poor formatting)
     const lines = xml.split('\n');
-    const maxLineLength = Math.max(...lines.map(line => line.length));
+    const maxLineLength = Math.max(...lines.map((line) => line.length));
     expect(maxLineLength).toBeLessThan(1000); // Reasonable line length
   });
 });
@@ -388,7 +388,7 @@ test.describe('Export Validation - Error Handling', () => {
     await editorPage.goto();
 
     // Mock download failure by blocking downloads
-    await page.context().route('**/download*', route => route.abort());
+    await page.context().route('**/download*', (route) => route.abort());
 
     // Try export - should not crash
     const downloadPromise = page.waitForEvent('download', { timeout: 3000 }).catch(() => null);
@@ -428,7 +428,7 @@ test.describe('Export Validation - Error Handling', () => {
 
     // Mock a scenario where download might be blocked
     // Set download behavior to fail
-    await page.context().route('**/*', route => {
+    await page.context().route('**/*', (route) => {
       if (route.request().resourceType() === 'document') {
         route.continue();
       } else {
@@ -636,7 +636,7 @@ test.describe('Export Validation - Integration Tests', () => {
 
     // All downloads should succeed
     expect(downloads).toHaveLength(3);
-    downloads.forEach(download => {
+    downloads.forEach((download) => {
       expect(download).toBeDefined();
     });
   });

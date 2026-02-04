@@ -18,11 +18,11 @@ describe('/api/schemas', () => {
     const schemas = resolver.list();
 
     // Simulate what the API route does - exclude path
-    const apiResponse = schemas.map(s => ({
+    const apiResponse = schemas.map((s) => ({
       id: s.id,
       name: s.name,
       description: s.description,
-      tags: s.tags
+      tags: s.tags,
     }));
 
     expect(apiResponse[0]).not.toHaveProperty('path');

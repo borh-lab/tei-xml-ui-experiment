@@ -157,11 +157,13 @@ describe('SelectionManager', () => {
           parsed: {},
           revision: 0,
           metadata: {},
-          passages: [{
-            id: 'passage-abc123',
-            content: 'Plain text',
-            tags: [], // No tags
-          }],
+          passages: [
+            {
+              id: 'passage-abc123',
+              content: 'Plain text',
+              tags: [], // No tags
+            },
+          ],
           dialogue: [],
           characters: [],
           relationships: [],
@@ -193,16 +195,20 @@ describe('SelectionManager', () => {
           parsed: {},
           revision: 0,
           metadata: {},
-          passages: [{
-            id: 'passage-abc123',
-            content: 'Hello world',
-            tags: [{
-              id: 'tag-xyz',
-              type: 'said',
-              range: { start: 0, end: 5 },
-              attributes: { who: '#speaker1' },
-            }],
-          }],
+          passages: [
+            {
+              id: 'passage-abc123',
+              content: 'Hello world',
+              tags: [
+                {
+                  id: 'tag-xyz',
+                  type: 'said',
+                  range: { start: 0, end: 5 },
+                  attributes: { who: '#speaker1' },
+                },
+              ],
+            },
+          ],
           dialogue: [],
           characters: [],
           relationships: [],
@@ -238,11 +244,13 @@ describe('SelectionManager', () => {
           parsed: {},
           revision: 0,
           metadata: {},
-          passages: [{
-            id: 'passage-abc123',
-            content: 'Plain text',
-            tags: [],
-          }],
+          passages: [
+            {
+              id: 'passage-abc123',
+              content: 'Plain text',
+              tags: [],
+            },
+          ],
           dialogue: [],
           characters: [],
           relationships: [],
@@ -274,16 +282,20 @@ describe('SelectionManager', () => {
           parsed: {},
           revision: 0,
           metadata: {},
-          passages: [{
-            id: 'passage-abc123',
-            content: 'Hello world',
-            tags: [{
-              id: 'tag-xyz',
-              type: 'said',
-              range: { start: 0, end: 5 },
-              attributes: { who: '#speaker1' },
-            }],
-          }],
+          passages: [
+            {
+              id: 'passage-abc123',
+              content: 'Hello world',
+              tags: [
+                {
+                  id: 'tag-xyz',
+                  type: 'said',
+                  range: { start: 0, end: 5 },
+                  attributes: { who: '#speaker1' },
+                },
+              ],
+            },
+          ],
           dialogue: [],
           characters: [],
           relationships: [],

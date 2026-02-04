@@ -12,9 +12,7 @@ jest.mock('react-hotkeys-hook', () => ({
 describe('useKeyboardShortcuts', () => {
   test('should register keyboard shortcuts', () => {
     const mockAction = jest.fn();
-    const shortcuts = [
-      { key: 'cmd+k', description: 'Test', action: mockAction }
-    ];
+    const shortcuts = [{ key: 'cmd+k', description: 'Test', action: mockAction }];
 
     renderHook(() => useKeyboardShortcuts(shortcuts));
 

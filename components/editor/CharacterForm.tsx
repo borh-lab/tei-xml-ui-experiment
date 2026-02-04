@@ -47,7 +47,12 @@ export function CharacterForm({
         sex,
         age,
         occupation: occupation || undefined,
-        traits: traits ? traits.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
+        traits: traits
+          ? traits
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : undefined,
         socialStatus: socialStatus || undefined,
         maritalStatus: maritalStatus || undefined,
       };
@@ -69,16 +74,19 @@ export function CharacterForm({
   );
 
   // Generate xml:id from name if not set
-  const handleNameChange = useCallback((value: string) => {
-    setName(value);
-    if (!xmlId) {
-      const generatedId = value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-      setXmlId(generatedId || '');
-    }
-  }, [xmlId]);
+  const handleNameChange = useCallback(
+    (value: string) => {
+      setName(value);
+      if (!xmlId) {
+        const generatedId = value
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+        setXmlId(generatedId || '');
+      }
+    },
+    [xmlId]
+  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -111,7 +119,12 @@ export function CharacterForm({
       {/* Sex */}
       <div className="space-y-2">
         <Label htmlFor="char-sex">Sex</Label>
-        <Select value={sex || 'none'} onValueChange={(value) => setSex(value === 'none' ? undefined : value as Character['sex'])}>
+        <Select
+          value={sex || 'none'}
+          onValueChange={(value) =>
+            setSex(value === 'none' ? undefined : (value as Character['sex']))
+          }
+        >
           <SelectTrigger id="char-sex">
             <SelectValue placeholder="Select sex" />
           </SelectTrigger>

@@ -7,6 +7,7 @@ This document provides the complete automated migration path from React to Effec
 ## Critical Component: EditorLayout Refactoring
 
 ### Current State (Problem)
+
 ```tsx
 // EditorLayout.tsx - 22 useState hooks
 const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -42,6 +43,7 @@ export function EffectEditorLayout() {
 ```
 
 ### Results
+
 - **22 useState hooks → 0**
 - **995 lines → ~400 lines** (60% reduction)
 - **Testable** (all state via mock services)
@@ -49,18 +51,21 @@ export function EffectEditorLayout() {
 ## Complete Component Migration List
 
 ### Leaf Components (Week 7-8)
+
 - ✅ ExportButton
 - ⏳ TagBreadcrumb
 - ⏳ FileUpload
 - ⏳ EntityTooltip
 
 ### Panel Components (Week 9-10)
+
 - ⏳ BulkOperationsPanel
 - ⏳ ValidationResultsDialog
 - ⏳ EntityEditorPanel
 - ⏳ StructuralTagPalette
 
 ### Complex Components (Week 11-12)
+
 - ⏳ TagToolbar
 - ⏳ RenderedView
 - ⏳ XMLCodeEditor
@@ -71,21 +76,19 @@ export function EffectEditorLayout() {
 ### Week 13: Remove React Context
 
 **Before:**
+
 ```tsx
-<DocumentContext.Provider value={{ document, dispatch }}>
-  {children}
-</DocumentContext.Provider>
+<DocumentContext.Provider value={{ document, dispatch }}>{children}</DocumentContext.Provider>
 ```
 
 **After:**
+
 ```tsx
 // app/layout.tsx
 import { Layer, Runtime } from 'effect';
 import { MainLayer } from '@/lib/effect/layers/Main';
 
-const runtime = Runtime.defaultRuntime.pipe(
-  Runtime.provideLayers(MainLayer)
-);
+const runtime = Runtime.defaultRuntime.pipe(Runtime.provideLayers(MainLayer));
 
 export default function RootLayout({ children }) {
   return (
@@ -181,6 +184,7 @@ After (Tests):
 ## Migration Checklist
 
 ### Phase 3 (Components)
+
 - [ ] ExportButton ✅
 - [ ] TagBreadcrumb
 - [ ] FileUpload
@@ -195,6 +199,7 @@ After (Tests):
 - [ ] EditorLayout (CRITICAL)
 
 ### Phase 4 (Cleanup)
+
 - [ ] Remove DocumentContext
 - [ ] Remove ErrorContext
 - [ ] Remove all useState (target: 0)
@@ -204,14 +209,14 @@ After (Tests):
 
 ## Success Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| useState hooks | 30+ | 0 | 100% reduction |
-| EditorLayout lines | 995 | ~400 | 60% reduction |
-| Test reliability | 70% | 99% | +29% |
-| Test speed | 5s | 50ms | 100x faster |
-| Composability | ❌ | ✅ | Can retry/cache |
-| Time travel | ❌ | ✅ | Explicit event log |
+| Metric             | Before | After | Improvement        |
+| ------------------ | ------ | ----- | ------------------ |
+| useState hooks     | 30+    | 0     | 100% reduction     |
+| EditorLayout lines | 995    | ~400  | 60% reduction      |
+| Test reliability   | 70%    | 99%   | +29%               |
+| Test speed         | 5s     | 50ms  | 100x faster        |
+| Composability      | ❌     | ✅    | Can retry/cache    |
+| Time travel        | ❌     | ✅    | Explicit event log |
 
 ## Timeline
 
@@ -225,6 +230,7 @@ After (Tests):
 The migration from React to Effect is systematically progressing. All foundational work is complete (Phase 1 & 2). Component migration (Phase 3) has begun with ExportButton. The critical EditorLayout refactoring will eliminate the 22 useState hooks and reduce complexity by 60%.
 
 **Key Insight:** This isn't just a refactor—it's a fundamental architectural improvement that enables:
+
 - Testability (deterministic, fast)
 - Composability (retry, cache, logging layers)
 - Simplicity (no hidden state mutation)

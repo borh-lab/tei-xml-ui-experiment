@@ -15,8 +15,8 @@ describe('BulkOperationsPanel', () => {
     onConvert: jest.fn(),
     speakers: [
       { id: 'speaker1', name: 'Speaker 1' },
-      { id: 'speaker2', name: 'Speaker 2' }
-    ]
+      { id: 'speaker2', name: 'Speaker 2' },
+    ],
   };
 
   beforeEach(() => {

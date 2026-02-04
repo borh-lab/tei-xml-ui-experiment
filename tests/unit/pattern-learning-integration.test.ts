@@ -42,7 +42,7 @@ describe('Pattern Learning Integration', () => {
     const text = 'The quick brown fox jumps over the lazy dog';
     const patterns = extract(text, '#speaker1', 'middle');
 
-    const hasStopWords = patterns.contextWords.some(w =>
+    const hasStopWords = patterns.contextWords.some((w) =>
       ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for'].includes(w)
     );
 
@@ -73,14 +73,10 @@ describe('Pattern Learning Integration', () => {
       start: 0,
       end: 14,
       confidence: 0.9,
-      speaker: '#speaker1'
+      speaker: '#speaker1',
     };
 
-    const patterns = extract(
-      suggestion.text,
-      suggestion.speaker,
-      'beginning'
-    );
+    const patterns = extract(suggestion.text, suggestion.speaker, 'beginning');
 
     expect(patterns.phrases.size).toBeGreaterThan(0);
 
@@ -91,14 +87,14 @@ describe('Pattern Learning Integration', () => {
   });
 
   test('should extract meaningful phrases from dialogue', () => {
-    const text = 'I don\'t know what you mean';
+    const text = "I don't know what you mean";
     const patterns = extract(text, '#speaker1', 'middle');
 
     // Should extract phrases like "don't know", "know what", "what you"
     expect(patterns.phrases.size).toBeGreaterThan(0);
 
     // Verify context includes meaningful words
-    expect(patterns.contextWords).toContain('don\'t');
+    expect(patterns.contextWords).toContain("don't");
     expect(patterns.contextWords).toContain('know');
   });
 });

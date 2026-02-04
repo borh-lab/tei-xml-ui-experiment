@@ -52,6 +52,7 @@ export function addSaidTag(
 ```
 
 **Problems:**
+
 1. **No explicit time** - Can't see what changed between revision 10 and 11
 2. **Mutation hidden** - Returns `doc` like nothing changed
 3. **No time travel** - Can't inspect document at revision 50
@@ -61,7 +62,7 @@ export function addSaidTag(
 
 ```typescript
 // ✅ Event-sourced: Succession of values
-import { Effect, Schema } from 'effect'
+import { Effect, Schema } from 'effect';
 
 // Each operation returns NEW value with event appended
 const addSaidTag = (doc: TEIDocument, params: AddSaidTagParams) =>
@@ -76,7 +77,7 @@ const addSaidTag = (doc: TEIDocument, params: AddSaidTagParams) =>
       id: crypto.randomUUID(),
       timestamp: Date.now(),
       revision: doc.state.revision + 1,
-      ...params
+      ...params,
     };
 
     // 3. Apply event to create new state
@@ -85,12 +86,13 @@ const addSaidTag = (doc: TEIDocument, params: AddSaidTagParams) =>
     // 4. Return new document value
     return {
       state: newState,
-      events: [...doc.events, event]
+      events: [...doc.events, event],
     };
   });
 ```
 
 **Benefits:**
+
 - **Explicit time** - Each event has timestamp and revision
 - **No mutation** - Returns new immutable value
 - **Time travel** - Replay events to any revision
@@ -106,12 +108,13 @@ A TEI document is an **immutable value** consisting of:
 
 ```typescript
 interface TEIDocument {
-  readonly state: DocumentState;    // Current materialized state (O(1) access)
-  readonly events: readonly DocumentEvent[];  // Complete append-only history
+  readonly state: DocumentState; // Current materialized state (O(1) access)
+  readonly events: readonly DocumentEvent[]; // Complete append-only history
 }
 ```
 
 **Key Properties:**
+
 - **Immutable** - All fields are `readonly`
 - **Value-oriented** - No place semantics; safe to share
 - **Event-sourced** - State derived from event log
@@ -166,10 +169,10 @@ const stateAtRevision50 = rebuildState(events.slice(0, 51));
  * Created by applying events in order.
  */
 interface DocumentState {
-  readonly xml: string;                    // Original XML
-  readonly parsed: TEINode;                // Parsed XML tree
-  readonly revision: number;               // Current revision number
-  readonly metadata: DocumentMetadata;     // Title, author, etc.
+  readonly xml: string; // Original XML
+  readonly parsed: TEINode; // Parsed XML tree
+  readonly revision: number; // Current revision number
+  readonly metadata: DocumentMetadata; // Title, author, etc.
 
   // Materialized views (O(1) access via structural sharing)
   readonly passages: readonly Passage[];
@@ -233,18 +236,59 @@ type DocumentEvent =
   | { type: 'loaded'; xml: string; timestamp: number; revision: number }
 
   // Tag operations
-  | { type: 'saidTagAdded'; id: TagID; passageId: PassageID; range: TextRange; speaker: CharacterID; timestamp: number; revision: number }
-  | { type: 'qTagAdded'; id: TagID; passageId: PassageID; range: TextRange; timestamp: number; revision: number }
-  | { type: 'persNameTagAdded'; id: TagID; passageId: PassageID; range: TextRange; ref: string; timestamp: number; revision: number }
+  | {
+      type: 'saidTagAdded';
+      id: TagID;
+      passageId: PassageID;
+      range: TextRange;
+      speaker: CharacterID;
+      timestamp: number;
+      revision: number;
+    }
+  | {
+      type: 'qTagAdded';
+      id: TagID;
+      passageId: PassageID;
+      range: TextRange;
+      timestamp: number;
+      revision: number;
+    }
+  | {
+      type: 'persNameTagAdded';
+      id: TagID;
+      passageId: PassageID;
+      range: TextRange;
+      ref: string;
+      timestamp: number;
+      revision: number;
+    }
   | { type: 'tagRemoved'; id: TagID; timestamp: number; revision: number }
 
   // Character operations
-  | { type: 'characterAdded'; id: CharacterID; character: Character; timestamp: number; revision: number }
-  | { type: 'characterUpdated'; id: CharacterID; updates: Partial<Omit<Character, 'id' | 'xmlId'>>; timestamp: number; revision: number }
+  | {
+      type: 'characterAdded';
+      id: CharacterID;
+      character: Character;
+      timestamp: number;
+      revision: number;
+    }
+  | {
+      type: 'characterUpdated';
+      id: CharacterID;
+      updates: Partial<Omit<Character, 'id' | 'xmlId'>>;
+      timestamp: number;
+      revision: number;
+    }
   | { type: 'characterRemoved'; id: CharacterID; timestamp: number; revision: number }
 
   // Relationship operations
-  | { type: 'relationAdded'; id: string; relation: Relationship; timestamp: number; revision: number }
+  | {
+      type: 'relationAdded';
+      id: string;
+      relation: Relationship;
+      timestamp: number;
+      revision: number;
+    }
   | { type: 'relationRemoved'; id: string; timestamp: number; revision: number }
 
   // Validation events
@@ -260,9 +304,9 @@ All events share:
 
 ```typescript
 interface BaseEvent {
-  readonly type: string;      // Event discriminator
+  readonly type: string; // Event discriminator
   readonly timestamp: number; // Unix timestamp (ms)
-  readonly revision: number;  // Monotonically increasing
+  readonly revision: number; // Monotonically increasing
 }
 ```
 
@@ -296,12 +340,12 @@ const addSaidTag = (
   Effect.gen(function* (_) {
     // 1. Validate preconditions
     const passage = yield* Effect.optionFromOptional(
-      Option.fromNullable(doc.state.passages.find(p => p.id === passageId)),
+      Option.fromNullable(doc.state.passages.find((p) => p.id === passageId)),
       () => new Error(`Passage not found: ${passageId}`)
     );
 
     const character = yield* Effect.optionFromOptional(
-      Option.fromNullable(doc.state.characters.find(c => c.id === speaker)),
+      Option.fromNullable(doc.state.characters.find((c) => c.id === speaker)),
       () => new Error(`Character not found: ${speaker}`)
     );
 
@@ -311,19 +355,17 @@ const addSaidTag = (
       id: tagId,
       type: 'said',
       range,
-      attributes: { who: `#${speaker}` }
+      attributes: { who: `#${speaker}` },
     };
 
     // 3. Create new passage (immutable update)
     const newPassage: Passage = {
       ...passage,
-      tags: [...passage.tags, newTag]
+      tags: [...passage.tags, newTag],
     };
 
     // 4. Create updated passages array
-    const updatedPassages = doc.state.passages.map(p =>
-      p.id === passageId ? newPassage : p
-    );
+    const updatedPassages = doc.state.passages.map((p) => (p.id === passageId ? newPassage : p));
 
     // 5. Create new dialogue entry
     const newDialogue: Dialogue = {
@@ -331,7 +373,7 @@ const addSaidTag = (
       passageId,
       range,
       speaker,
-      content: passage.content.substring(range.start, range.end)
+      content: passage.content.substring(range.start, range.end),
     };
 
     // 6. Create new state
@@ -339,7 +381,7 @@ const addSaidTag = (
       ...doc.state,
       passages: updatedPassages,
       dialogue: [...doc.state.dialogue, newDialogue],
-      revision: doc.state.revision + 1
+      revision: doc.state.revision + 1,
     };
 
     // 7. Create event
@@ -350,13 +392,13 @@ const addSaidTag = (
       range,
       speaker,
       timestamp: Date.now(),
-      revision: newState.revision
+      revision: newState.revision,
     };
 
     // 8. Return new document value
     return {
       state: newState,
-      events: [...doc.events, event]
+      events: [...doc.events, event],
     };
   });
 ```
@@ -378,7 +420,7 @@ const result = Effect.gen(function* (_) {
 const batchResult = Effect.all([
   addCharacter(doc, char1),
   addCharacter(doc, char2),
-  addCharacter(doc, char3)
+  addCharacter(doc, char3),
 ]);
 ```
 
@@ -394,12 +436,9 @@ Time travel is trivial with event sourcing:
 /**
  * Get document state at specific revision
  */
-const getStateAtRevision = (
-  doc: TEIDocument,
-  targetRevision: number
-): DocumentState => {
+const getStateAtRevision = (doc: TEIDocument, targetRevision: number): DocumentState => {
   // Filter events to target revision
-  const eventsToReplay = doc.events.filter(e => e.revision <= targetRevision);
+  const eventsToReplay = doc.events.filter((e) => e.revision <= targetRevision);
 
   // Rebuild state from events
   return rebuildState(eventsToReplay);
@@ -409,13 +448,10 @@ const getStateAtRevision = (
  * Time travel to revision
  * Returns new document value at that point in time
  */
-const timeTravel = (
-  doc: TEIDocument,
-  targetRevision: number
-): TEIDocument => {
+const timeTravel = (doc: TEIDocument, targetRevision: number): TEIDocument => {
   return {
     state: getStateAtRevision(doc, targetRevision),
-    events: doc.events.slice(0, targetRevision + 1)
+    events: doc.events.slice(0, targetRevision + 1),
   };
 };
 
@@ -524,7 +560,10 @@ interface DocumentOperations {
   readonly loadDocument: (xml: string) => Effect<TEIDocument, ParseError>;
   readonly addTag: (doc: TEIDocument, params: AddTagParams) => Effect<TEIDocument, ValidationError>;
   readonly removeTag: (doc: TEIDocument, tagId: TagID) => Effect<TEIDocument, NotFoundError>;
-  readonly addCharacter: (doc: TEIDocument, character: Character) => Effect<TEIDocument, DuplicateError>;
+  readonly addCharacter: (
+    doc: TEIDocument,
+    character: Character
+  ) => Effect<TEIDocument, DuplicateError>;
   readonly undo: (doc: TEIDocument) => TEIDocument;
   readonly redo: (doc: TEIDocument) => TEIDocument;
   readonly timeTravel: (doc: TEIDocument, revision: number) => TEIDocument;
@@ -543,7 +582,7 @@ const validatePassageExists = (
 ): Effect.Effect<Passage, Error> =>
   Effect.gen(function* (_) {
     const passage = yield* Effect.optionFromOptional(
-      Option.fromNullable(doc.state.passages.find(p => p.id === passageId)),
+      Option.fromNullable(doc.state.passages.find((p) => p.id === passageId)),
       () => new Error(`Passage not found: ${passageId}`)
     );
 
@@ -559,7 +598,7 @@ const validateCharacterExists = (
 ): Effect.Effect<Character, Error> =>
   Effect.gen(function* (_) {
     const character = yield* Effect.optionFromOptional(
-      Option.fromNullable(doc.state.characters.find(c => c.id === characterId)),
+      Option.fromNullable(doc.state.characters.find((c) => c.id === characterId)),
       () => new Error(`Character not found: ${characterId}`)
     );
 
@@ -586,13 +625,13 @@ class BrowserDocumentStorage implements DocumentStorage {
   save = (doc: TEIDocument) =>
     Effect.tryPromise({
       try: () => this.db.put('documents', this.serialize(doc)),
-      catch: (error) => new StorageError('Failed to save', error)
+      catch: (error) => new StorageError('Failed to save', error),
     });
 
   load = (id: string) =>
     Effect.tryPromise({
       try: () => this.db.get('documents', id),
-      catch: (error) => new StorageError('Failed to load', error)
+      catch: (error) => new StorageError('Failed to load', error),
     });
 
   // ...
@@ -618,10 +657,10 @@ class TestDocumentStorage implements DocumentStorage {
 
   list = () =>
     Effect.sync(() =>
-      Array.from(this.documents.values()).map(d => ({
+      Array.from(this.documents.values()).map((d) => ({
         id: d.state.metadata.title,
         title: d.state.metadata.title,
-        author: d.state.metadata.author
+        author: d.state.metadata.author,
       }))
     );
 }
@@ -634,18 +673,21 @@ class TestDocumentStorage implements DocumentStorage {
 ### Phase 1: Core Types (Week 1)
 
 **Tasks:**
+
 1. ✅ Define `TEIDocument`, `DocumentState`, `DocumentEvent` types
 2. ✅ Define entity types (`Character`, `Relationship`, `Passage`, `Tag`)
 3. ✅ Create event type union with all event variants
 4. ⬜ Add Effect Schema definitions for validation
 
 **Files:**
+
 - `lib/tei/types.ts` (already done)
 - `lib/tei/schema.ts` (new - Effect Schema definitions)
 
 ### Phase 2: State Transition Functions (Week 2)
 
 **Tasks:**
+
 1. ✅ Implement `loadDocument` with event sourcing
 2. ✅ Implement `addSaidTag`, `addQTag`, `addPersNameTag`
 3. ✅ Implement `removeTag`
@@ -655,6 +697,7 @@ class TestDocumentStorage implements DocumentStorage {
 7. ⬜ Add validation layer
 
 **Files:**
+
 - `lib/tei/operations.ts` (already done - pure functions)
 - `lib/tei/effect-operations.ts` (new - Effect wrappers)
 - `lib/tei/validation.ts` (new - validation layer)
@@ -662,6 +705,7 @@ class TestDocumentStorage implements DocumentStorage {
 ### Phase 3: History Management (Week 3)
 
 **Tasks:**
+
 1. ✅ Implement `undo`, `redo`, `timeTravel`
 2. ✅ Implement `rebuildState` from events
 3. ⬜ Add event replay optimization (snapshots)
@@ -669,6 +713,7 @@ class TestDocumentStorage implements DocumentStorage {
 5. ⬜ Add event persistence layer
 
 **Files:**
+
 - `lib/tei/history.ts` (new - undo/redo/timeTravel)
 - `lib/tei/persistence.ts` (new - storage layer)
 - `lib/tei/serialization.ts` (new - event serialization)
@@ -676,6 +721,7 @@ class TestDocumentStorage implements DocumentStorage {
 ### Phase 4: Effect Integration (Week 4)
 
 **Tasks:**
+
 1. ⬜ Install Effect packages: `@effect/schema`, `@effect/platform`
 2. ⬜ Define protocols (interfaces) for operations
 3. ⬜ Implement browser storage with IndexedDB
@@ -683,6 +729,7 @@ class TestDocumentStorage implements DocumentStorage {
 5. ⬜ Add validation with Effect Schema
 
 **Files:**
+
 - `lib/tei/protocols.ts` (new - interface definitions)
 - `lib/tei/storage/browser.ts` (new - IndexedDB storage)
 - `lib/tei/storage/test.ts` (new - in-memory storage)
@@ -691,6 +738,7 @@ class TestDocumentStorage implements DocumentStorage {
 ### Phase 5: Testing (Week 5)
 
 **Tasks:**
+
 1. ⬜ Unit tests for state transitions
 2. ⬜ Unit tests for undo/redo
 3. ⬜ Unit tests for time travel
@@ -698,6 +746,7 @@ class TestDocumentStorage implements DocumentStorage {
 5. ⬜ Property-based tests with Effect `fc` (fast-check)
 
 **Files:**
+
 - `lib/tei/__tests__/operations.test.ts` (update)
 - `lib/tei/__tests__/history.test.ts` (new)
 - `lib/tei/__tests__/persistence.test.ts` (new)
@@ -705,6 +754,7 @@ class TestDocumentStorage implements DocumentStorage {
 ### Phase 6: Component Integration (Week 6)
 
 **Tasks:**
+
 1. ⬜ Create `DocumentProvider` using Effect
 2. ⬜ Refactor `EditorLayout` to use Effect operations
 3. ⬜ Add undo/redo UI
@@ -712,6 +762,7 @@ class TestDocumentStorage implements DocumentStorage {
 5. ⬜ Add time travel debugger
 
 **Files:**
+
 - `components/DocumentProvider.tsx` (new - Effect-based context)
 - `components/EditorLayout.tsx` (refactor - use Effect operations)
 - `components/HistoryInspector.tsx` (new - event log viewer)
@@ -738,11 +789,13 @@ const eventsBetween = getEventsBetween(currentDoc, 50, 60);
 
 ```typescript
 // Inspect full event log
-console.log(doc.events.map(e => ({
-  type: e.type,
-  timestamp: new Date(e.timestamp).toISOString(),
-  revision: e.revision
-})));
+console.log(
+  doc.events.map((e) => ({
+    type: e.type,
+    timestamp: new Date(e.timestamp).toISOString(),
+    revision: e.revision,
+  }))
+);
 
 // Replay from specific point
 const replayFrom = replayEvents(doc.events.slice(50));
@@ -877,6 +930,7 @@ The event-sourced document model provides:
 This addresses the core architectural problems identified in the Hickey review and provides a solid foundation for future features (collaborative editing, offline support, conflict resolution).
 
 **Next Steps:**
+
 1. Review and approve design
 2. Create implementation plan with subagent-driven-development
 3. Set up git-worktree for isolated development

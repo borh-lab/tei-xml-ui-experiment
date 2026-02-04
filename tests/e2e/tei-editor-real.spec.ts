@@ -75,7 +75,9 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
   });
 
   test.describe('Sample Gallery', () => {
-    test.skip('should navigate back to gallery - SKIPPED: No Back to Gallery button in UI', async ({ page }) => {
+    test.skip('should navigate back to gallery - SKIPPED: No Back to Gallery button in UI', async ({
+      page,
+    }) => {
       // Note: This test is skipped because there's no "Back to Gallery" button in the current UI
       // Navigation happens through other means (direct URL, page refresh, etc.)
 
@@ -93,7 +95,9 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await expect(page.getByText('Pride and Prejudice - Chapter 1')).toBeVisible();
     });
 
-    test.skip('should load all available samples from gallery - SKIPPED: No Back to Gallery button in UI', async ({ page }) => {
+    test.skip('should load all available samples from gallery - SKIPPED: No Back to Gallery button in UI', async ({
+      page,
+    }) => {
       // Note: This test is skipped because there's no "Back to Gallery" button in the current UI
       // To test sample loading, navigate directly to gallery URL instead
 
@@ -101,7 +105,9 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       // await page.getByRole('button', { name: '← Back to Gallery' }).click();
 
       // Wait for gallery to appear (wait for sample cards to be visible)
-      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart/i)).toBeVisible();
+      await expect(
+        page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart/i)
+      ).toBeVisible();
 
       // Test that at least one other sample can be loaded
       // (We already have gift-of-the-magi loaded by default)
@@ -115,20 +121,26 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await expect(page.getByText('Rendered View')).toBeVisible();
     });
 
-    test.skip('should display sample metadata on cards - SKIPPED: No Back to Gallery button in UI', async ({ page }) => {
+    test.skip('should display sample metadata on cards - SKIPPED: No Back to Gallery button in UI', async ({
+      page,
+    }) => {
       // Note: This test is skipped because there's no "Back to Gallery" button in the current UI
 
       // await page.getByRole('button', { name: '← Back to Gallery' }).click();
 
       // Wait for gallery to appear - wait for sample cards to be visible
-      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i)).toBeVisible();
+      await expect(
+        page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i)
+      ).toBeVisible();
     });
   });
 
   test.describe('Bulk Operations', () => {
     test('should toggle bulk operations panel with button', async ({ page }) => {
       // Initial state - panel should not be visible
-      await expect(page.getByText('Bulk Operations').and(page.getByRole('heading'))).not.toBeVisible();
+      await expect(
+        page.getByText('Bulk Operations').and(page.getByRole('heading'))
+      ).not.toBeVisible();
 
       // Click "Bulk Operations" button
       await page.getByRole('button', { name: /Bulk Operations/ }).click();
@@ -206,7 +218,9 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       // Should show "Select All" and "Deselect All" buttons in bulk mode controls
       // These appear in RenderedView.tsx line 138-149
       // Use .exact(true) and .first() to avoid strict mode violations if multiple exist
-      await expect(page.getByRole('button', { name: 'Select All', exact: true }).first()).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Select All', exact: true }).first()
+      ).toBeVisible();
       await expect(page.getByRole('button', { name: 'Deselect All' }).first()).toBeVisible();
     });
 
@@ -292,7 +306,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       // Should show suggestions panel if quoted text found
       // InlineSuggestions.tsx line 108 renders the suggestions
       const suggestionsPanel = page.getByText(/AI suggests dialogue/i);
-      const hasSuggestions = await suggestionsPanel.count() > 0;
+      const hasSuggestions = (await suggestionsPanel.count()) > 0;
 
       if (hasSuggestions) {
         // If suggestions found, verify confidence badges
@@ -319,7 +333,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       // Check if suggestions exist
       const suggestionsPanel = page.getByText(/AI suggests dialogue/i);
-      const hasSuggestions = await suggestionsPanel.count() > 0;
+      const hasSuggestions = (await suggestionsPanel.count()) > 0;
 
       if (hasSuggestions) {
         // Find accept button
@@ -331,7 +345,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
         // Try reject if more suggestions exist
         const rejectButton = page.getByRole('button', { name: /Reject suggestion/i });
-        const hasReject = await rejectButton.count() > 0;
+        const hasReject = (await rejectButton.count()) > 0;
 
         if (hasReject) {
           await rejectButton.click();
@@ -368,7 +382,10 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('button', { name: 'Visualizations' }).click();
 
       // Network tab should be active by default (VisualizationPanel.tsx line 14)
-      await expect(page.getByRole('tab', { name: 'Network' })).toHaveAttribute('data-state', 'active');
+      await expect(page.getByRole('tab', { name: 'Network' })).toHaveAttribute(
+        'data-state',
+        'active'
+      );
 
       // Should show Character Network component
       // It renders ReactFlow graph (CharacterNetwork.tsx)
@@ -377,7 +394,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       // If document has dialogue with speakers, should show nodes
       // CharacterNetwork.tsx line 69-77 creates nodes from speakerMap
       const nodesText = page.getByText(/characters/);
-      const hasNodes = await nodesText.count() > 0;
+      const hasNodes = (await nodesText.count()) > 0;
 
       if (hasNodes) {
         await expect(page.getByText(/Nodes:/)).toBeVisible();
@@ -393,7 +410,10 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('tab', { name: 'Statistics' }).click();
 
       // Should switch to stats view
-      await expect(page.getByRole('tab', { name: 'Statistics' })).toHaveAttribute('data-state', 'active');
+      await expect(page.getByRole('tab', { name: 'Statistics' })).toHaveAttribute(
+        'data-state',
+        'active'
+      );
 
       // Should show stats panel
       await expect(page.getByText('Dialogue Statistics')).toBeVisible();
@@ -446,7 +466,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       // CommandPalette should open (CommandPalette.tsx)
       // The placeholder text is "Type a command or search..." (line 34)
       const palette = page.getByPlaceholder(/Type a command or search/i);
-      const isVisible = await palette.count() > 0;
+      const isVisible = (await palette.count()) > 0;
 
       if (isVisible) {
         await expect(palette).toBeVisible();
@@ -507,7 +527,9 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.goto('/');
 
       // Wait for gallery to be visible
-      await expect(page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i).first()).toBeVisible();
+      await expect(
+        page.getByText(/Yellow Wallpaper|Gift of the Magi|Tell-Tale Heart|Owl Creek/i).first()
+      ).toBeVisible();
 
       // Load different sample
       await page.getByText('The Tell-Tale Heart', { exact: false }).click();
@@ -557,7 +579,9 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.getByRole('button', { name: 'Deselect All' }).first().click();
 
       // Verify operation completed - Select All should still be available
-      await expect(page.getByRole('button', { name: 'Select All', exact: true }).first()).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Select All', exact: true }).first()
+      ).toBeVisible();
     });
   });
 
@@ -606,7 +630,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
 
       // Check if suggestions exist
       const suggestions = page.getByRole('list', { name: 'AI suggestions' });
-      const hasSuggestions = await suggestions.count() > 0;
+      const hasSuggestions = (await suggestions.count()) > 0;
 
       if (hasSuggestions) {
         // Should have role="list" (InlineSuggestions.tsx line 108)
@@ -678,7 +702,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.keyboard.press('Tab');
 
       // Should focus something
-      const hasFocus = await page.locator(':focus').count() > 0;
+      const hasFocus = (await page.locator(':focus').count()) > 0;
       expect(hasFocus).toBeTruthy();
 
       // Continue tabbing
@@ -686,7 +710,7 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
       await page.keyboard.press('Tab');
 
       // Should still have focus
-      const stillHasFocus = await page.locator(':focus').count() > 0;
+      const stillHasFocus = (await page.locator(':focus').count()) > 0;
       expect(stillHasFocus).toBeTruthy();
     });
 
@@ -735,7 +759,10 @@ test.describe('TEI Dialogue Editor - Real App Tests', () => {
         // If download doesn't trigger, it might be because the export
         // functionality creates a blob and triggers download synchronously
         // which Playwright can't always capture
-        test.skip(true, 'Download event not captured - export may work but not detectable by Playwright');
+        test.skip(
+          true,
+          'Download event not captured - export may work but not detectable by Playwright'
+        );
       }
     });
   });
@@ -955,7 +982,7 @@ test.describe('Character Network Interactions', () => {
 
     // Test zoom controls (if available)
     const zoomControls = page.locator('.react-flow__controls');
-    if (await zoomControls.count() > 0) {
+    if ((await zoomControls.count()) > 0) {
       await expect(zoomControls).toBeVisible();
     }
   });
@@ -963,7 +990,7 @@ test.describe('Character Network Interactions', () => {
   test('should show minimap', async ({ page }) => {
     // Check for minimap
     const minimap = page.locator('.react-flow__minimap');
-    if (await minimap.count() > 0) {
+    if ((await minimap.count()) > 0) {
       await expect(minimap).toBeVisible();
     }
   });

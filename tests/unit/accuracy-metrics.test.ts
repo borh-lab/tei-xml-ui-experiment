@@ -11,7 +11,7 @@ import {
   formatMetrics,
   formatSpeakerMetrics,
   DialogueSpan,
-  Annotation
+  Annotation,
 } from '@/lib/evaluation/AccuracyMetrics';
 
 describe('AccuracyMetrics', () => {
@@ -19,12 +19,12 @@ describe('AccuracyMetrics', () => {
     test('should calculate perfect precision, recall, and F1', () => {
       const predicted: DialogueSpan[] = [
         { start: 0, end: 10, text: 'Hello', confidence: 0.9 },
-        { start: 20, end: 30, text: 'World', confidence: 0.8 }
+        { start: 20, end: 30, text: 'World', confidence: 0.8 },
       ];
 
       const actual: Annotation[] = [
         { start: 0, end: 10, text: 'Hello', who: '#speaker1' },
-        { start: 20, end: 30, text: 'World', who: '#speaker2' }
+        { start: 20, end: 30, text: 'World', who: '#speaker2' },
       ];
 
       const metrics = calculateMetrics({ predicted, actual });
@@ -40,12 +40,10 @@ describe('AccuracyMetrics', () => {
     test('should handle false positives', () => {
       const predicted: DialogueSpan[] = [
         { start: 0, end: 10, text: 'Hello', confidence: 0.9 },
-        { start: 20, end: 30, text: 'Not dialogue', confidence: 0.5 }
+        { start: 20, end: 30, text: 'Not dialogue', confidence: 0.5 },
       ];
 
-      const actual: Annotation[] = [
-        { start: 0, end: 10, text: 'Hello', who: '#speaker1' }
-      ];
+      const actual: Annotation[] = [{ start: 0, end: 10, text: 'Hello', who: '#speaker1' }];
 
       const metrics = calculateMetrics({ predicted, actual });
 
@@ -57,13 +55,11 @@ describe('AccuracyMetrics', () => {
     });
 
     test('should handle false negatives', () => {
-      const predicted: DialogueSpan[] = [
-        { start: 0, end: 10, text: 'Hello', confidence: 0.9 }
-      ];
+      const predicted: DialogueSpan[] = [{ start: 0, end: 10, text: 'Hello', confidence: 0.9 }];
 
       const actual: Annotation[] = [
         { start: 0, end: 10, text: 'Hello', who: '#speaker1' },
-        { start: 20, end: 30, text: 'Missed', who: '#speaker2' }
+        { start: 20, end: 30, text: 'Missed', who: '#speaker2' },
       ];
 
       const metrics = calculateMetrics({ predicted, actual });
@@ -76,13 +72,9 @@ describe('AccuracyMetrics', () => {
     });
 
     test('should calculate IoU-based matching', () => {
-      const predicted: DialogueSpan[] = [
-        { start: 0, end: 10, text: 'Hello', confidence: 0.9 }
-      ];
+      const predicted: DialogueSpan[] = [{ start: 0, end: 10, text: 'Hello', confidence: 0.9 }];
 
-      const actual: Annotation[] = [
-        { start: 2, end: 12, text: 'Hello', who: '#speaker1' }
-      ];
+      const actual: Annotation[] = [{ start: 2, end: 12, text: 'Hello', who: '#speaker1' }];
 
       const metrics = calculateMetrics({ predicted, actual });
 
@@ -95,9 +87,7 @@ describe('AccuracyMetrics', () => {
 
     test('should handle empty predictions', () => {
       const predicted: DialogueSpan[] = [];
-      const actual: Annotation[] = [
-        { start: 0, end: 10, text: 'Hello', who: '#speaker1' }
-      ];
+      const actual: Annotation[] = [{ start: 0, end: 10, text: 'Hello', who: '#speaker1' }];
 
       const metrics = calculateMetrics({ predicted, actual });
 
@@ -109,9 +99,7 @@ describe('AccuracyMetrics', () => {
     });
 
     test('should handle empty actual', () => {
-      const predicted: DialogueSpan[] = [
-        { start: 0, end: 10, text: 'Hello', confidence: 0.9 }
-      ];
+      const predicted: DialogueSpan[] = [{ start: 0, end: 10, text: 'Hello', confidence: 0.9 }];
       const actual: Annotation[] = [];
 
       const metrics = calculateMetrics({ predicted, actual });
@@ -128,12 +116,12 @@ describe('AccuracyMetrics', () => {
     test('should calculate perfect speaker accuracy', () => {
       const predicted: DialogueSpan[] = [
         { start: 0, end: 10, text: 'Hello', confidence: 0.9, who: '#speaker1' },
-        { start: 20, end: 30, text: 'World', confidence: 0.8, who: '#speaker2' }
+        { start: 20, end: 30, text: 'World', confidence: 0.8, who: '#speaker2' },
       ];
 
       const actual: Annotation[] = [
         { start: 0, end: 10, text: 'Hello', who: '#speaker1' },
-        { start: 20, end: 30, text: 'World', who: '#speaker2' }
+        { start: 20, end: 30, text: 'World', who: '#speaker2' },
       ];
 
       const metrics = calculateSpeakerAccuracy(predicted, actual);
@@ -146,12 +134,12 @@ describe('AccuracyMetrics', () => {
     test('should calculate speaker accuracy with errors', () => {
       const predicted: DialogueSpan[] = [
         { start: 0, end: 10, text: 'Hello', confidence: 0.9, who: '#speaker1' },
-        { start: 20, end: 30, text: 'World', confidence: 0.8, who: '#wrong' }
+        { start: 20, end: 30, text: 'World', confidence: 0.8, who: '#wrong' },
       ];
 
       const actual: Annotation[] = [
         { start: 0, end: 10, text: 'Hello', who: '#speaker1' },
-        { start: 20, end: 30, text: 'World', who: '#speaker2' }
+        { start: 20, end: 30, text: 'World', who: '#speaker2' },
       ];
 
       const metrics = calculateSpeakerAccuracy(predicted, actual);
@@ -165,13 +153,13 @@ describe('AccuracyMetrics', () => {
       const predicted: DialogueSpan[] = [
         { start: 0, end: 10, text: 'Hello', confidence: 0.9, who: '#speaker1' },
         { start: 20, end: 30, text: 'Hi', confidence: 0.8, who: '#speaker1' },
-        { start: 40, end: 50, text: 'Hey', confidence: 0.7, who: '#speaker2' }
+        { start: 40, end: 50, text: 'Hey', confidence: 0.7, who: '#speaker2' },
       ];
 
       const actual: Annotation[] = [
         { start: 0, end: 10, text: 'Hello', who: '#speaker1' },
         { start: 20, end: 30, text: 'Hi', who: '#speaker2' },
-        { start: 40, end: 50, text: 'Hey', who: '#speaker2' }
+        { start: 40, end: 50, text: 'Hey', who: '#speaker2' },
       ];
 
       const metrics = calculateSpeakerAccuracy(predicted, actual);
@@ -188,12 +176,10 @@ describe('AccuracyMetrics', () => {
 
     test('should handle missing speaker predictions', () => {
       const predicted: DialogueSpan[] = [
-        { start: 0, end: 10, text: 'Hello', confidence: 0.9, who: '' }
+        { start: 0, end: 10, text: 'Hello', confidence: 0.9, who: '' },
       ];
 
-      const actual: Annotation[] = [
-        { start: 0, end: 10, text: 'Hello', who: '#speaker1' }
-      ];
+      const actual: Annotation[] = [{ start: 0, end: 10, text: 'Hello', who: '#speaker1' }];
 
       const metrics = calculateSpeakerAccuracy(predicted, actual);
 
@@ -212,7 +198,7 @@ describe('AccuracyMetrics', () => {
         { confidence: 0.6, isCorrect: true },
         { confidence: 0.5, isCorrect: false },
         { confidence: 0.4, isCorrect: false },
-        { confidence: 0.3, isCorrect: true }
+        { confidence: 0.3, isCorrect: true },
       ];
 
       const optimal = optimizeConfidenceThreshold(results, 0.1);
@@ -228,7 +214,7 @@ describe('AccuracyMetrics', () => {
       const results = [
         { confidence: 0.9, isCorrect: true },
         { confidence: 0.8, isCorrect: true },
-        { confidence: 0.7, isCorrect: true }
+        { confidence: 0.7, isCorrect: true },
       ];
 
       const optimal = optimizeConfidenceThreshold(results, 0.1);
@@ -242,7 +228,7 @@ describe('AccuracyMetrics', () => {
       const results = [
         { confidence: 0.9, isCorrect: false },
         { confidence: 0.8, isCorrect: false },
-        { confidence: 0.7, isCorrect: false }
+        { confidence: 0.7, isCorrect: false },
       ];
 
       const optimal = optimizeConfidenceThreshold(results, 0.1);
@@ -260,7 +246,7 @@ describe('AccuracyMetrics', () => {
         f1: 0.796,
         truePositives: 17,
         falsePositives: 3,
-        falseNegatives: 6
+        falseNegatives: 6,
       };
 
       const formatted = formatMetrics(metrics);
@@ -278,14 +264,14 @@ describe('AccuracyMetrics', () => {
     test('should format speaker metrics correctly', () => {
       const perSpeaker = new Map([
         ['#speaker1', { correct: 8, total: 10, accuracy: 0.8 }],
-        ['#speaker2', { correct: 5, total: 10, accuracy: 0.5 }]
+        ['#speaker2', { correct: 5, total: 10, accuracy: 0.5 }],
       ]);
 
       const metrics = {
         accuracy: 0.65,
         correct: 13,
         total: 20,
-        perSpeaker
+        perSpeaker,
       };
 
       const formatted = formatSpeakerMetrics(metrics);

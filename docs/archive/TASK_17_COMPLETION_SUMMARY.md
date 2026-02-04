@@ -11,23 +11,30 @@ Successfully implemented comprehensive pattern engine accuracy testing framework
 ## Files Created
 
 ### 1. Core Evaluation Library
+
 **`lib/evaluation/AccuracyMetrics.ts`** (275 lines)
+
 - `calculateMetrics()`: Precision, recall, F1 score calculation with IoU-based matching
 - `calculateSpeakerAccuracy()`: Speaker attribution accuracy with per-speaker breakdown
 - `optimizeConfidenceThreshold()`: Find optimal confidence threshold for predictions
 - `formatMetrics()` / `formatSpeakerMetrics()`: Formatted output for reporting
 
 **`lib/evaluation/index.ts`** (6 lines)
+
 - Module exports for evaluation library
 
 ### 2. Test Utilities
+
 **`tests/utils/xml-parser.ts`** (135 lines)
+
 - `parseTEIDocument()`: Parse TEI XML and extract dialogue annotations
 - `calculateIoU()`: Intersection over Union calculation for span matching
 - `spansMatch()`: Check if two spans match with configurable IoU threshold
 
 ### 3. Integration Tests
+
 **`tests/integration/pattern-engine-accuracy.test.ts`** (200 lines)
+
 - Tests all 5 manually annotated documents:
   - The Yellow Wallpaper
   - The Gift of the Magi
@@ -39,16 +46,21 @@ Successfully implemented comprehensive pattern engine accuracy testing framework
 - Confidence threshold optimization
 
 ### 4. Unit Tests
+
 **`tests/unit/accuracy-metrics.test.ts`** (240 lines)
+
 - 15 comprehensive unit tests for metrics calculation
 - Test coverage: precision, recall, F1, IoU, speaker accuracy, optimization
 
 **`tests/unit/xml-parser.test.ts`** (150 lines)
+
 - 15 unit tests for XML parsing utilities
 - Test coverage: TEI parsing, IoU calculation, span matching
 
 ### 5. Documentation
+
 **`docs/accuracy-results.md`** (comprehensive report)
+
 - Current test results and metrics
 - Analysis of performance issues
 - Recommendations for improvement
@@ -57,6 +69,7 @@ Successfully implemented comprehensive pattern engine accuracy testing framework
 ## Test Results Summary
 
 ### Current Performance (Regex Fallback)
+
 - **Precision:** 9.8%
 - **Recall:** 15.1%
 - **F1 Score:** 11.9%
@@ -65,6 +78,7 @@ Successfully implemented comprehensive pattern engine accuracy testing framework
 - **False Negatives:** 90
 
 ### Test Execution
+
 ```
 Test Suites: 3 passed, 3 total
 Tests:       39 passed, 39 total
@@ -72,6 +86,7 @@ Time:        0.488s
 ```
 
 All tests passing:
+
 - 9 integration tests
 - 15 metrics unit tests
 - 15 XML parser unit tests
@@ -79,6 +94,7 @@ All tests passing:
 ## Key Findings
 
 ### Issues Identified
+
 1. **Ax Framework Integration**
    - Signature validation error: field name "text" too generic
    - Falls back to regex-only detection
@@ -95,6 +111,7 @@ All tests passing:
    - Patterns don't cover all dialogue formats
 
 ### Strengths
+
 - Test infrastructure is solid and working
 - Metrics calculation is accurate
 - XML parsing handles nested structures
@@ -104,6 +121,7 @@ All tests passing:
 ## Recommendations Implemented
 
 ### ✅ Completed
+
 1. Created comprehensive test infrastructure
 2. Implemented precision/recall/F1 calculation
 3. Added speaker attribution accuracy tracking
@@ -112,6 +130,7 @@ All tests passing:
 6. Created reusable evaluation utilities
 
 ### 🔜 Next Steps (Not in Scope)
+
 1. Fix Ax framework signature validation
 2. Improve regex patterns with context
 3. Implement proper pattern engine in Rust/WASM
@@ -122,24 +141,28 @@ All tests passing:
 ## Technical Implementation Details
 
 ### IoU-Based Matching
+
 - Uses Intersection over Union for span comparison
 - Configurable threshold (default: 0.5)
 - Handles partial overlaps and nested spans
 - Robust to position tracking errors
 
 ### Speaker Attribution
+
 - Per-speaker accuracy breakdown
 - Handles missing speaker predictions
 - Tracks correct/total per speaker
 - Overall accuracy calculation
 
 ### Confidence Optimization
+
 - Tests thresholds from 0.0 to 1.0
 - Configurable step size (default: 0.05)
 - Maximizes F1 score
 - Returns optimal precision/recall
 
 ### XML Parsing
+
 - Handles TEI document structure
 - Extracts <said> elements with positions
 - Tracks speaker attribution (who, rend)
@@ -181,6 +204,7 @@ test: implement pattern engine accuracy testing framework
 Task 17 has been successfully completed. The pattern engine accuracy testing framework is fully implemented, tested, and documented. The current baseline shows 11.9% F1 score with the regex fallback implementation, which provides a solid foundation for future improvements.
 
 The test infrastructure is production-ready and will be invaluable for:
+
 - Validating future pattern engine improvements
 - Comparing different detection approaches
 - Optimizing confidence thresholds

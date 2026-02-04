@@ -25,7 +25,11 @@ export class AIError extends Error {
 
 export class AIRateLimitError extends AIError {
   readonly _tag = 'AIRateLimitError';
-  constructor(message: string, provider: string, public readonly retryAfter?: number) {
+  constructor(
+    message: string,
+    provider: string,
+    public readonly retryAfter?: number
+  ) {
     super(message, provider);
     this.name = 'AIRateLimitError';
   }
@@ -57,9 +61,7 @@ export interface AIService {
    *
    * @returns Effect that produces dialogue spans with confidence scores
    */
-  readonly detectDialogue: (
-    text: string
-  ) => Effect.Effect<readonly DialogueSpan[], AIError>;
+  readonly detectDialogue: (text: string) => Effect.Effect<readonly DialogueSpan[], AIError>;
 
   /**
    * Attribute speaker to dialogue passage
@@ -76,9 +78,7 @@ export interface AIService {
    *
    * Checks for character inconsistencies, timeline contradictions, plot holes
    */
-  readonly validateConsistency: (
-    document: any
-  ) => Effect.Effect<readonly Issue[], AIError>;
+  readonly validateConsistency: (document: any) => Effect.Effect<readonly Issue[], AIError>;
 
   /**
    * Bulk detect dialogue in multiple passages
@@ -87,7 +87,7 @@ export interface AIService {
    */
   readonly bulkDetectDialogue: (
     passages: readonly string[]
-  ) => Effect.Effect<readonly readonly DialogueSpan[], AIError>;
+  ) => Effect.Effect<readonly (readonly DialogueSpan[]), AIError>;
 }
 
 // ============================================================================

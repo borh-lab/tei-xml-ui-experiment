@@ -44,7 +44,9 @@ export async function loadPatternEngine() {
   } catch (error) {
     console.warn('WASM pattern engine not available. Using JavaScript fallback.');
     console.warn('To build WASM, see WASM_BUILD_INSTRUCTIONS.md');
-    console.warn('Quick start: cd pattern-engine && wasm-pack build --target web --out-dir ../public/wasm');
+    console.warn(
+      'Quick start: cd pattern-engine && wasm-pack build --target web --out-dir ../public/wasm'
+    );
 
     // Return a JavaScript implementation for development
     return getJavaScriptFallback();
@@ -59,7 +61,7 @@ async function loadLearnedPatterns(): Promise<Map<string, SpeakerPatternData>> {
   const now = Date.now();
 
   // Return cached patterns if still fresh
-  if (learnedPatternsCache && (now - cacheTimestamp) < CACHE_TTL) {
+  if (learnedPatternsCache && now - cacheTimestamp < CACHE_TTL) {
     return learnedPatternsCache;
   }
 
@@ -79,14 +81,14 @@ async function loadLearnedPatterns(): Promise<Map<string, SpeakerPatternData>> {
             average: 0,
             min: Infinity,
             max: -Infinity,
-            stdDev: 0
+            stdDev: 0,
           },
           positionPatterns: {
             beginning: 0,
             middle: 0,
-            end: 0
+            end: 0,
           },
-          contextualPatterns: new Map()
+          contextualPatterns: new Map(),
         };
         patternsMap.set(pattern.speaker, speakerPattern);
       }
@@ -105,14 +107,14 @@ async function loadLearnedPatterns(): Promise<Map<string, SpeakerPatternData>> {
           average: 0,
           min: Infinity,
           max: -Infinity,
-          stdDev: 0
+          stdDev: 0,
         },
         positionPatterns: {
           beginning: 0,
           middle: 0,
-          end: 0
+          end: 0,
         },
-        contextualPatterns: new Map()
+        contextualPatterns: new Map(),
       };
 
       // Merge speaker-specific data
@@ -228,12 +230,22 @@ export async function updateFromFeedback(
   cacheTimestamp = 0;
 
   // Determine which signature to use
-  if (typeof passageOrDb === 'string' && acceptedSpeakerOrPassage && rejectedSpeakers && currentPatterns) {
+  if (
+    typeof passageOrDb === 'string' &&
+    acceptedSpeakerOrPassage &&
+    rejectedSpeakers &&
+    currentPatterns
+  ) {
     // New signature: update_from_feedback(passage, accepted_speaker, rejected_speakers_json, current_patterns_json)
     try {
       const rejectedJson = JSON.stringify(rejectedSpeakers);
       const currentJson = JSON.stringify(currentPatterns);
-      const resultJson = engine.update_from_feedback(passageOrDb, acceptedSpeakerOrPassage, rejectedJson, currentJson);
+      const resultJson = engine.update_from_feedback(
+        passageOrDb,
+        acceptedSpeakerOrPassage,
+        rejectedJson,
+        currentJson
+      );
       return JSON.parse(resultJson);
     } catch (error) {
       console.error('Error calling new update_from_feedback signature:', error);
@@ -279,7 +291,11 @@ export async function calculateConfidence(
   }
 
   // Determine which signature to use
-  if (patternMatchOrPatterns && typeof patternMatchOrPatterns === 'object' && 'recent' in patternMatchOrPatterns) {
+  if (
+    patternMatchOrPatterns &&
+    typeof patternMatchOrPatterns === 'object' &&
+    'recent' in patternMatchOrPatterns
+  ) {
     // New signature: calculate_confidence(text, speaker, patterns_json)
     try {
       const patternsJson = JSON.stringify(patternMatchOrPatterns);
@@ -320,7 +336,13 @@ export async function storePattern(
     const patternsJson = JSON.stringify(currentPattern);
 
     // Call WASM function
-    const resultJson = engine.store_pattern(speaker, chapter, position, dialogueLength, patternsJson);
+    const resultJson = engine.store_pattern(
+      speaker,
+      chapter,
+      position,
+      dialogueLength,
+      patternsJson
+    );
 
     // Parse result back to object
     return JSON.parse(resultJson);
@@ -383,7 +405,12 @@ export function clearPatternCache() {
  */
 function getJavaScriptFallback() {
   return {
-    detect_speaker: (text: string, chapterOrPatterns: string | any, position?: number, allPatternsJson?: string) => {
+    detect_speaker: (
+      text: string,
+      chapterOrPatterns: string | any,
+      position?: number,
+      allPatternsJson?: string
+    ) => {
       try {
         // New signature
         if (typeof chapterOrPatterns === 'string' && allPatternsJson) {
@@ -439,14 +466,24 @@ function getJavaScriptFallback() {
       }
     },
 
-    update_from_feedback: (passageOrDb: string | any, acceptedSpeakerOrPassage?: string, rejectedJson?: string, currentJson?: string) => {
+    update_from_feedback: (
+      passageOrDb: string | any,
+      acceptedSpeakerOrPassage?: string,
+      rejectedJson?: string,
+      currentJson?: string
+    ) => {
       try {
-        if (typeof passageOrDb === 'string' && acceptedSpeakerOrPassage && rejectedJson && currentJson) {
+        if (
+          typeof passageOrDb === 'string' &&
+          acceptedSpeakerOrPassage &&
+          rejectedJson &&
+          currentJson
+        ) {
           // New signature
           const passage = passageOrDb;
           const acceptedSpeaker = acceptedSpeakerOrPassage;
           const rejected = JSON.parse(rejectedJson);
-          let allPatterns = JSON.parse(currentJson);
+          const allPatterns = JSON.parse(currentJson);
 
           const dialogueLength = passage.split(/\s+/).length;
 
@@ -459,7 +496,7 @@ function getJavaScriptFallback() {
               common_followers: [],
               common_preceders: [],
               chapter_affinity: {},
-              dialogue_length_avg: dialogueLength
+              dialogue_length_avg: dialogueLength,
             };
           }
 
@@ -491,9 +528,15 @@ function getJavaScriptFallback() {
       }
     },
 
-    store_pattern: (speaker: string, chapter: string, position: number, dialogueLength: number, patternsJson: string) => {
+    store_pattern: (
+      speaker: string,
+      chapter: string,
+      position: number,
+      dialogueLength: number,
+      patternsJson: string
+    ) => {
       try {
-        let pattern = JSON.parse(patternsJson);
+        const pattern = JSON.parse(patternsJson);
 
         // Update pattern
         pattern.xml_id = speaker;
@@ -528,7 +571,7 @@ function getJavaScriptFallback() {
       } catch {
         return '{}';
       }
-    }
+    },
   };
 }
 

@@ -5,6 +5,7 @@ This guide explains how to use the entity modeling features in the TEI Dialogue 
 ## Overview
 
 Entity modeling allows you to:
+
 - Manage characters with detailed metadata
 - Define relationships between characters
 - Automatically detect named entities (personal names, places, organizations)
@@ -13,6 +14,7 @@ Entity modeling allows you to:
 ## Accessing the Entity Editor
 
 There are two ways to open the Entity Editor:
+
 1. Click the **Entities** button in the toolbar
 2. Use the keyboard shortcut **⌘E** (Mac) or **Ctrl+E** (Windows/Linux)
 
@@ -50,6 +52,7 @@ Relationships are stored in the TEI document's `<standOff><listRelation>` sectio
 ## Using NER Auto-Detection
 
 The Named Entity Recognition (NER) system automatically detects:
+
 - **Personal Names**: Character names with titles (Mr., Mrs., Miss, Dr., etc.)
 - **Places**: Locations preceded by prepositions (in, at, from, to, near)
 - **Organizations**: (Coming soon)
@@ -150,16 +153,19 @@ The entity modeling features create TEI P5 compliant markup:
 ## Troubleshooting
 
 ### Characters not appearing
+
 - Make sure you've clicked **Save** after adding a character
 - Check that the character ID is unique
 - Try refreshing the document
 
 ### NER not detecting entities
+
 - Make sure your document uses proper capitalization for names
 - Check that names use title prefixes (Mr., Mrs., etc.) for best results
 - Try the manual character creation workflow
 
 ### Relationships not saving
+
 - Verify that both characters exist in the Characters tab
 - Check that you've selected different characters for From and To
 - Make sure you've clicked **Add Relationship** button

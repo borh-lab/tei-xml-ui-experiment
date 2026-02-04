@@ -20,11 +20,13 @@ Phase 1 Foundation Setup has been successfully completed. All Effect dependencie
 **Status:** Complete
 
 **Dependencies Installed:**
+
 - `effect@3.19.15` - Core Effect library
 - `@effect/schema@0.75.5` - Schema validation (merged into main package in v3.x)
 - `@effect/platform` - Platform-specific utilities
 
 **Installation Command:**
+
 ```bash
 npm install effect @effect/schema @effect/platform
 ```
@@ -38,6 +40,7 @@ npm install effect @effect/schema @effect/platform
 **Status:** Complete
 
 **Directory Structure Created:**
+
 ```
 lib/effect/
 ├── __tests__/          # Effect-specific tests
@@ -58,6 +61,7 @@ lib/effect/
 **File Created:** `lib/effect/utils/featureFlags.ts`
 
 **Features:**
+
 - `isFeatureEnabled(flag)` - Check if feature flag is enabled
 - `enableFeature(flag)` - Enable a feature flag (persists to localStorage)
 - `disableFeature(flag)` - Disable a feature flag
@@ -70,28 +74,30 @@ lib/effect/
 - `createDebugUI()` - Create in-browser debug UI for toggling features
 
 **Feature Flags Defined:**
+
 ```typescript
 export const FeatureFlags = {
-  useEffectDocument: false,      // DocumentService vs DocumentContext
-  useEffectStorage: false,       // StorageService vs localStorage
-  useEffectValidation: false,    // ValidationService vs React validation
-  useEffectAI: false,            // AIService vs React AI providers
-  useEffectEditor: false,        // Effect-based EditorLayout
-  useEffectExport: false,        // Effect-based ExportButton
-  useEffectTagToolbar: false,    // Effect-based TagToolbar
-  useEffectRenderedView: false,  // Effect-based RenderedView
+  useEffectDocument: false, // DocumentService vs DocumentContext
+  useEffectStorage: false, // StorageService vs localStorage
+  useEffectValidation: false, // ValidationService vs React validation
+  useEffectAI: false, // AIService vs React AI providers
+  useEffectEditor: false, // Effect-based EditorLayout
+  useEffectExport: false, // Effect-based ExportButton
+  useEffectTagToolbar: false, // Effect-based TagToolbar
+  useEffectRenderedView: false, // Effect-based RenderedView
 } as const;
 ```
 
 **Usage Example:**
+
 ```tsx
 import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 export function DocumentProvider() {
   if (isFeatureEnabled('useEffectDocument')) {
-    return <EffectDocumentProvider />;  // New Effect implementation
+    return <EffectDocumentProvider />; // New Effect implementation
   }
-  return <ReactDocumentProvider />;     // Existing React implementation
+  return <ReactDocumentProvider />; // Existing React implementation
 }
 ```
 
@@ -130,6 +136,7 @@ export function DocumentProvider() {
    - `createTestLayer()` - Create test layer for dependency injection
 
 **Usage Example:**
+
 ```typescript
 import { runEffectTest } from '@/lib/effect/utils/test-helpers';
 
@@ -150,8 +157,9 @@ test('should load document', async () => {
 **Status:** Complete
 
 **Findings:**
+
 - ✅ **Effect installation did NOT introduce any NEW TypeScript errors**
-- ⚠️  **Pre-existing TypeScript errors found** (existed in main branch before Effect installation):
+- ⚠️ **Pre-existing TypeScript errors found** (existed in main branch before Effect installation):
   1. `components/ai/AIAssistant.tsx:92` - Missing type annotation for `c` parameter
   2. `components/ai/AIAssistant.tsx:92` - Missing `Character` import
   3. `components/editor/EditorLayout.tsx:26` - `TagInfo` not exported from SelectionManager
@@ -161,6 +169,7 @@ test('should load document', async () => {
 Fixed pre-existing errors #1-3 in both worktree and main branch (these were blocking builds). Error #4 is more complex and requires understanding SelectionSnapshot API - deferred to avoid scope creep.
 
 **Verification:**
+
 ```bash
 npm list effect @effect/schema @effect/platform
 # ✅ Verified: All Effect packages installed successfully
@@ -170,10 +179,10 @@ npm list effect @effect/schema @effect/platform
 
 ## Files Created
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `lib/effect/utils/featureFlags.ts` | Feature flag system | 280+ |
-| `lib/effect/utils/test-helpers.ts` | Testing utilities & mock services | 450+ |
+| File                               | Purpose                           | Lines |
+| ---------------------------------- | --------------------------------- | ----- |
+| `lib/effect/utils/featureFlags.ts` | Feature flag system               | 280+  |
+| `lib/effect/utils/test-helpers.ts` | Testing utilities & mock services | 450+  |
 
 **Total Lines of Code Added:** ~730 lines
 
@@ -186,6 +195,7 @@ npm list effect @effect/schema @effect/platform
 **Branch:** `feature/effect-migration`
 
 **Commands:**
+
 ```bash
 # Navigate to worktree
 cd /home/bor/Projects/tei-xml/.worktrees/effect-migration
@@ -216,20 +226,20 @@ npm run build
 3. **EditorLayout.tsx** - TagInfo not exported
    - Before: `import { SelectionManager, TagInfo } from '@/lib/selection/SelectionManager';`
    - After: `import { SelectionManager } from '@/lib/selection/SelectionManager';`
-            `import type { TagInfo } from '@/lib/selection/types';`
+     `import type { TagInfo } from '@/lib/selection/types';`
 
 ---
 
 ## Success Criteria - Phase 1
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| Effect dependencies installed | ✅ Complete | `npm list effect` shows effect@3.19.15 |
-| Parallel structure created | ✅ Complete | `lib/effect/` directory with subdirectories |
-| Feature flags working | ✅ Complete | Feature flag system with 8 flags defined |
-| Testing utilities ready | ✅ Complete | Mock services for all 4 core protocols |
-| No NEW breaking changes | ✅ Complete | Verified errors are pre-existing |
-| No visual changes to app | ✅ Complete | No UI code modified (only fixed TS errors) |
+| Criterion                     | Status      | Evidence                                    |
+| ----------------------------- | ----------- | ------------------------------------------- |
+| Effect dependencies installed | ✅ Complete | `npm list effect` shows effect@3.19.15      |
+| Parallel structure created    | ✅ Complete | `lib/effect/` directory with subdirectories |
+| Feature flags working         | ✅ Complete | Feature flag system with 8 flags defined    |
+| Testing utilities ready       | ✅ Complete | Mock services for all 4 core protocols      |
+| No NEW breaking changes       | ✅ Complete | Verified errors are pre-existing            |
+| No visual changes to app      | ✅ Complete | No UI code modified (only fixed TS errors)  |
 
 ---
 
@@ -238,6 +248,7 @@ npm run build
 ### Week 3: Document Protocol
 
 **Tasks:**
+
 1. Create `DocumentService` protocol interface in `lib/effect/protocols/Document.ts`
 2. Implement `DocumentServiceLive` in `lib/effect/services/DocumentService.ts`
 3. Create React bridge component for DocumentContext
@@ -245,6 +256,7 @@ npm run build
 5. Enable `useEffectDocument` feature flag
 
 **Expected Deliverables:**
+
 - Document protocol with event sourcing support
 - Load, addTag, removeTag, undo, redo operations
 - Mock implementation for tests
@@ -257,12 +269,14 @@ npm run build
 If issues arise during Phase 2:
 
 **Instant Rollback:**
+
 ```typescript
 // Disable Effect features via localStorage
 localStorage.setItem('feature-useEffectDocument', 'false');
 ```
 
 **Branch Rollback:**
+
 ```bash
 # Switch back to main branch
 cd /home/bor/Projects/tei-xml

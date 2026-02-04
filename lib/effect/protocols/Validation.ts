@@ -25,7 +25,10 @@ export class ValidationError extends Error {
 
 export class SchemaLoadError extends ValidationError {
   readonly _tag = 'SchemaLoadError';
-  constructor(message: string, public readonly schemaPath: string) {
+  constructor(
+    message: string,
+    public readonly schemaPath: string
+  ) {
     super(message);
     this.name = 'SchemaLoadError';
   }
@@ -106,9 +109,7 @@ export interface ValidationService {
   /**
    * Preload schema for faster subsequent validations
    */
-  readonly preloadSchema: (
-    schemaPath: string
-  ) => Effect.Effect<void, SchemaLoadError>;
+  readonly preloadSchema: (schemaPath: string) => Effect.Effect<void, SchemaLoadError>;
 
   /**
    * Get allowed tags for current XML context
@@ -129,9 +130,7 @@ export interface ValidationService {
   /**
    * Clear schema cache
    */
-  readonly clearCache: (
-    schemaPath?: string
-  ) => Effect.Effect<void, never>;
+  readonly clearCache: (schemaPath?: string) => Effect.Effect<void, never>;
 }
 
 // ============================================================================

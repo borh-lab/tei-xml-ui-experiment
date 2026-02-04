@@ -95,10 +95,7 @@ describe('SampleGallery', () => {
     const mockLoadSample = jest.fn().mockRejectedValue(new Error('Network error'));
 
     const { getAllByText, queryByText } = render(
-      <SampleGallery
-        onSelect={jest.fn()}
-        onLoadSample={mockLoadSample}
-      />
+      <SampleGallery onSelect={jest.fn()} onLoadSample={mockLoadSample} />
     );
 
     const buttons = getAllByText('Load Sample');

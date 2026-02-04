@@ -1,7 +1,7 @@
 import {
   createSchemaSelection,
   transitionSchemaSelection,
-  SchemaSelectionManager
+  SchemaSelectionManager,
 } from '@/lib/schema/SchemaSelection';
 import { FileSchemaResolver } from '@/lib/schema/FileSchemaResolver';
 import { SchemaInfo } from '@/lib/schema/SchemaResolver';
@@ -17,17 +17,17 @@ const localStorageMock = (() => {
     },
     clear: () => {
       store = {};
-    }
+    },
   };
 })();
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 });
 
 const mockStorage = {
   getItem: jest.spyOn(localStorageMock, 'getItem'),
-  setItem: jest.spyOn(localStorageMock, 'setItem')
+  setItem: jest.spyOn(localStorageMock, 'setItem'),
 };
 
 describe('createSchemaSelection', () => {
@@ -43,7 +43,7 @@ describe('transitionSchemaSelection', () => {
   it('should create new history state', () => {
     const history = {
       current: createSchemaSelection('tei-minimal'),
-      previous: []
+      previous: [],
     };
 
     const newHistory = transitionSchemaSelection(history, 'tei-all');
@@ -55,7 +55,7 @@ describe('transitionSchemaSelection', () => {
   it('should keep last 10 previous selections', () => {
     let history = {
       current: createSchemaSelection('tei-minimal'),
-      previous: []
+      previous: [],
     };
 
     // Add 15 selections
@@ -78,8 +78,8 @@ describe('SchemaSelectionManager', () => {
         name: 'TEI Minimal',
         description: 'Test',
         path: '/schemas/tei-minimal.rng',
-        tags: []
-      }
+        tags: [],
+      },
     };
 
     resolver = new FileSchemaResolver(mockSchemas, new Set(['tei-minimal']));
@@ -99,7 +99,7 @@ describe('SchemaSelectionManager', () => {
   it('should load stored selection if valid', () => {
     const stored = JSON.stringify({
       schemaId: 'tei-minimal',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
     mockStorage.getItem.mockReturnValue(stored);
 
@@ -111,7 +111,7 @@ describe('SchemaSelectionManager', () => {
   it('should return default if stored schema no longer exists', () => {
     const stored = JSON.stringify({
       schemaId: 'deleted-schema',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
     mockStorage.getItem.mockReturnValue(stored);
 

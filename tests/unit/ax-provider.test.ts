@@ -3,11 +3,11 @@
 // Mock the Ax framework to avoid TransformStream polyfill issues
 jest.mock('@ax-llm/ax', () => ({
   ax: jest.fn(),
-  ai: jest.fn(() => ({ name: 'mocked-ai' }))
+  ai: jest.fn(() => ({ name: 'mocked-ai' })),
 }));
 
 jest.mock('@ax-llm/ax-ai-sdk-provider', () => ({
-  createOpenAI: jest.fn()
+  createOpenAI: jest.fn(),
 }));
 
 import { AxProvider } from '@/lib/ai/ax-provider';

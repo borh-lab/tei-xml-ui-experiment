@@ -72,9 +72,7 @@ const DEFAULT_PATTERNS: readonly SpeakerPattern[] = [
  * @param patterns - Optional custom patterns to add
  * @returns New pattern database
  */
-export function createPatternDatabase(
-  patterns: readonly SpeakerPattern[] = []
-): PatternDatabase {
+export function createPatternDatabase(patterns: readonly SpeakerPattern[] = []): PatternDatabase {
   return {
     patterns: [...DEFAULT_PATTERNS, ...patterns],
     lastUpdated: new Date(),
@@ -88,10 +86,7 @@ export function createPatternDatabase(
  * @param pattern - Pattern to add
  * @returns New pattern database with added pattern
  */
-export function addPattern(
-  db: PatternDatabase,
-  pattern: SpeakerPattern
-): PatternDatabase {
+export function addPattern(db: PatternDatabase, pattern: SpeakerPattern): PatternDatabase {
   // Check for duplicate ID
   if (db.patterns.some((p) => p.id === pattern.id)) {
     throw new Error(`Pattern with id "${pattern.id}" already exists`);
@@ -122,9 +117,7 @@ export function updatePattern(
   }
 
   return {
-    patterns: db.patterns.map((p) =>
-      p.id === patternId ? { ...p, ...updates } : p
-    ),
+    patterns: db.patterns.map((p) => (p.id === patternId ? { ...p, ...updates } : p)),
     lastUpdated: new Date(),
   };
 }
@@ -136,10 +129,7 @@ export function updatePattern(
  * @param patternId - ID of pattern to remove
  * @returns New pattern database without the pattern
  */
-export function removePattern(
-  db: PatternDatabase,
-  patternId: string
-): PatternDatabase {
+export function removePattern(db: PatternDatabase, patternId: string): PatternDatabase {
   return {
     patterns: db.patterns.filter((p) => p.id !== patternId),
     lastUpdated: new Date(),
@@ -153,10 +143,7 @@ export function removePattern(
  * @param patternId - Pattern ID
  * @returns Pattern or null if not found
  */
-export function getPattern(
-  db: PatternDatabase,
-  patternId: string
-): SpeakerPattern | null {
+export function getPattern(db: PatternDatabase, patternId: string): SpeakerPattern | null {
   return db.patterns.find((p) => p.id === patternId) || null;
 }
 
@@ -168,9 +155,10 @@ export function getPattern(
  * @param pattern - Pattern to validate
  * @returns Object with valid flag and errors array
  */
-export function validatePattern(
-  pattern: SpeakerPattern
-): { valid: boolean; errors: readonly string[] } {
+export function validatePattern(pattern: SpeakerPattern): {
+  valid: boolean;
+  errors: readonly string[];
+} {
   const errors: string[] = [];
 
   if (!pattern.id || pattern.id.trim().length === 0) {

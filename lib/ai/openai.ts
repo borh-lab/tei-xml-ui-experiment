@@ -25,7 +25,7 @@ export class OpenAIProvider implements AIProvider {
     if (!this.client) {
       this.client = new OpenAI({
         apiKey: this.apiKey,
-        dangerouslyAllowBrowser: true
+        dangerouslyAllowBrowser: true,
       });
     }
     return this.client;
@@ -49,7 +49,7 @@ export class OpenAIProvider implements AIProvider {
         start: match.index,
         end: match.index + match[0].length,
         text: match[1],
-        confidence: 0.8
+        confidence: 0.8,
       });
     }
 

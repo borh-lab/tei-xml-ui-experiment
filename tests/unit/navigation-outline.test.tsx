@@ -10,7 +10,7 @@ jest.mock('@/lib/tei', () => ({
 describe('DialogueOutline', () => {
   const mockDocument = {
     getDialogue: jest.fn(),
-    getDivisions: jest.fn()
+    getDivisions: jest.fn(),
   } as unknown as TEIDocument;
 
   beforeEach(() => {
@@ -22,13 +22,13 @@ describe('DialogueOutline', () => {
       {
         who: 'speaker1',
         content: 'Hello world',
-        element: { '@_n': '1' }
+        element: { '@_n': '1' },
       },
       {
         who: 'speaker2',
         content: 'Goodbye world',
-        element: { '@_n': '1' }
-      }
+        element: { '@_n': '1' },
+      },
     ];
 
     (mockDocument.getDialogue as jest.Mock).mockReturnValue(mockDialogue);
@@ -46,7 +46,7 @@ describe('DialogueOutline', () => {
   test('should render document structure divisions', () => {
     const mockDivisions = [
       { type: 'chapter', n: '1', depth: 0, element: {} },
-      { type: 'section', n: '2', depth: 1, element: {} }
+      { type: 'section', n: '2', depth: 1, element: {} },
     ];
 
     (mockDocument.getDialogue as jest.Mock).mockReturnValue([]);
@@ -64,8 +64,8 @@ describe('DialogueOutline', () => {
       {
         who: 'speaker1',
         content: 'Test passage',
-        element: { '@_n': '1' }
-      }
+        element: { '@_n': '1' },
+      },
     ];
 
     (mockDocument.getDialogue as jest.Mock).mockReturnValue(mockDialogue);
@@ -85,13 +85,13 @@ describe('DialogueOutline', () => {
       {
         who: 'speaker1',
         content: 'Current passage',
-        element: { '@_n': '1' }
+        element: { '@_n': '1' },
       },
       {
         who: 'speaker2',
         content: 'Other passage',
-        element: { '@_n': '1' }
-      }
+        element: { '@_n': '1' },
+      },
     ];
 
     (mockDocument.getDialogue as jest.Mock).mockReturnValue(mockDialogue);
@@ -118,8 +118,8 @@ describe('DialogueOutline', () => {
       {
         who: 'speaker1',
         content: 'Test passage',
-        element: { '@_n': '1' }
-      }
+        element: { '@_n': '1' },
+      },
     ];
 
     (mockDocument.getDialogue as jest.Mock).mockReturnValue(mockDialogue);
@@ -146,19 +146,18 @@ describe('DialogueOutline', () => {
 
     render(<DialogueOutline document={mockDocument} onPassageClick={() => {}} />);
 
-    expect(
-      screen.getByText('No dialogue passages found in document')
-    ).toBeInTheDocument();
+    expect(screen.getByText('No dialogue passages found in document')).toBeInTheDocument();
   });
 
   test('should truncate long passage content', () => {
-    const longContent = 'This is a very long passage that should be truncated in the outline view to keep things clean and readable';
+    const longContent =
+      'This is a very long passage that should be truncated in the outline view to keep things clean and readable';
     const mockDialogue = [
       {
         who: 'speaker1',
         content: longContent,
-        element: { '@_n': '1' }
-      }
+        element: { '@_n': '1' },
+      },
     ];
 
     (mockDocument.getDialogue as jest.Mock).mockReturnValue(mockDialogue);

@@ -31,7 +31,7 @@ test.describe.skip('Error Analytics', () => {
 
     // Ensure we're in editor mode with FileUpload component visible
     // If no document is loaded, load a sample first
-    const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+    const hasDocument = (await page.locator('[id^="passage-"]').count()) > 0;
     if (!hasDocument) {
       await page.getByText('The Gift of the Magi', { exact: false }).click();
       await page.getByRole('button', { name: 'Load Sample' }).click();
@@ -49,19 +49,21 @@ test.describe.skip('Error Analytics', () => {
 
     // Trigger multiple file size errors by uploading large files
     // Generate a file larger than 5MB to trigger file size error
-    const largeXML1 = '<?xml version="1.0"?><TEI>' + '<p>Large content</p>'.repeat(150000) + '</TEI>';
+    const largeXML1 =
+      '<?xml version="1.0"?><TEI>' + '<p>Large content</p>'.repeat(150000) + '</TEI>';
     await uploadTestDocument(page, {
       name: 'large1.xml',
-      content: largeXML1
+      content: largeXML1,
     });
     // Wait for error to be processed and toast to appear
     await expect(page.getByText(/File size.*exceeds|error/i)).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
 
-    const largeXML2 = '<?xml version="1.0"?><TEI>' + '<p>More large content</p>'.repeat(160000) + '</TEI>';
+    const largeXML2 =
+      '<?xml version="1.0"?><TEI>' + '<p>More large content</p>'.repeat(160000) + '</TEI>';
     await uploadTestDocument(page, {
       name: 'large2.xml',
-      content: largeXML2
+      content: largeXML2,
     });
     // Wait for error to be processed
     await page.waitForTimeout(500);
@@ -96,12 +98,14 @@ test.describe.skip('Error Analytics', () => {
       const invalidXML = `<?xml version="1.0"?><error id="${i}">`;
       await uploadTestDocument(page, {
         name: `error-${i}.xml`,
-        content: invalidXML
+        content: invalidXML,
       });
       // Wait for error to be processed
       if (i === 0) {
         // Wait for first error toast to appear
-        await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible({
+          timeout: 5000,
+        });
       }
       await page.waitForTimeout(500);
     }
@@ -138,14 +142,14 @@ test.describe.skip('Error Analytics', () => {
     // Trigger parse errors
     await uploadTestDocument(page, {
       name: 'parse-error.xml',
-      content: '<?xml version="1.0"?><invalid>'
+      content: '<?xml version="1.0"?><invalid>',
     });
     // Wait for error to be processed and toast to appear
     await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
 
     // Trigger another type of error by trying to load non-existent sample
-    await page.route('**/samples/nonexistent.xml', route => {
+    await page.route('**/samples/nonexistent.xml', (route) => {
       route.abort('failed');
     });
 
@@ -184,11 +188,13 @@ test.describe.skip('Error Analytics', () => {
       const invalidXML = `<?xml version="1.0"?><test error="${i}">`;
       await uploadTestDocument(page, {
         name: `bulk-error-${i}.xml`,
-        content: invalidXML
+        content: invalidXML,
       });
       // Wait for error to be processed
       if (i === 0) {
-        await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible({
+          timeout: 5000,
+        });
       }
       await page.waitForTimeout(500);
     }
@@ -223,11 +229,13 @@ test.describe.skip('Error Analytics', () => {
       const invalidXML = `<?xml version="1.0"?><error id="${i}">`;
       await uploadTestDocument(page, {
         name: `recent-error-${i}.xml`,
-        content: invalidXML
+        content: invalidXML,
       });
       // Wait for error to be processed
       if (i === 0) {
-        await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText(/failed to upload|invalid|error/i)).toBeVisible({
+          timeout: 5000,
+        });
       }
       await page.waitForTimeout(500);
     }

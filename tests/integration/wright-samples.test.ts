@@ -13,14 +13,14 @@ describe('Wright American Fiction Integration', () => {
       let files: string[] = [];
 
       if (existsSync(samplesDir)) {
-        files = readdirSync(samplesDir).filter(f => f.endsWith('.xml'));
+        files = readdirSync(samplesDir).filter((f) => f.endsWith('.xml'));
       }
 
       // Fall back to fixtures root if Wright directory doesn't exist or has no XML files
       if (files.length === 0) {
         samplesDir = fixturesDir;
         const allFiles = readdirSync(samplesDir);
-        files = allFiles.filter(f => f.endsWith('.xml') || f.endsWith('.tei'));
+        files = allFiles.filter((f) => f.endsWith('.xml') || f.endsWith('.tei'));
       }
 
       if (files.length === 0) {
@@ -39,13 +39,12 @@ describe('Wright American Fiction Integration', () => {
 
         // Verify basic structure - parsed document should have TEI root
         expect(doc.parsed.TEI).toBeDefined();
-
       }).not.toThrow();
     });
 
     test('should extract dialogue from sample TEI file', () => {
       const samplesDir = existsSync(wrightDir) ? wrightDir : join(__dirname, '../fixtures');
-      const files = readdirSync(samplesDir).filter(f => f.endsWith('.xml') || f.endsWith('.tei'));
+      const files = readdirSync(samplesDir).filter((f) => f.endsWith('.xml') || f.endsWith('.tei'));
 
       if (files.length === 0) {
         console.log('No sample TEI files found - skipping dialogue extraction test');
@@ -71,7 +70,7 @@ describe('Wright American Fiction Integration', () => {
 
     test('should handle TEI header information', () => {
       const samplesDir = existsSync(wrightDir) ? wrightDir : join(__dirname, '../fixtures');
-      const files = readdirSync(samplesDir).filter(f => f.endsWith('.xml') || f.endsWith('.tei'));
+      const files = readdirSync(samplesDir).filter((f) => f.endsWith('.xml') || f.endsWith('.tei'));
 
       if (files.length === 0) {
         console.log('No sample TEI files found - skipping header test');

@@ -112,10 +112,7 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
       }));
 
       // Apply decorations
-      decorationRefs.current = monacoEditor.deltaDecorations(
-        oldDecorations,
-        newDecorations
-      );
+      decorationRefs.current = monacoEditor.deltaDecorations(oldDecorations, newDecorations);
     });
   }, [errors]);
 

@@ -32,46 +32,30 @@ describe('Logger Utility', () => {
     test('should log info messages', () => {
       logger.info('Test info message');
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[INFO ]')
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Test info message')
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[INFO ]'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Test info message'));
     });
 
     test('should log warning messages', () => {
       logger.warn('Test warning message');
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[WARN ]')
-      );
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Test warning message')
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('[WARN ]'));
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Test warning message'));
     });
 
     test('should log error messages', () => {
       logger.error('Test error message');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[ERROR]')
-      );
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Test error message')
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('[ERROR]'));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Test error message'));
     });
 
     test('should log debug messages', () => {
       setLogLevel('debug');
       logger.debug('Test debug message');
 
-      expect(consoleDebugSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DEBUG]')
-      );
-      expect(consoleDebugSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Test debug message')
-      );
+      expect(consoleDebugSpy).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
+      expect(consoleDebugSpy).toHaveBeenCalledWith(expect.stringContaining('Test debug message'));
     });
   });
 
@@ -150,7 +134,7 @@ describe('Logger Utility', () => {
       expect(callArgs[0]).toContain('Test message');
       expect(callArgs[1]).toEqual({
         userId: '123',
-        action: 'login'
+        action: 'login',
       });
     });
 
@@ -169,7 +153,7 @@ describe('Logger Utility', () => {
       logger.info('Processing dialogue', {
         passageCount: 10,
         confidence: 0.85,
-        speakers: ['jane', 'rochester']
+        speakers: ['jane', 'rochester'],
       });
 
       const callArgs = consoleSpy.mock.calls[0];
@@ -178,7 +162,7 @@ describe('Logger Utility', () => {
       expect(callArgs[1]).toEqual({
         passageCount: 10,
         confidence: 0.85,
-        speakers: ['jane', 'rochester']
+        speakers: ['jane', 'rochester'],
       });
     });
   });
@@ -194,7 +178,7 @@ describe('Logger Utility', () => {
       expect(callArgs[0]).toContain('Processing text');
       expect(callArgs[1]).toEqual({
         module: 'AIProvider',
-        provider: 'openai'
+        provider: 'openai',
       });
     });
 
@@ -209,7 +193,7 @@ describe('Logger Utility', () => {
       expect(callArgs[0]).toContain('Starting detection');
       expect(callArgs[1]).toEqual({
         module: 'AIProvider',
-        action: 'detectDialogue'
+        action: 'detectDialogue',
       });
     });
 

@@ -26,7 +26,7 @@ test.describe('Large File Handling', () => {
     const largeContent = generateLargeTEIDocument({
       speakers: ['speaker1', 'speaker2', 'speaker3'],
       passages: 750,
-      wordsPerPassage: 30
+      wordsPerPassage: 30,
     });
 
     const fileSizeKB = largeContent.length / 1024;
@@ -35,7 +35,7 @@ test.describe('Large File Handling', () => {
     // Upload the large file
     await uploadTestDocument(page, {
       name: 'large-150kb.tei.xml',
-      content: largeContent
+      content: largeContent,
     });
 
     // Wait for processing
@@ -43,7 +43,7 @@ test.describe('Large File Handling', () => {
 
     // Verify warning toast appears
     await expect(page.getByText(/large file detected/i)).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify warning mentions file size
@@ -54,12 +54,12 @@ test.describe('Large File Handling', () => {
 
     // Despite warning, file should still process successfully
     await expect(page.getByText(/document uploaded successfully/i)).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify editor loads with the large document
     await expect(page.getByText('Rendered View')).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify document content is actually loaded
@@ -73,7 +73,7 @@ test.describe('Large File Handling', () => {
     const hugeContent = generateLargeTEIDocument({
       speakers: ['speaker1', 'speaker2', 'speaker3', 'speaker4', 'speaker5'],
       passages: 20000,
-      wordsPerPassage: 35
+      wordsPerPassage: 35,
     });
 
     const fileSizeMB = hugeContent.length / (1024 * 1024);
@@ -82,7 +82,7 @@ test.describe('Large File Handling', () => {
     // Upload the oversized file
     await uploadTestDocument(page, {
       name: 'huge-6mb.tei.xml',
-      content: hugeContent
+      content: hugeContent,
     });
 
     // Wait for processing
@@ -90,7 +90,7 @@ test.describe('Large File Handling', () => {
 
     // Verify error toast appears
     await expect(page.getByText(/file size.*exceeds.*5mb limit/i)).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify error mentions the actual file size
@@ -101,7 +101,7 @@ test.describe('Large File Handling', () => {
 
     // Verify success toast does NOT appear
     await expect(page.getByText(/document uploaded successfully/i)).not.toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify editor does NOT load
@@ -116,7 +116,7 @@ test.describe('Large File Handling', () => {
     const smallContent = generateLargeTEIDocument({
       speakers: ['speaker1', 'speaker2'],
       passages: 10,
-      wordsPerPassage: 20
+      wordsPerPassage: 20,
     });
 
     const fileSizeKB = smallContent.length / 1024;
@@ -125,7 +125,7 @@ test.describe('Large File Handling', () => {
     // Upload the small file
     await uploadTestDocument(page, {
       name: 'small-10kb.tei.xml',
-      content: smallContent
+      content: smallContent,
     });
 
     // Wait for processing
@@ -136,12 +136,12 @@ test.describe('Large File Handling', () => {
 
     // Verify success toast appears
     await expect(page.getByText(/document uploaded successfully/i)).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify editor loads normally
     await expect(page.getByText('Rendered View')).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
   });
 
@@ -151,7 +151,7 @@ test.describe('Large File Handling', () => {
     const boundaryContent = generateLargeTEIDocument({
       speakers: ['speaker1', 'speaker2', 'speaker3', 'speaker4', 'speaker5'],
       passages: 24000, // More passages to ensure we're over 5MB
-      wordsPerPassage: 35
+      wordsPerPassage: 35,
     });
 
     const fileSizeMB = boundaryContent.length / (1024 * 1024);
@@ -163,7 +163,7 @@ test.describe('Large File Handling', () => {
     // Upload the oversized file
     await uploadTestDocument(page, {
       name: 'oversized-5.5mb.tei.xml',
-      content: boundaryContent
+      content: boundaryContent,
     });
 
     // Wait for processing
@@ -171,7 +171,7 @@ test.describe('Large File Handling', () => {
 
     // Should be rejected
     await expect(page.getByText(/file size.*exceeds.*5mb limit/i)).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
   });
 });
@@ -188,11 +188,38 @@ function generateLargeTEIDocument(options: {
 
   // Sample words for generating content
   const sampleWords = [
-    'the', 'quick', 'brown', 'fox', 'jumps', 'over', 'lazy', 'dog',
-    'hello', 'world', 'test', 'document', 'dialogue', 'speaker',
-    'said', 'replied', 'asked', 'answered', 'questioned', 'responded',
-    'conversation', 'discussion', 'talk', 'chat', 'speaking', 'listening',
-    'morning', 'afternoon', 'evening', 'night', 'day', 'time'
+    'the',
+    'quick',
+    'brown',
+    'fox',
+    'jumps',
+    'over',
+    'lazy',
+    'dog',
+    'hello',
+    'world',
+    'test',
+    'document',
+    'dialogue',
+    'speaker',
+    'said',
+    'replied',
+    'asked',
+    'answered',
+    'questioned',
+    'responded',
+    'conversation',
+    'discussion',
+    'talk',
+    'chat',
+    'speaking',
+    'listening',
+    'morning',
+    'afternoon',
+    'evening',
+    'night',
+    'day',
+    'time',
   ];
 
   let passageContent = '';

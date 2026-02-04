@@ -9,30 +9,26 @@ describe('InlineSuggestions', () => {
       start: 0,
       end: 20,
       text: 'Hello, how are you?',
-      confidence: 0.85
+      confidence: 0.85,
     },
     {
       start: 25,
       end: 40,
       text: 'I am doing well',
-      confidence: 0.65
+      confidence: 0.65,
     },
     {
       start: 45,
       end: 55,
       text: 'That is good',
-      confidence: 0.45
-    }
+      confidence: 0.45,
+    },
   ];
 
   describe('rendering', () => {
     test('should render empty state when no suggestions', () => {
       const { container } = render(
-        <InlineSuggestions
-          suggestions={[]}
-          onAccept={jest.fn()}
-          onReject={jest.fn()}
-        />
+        <InlineSuggestions suggestions={[]} onAccept={jest.fn()} onReject={jest.fn()} />
       );
 
       expect(container.firstChild).toBeNull();
@@ -126,11 +122,7 @@ describe('InlineSuggestions', () => {
       const onAccept = jest.fn();
 
       render(
-        <InlineSuggestions
-          suggestions={mockSuggestions}
-          onAccept={onAccept}
-          onReject={jest.fn()}
-        />
+        <InlineSuggestions suggestions={mockSuggestions} onAccept={onAccept} onReject={jest.fn()} />
       );
 
       const acceptButtons = screen.getAllByTitle(/Accept/);
@@ -145,11 +137,7 @@ describe('InlineSuggestions', () => {
       const onReject = jest.fn();
 
       render(
-        <InlineSuggestions
-          suggestions={mockSuggestions}
-          onReject={onReject}
-          onAccept={jest.fn()}
-        />
+        <InlineSuggestions suggestions={mockSuggestions} onReject={onReject} onAccept={jest.fn()} />
       );
 
       const rejectButtons = screen.getAllByTitle(/Reject/);
@@ -165,11 +153,7 @@ describe('InlineSuggestions', () => {
       const onReject = jest.fn();
 
       render(
-        <InlineSuggestions
-          suggestions={mockSuggestions}
-          onAccept={onAccept}
-          onReject={onReject}
-        />
+        <InlineSuggestions suggestions={mockSuggestions} onAccept={onAccept} onReject={onReject} />
       );
 
       const acceptButtons = screen.getAllByTitle(/Accept/);
@@ -221,11 +205,11 @@ describe('InlineSuggestions', () => {
       const acceptButtons = screen.getAllByTitle(/Accept/);
       const rejectButtons = screen.getAllByTitle(/Reject/);
 
-      acceptButtons.forEach(button => {
+      acceptButtons.forEach((button) => {
         expect(button).toHaveAttribute('aria-label');
       });
 
-      rejectButtons.forEach(button => {
+      rejectButtons.forEach((button) => {
         expect(button).toHaveAttribute('aria-label');
       });
     });
@@ -242,11 +226,11 @@ describe('InlineSuggestions', () => {
       const acceptButtons = screen.getAllByTitle(/Accept/);
       const rejectButtons = screen.getAllByTitle(/Reject/);
 
-      acceptButtons.forEach(button => {
+      acceptButtons.forEach((button) => {
         expect(button).toHaveAttribute('title', expect.stringContaining('(A)'));
       });
 
-      rejectButtons.forEach(button => {
+      rejectButtons.forEach((button) => {
         expect(button).toHaveAttribute('title', expect.stringContaining('(X)'));
       });
     });
@@ -260,25 +244,17 @@ describe('Performance Optimization', () => {
         start: 0,
         end: 20,
         text: 'Hello, how are you?',
-        confidence: 0.85
-      }
+        confidence: 0.85,
+      },
     ];
 
     const { rerender } = render(
-      <InlineSuggestions
-        suggestions={mockSuggestions}
-        onAccept={jest.fn()}
-        onReject={jest.fn()}
-      />
+      <InlineSuggestions suggestions={mockSuggestions} onAccept={jest.fn()} onReject={jest.fn()} />
     );
 
     // Re-render with same props - should not cause issues
     rerender(
-      <InlineSuggestions
-        suggestions={mockSuggestions}
-        onAccept={jest.fn()}
-        onReject={jest.fn()}
-      />
+      <InlineSuggestions suggestions={mockSuggestions} onAccept={jest.fn()} onReject={jest.fn()} />
     );
 
     // Component should still render correctly
@@ -291,8 +267,8 @@ describe('Performance Optimization', () => {
         start: 0,
         end: 20,
         text: 'First suggestion',
-        confidence: 0.85
-      }
+        confidence: 0.85,
+      },
     ];
 
     const mockSuggestions2: DialogueSpan[] = [
@@ -300,26 +276,18 @@ describe('Performance Optimization', () => {
         start: 0,
         end: 20,
         text: 'Second suggestion',
-        confidence: 0.85
-      }
+        confidence: 0.85,
+      },
     ];
 
     const { rerender } = render(
-      <InlineSuggestions
-        suggestions={mockSuggestions1}
-        onAccept={jest.fn()}
-        onReject={jest.fn()}
-      />
+      <InlineSuggestions suggestions={mockSuggestions1} onAccept={jest.fn()} onReject={jest.fn()} />
     );
 
     expect(screen.getByText('"First suggestion"')).toBeInTheDocument();
 
     rerender(
-      <InlineSuggestions
-        suggestions={mockSuggestions2}
-        onAccept={jest.fn()}
-        onReject={jest.fn()}
-      />
+      <InlineSuggestions suggestions={mockSuggestions2} onAccept={jest.fn()} onReject={jest.fn()} />
     );
 
     // Should update with new suggestion
@@ -333,16 +301,12 @@ describe('InlineSuggestionItem', () => {
     start: 0,
     end: 20,
     text: 'Hello, world!',
-    confidence: 0.9
+    confidence: 0.9,
   };
 
   test('should render suggestion item with full text by default', () => {
     render(
-      <InlineSuggestionItem
-        suggestion={mockSuggestion}
-        onAccept={jest.fn()}
-        onReject={jest.fn()}
-      />
+      <InlineSuggestionItem suggestion={mockSuggestion} onAccept={jest.fn()} onReject={jest.fn()} />
     );
 
     expect(screen.getByText('"Hello, world!"')).toBeInTheDocument();
@@ -368,11 +332,7 @@ describe('InlineSuggestionItem', () => {
     const onAccept = jest.fn();
 
     render(
-      <InlineSuggestionItem
-        suggestion={mockSuggestion}
-        onAccept={onAccept}
-        onReject={jest.fn()}
-      />
+      <InlineSuggestionItem suggestion={mockSuggestion} onAccept={onAccept} onReject={jest.fn()} />
     );
 
     const acceptButton = screen.getByTitle('Accept (A)');
@@ -386,11 +346,7 @@ describe('InlineSuggestionItem', () => {
     const onReject = jest.fn();
 
     render(
-      <InlineSuggestionItem
-        suggestion={mockSuggestion}
-        onAccept={jest.fn()}
-        onReject={onReject}
-      />
+      <InlineSuggestionItem suggestion={mockSuggestion} onAccept={jest.fn()} onReject={onReject} />
     );
 
     const rejectButton = screen.getByTitle('Reject (X)');
@@ -402,7 +358,7 @@ describe('InlineSuggestionItem', () => {
   test('should display high confidence with green color', () => {
     const highConfidenceSuggestion: DialogueSpan = {
       ...mockSuggestion,
-      confidence: 0.85
+      confidence: 0.85,
     };
 
     const { container } = render(
@@ -420,7 +376,7 @@ describe('InlineSuggestionItem', () => {
   test('should display medium confidence with yellow color', () => {
     const mediumConfidenceSuggestion: DialogueSpan = {
       ...mockSuggestion,
-      confidence: 0.65
+      confidence: 0.65,
     };
 
     render(
@@ -438,7 +394,7 @@ describe('InlineSuggestionItem', () => {
   test('should display low confidence with red color', () => {
     const lowConfidenceSuggestion: DialogueSpan = {
       ...mockSuggestion,
-      confidence: 0.45
+      confidence: 0.45,
     };
 
     render(

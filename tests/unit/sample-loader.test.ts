@@ -3,7 +3,7 @@ import {
   loadSampleWithMetadata,
   getSamples,
   getSampleMetadata,
-  sampleExists
+  sampleExists,
 } from '@/lib/samples/sampleLoader';
 import { TEIDocument } from '@/lib/tei';
 
@@ -28,7 +28,7 @@ describe('Sample Loader', () => {
 
       (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
-        text: async () => mockContent
+        text: async () => mockContent,
       } as Response);
 
       const content = await loadSample('yellow-wallpaper');
@@ -41,7 +41,7 @@ describe('Sample Loader', () => {
     it('should throw error for failed fetch', async () => {
       (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: false,
-        status: 404
+        status: 404,
       } as Response);
 
       await expect(loadSample('invalid-sample')).rejects.toThrow('Failed to load sample');
@@ -50,7 +50,7 @@ describe('Sample Loader', () => {
     it('should throw error for invalid TEI document', async () => {
       (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
-        text: async () => 'Invalid content'
+        text: async () => 'Invalid content',
       } as Response);
 
       await expect(loadSample('invalid-tei')).rejects.toThrow('Invalid TEI document');
@@ -78,7 +78,7 @@ describe('Sample Loader', () => {
 
       (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: true,
-        text: async () => mockContent
+        text: async () => mockContent,
       } as Response);
 
       const sample = await loadSampleWithMetadata('yellow-wallpaper');
@@ -103,7 +103,7 @@ describe('Sample Loader', () => {
     it('should include all required metadata fields', () => {
       const samples = getSamples();
 
-      samples.forEach(sample => {
+      samples.forEach((sample) => {
         expect(sample).toHaveProperty('id');
         expect(sample).toHaveProperty('title');
         expect(sample).toHaveProperty('author');
@@ -120,7 +120,7 @@ describe('Sample Loader', () => {
       const samples = getSamples();
       const validDifficulties = ['beginner', 'intermediate', 'advanced'];
 
-      samples.forEach(sample => {
+      samples.forEach((sample) => {
         expect(validDifficulties).toContain(sample.difficulty);
       });
     });

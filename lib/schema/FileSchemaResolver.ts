@@ -3,11 +3,7 @@ import { SchemaResolver, SchemaInfo } from './SchemaResolver';
 /**
  * Explicit constraint: Only these schema IDs are allowed
  */
-const ALLOWED_SCHEMA_IDS = new Set([
-  'tei-minimal',
-  'tei-all',
-  'tei-novel'
-]) as ReadonlySet<string>;
+const ALLOWED_SCHEMA_IDS = new Set(['tei-minimal', 'tei-all', 'tei-novel']) as ReadonlySet<string>;
 
 /**
  * Schema registry: Metadata for known schemas
@@ -19,22 +15,22 @@ const SCHEMA_REGISTRY: Readonly<Record<string, SchemaInfo>> = {
     name: 'TEI Minimal (Dialogue)',
     description: 'Core TEI elements for dialogue annotation: sp, speaker, stage',
     path: 'public/schemas/tei-minimal.rng',
-    tags: ['dialogue', 'lightweight', 'fast']
+    tags: ['dialogue', 'lightweight', 'fast'],
   },
   'tei-all': {
     id: 'tei-all',
     name: 'TEI P5 Complete',
     description: 'Full TEI P5 schema with all standard elements',
     path: 'public/schemas/tei-all.rng',
-    tags: ['complete', 'comprehensive', 'slow']
+    tags: ['complete', 'comprehensive', 'slow'],
   },
   'tei-novel': {
     id: 'tei-novel',
     name: 'TEI for Novels',
     description: 'TEI schema optimized for prose fiction',
     path: 'public/schemas/tei-novel.rng',
-    tags: ['novel', 'prose', 'fiction']
-  }
+    tags: ['novel', 'prose', 'fiction'],
+  },
 } as const;
 
 /**
@@ -55,7 +51,7 @@ export class FileSchemaResolver implements SchemaResolver {
     schemas: Record<string, SchemaInfo> = SCHEMA_REGISTRY,
     allowedIds: Set<string> | ReadonlySet<string> = ALLOWED_SCHEMA_IDS
   ) {
-    this.schemas = Object.freeze({...schemas});
+    this.schemas = Object.freeze({ ...schemas });
     this.allowedIds = Object.freeze(new Set(allowedIds)) as ReadonlySet<string>;
   }
 

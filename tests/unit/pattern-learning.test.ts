@@ -11,7 +11,7 @@ import {
   determinePosition,
   scorePatternMatch,
   type SpeakerPatternData,
-  type LearningContext
+  type LearningContext,
 } from '@/lib/learning/PatternExtractor';
 import { PatternDB, type SpeakerPattern } from '@/lib/db/PatternDB';
 
@@ -21,7 +21,7 @@ describe('PatternExtractor', () => {
       const context: LearningContext = {
         passage: 'Hello world, this is a test.',
         speaker: 'speaker1',
-        position: 'beginning'
+        position: 'beginning',
       };
 
       const pattern = extractAcceptedPattern(context);
@@ -36,7 +36,7 @@ describe('PatternExtractor', () => {
       const context: LearningContext = {
         passage: 'Hello world. This is a test. Another sentence here.',
         speaker: 'speaker1',
-        position: 'middle'
+        position: 'middle',
       };
 
       const pattern = extractAcceptedPattern(context);
@@ -55,14 +55,14 @@ describe('PatternExtractor', () => {
           average: 10,
           min: 5,
           max: 15,
-          stdDev: 2.5
+          stdDev: 2.5,
         },
         positionPatterns: {
           beginning: 1,
           middle: 0,
-          end: 0
+          end: 0,
         },
-        contextualPatterns: new Map()
+        contextualPatterns: new Map(),
       };
 
       const newPattern: SpeakerPatternData = {
@@ -72,14 +72,14 @@ describe('PatternExtractor', () => {
           average: 12,
           min: 8,
           max: 16,
-          stdDev: 2
+          stdDev: 2,
         },
         positionPatterns: {
           beginning: 0,
           middle: 1,
-          end: 0
+          end: 0,
         },
-        contextualPatterns: new Map()
+        contextualPatterns: new Map(),
       };
 
       const merged = mergePatterns(existing, newPattern);
@@ -98,14 +98,14 @@ describe('PatternExtractor', () => {
           average: 10,
           min: 5,
           max: 15,
-          stdDev: 2.5
+          stdDev: 2.5,
         },
         positionPatterns: {
           beginning: 1,
           middle: 0,
-          end: 0
+          end: 0,
         },
-        contextualPatterns: new Map()
+        contextualPatterns: new Map(),
       };
 
       const newPattern: SpeakerPatternData = {
@@ -115,14 +115,14 @@ describe('PatternExtractor', () => {
           average: 20,
           min: 18,
           max: 22,
-          stdDev: 1
+          stdDev: 1,
         },
         positionPatterns: {
           beginning: 0,
           middle: 0,
-          end: 0
+          end: 0,
         },
-        contextualPatterns: new Map()
+        contextualPatterns: new Map(),
       };
 
       const merged = mergePatterns(existing, newPattern);
@@ -155,19 +155,22 @@ describe('PatternExtractor', () => {
     it('should score higher for matching phrases', () => {
       const speakerPattern: SpeakerPatternData = {
         xmlId: 'speaker1',
-        commonPhrases: new Map([['hello world', 5], ['test phrase', 3]]),
+        commonPhrases: new Map([
+          ['hello world', 5],
+          ['test phrase', 3],
+        ]),
         dialogueLengthPatterns: {
           average: 20,
           min: 10,
           max: 30,
-          stdDev: 5
+          stdDev: 5,
         },
         positionPatterns: {
           beginning: 1,
           middle: 0,
-          end: 0
+          end: 0,
         },
-        contextualPatterns: new Map()
+        contextualPatterns: new Map(),
       };
 
       const matchingPassage = 'This contains hello world text.';
@@ -187,14 +190,14 @@ describe('PatternExtractor', () => {
           average: 20,
           min: 10,
           max: 30,
-          stdDev: 5
+          stdDev: 5,
         },
         positionPatterns: {
           beginning: 1,
           middle: 0,
-          end: 0
+          end: 0,
         },
-        contextualPatterns: new Map()
+        contextualPatterns: new Map(),
       };
 
       const similarLength = 'This is about right. '; // ~22 chars
@@ -226,13 +229,7 @@ describe('PatternDB Learning Integration', () => {
 
   describe('logCorrection', () => {
     it('should store accepted corrections', async () => {
-      await db.logCorrection(
-        'Hello world',
-        'speaker1',
-        ['speaker2'],
-        0.9,
-        'beginning'
-      );
+      await db.logCorrection('Hello world', 'speaker1', ['speaker2'], 0.9, 'beginning');
 
       const corrections = await db.corrections.toArray();
       expect(corrections).toHaveLength(1);
@@ -242,13 +239,7 @@ describe('PatternDB Learning Integration', () => {
     });
 
     it('should store rejected corrections', async () => {
-      await db.logCorrection(
-        'Hello world',
-        '',
-        ['speaker2', 'speaker3'],
-        0.3,
-        'middle'
-      );
+      await db.logCorrection('Hello world', '', ['speaker2', 'speaker3'], 0.3, 'middle');
 
       const corrections = await db.corrections.toArray();
       expect(corrections).toHaveLength(1);
@@ -290,7 +281,7 @@ describe('PatternDB Learning Integration', () => {
       const firstTimestamp = patterns[0].lastSeen;
 
       // Wait a bit to ensure timestamp difference
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await db.storeLearnedPattern('speaker1', 'hello world', 1);
 
@@ -332,8 +323,8 @@ describe('PatternDB Learning Integration', () => {
       const allPatterns = await db.getAllLearnedPatterns();
 
       expect(allPatterns).toHaveLength(2);
-      expect(allPatterns.some(p => p.speaker === 'speaker1')).toBe(true);
-      expect(allPatterns.some(p => p.speaker === 'speaker2')).toBe(true);
+      expect(allPatterns.some((p) => p.speaker === 'speaker1')).toBe(true);
+      expect(allPatterns.some((p) => p.speaker === 'speaker2')).toBe(true);
     });
   });
 });
@@ -358,17 +349,11 @@ describe('Learning from Multiple Corrections', () => {
     const corrections = [
       { passage: 'Hello world', speaker: 'speaker1' },
       { passage: 'Hello again', speaker: 'speaker1' },
-      { passage: 'Hello there', speaker: 'speaker1' }
+      { passage: 'Hello there', speaker: 'speaker1' },
     ];
 
     for (const correction of corrections) {
-      await db.logCorrection(
-        correction.passage,
-        correction.speaker,
-        [],
-        0.9,
-        'beginning'
-      );
+      await db.logCorrection(correction.passage, correction.speaker, [], 0.9, 'beginning');
 
       // Extract and store the "Hello" pattern
       if (correction.passage.includes('Hello')) {
@@ -377,7 +362,7 @@ describe('Learning from Multiple Corrections', () => {
     }
 
     const patterns = await db.getLearnedPatterns('speaker1');
-    const helloPattern = patterns.find(p => p.pattern === 'Hello');
+    const helloPattern = patterns.find((p) => p.pattern === 'Hello');
 
     expect(helloPattern).toBeDefined();
     expect(helloPattern!.frequency).toBe(3);
@@ -389,7 +374,7 @@ describe('Learning from Multiple Corrections', () => {
     await db.updateSpeakerPattern('speaker1', {
       name: 'Speaker One',
       lastUsed: Date.now(),
-      chapterAffinity: { chapter1: 1 }
+      chapterAffinity: { chapter1: 1 },
     });
 
     // Speaker 2 tends to speak at end
@@ -397,7 +382,7 @@ describe('Learning from Multiple Corrections', () => {
     await db.updateSpeakerPattern('speaker2', {
       name: 'Speaker Two',
       lastUsed: Date.now(),
-      chapterAffinity: { chapter1: 1 }
+      chapterAffinity: { chapter1: 1 },
     });
 
     const speaker1 = await db.getSpeaker('speaker1');
@@ -437,7 +422,7 @@ describe('InlineSuggestions Pattern Learning', () => {
         start: 0,
         end: 27,
         confidence: 0.9,
-        speaker: 'speaker1'
+        speaker: 'speaker1',
       };
 
       // Simulate what handleAccept does
@@ -475,8 +460,8 @@ describe('InlineSuggestions Pattern Learning', () => {
       expect(storedPatterns.length).toBeGreaterThan(0);
 
       // Verify phrases are n-grams (2-4 words)
-      const phrases = storedPatterns.map(p => p.pattern);
-      phrases.forEach(phrase => {
+      const phrases = storedPatterns.map((p) => p.pattern);
+      phrases.forEach((phrase) => {
         const wordCount = phrase.split(/\s+/).length;
         expect(wordCount).toBeGreaterThanOrEqual(2);
         expect(wordCount).toBeLessThanOrEqual(4);
@@ -511,7 +496,7 @@ describe('InlineSuggestions Pattern Learning', () => {
         start: 0,
         end: 26,
         confidence: 0.85,
-        speaker: 'speaker1'
+        speaker: 'speaker1',
       };
 
       const { extract } = await import('@/lib/learning/PatternExtractor');
@@ -539,7 +524,7 @@ describe('InlineSuggestions Pattern Learning', () => {
         start: 0,
         end: 21,
         confidence: 0.3,
-        speaker: ''
+        speaker: '',
       };
 
       const position = 'middle' as const;
@@ -569,7 +554,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       const suggestions = [
         { text: 'Early text', position: 'beginning' as const },
         { text: 'Middle text', position: 'middle' as const },
-        { text: 'Late text', position: 'end' as const }
+        { text: 'Late text', position: 'end' as const },
       ];
 
       for (const sug of suggestions) {
@@ -588,20 +573,20 @@ describe('InlineSuggestions Pattern Learning', () => {
       const rejections = [
         { text: 'Wrong suggestion 1', confidence: 0.2 },
         { text: 'Wrong suggestion 2', confidence: 0.4 },
-        { text: 'Wrong suggestion 3', confidence: 0.3 }
+        { text: 'Wrong suggestion 3', confidence: 0.3 },
       ];
 
       for (const rej of rejections) {
         await db.logCorrection(rej.text, '', [], rej.confidence, 'middle');
         // Small delay to ensure different timestamps
-        await new Promise(resolve => setTimeout(resolve, 5));
+        await new Promise((resolve) => setTimeout(resolve, 5));
       }
 
       const corrections = await db.getRecentCorrections(10);
 
       expect(corrections).toHaveLength(3);
       // Verify each has a timestamp
-      corrections.forEach(c => {
+      corrections.forEach((c) => {
         expect(c.timestamp).toBeDefined();
         expect(typeof c.timestamp).toBe('number');
       });
@@ -614,7 +599,7 @@ describe('InlineSuggestions Pattern Learning', () => {
     it('should log rejection with low confidence', async () => {
       const lowConfidenceSuggestion = {
         text: 'Very uncertain suggestion',
-        confidence: 0.15
+        confidence: 0.15,
       };
 
       await db.logCorrection(
@@ -653,8 +638,8 @@ describe('InlineSuggestions Pattern Learning', () => {
       const allPatterns = await db.getAllLearnedPatterns();
 
       expect(allPatterns).toHaveLength(3);
-      expect(allPatterns.some(p => p.speaker === 'speaker1')).toBe(true);
-      expect(allPatterns.some(p => p.speaker === 'speaker2')).toBe(true);
+      expect(allPatterns.some((p) => p.speaker === 'speaker1')).toBe(true);
+      expect(allPatterns.some((p) => p.speaker === 'speaker2')).toBe(true);
     });
 
     it('should return empty array for speaker with no patterns', async () => {
@@ -665,8 +650,8 @@ describe('InlineSuggestions Pattern Learning', () => {
     it('should include frequency in retrieved patterns', async () => {
       const patterns = await db.getLearnedPatterns('speaker1');
 
-      const helloPattern = patterns.find(p => p.pattern === 'hello world');
-      const goodbyePattern = patterns.find(p => p.pattern === 'goodbye');
+      const helloPattern = patterns.find((p) => p.pattern === 'hello world');
+      const goodbyePattern = patterns.find((p) => p.pattern === 'goodbye');
 
       expect(helloPattern?.frequency).toBe(3);
       expect(goodbyePattern?.frequency).toBe(2);
@@ -717,7 +702,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       await db2.storeLearnedPattern('speaker1', 'frequent pattern', 1);
 
       const patterns = await db2.getLearnedPatterns('speaker1');
-      const pattern = patterns.find(p => p.pattern === 'frequent pattern');
+      const pattern = patterns.find((p) => p.pattern === 'frequent pattern');
 
       expect(pattern?.frequency).toBe(3); // 2 + 1
 
@@ -785,11 +770,11 @@ describe('InlineSuggestions Pattern Learning', () => {
       const mockPattern = {
         phrases: new Map([
           ['hello world', 2],
-          ['test phrase', 1]
+          ['test phrase', 1],
         ]),
         dialogueLength: 11,
         position: 'beginning' as const,
-        contextWords: ['hello', 'world', 'test']
+        contextWords: ['hello', 'world', 'test'],
       };
 
       await db.storeLearnedPattern('speaker1', mockPattern);
@@ -797,10 +782,10 @@ describe('InlineSuggestions Pattern Learning', () => {
       const storedPatterns = await db.getLearnedPatterns('speaker1');
       expect(storedPatterns).toHaveLength(2);
 
-      expect(storedPatterns.some(p => p.pattern === 'hello world')).toBe(true);
-      expect(storedPatterns.some(p => p.pattern === 'test phrase')).toBe(true);
+      expect(storedPatterns.some((p) => p.pattern === 'hello world')).toBe(true);
+      expect(storedPatterns.some((p) => p.pattern === 'test phrase')).toBe(true);
 
-      const helloPattern = storedPatterns.find(p => p.pattern === 'hello world');
+      const helloPattern = storedPatterns.find((p) => p.pattern === 'hello world');
       expect(helloPattern?.frequency).toBe(2);
     });
 
@@ -817,7 +802,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       await db.storeLearnedPattern('speaker1', 'very common', 10000);
 
       const patterns = await db.getLearnedPatterns('speaker1');
-      const pattern = patterns.find(p => p.pattern === 'very common');
+      const pattern = patterns.find((p) => p.pattern === 'very common');
 
       expect(pattern?.frequency).toBe(10000);
     });
@@ -826,7 +811,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       await db.storeLearnedPattern('speaker1', 'zero freq', 0);
 
       const patterns = await db.getLearnedPatterns('speaker1');
-      const pattern = patterns.find(p => p.pattern === 'zero freq');
+      const pattern = patterns.find((p) => p.pattern === 'zero freq');
 
       expect(pattern?.frequency).toBe(0);
     });
@@ -836,7 +821,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       await db.storeLearnedPattern('speaker1', 'negative', -1);
 
       const patterns = await db.getLearnedPatterns('speaker1');
-      const pattern = patterns.find(p => p.pattern === 'negative');
+      const pattern = patterns.find((p) => p.pattern === 'negative');
 
       // Should still be stored
       expect(pattern).toBeDefined();
@@ -850,7 +835,7 @@ describe('InlineSuggestions Pattern Learning', () => {
         db.storeLearnedPattern('speaker1', 'pattern2', 1),
         db.storeLearnedPattern('speaker1', 'pattern3', 1),
         db.storeLearnedPattern('speaker2', 'pattern4', 1),
-        db.storeLearnedPattern('speaker2', 'pattern5', 1)
+        db.storeLearnedPattern('speaker2', 'pattern5', 1),
       ];
 
       await Promise.all(promises);
@@ -882,7 +867,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       const corrections = await db.corrections.toArray();
       expect(corrections).toHaveLength(3);
 
-      const storedPositions = corrections.map(c => c.position);
+      const storedPositions = corrections.map((c) => c.position);
       expect(storedPositions).toEqual(expect.arrayContaining(positions));
     });
 
@@ -894,7 +879,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       }
 
       const corrections = await db.corrections.toArray();
-      const storedConfidences = corrections.map(c => c.confidence);
+      const storedConfidences = corrections.map((c) => c.confidence);
 
       expect(storedConfidences).toEqual(expect.arrayContaining(confidences));
     });
@@ -906,7 +891,7 @@ describe('InlineSuggestions Pattern Learning', () => {
       const firstTimestamp = patterns1[0].lastSeen;
 
       // Wait to ensure different timestamp
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await db.storeLearnedPattern('speaker1', 'timestamp test', 1);
 

@@ -41,7 +41,16 @@ interface Issue {
 type ViewMode = 'wysiwyg' | 'xml' | 'split';
 
 export function EditorLayout() {
-  const { document, updateDocument, loadingSample, loadingProgress, validationResults, isValidating, loadSample, validateDocument } = useDocumentService();
+  const {
+    document,
+    updateDocument,
+    loadingSample,
+    loadingProgress,
+    validationResults,
+    isValidating,
+    loadSample,
+    validateDocument,
+  } = useDocumentService();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
   const [suggestions, setSuggestions] = useState<DialogueSpan[]>([]);
@@ -54,7 +63,10 @@ export function EditorLayout() {
   const [highlightedPassageId, setHighlightedPassageId] = useState<string | null>(null);
   const [currentPassageId, setCurrentPassageId] = useState<string | null>(null);
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info';
+  } | null>(null);
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
   const [entityPanelOpen, setEntityPanelOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<TagInfo | null>(null);
@@ -121,79 +133,91 @@ export function EditorLayout() {
   const isInputFocused = () => {
     const activeElement = window.document?.activeElement;
     if (!activeElement) return false;
-    return activeElement instanceof HTMLInputElement ||
-           activeElement instanceof HTMLTextAreaElement ||
-           activeElement.getAttribute('contenteditable') === 'true';
+    return (
+      activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement ||
+      activeElement.getAttribute('contenteditable') === 'true'
+    );
   };
 
   // Helper function to get all passage IDs from the document
   const getPassageIds = () => {
     if (!document) return [];
     const p = document.parsed.TEI.text.body.p;
-    const paragraphs = Array.isArray(p) ? p : (p ? [p] : []);
+    const paragraphs = Array.isArray(p) ? p : p ? [p] : [];
     return paragraphs.map((_, idx) => `passage-${idx}`);
   };
 
   // Generic handler for applying tags to selected text
-  const handleApplyTag = useCallback((tag: string, attrs?: Record<string, string>) => {
-    if (!document) return;
+  const handleApplyTag = useCallback(
+    (tag: string, attrs?: Record<string, string>) => {
+      if (!document) return;
 
-    const selectionManager = selectionManagerRef.current;
-    const selectionRange = selectionManager.captureSelection();
+      const selectionManager = selectionManagerRef.current;
+      const selectionRange = selectionManager.captureSelection();
 
-    if (!selectionRange) {
-      showToast('No text selected - Select text first, then click tag button', 'error');
-      return;
-    }
+      if (!selectionRange) {
+        showToast('No text selected - Select text first, then click tag button', 'error');
+        return;
+      }
 
-    // Extract passage index from passageId with validation
-    const passageIndex = parseInt(selectionRange.passageId.split('-')[1], 10);
-    if (isNaN(passageIndex)) {
-      showToast('Invalid passage ID', 'error');
-      return;
-    }
+      // Extract passage index from passageId with validation
+      const passageIndex = parseInt(selectionRange.passageId.split('-')[1], 10);
+      if (isNaN(passageIndex)) {
+        showToast('Invalid passage ID', 'error');
+        return;
+      }
 
-    try {
-      // Use the generic wrapTextInTag method
-      document.wrapTextInTag(
-        passageIndex,
-        selectionRange.startOffset,
-        selectionRange.endOffset,
-        tag,
-        attrs
-      );
+      try {
+        // Use the generic wrapTextInTag method
+        document.wrapTextInTag(
+          passageIndex,
+          selectionRange.startOffset,
+          selectionRange.endOffset,
+          tag,
+          attrs
+        );
 
-      // Update document in context
-      const updatedXML = serializeDocument(document);
-      updateDocument(updatedXML);
+        // Update document in context
+        const updatedXML = serializeDocument(document);
+        updateDocument(updatedXML);
 
-      // Success message
-      const tagDisplay = attrs ? `<${tag} ${Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ')}>` : `<${tag}>`;
-      showToast(`Applied ${tagDisplay}`, 'success');
+        // Success message
+        const tagDisplay = attrs
+          ? `<${tag} ${Object.entries(attrs)
+              .map(([k, v]) => `${k}="${v}"`)
+              .join(' ')}>`
+          : `<${tag}>`;
+        showToast(`Applied ${tagDisplay}`, 'success');
 
-      // Wait for React to re-render the updated document before restoring selection
-      // This delay ensures the DOM is updated with the new tag
-      setTimeout(() => {
-        selectionManager.restoreSelection({
-          start: selectionRange.startOffset,
-          end: selectionRange.endOffset,
-          passageId: selectionRange.passageId
-        });
-      }, 100);
-
-    } catch (error) {
-      console.error('Failed to apply tag:', error);
-      showToast('Failed to apply tag - See console for details', 'error');
-    }
-  }, [document, updateDocument]);
+        // Wait for React to re-render the updated document before restoring selection
+        // This delay ensures the DOM is updated with the new tag
+        setTimeout(() => {
+          selectionManager.restoreSelection({
+            start: selectionRange.startOffset,
+            end: selectionRange.endOffset,
+            passageId: selectionRange.passageId,
+          });
+        }, 100);
+      } catch (error) {
+        console.error('Failed to apply tag:', error);
+        showToast('Failed to apply tag - See console for details', 'error');
+      }
+    },
+    [document, updateDocument]
+  );
 
   // Keyboard shortcut: ? (Shift+/) - Show keyboard shortcuts help
-  useHotkeys('shift+/', (e) => {
-    if (isInputFocused()) return;
-    e.preventDefault();
-    setShortcutHelpOpen(true);
-    showToast('Keyboard shortcuts help opened', 'info');
-  }, [isInputFocused]);
+  useHotkeys(
+    'shift+/',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      setShortcutHelpOpen(true);
+      showToast('Keyboard shortcuts help opened', 'info');
+    },
+    [isInputFocused]
+  );
 
   // Keyboard shortcut: ⌘E - Toggle entity editor
   useHotkeys('cmd+e', (e) => {
@@ -201,70 +225,82 @@ export function EditorLayout() {
     e.preventDefault();
     setEntityPanelOpen(!entityPanelOpen);
   });
-  useHotkeys('shift+/', (e) => {
-    if (isInputFocused()) return;
-    e.preventDefault();
-    setShortcutHelpOpen(true);
-    showToast('Keyboard shortcuts help opened', 'info');
-  }, [isInputFocused]);
+  useHotkeys(
+    'shift+/',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      setShortcutHelpOpen(true);
+      showToast('Keyboard shortcuts help opened', 'info');
+    },
+    [isInputFocused]
+  );
 
   // Keyboard shortcut: J - Navigate to next passage
-  useHotkeys('j', (e) => {
-    if (isInputFocused()) return;
-    e.preventDefault();
+  useHotkeys(
+    'j',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
 
-    const passages = getPassageIds();
-    if (passages.length === 0) {
-      showToast('No passages to navigate', 'error');
-      return;
-    }
-
-    const nextIndex = Math.min(activePassageIndex + 1, passages.length - 1);
-    const passageId = passages[nextIndex];
-
-    setActivePassageIndex(nextIndex);
-    setCurrentPassageId(passageId);
-    setHighlightedPassageId(passageId);
-
-    setTimeout(() => {
-      const element = globalThis.document?.getElementById(passageId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => setHighlightedPassageId(null), 3000);
+      const passages = getPassageIds();
+      if (passages.length === 0) {
+        showToast('No passages to navigate', 'error');
+        return;
       }
-    }, 100);
 
-    showToast(`Passage ${nextIndex + 1}/${passages.length}`, 'info');
-  }, [isInputFocused, activePassageIndex, document]);
+      const nextIndex = Math.min(activePassageIndex + 1, passages.length - 1);
+      const passageId = passages[nextIndex];
+
+      setActivePassageIndex(nextIndex);
+      setCurrentPassageId(passageId);
+      setHighlightedPassageId(passageId);
+
+      setTimeout(() => {
+        const element = globalThis.document?.getElementById(passageId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => setHighlightedPassageId(null), 3000);
+        }
+      }, 100);
+
+      showToast(`Passage ${nextIndex + 1}/${passages.length}`, 'info');
+    },
+    [isInputFocused, activePassageIndex, document]
+  );
 
   // Keyboard shortcut: K - Navigate to previous passage
-  useHotkeys('k', (e) => {
-    if (isInputFocused()) return;
-    e.preventDefault();
+  useHotkeys(
+    'k',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
 
-    const passages = getPassageIds();
-    if (passages.length === 0) {
-      showToast('No passages to navigate', 'error');
-      return;
-    }
-
-    const prevIndex = Math.max(activePassageIndex - 1, 0);
-    const passageId = passages[prevIndex];
-
-    setActivePassageIndex(prevIndex);
-    setCurrentPassageId(passageId);
-    setHighlightedPassageId(passageId);
-
-    setTimeout(() => {
-      const element = globalThis.document?.getElementById(passageId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => setHighlightedPassageId(null), 3000);
+      const passages = getPassageIds();
+      if (passages.length === 0) {
+        showToast('No passages to navigate', 'error');
+        return;
       }
-    }, 100);
 
-    showToast(`Passage ${prevIndex + 1}/${passages.length}`, 'info');
-  }, [isInputFocused, activePassageIndex, document]);
+      const prevIndex = Math.max(activePassageIndex - 1, 0);
+      const passageId = passages[prevIndex];
+
+      setActivePassageIndex(prevIndex);
+      setCurrentPassageId(passageId);
+      setHighlightedPassageId(passageId);
+
+      setTimeout(() => {
+        const element = globalThis.document?.getElementById(passageId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => setHighlightedPassageId(null), 3000);
+        }
+      }, 100);
+
+      showToast(`Passage ${prevIndex + 1}/${passages.length}`, 'info');
+    },
+    [isInputFocused, activePassageIndex, document]
+  );
 
   // Keyboard shortcuts: 1-9 - Quick tag as speaker 1-9
   for (let i = 1; i <= 9; i++) {
@@ -290,36 +326,44 @@ export function EditorLayout() {
   }
 
   // Keyboard shortcut: A - Accept first AI suggestion
-  useHotkeys('a', (e) => {
-    if (isInputFocused()) return;
-    e.preventDefault();
+  useHotkeys(
+    'a',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
 
-    if (suggestions.length === 0) {
-      showToast('No AI suggestions to accept', 'error');
-      return;
-    }
+      if (suggestions.length === 0) {
+        showToast('No AI suggestions to accept', 'error');
+        return;
+      }
 
-    // Accept the first suggestion
-    const suggestion = suggestions[0];
-    handleAcceptSuggestion(suggestion);
-    showToast('AI suggestion accepted', 'success');
-  }, [isInputFocused, suggestions]);
+      // Accept the first suggestion
+      const suggestion = suggestions[0];
+      handleAcceptSuggestion(suggestion);
+      showToast('AI suggestion accepted', 'success');
+    },
+    [isInputFocused, suggestions]
+  );
 
   // Keyboard shortcut: X - Reject first AI suggestion
-  useHotkeys('x', (e) => {
-    if (isInputFocused()) return;
-    e.preventDefault();
+  useHotkeys(
+    'x',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
 
-    if (suggestions.length === 0) {
-      showToast('No AI suggestions to reject', 'error');
-      return;
-    }
+      if (suggestions.length === 0) {
+        showToast('No AI suggestions to reject', 'error');
+        return;
+      }
 
-    // Reject the first suggestion
-    const suggestion = suggestions[0];
-    handleRejectSuggestion(suggestion);
-    showToast('AI suggestion rejected', 'info');
-  }, [isInputFocused, suggestions]);
+      // Reject the first suggestion
+      const suggestion = suggestions[0];
+      handleRejectSuggestion(suggestion);
+      showToast('AI suggestion rejected', 'info');
+    },
+    [isInputFocused, suggestions]
+  );
 
   const handleTagAll = async (speakerId: string) => {
     if (!document) return;
@@ -328,11 +372,11 @@ export function EditorLayout() {
     const paragraphs = newDoc.parsed.TEI.text.body.p;
     const passagesToTag = [...selectedPassages]; // Copy before clearing
 
-    selectedPassages.forEach(index => {
+    selectedPassages.forEach((index) => {
       if (paragraphs[index] && paragraphs[index].said) {
         paragraphs[index].said = paragraphs[index].said.map((s: any) => ({
           ...s,
-          '@who': speakerId
+          '@who': speakerId,
         }));
       }
     });
@@ -343,13 +387,7 @@ export function EditorLayout() {
     setSelectedPassages([]);
 
     // Log to pattern database
-    await db.logCorrection(
-      'bulk_tag',
-      speakerId,
-      passagesToTag,
-      1.0,
-      'middle'
-    );
+    await db.logCorrection('bulk_tag', speakerId, passagesToTag, 1.0, 'middle');
   };
 
   const handleSelectAllUntagged = () => {
@@ -377,7 +415,7 @@ export function EditorLayout() {
     if (!document || selectedPassages.length === 0) return;
 
     const selectedParagraphs = selectedPassages.map(
-      index => document.parsed.TEI.text.body.p[Number(index)]
+      (index) => document.parsed.TEI.text.body.p[Number(index)]
     );
 
     const data = JSON.stringify(selectedParagraphs, null, 2);
@@ -398,14 +436,14 @@ export function EditorLayout() {
     const issues: Issue[] = [];
     const paragraphs = document.parsed.TEI.text.body.p;
 
-    selectedPassages.forEach(indexStr => {
+    selectedPassages.forEach((indexStr) => {
       const index = Number(indexStr);
       const para = paragraphs[index];
       if (!para.said) {
         issues.push({
           type: 'warning',
           message: `Paragraph ${index + 1}: No dialogue found`,
-          location: { index }
+          location: { index },
         });
       } else {
         para.said.forEach((s: any, i: number) => {
@@ -413,7 +451,7 @@ export function EditorLayout() {
             issues.push({
               type: 'error',
               message: `Paragraph ${index + 1}, dialogue ${i + 1}: Untagged speaker`,
-              location: { index, dialogueIndex: i }
+              location: { index, dialogueIndex: i },
             });
           }
         });
@@ -433,16 +471,16 @@ export function EditorLayout() {
   const handleAcceptSuggestion = (suggestion: DialogueSpan) => {
     console.log('Accept suggestion:', suggestion);
     // TODO: Apply TEI tag with suggestion data
-    setSuggestions(prev => prev.filter(s =>
-      !(s.start === suggestion.start && s.end === suggestion.end)
-    ));
+    setSuggestions((prev) =>
+      prev.filter((s) => !(s.start === suggestion.start && s.end === suggestion.end))
+    );
   };
 
   const handleRejectSuggestion = (suggestion: DialogueSpan) => {
     console.log('Reject suggestion:', suggestion);
-    setSuggestions(prev => prev.filter(s =>
-      !(s.start === suggestion.start && s.end === suggestion.end)
-    ));
+    setSuggestions((prev) =>
+      prev.filter((s) => !(s.start === suggestion.start && s.end === suggestion.end))
+    );
   };
 
   const handleValidationErrorClick = (error: any) => {
@@ -460,52 +498,61 @@ export function EditorLayout() {
   };
 
   // Handle tag selection from RenderedView or Breadcrumb
-  const handleTagSelect = useCallback((tagInfo: TagInfo) => {
-    setSelectedTag(tagInfo);
-    showToast(`Selected tag: <${tagInfo.tagName}>`, 'info');
+  const handleTagSelect = useCallback(
+    (tagInfo: TagInfo) => {
+      setSelectedTag(tagInfo);
+      showToast(`Selected tag: <${tagInfo.tagName}>`, 'info');
 
-    // Add visual selection indicator to element
-    if (tagInfo.element) {
-      tagInfo.element.setAttribute('data-selected', 'true');
-    }
-  }, [showToast]);
+      // Add visual selection indicator to element
+      if (tagInfo.element) {
+        tagInfo.element.setAttribute('data-selected', 'true');
+      }
+    },
+    [showToast]
+  );
 
   // Handle tag double-click to open edit dialog
-  const handleTagDoubleClick = useCallback((tagInfo: TagInfo) => {
-    setTagToEdit(tagInfo);
-    setEditDialogOpen(true);
-    showToast(`Editing tag: <${tagInfo.tagName}>`, 'info');
-  }, [showToast]);
+  const handleTagDoubleClick = useCallback(
+    (tagInfo: TagInfo) => {
+      setTagToEdit(tagInfo);
+      setEditDialogOpen(true);
+      showToast(`Editing tag: <${tagInfo.tagName}>`, 'info');
+    },
+    [showToast]
+  );
 
   // Handle tag attribute updates from edit dialog
-  const handleTagAttributeUpdate = useCallback((tagName: string, attributes: Record<string, string>) => {
-    if (!document || !tagToEdit) return;
+  const handleTagAttributeUpdate = useCallback(
+    (tagName: string, attributes: Record<string, string>) => {
+      if (!document || !tagToEdit) return;
 
-    try {
-      // Find the element and update its attributes
-      const element = tagToEdit.element;
-      if (!element) {
-        showToast('Element not found', 'error');
-        return;
+      try {
+        // Find the element and update its attributes
+        const element = tagToEdit.element;
+        if (!element) {
+          showToast('Element not found', 'error');
+          return;
+        }
+
+        // Update data attributes on the element
+        Object.entries(attributes).forEach(([key, value]) => {
+          element.setAttribute(`data-${key}`, value);
+        });
+
+        // Update the document structure
+        // This is a simplified implementation - in production, you'd want to
+        // update the underlying TEIDocument model and re-serialize
+        const updatedXML = serializeDocument(document);
+        updateDocument(updatedXML);
+
+        showToast(`Updated <${tagName}> attributes`, 'success');
+      } catch (error) {
+        console.error('Failed to update tag attributes:', error);
+        showToast('Failed to update tag attributes', 'error');
       }
-
-      // Update data attributes on the element
-      Object.entries(attributes).forEach(([key, value]) => {
-        element.setAttribute(`data-${key}`, value);
-      });
-
-      // Update the document structure
-      // This is a simplified implementation - in production, you'd want to
-      // update the underlying TEIDocument model and re-serialize
-      const updatedXML = serializeDocument(document);
-      updateDocument(updatedXML);
-
-      showToast(`Updated <${tagName}> attributes`, 'success');
-    } catch (error) {
-      console.error('Failed to update tag attributes:', error);
-      showToast('Failed to update tag attributes', 'error');
-    }
-  }, [document, tagToEdit, updateDocument, showToast]);
+    },
+    [document, tagToEdit, updateDocument, showToast]
+  );
 
   // Simulate AI detection when in suggest or auto mode
   useEffect(() => {
@@ -526,7 +573,7 @@ export function EditorLayout() {
           start: match.index,
           end: match.index + match[0].length,
           text: match[1],
-          confidence: 0.7 + Math.random() * 0.25 // Random confidence between 0.7 and 0.95
+          confidence: 0.7 + Math.random() * 0.25, // Random confidence between 0.7 and 0.95
         });
       }
 
@@ -545,7 +592,11 @@ export function EditorLayout() {
   // Track text selection for highlighting
   useEffect(() => {
     // Guard for SSR/test environment
-    if (typeof window === 'undefined' || typeof globalThis.document === 'undefined' || !globalThis.document?.addEventListener) {
+    if (
+      typeof window === 'undefined' ||
+      typeof globalThis.document === 'undefined' ||
+      !globalThis.document?.addEventListener
+    ) {
       return;
     }
 
@@ -581,10 +632,13 @@ export function EditorLayout() {
   }, [debouncedCodeContent]);
 
   // Handle view mode switching
-  const handleViewModeChange = useCallback((mode: ViewMode) => {
-    setViewMode(mode);
-    showToast(`Switched to ${mode.toUpperCase()} view`, 'info');
-  }, [showToast]);
+  const handleViewModeChange = useCallback(
+    (mode: ViewMode) => {
+      setViewMode(mode);
+      showToast(`Switched to ${mode.toUpperCase()} view`, 'info');
+    },
+    [showToast]
+  );
 
   // Handle code editor content changes
   const handleCodeChange = useCallback((newCode: string) => {
@@ -593,16 +647,19 @@ export function EditorLayout() {
   }, []);
 
   // Handle structural tag insertion
-  const handleInsertStructuralTag = useCallback((tagName: string) => {
-    if (!document) return;
+  const handleInsertStructuralTag = useCallback(
+    (tagName: string) => {
+      if (!document) return;
 
-    // For now, just show a message
-    // In a full implementation, you would:
-    // 1. Get cursor position from Monaco editor
-    // 2. Insert the tag at that position
-    // 3. Validate the insertion
-    showToast(`Insert <${tagName}> at cursor position`, 'info');
-  }, [document, showToast]);
+      // For now, just show a message
+      // In a full implementation, you would:
+      // 1. Get cursor position from Monaco editor
+      // 2. Insert the tag at that position
+      // 3. Validate the insertion
+      showToast(`Insert <${tagName}> at cursor position`, 'info');
+    },
+    [document, showToast]
+  );
 
   // Handle scroll synchronization
   const handleRenderedViewScroll = useCallback(() => {
@@ -612,7 +669,8 @@ export function EditorLayout() {
 
     if (renderedViewRef.current && codeEditorRef.current) {
       const renderedScrollTop = renderedViewRef.current.scrollTop;
-      const renderedScrollHeight = renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
+      const renderedScrollHeight =
+        renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
       const scrollPercentage = renderedScrollTop / renderedScrollHeight;
 
       // Sync to code editor (approximate line-based scroll)
@@ -644,7 +702,8 @@ export function EditorLayout() {
         const scrollPercentage = firstVisibleLine / lineCount;
 
         // Sync to rendered view
-        const renderedScrollHeight = renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
+        const renderedScrollHeight =
+          renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
         renderedViewRef.current.scrollTop = scrollPercentage * renderedScrollHeight;
       }
     }
@@ -655,14 +714,17 @@ export function EditorLayout() {
   }, [scrollSyncEnabled]);
 
   // Handle code editor mounting
-  const handleCodeEditorMount = useCallback((editor: any) => {
-    codeEditorRef.current = editor;
+  const handleCodeEditorMount = useCallback(
+    (editor: any) => {
+      codeEditorRef.current = editor;
 
-    // Add scroll listener for sync
-    editor.onDidScrollChange(() => {
-      handleCodeEditorScroll();
-    });
-  }, [handleCodeEditorScroll]);
+      // Add scroll listener for sync
+      editor.onDidScrollChange(() => {
+        handleCodeEditorScroll();
+      });
+    },
+    [handleCodeEditorScroll]
+  );
 
   if (!document) {
     return (
@@ -686,14 +748,8 @@ export function EditorLayout() {
         onValidate={handleValidateSelection}
         onConvert={handleConvert}
       />
-      <KeyboardShortcutHelp
-        open={shortcutHelpOpen}
-        onClose={() => setShortcutHelpOpen(false)}
-      />
-      <EntityEditorPanel
-        open={entityPanelOpen}
-        onClose={() => setEntityPanelOpen(false)}
-      />
+      <KeyboardShortcutHelp open={shortcutHelpOpen} onClose={() => setShortcutHelpOpen(false)} />
+      <EntityEditorPanel open={entityPanelOpen} onClose={() => setEntityPanelOpen(false)} />
       <TagEditDialog
         isOpen={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
@@ -736,16 +792,13 @@ export function EditorLayout() {
         {/* Structural Tag Palette (only visible in XML or Split mode) */}
         {(viewMode === 'xml' || viewMode === 'split') && (
           <div className="flex items-center gap-1 border-r pr-2 mr-2">
-            <StructuralTagPalette
-              onInsertTag={handleInsertStructuralTag}
-              disabled={false}
-            />
+            <StructuralTagPalette onInsertTag={handleInsertStructuralTag} disabled={false} />
           </div>
         )}
 
         <TagToolbar onApplyTag={handleApplyTag} />
         <Button
-          variant={bulkPanelOpen ? "default" : "outline"}
+          variant={bulkPanelOpen ? 'default' : 'outline'}
           size="sm"
           onClick={() => {
             setBulkPanelOpen(!bulkPanelOpen);
@@ -756,22 +809,22 @@ export function EditorLayout() {
           <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘B</kbd>
         </Button>
         <Button
-          variant={vizPanelOpen ? "default" : "outline"}
+          variant={vizPanelOpen ? 'default' : 'outline'}
           size="sm"
           onClick={() => setVizPanelOpen(!vizPanelOpen)}
         >
           Visualizations
         </Button>
         <Button
-          variant={validationPanelOpen ? "default" : "outline"}
+          variant={validationPanelOpen ? 'default' : 'outline'}
           size="sm"
           onClick={() => setValidationPanelOpen(!validationPanelOpen)}
-          className={validationResults && !validationResults.valid ? "border-red-500 text-red-600" : ""}
+          className={
+            validationResults && !validationResults.valid ? 'border-red-500 text-red-600' : ''
+          }
         >
           Validation
-          {isValidating && (
-            <span className="ml-2 text-xs">Validating...</span>
-          )}
+          {isValidating && <span className="ml-2 text-xs">Validating...</span>}
           {validationResults && !validationResults.valid && (
             <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">
               {validationResults.errors.length} errors
@@ -780,7 +833,7 @@ export function EditorLayout() {
         </Button>
         <ExportButton />
         <Button
-          variant={entityPanelOpen ? "default" : "outline"}
+          variant={entityPanelOpen ? 'default' : 'outline'}
           size="sm"
           onClick={() => setEntityPanelOpen(!entityPanelOpen)}
         >
@@ -799,7 +852,9 @@ export function EditorLayout() {
         {loadingSample && (
           <div className="flex-1 max-w-xs ml-4">
             <Progress value={loadingProgress} className="h-2" />
-            <p className="text-xs text-muted-foreground mt-1">Loading sample... {loadingProgress}%</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Loading sample... {loadingProgress}%
+            </p>
           </div>
         )}
       </div>
@@ -845,9 +900,7 @@ export function EditorLayout() {
               <Card className="flex-1 m-2 overflow-auto">
                 <div className="p-4">
                   <h2 className="text-lg font-semibold mb-2">TEI Source</h2>
-                  <pre className="text-sm bg-muted p-2 rounded">
-                    {serializeDocument(document)}
-                  </pre>
+                  <pre className="text-sm bg-muted p-2 rounded">{serializeDocument(document)}</pre>
                 </div>
               </Card>
             </div>
@@ -870,10 +923,12 @@ export function EditorLayout() {
                 value={codeContent}
                 onChange={handleCodeChange}
                 onMount={handleCodeEditorMount}
-                errors={validationResults?.errors.map(e => ({
-                  line: e.line || 1,
-                  message: e.message
-                })) || []}
+                errors={
+                  validationResults?.errors.map((e) => ({
+                    line: e.line || 1,
+                    message: e.message,
+                  })) || []
+                }
                 readOnly={false}
                 height="100%"
               />
@@ -936,10 +991,12 @@ export function EditorLayout() {
                   value={codeContent}
                   onChange={handleCodeChange}
                   onMount={handleCodeEditorMount}
-                  errors={validationResults?.errors.map(e => ({
-                    line: e.line || 1,
-                    message: e.message
-                  })) || []}
+                  errors={
+                    validationResults?.errors.map((e) => ({
+                      line: e.line || 1,
+                      message: e.message,
+                    })) || []
+                  }
                   readOnly={false}
                   height="100%"
                 />
@@ -977,17 +1034,19 @@ export function EditorLayout() {
       {/* Toast Notifications */}
       {toast && (
         <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5">
-          <Alert className={`shadow-lg ${
-            toast.type === 'success' ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' :
-            toast.type === 'error' ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900' :
-            'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
-          }`}>
+          <Alert
+            className={`shadow-lg ${
+              toast.type === 'success'
+                ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900'
+                : toast.type === 'error'
+                  ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900'
+                  : 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
+            }`}
+          >
             {toast.type === 'success' && <CheckCircle2 className="h-4 w-4 text-green-600" />}
             {toast.type === 'error' && <X className="h-4 w-4 text-red-600" />}
             {toast.type === 'info' && <Navigation className="h-4 w-4 text-blue-600" />}
-            <AlertDescription className="text-sm ml-2">
-              {toast.message}
-            </AlertDescription>
+            <AlertDescription className="text-sm ml-2">{toast.message}</AlertDescription>
           </Alert>
         </div>
       )}

@@ -21,14 +21,14 @@ The current TEI editor has several limitations that hinder effective document ma
 
 ## User Requirements
 
-| Requirement | Description |
-|-------------|-------------|
-| **Tag Behavior** | Wrap selected text in clicked tag (e.g., 'hello' → `<said>hello</said>`) |
-| **Validation** | Strict RelaxNG schema validation - block invalid edits |
+| Requirement                 | Description                                                              |
+| --------------------------- | ------------------------------------------------------------------------ |
+| **Tag Behavior**            | Wrap selected text in clicked tag (e.g., 'hello' → `<said>hello</said>`) |
+| **Validation**              | Strict RelaxNG schema validation - block invalid edits                   |
 | **Character Co-occurrence** | Configurable methods: paragraph-based, dialogue proximity, word distance |
-| **Edge Visualization** | Both undirected and directed edges visible simultaneously |
-| **Tag Selection** | Multiple methods: click inside tag, breadcrumb tree, visual indicator |
-| **Editing Experience** | Split view with raw XML and rendered preview |
+| **Edge Visualization**      | Both undirected and directed edges visible simultaneously                |
+| **Tag Selection**           | Multiple methods: click inside tag, breadcrumb tree, visual indicator    |
+| **Editing Experience**      | Split view with raw XML and rendered preview                             |
 
 ---
 
@@ -58,17 +58,17 @@ The current TEI editor has several limitations that hinder effective document ma
 
 ### New Components
 
-| Component | Purpose |
-|-----------|---------|
-| `SelectionManager` | Track DOM selections and map to XML offsets |
-| `SchemaLoader` | Load and parse TEI RelaxNG schemas |
-| `ValidationService` | Validate XML against loaded schemas |
-| `ValidationPanel` | Display real-time validation errors |
-| `TagBreadcrumb` | Show tag hierarchy at cursor position |
-| `TagEditDialog` | Form-based editor for tag attributes |
-| `ProximityAnalyzer` | Calculate character co-occurrence |
-| `XMLCodeEditor` | Monaco-based XML source editor |
-| `StructuralTagPalette` | Insert structural elements |
+| Component              | Purpose                                     |
+| ---------------------- | ------------------------------------------- |
+| `SelectionManager`     | Track DOM selections and map to XML offsets |
+| `SchemaLoader`         | Load and parse TEI RelaxNG schemas          |
+| `ValidationService`    | Validate XML against loaded schemas         |
+| `ValidationPanel`      | Display real-time validation errors         |
+| `TagBreadcrumb`        | Show tag hierarchy at cursor position       |
+| `TagEditDialog`        | Form-based editor for tag attributes        |
+| `ProximityAnalyzer`    | Calculate character co-occurrence           |
+| `XMLCodeEditor`        | Monaco-based XML source editor              |
+| `StructuralTagPalette` | Insert structural elements                  |
 
 ---
 
@@ -140,6 +140,7 @@ User clicks <q> → TagToolbar calls onApplyTag('q')
 ### RelaxNG Integration
 
 **Dependencies:**
+
 - `relaxng-validator-js` - Schema validation library
 
 **SchemaLoader** (`lib/schema/SchemaLoader.ts`)
@@ -183,6 +184,7 @@ class SchemaLoader {
 **File:** `components/editor/TagBreadcrumb.tsx`
 
 Shows hierarchy at cursor position:
+
 ```
 TEI > text > body > p > said[@who="#speaker1"]
 ```
@@ -194,6 +196,7 @@ TEI > text > body > p > said[@who="#speaker1"]
 ### Visual Tag Indicators
 
 Rendered tags display with:
+
 - Subtle colored borders indicating tag type
 - Hover effect with tag name
 - Click to select, double-click to edit
@@ -202,6 +205,7 @@ Rendered tags display with:
 ### Tag Edit Dialog
 
 **Features:**
+
 - Form-based editor for tag attributes
 - Schema-enforced options (dropdowns for enumerated values)
 - Live validation feedback
@@ -215,30 +219,34 @@ Rendered tags display with:
 ### Proximity Methods
 
 **1. Paragraph-based (default)**
+
 - Characters in same `<p>` element are connected
 - Edge weight = number of shared paragraphs
 
 **2. Dialogue Proximity**
+
 - Characters speaking within N turns of each other
 - Configurable N (default: 3)
 - Edge weight = interaction frequency
 
 **3. Word Distance**
+
 - Characters mentioned within X words of each other
 - Scans both `<said>` dialogue and narration
 - Configurable word count (default: 100)
 
 **4. Combined Mode**
+
 - Enable multiple methods simultaneously
 - Different edge styles per method (solid/dashed/dotted)
 
 ### Edge Directionality
 
-| Edge Type | Visual | Purpose |
-|-----------|--------|---------|
-| Undirected | Solid gray, thickness = strength | Co-occurrence regardless of order |
-| Directed | Animated colored arrows | Dialogue flow (who speaks before whom) |
-| Both | Both types visible simultaneously | Complete relationship picture |
+| Edge Type  | Visual                            | Purpose                                |
+| ---------- | --------------------------------- | -------------------------------------- |
+| Undirected | Solid gray, thickness = strength  | Co-occurrence regardless of order      |
+| Directed   | Animated colored arrows           | Dialogue flow (who speaks before whom) |
+| Both       | Both types visible simultaneously | Complete relationship picture          |
 
 ### Configuration Panel
 
@@ -294,6 +302,7 @@ class ProximityAnalyzer {
 **Library:** `@monaco-editor/react`
 
 Features:
+
 - XML syntax highlighting
 - Schema-aware autocomplete
 - Line numbers
@@ -315,18 +324,22 @@ User edits preview → Serialize XML → Update code editor
 ### Structural Tag Operations
 
 **1. Tag Palette**
+
 ```
 [<div>]  [<p>]  [<sp>]  [<lg>]  [<head>]
 ```
+
 - Drag to position or click to insert at cursor
 - Schema validates insertion is allowed
 
 **2. Tree View Panel** (optional toggle)
+
 - Collapsible XML structure tree
 - Drag nodes to reorder
 - Right-click for actions: wrap/unwrap/delete
 
 **3. Visual Block Editing** (in rendered view)
+
 - Structural tags as bordered containers
 - Hover controls: [Wrap] [Delete] [Split]
 - Drag borders to resize/move content
@@ -338,12 +351,14 @@ User edits preview → Serialize XML → Update code editor
 ### Phase 1: Fix Tag Application (Quick Wins)
 
 **Tasks:**
+
 1. Create `SelectionManager` for accurate range tracking
 2. Add `wrapTextInTag()` method to `TEIDocument`
 3. Fix `handleApplyTag` to support all tag types
 4. Test: Select text, click tags, verify XML well-formedness
 
 **Files:**
+
 - `lib/selection/SelectionManager.ts` (new)
 - `lib/tei/TEIDocument.ts` (modify)
 - `components/editor/EditorLayout.tsx` (modify)
@@ -352,6 +367,7 @@ User edits preview → Serialize XML → Update code editor
 ### Phase 2: Schema Validation
 
 **Tasks:**
+
 1. Add `relaxng-validator-js` dependency
 2. Create `SchemaLoader` to parse TEI schemas
 3. Add `validateAgainstSchema()` to `TEIDocument`
@@ -359,6 +375,7 @@ User edits preview → Serialize XML → Update code editor
 5. Integrate validation into `updateDocument` flow
 
 **Files:**
+
 - `package.json` (add dependency)
 - `lib/schema/SchemaLoader.ts` (new)
 - `lib/validation/ValidationService.ts` (new)
@@ -368,12 +385,14 @@ User edits preview → Serialize XML → Update code editor
 ### Phase 3: Tag Selection/Editing
 
 **Tasks:**
+
 1. Create `TagBreadcrumb` component
 2. Add visual indicators to rendered tags
 3. Create `TagEditDialog` with schema-driven forms
 4. Implement tag selection click handlers
 
 **Files:**
+
 - `components/editor/TagBreadcrumb.tsx` (new)
 - `components/editor/TagEditDialog.tsx` (new)
 - `components/editor/RenderedView.tsx` (modify)
@@ -381,24 +400,28 @@ User edits preview → Serialize XML → Update code editor
 ### Phase 4: Character Network Enhancements
 
 **Tasks:**
+
 1. Create `ProximityAnalyzer` with strategy pattern
 2. Add configuration panel to `CharacterNetwork`
 3. Implement edge directionality options
 4. Add filtering/thresholding controls
 
 **Files:**
+
 - `lib/visualization/ProximityAnalyzer.ts` (new)
 - `components/visualization/CharacterNetwork.tsx` (modify)
 
 ### Phase 5: Split View Editing
 
 **Tasks:**
+
 1. Integrate Monaco Editor
 2. Create bidirectional sync between code and preview
 3. Add structural tag palette
 4. Implement tree view panel (optional)
 
 **Files:**
+
 - `package.json` (add `@monaco-editor/react`)
 - `components/editor/XMLCodeEditor.tsx` (new)
 - `components/editor/StructuralTagPalette.tsx` (new)
@@ -409,24 +432,28 @@ User edits preview → Serialize XML → Update code editor
 ## Testing Strategy
 
 ### Unit Tests
+
 - `SelectionManager` range tracking and offset calculation
 - `ProximityAnalyzer` each strategy
 - Schema validation error detection
 - `TEIDocument` tag manipulation methods
 
 ### Integration Tests
+
 - Tag application workflow
 - Tag editing with schema validation
 - Split view synchronization
 - Network graph configuration changes
 
 ### E2E Tests
+
 - Select text → apply tag → verify XML structure
 - Attempt invalid edit → verify blocked with error message
 - Edit in code view → verify preview updates
 - Change network settings → verify graph updates
 
 ### Visual Regression Tests
+
 - Network graph rendering with different configurations
 - Tag styling in rendered view
 - Validation panel error display
@@ -435,12 +462,12 @@ User edits preview → Serialize XML → Update code editor
 
 ## Key Dependencies
 
-| Dependency | Purpose | Version |
-|------------|---------|---------|
-| `relaxng-validator-js` | RelaxNG schema validation | latest |
-| `@monaco-editor/react` | XML code editor | latest |
-| `reactflow` | Network visualization (existing) | current |
-| `fast-xml-parser` | XML parsing (existing) | current |
+| Dependency             | Purpose                          | Version |
+| ---------------------- | -------------------------------- | ------- |
+| `relaxng-validator-js` | RelaxNG schema validation        | latest  |
+| `@monaco-editor/react` | XML code editor                  | latest  |
+| `reactflow`            | Network visualization (existing) | current |
+| `fast-xml-parser`      | XML parsing (existing)           | current |
 
 ---
 

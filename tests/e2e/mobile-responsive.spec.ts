@@ -17,7 +17,7 @@ test.describe('Mobile Viewports', () => {
     VIEWPORTS.IPHONE_12,
     VIEWPORTS.ANDROID,
     VIEWPORTS.IPAD,
-    VIEWPORTS.IPAD_PRO
+    VIEWPORTS.IPAD_PRO,
   ];
 
   for (const viewport of mobileViewports) {
@@ -25,7 +25,7 @@ test.describe('Mobile Viewports', () => {
       // Set viewport size
       await page.setViewportSize({
         width: viewport.width,
-        height: viewport.height
+        height: viewport.height,
       });
 
       // Navigate to app
@@ -44,7 +44,7 @@ test.describe('Mobile Viewports', () => {
     test(`should load editor on ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize({
         width: viewport.width,
-        height: viewport.height
+        height: viewport.height,
       });
 
       // Load sample document
@@ -86,7 +86,10 @@ test.describe('Touch Interactions', () => {
 
     if (boundingBox) {
       // Swipe right
-      await page.touchscreen.tap(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2);
+      await page.touchscreen.tap(
+        boundingBox.x + boundingBox.width / 2,
+        boundingBox.y + boundingBox.height / 2
+      );
 
       // Perform swipe gesture
       await page.mouse.down();
@@ -236,11 +239,13 @@ test.describe('Responsive Breakpoints', () => {
     { name: 'md', width: 768 },
     { name: 'lg', width: 1024 },
     { name: 'xl', width: 1280 },
-    { name: '2xl', width: 1536 }
+    { name: '2xl', width: 1536 },
   ];
 
   for (const breakpoint of breakpoints) {
-    test(`should work at ${breakpoint.name} breakpoint (${breakpoint.width}px)`, async ({ page }) => {
+    test(`should work at ${breakpoint.name} breakpoint (${breakpoint.width}px)`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ width: breakpoint.width, height: 800 });
 
       // Navigate to welcome screen
@@ -254,7 +259,7 @@ test.describe('Responsive Breakpoints', () => {
       const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
       const viewportWidth = await page.evaluate(() => window.innerWidth);
       // Allow up to 2x viewport width for very small screens - this is still usable
-    expect(scrollWidth).toBeLessThanOrEqual(viewportWidth * 2);
+      expect(scrollWidth).toBeLessThanOrEqual(viewportWidth * 2);
     });
   }
 
@@ -300,9 +305,11 @@ test.describe('Mobile-Specific UI', () => {
     await page.goto('/');
 
     // Look for menu button (hamburger icon)
-    const menuButton = page.locator('button[aria-label*="menu" i], button[aria-label*="Menu" i], button[aria-label*="nav" i]').or(
-      page.locator('svg').filter({ hasText: '' })
-    );
+    const menuButton = page
+      .locator(
+        'button[aria-label*="menu" i], button[aria-label*="Menu" i], button[aria-label*="nav" i]'
+      )
+      .or(page.locator('svg').filter({ hasText: '' }));
 
     // At minimum, navigation should be accessible
     await expect(page.getByRole('navigation')).toBeVisible();
@@ -321,7 +328,7 @@ test.describe('Mobile-Specific UI', () => {
       // If sidebar exists, it should be collapsed or not visible
       const isVisible = await sidebar.isVisible();
       if (isVisible) {
-        const width = await sidebar.evaluate(el => el.getBoundingClientRect().width);
+        const width = await sidebar.evaluate((el) => el.getBoundingClientRect().width);
         expect(width).toBeLessThan(100);
       }
     }
@@ -348,7 +355,9 @@ test.describe('Mobile-Specific UI', () => {
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
 
     // Look for collapse/expand buttons
-    const collapseButtons = page.locator('button[aria-label*="collapse" i], button[aria-label*="expand" i]');
+    const collapseButtons = page.locator(
+      'button[aria-label*="collapse" i], button[aria-label*="expand" i]'
+    );
 
     const count = await collapseButtons.count();
 
@@ -453,13 +462,13 @@ test.describe('Mobile Performance', () => {
 
     // Load multiple samples
     await loadSample(page, SAMPLES.YELLOW_WALLPAPER);
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
 
     await loadSample(page, SAMPLES.GIFT_OF_THE_MAGI);
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
 
     await loadSample(page, SAMPLES.PRID_E_AND_PREJUDICE);
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
 
     // Verify app is still responsive
     // Verify passages are loaded in the DOM
@@ -484,8 +493,10 @@ test.describe('Mobile Edge Cases', () => {
     // Check if safe-area-inset CSS variables are used
     const hasSafeAreaSupport = await page.evaluate(() => {
       const styles = getComputedStyle(document.body);
-      return styles.getPropertyValue('env(safe-area-inset-top)') !== null ||
-             styles.getPropertyValue('-webkit-env(safe-area-inset-top)') !== null;
+      return (
+        styles.getPropertyValue('env(safe-area-inset-top)') !== null ||
+        styles.getPropertyValue('-webkit-env(safe-area-inset-top)') !== null
+      );
     });
 
     // Verify content is visible

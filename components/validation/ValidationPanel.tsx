@@ -1,13 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,7 +13,11 @@ import {
   FixSuggestion,
 } from '@/lib/validation';
 import { AlertCircle, AlertTriangle, CheckCircle2, Wrench } from 'lucide-react';
-import { SchemaSelectionManager, SchemaSelectionHistory, createSchemaSelection } from '@/lib/schema/SchemaSelection';
+import {
+  SchemaSelectionManager,
+  SchemaSelectionHistory,
+  createSchemaSelection,
+} from '@/lib/schema/SchemaSelection';
 import { createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
 import { SchemaInfo } from '@/lib/schema/SchemaResolver';
 
@@ -46,26 +44,26 @@ export function ValidationPanel({
 
   const [selectionHistory, setSelectionHistory] = useState<SchemaSelectionHistory>(() => ({
     current: selectionManager.load(),
-    previous: []
+    previous: [],
   }));
   const [availableSchemas, setAvailableSchemas] = useState<SchemaInfo[]>([]);
 
   // Load schemas on mount
   useEffect(() => {
     fetch('/api/schemas')
-      .then(r => r.json())
-      .then(data => setAvailableSchemas(data.schemas))
-      .catch(err => console.error('Failed to load schemas:', err));
+      .then((r) => r.json())
+      .then((data) => setAvailableSchemas(data.schemas))
+      .catch((err) => console.error('Failed to load schemas:', err));
   }, []);
 
   // Handle schema change
   const handleSchemaChange = useCallback((newSchemaId: string) => {
-    setSelectionHistory(prev => selectionManager.transition(prev, newSchemaId));
+    setSelectionHistory((prev) => selectionManager.transition(prev, newSchemaId));
   }, []);
 
   // Get current schema info
   const currentSchema = useMemo(() => {
-    return availableSchemas.find(s => s.id === selectionHistory.current.schemaId);
+    return availableSchemas.find((s) => s.id === selectionHistory.current.schemaId);
   }, [availableSchemas, selectionHistory.current.schemaId]);
 
   if (!visible) {
@@ -93,7 +91,7 @@ export function ValidationPanel({
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm"
                 aria-label="Validation Schema"
               >
-                {availableSchemas.map(schema => (
+                {availableSchemas.map((schema) => (
                   <option key={schema.id} value={schema.id}>
                     {schema.name}
                   </option>
@@ -104,8 +102,11 @@ export function ValidationPanel({
                 <div className="schema-info mt-3 pt-3 border-t">
                   <p className="text-sm text-muted-foreground mb-2">{currentSchema.description}</p>
                   <div className="flex gap-2 flex-wrap">
-                    {currentSchema.tags.map(tag => (
-                      <span key={tag} className="px-2 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium">
+                    {currentSchema.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium"
+                      >
                         {tag}
                       </span>
                     ))}
@@ -116,9 +117,7 @@ export function ValidationPanel({
           )}
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Run validation to see results
-          </p>
+          <p className="text-sm text-muted-foreground">Run validation to see results</p>
         </CardContent>
       </Card>
     );
@@ -129,8 +128,7 @@ export function ValidationPanel({
   const totalWarnings = warnings.length;
 
   // Filter issues based on selected severity
-  const filteredErrors =
-    severityFilter === 'all' || severityFilter === 'errors' ? errors : [];
+  const filteredErrors = severityFilter === 'all' || severityFilter === 'errors' ? errors : [];
   const filteredWarnings =
     severityFilter === 'all' || severityFilter === 'warnings' ? warnings : [];
 
@@ -147,9 +145,7 @@ export function ValidationPanel({
               {totalErrors} errors, {totalWarnings} warnings
             </CardDescription>
           </div>
-          {valid && !hasIssues && (
-            <CheckCircle2 className="h-6 w-6 text-green-500" />
-          )}
+          {valid && !hasIssues && <CheckCircle2 className="h-6 w-6 text-green-500" />}
         </div>
 
         {/* Schema Selector */}
@@ -165,7 +161,7 @@ export function ValidationPanel({
               className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm"
               aria-label="Validation Schema"
             >
-              {availableSchemas.map(schema => (
+              {availableSchemas.map((schema) => (
                 <option key={schema.id} value={schema.id}>
                   {schema.name}
                 </option>
@@ -176,8 +172,11 @@ export function ValidationPanel({
               <div className="schema-info mt-3 pt-3 border-t">
                 <p className="text-sm text-muted-foreground mb-2">{currentSchema.description}</p>
                 <div className="flex gap-2 flex-wrap">
-                  {currentSchema.tags.map(tag => (
-                    <span key={tag} className="px-2 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium">
+                  {currentSchema.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium"
+                    >
                       {tag}
                     </span>
                   ))}
@@ -222,9 +221,7 @@ export function ValidationPanel({
           <Alert variant="default">
             <CheckCircle2 className="h-4 w-4" />
             <AlertTitle>Document is valid</AlertTitle>
-            <AlertDescription>
-              Your TEI document passed all validation checks.
-            </AlertDescription>
+            <AlertDescription>Your TEI document passed all validation checks.</AlertDescription>
           </Alert>
         ) : (
           <ScrollArea className="h-[400px] pr-4">
@@ -240,10 +237,7 @@ export function ValidationPanel({
 
               {/* Render Warnings */}
               {filteredWarnings.map((warning, index) => (
-                <WarningItem
-                  key={`warning-${index}`}
-                  warning={warning}
-                />
+                <WarningItem key={`warning-${index}`} warning={warning} />
               ))}
 
               {/* Show message if no issues match filter */}
@@ -316,9 +310,7 @@ function ErrorItem({ error, onClick }: ErrorItemProps) {
                 </span>
               )}
             </AlertTitle>
-            <AlertDescription className="mt-1">
-              {error.message}
-            </AlertDescription>
+            <AlertDescription className="mt-1">{error.message}</AlertDescription>
           </div>
         </div>
         {hasContext && (
@@ -344,13 +336,14 @@ function WarningItem({ warning }: WarningItemProps) {
       <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
       <div className="flex-1">
         <AlertTitle className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs border-yellow-600 text-yellow-700 dark:text-yellow-500">
+          <Badge
+            variant="outline"
+            className="text-xs border-yellow-600 text-yellow-700 dark:text-yellow-500"
+          >
             Warning
           </Badge>
           {hasCode && (
-            <span className="text-xs font-mono text-muted-foreground">
-              {warning.code}
-            </span>
+            <span className="text-xs font-mono text-muted-foreground">{warning.code}</span>
           )}
           {hasLocation && (
             <span className="text-xs font-normal text-muted-foreground">
@@ -360,9 +353,7 @@ function WarningItem({ warning }: WarningItemProps) {
             </span>
           )}
         </AlertTitle>
-        <AlertDescription className="mt-1">
-          {warning.message}
-        </AlertDescription>
+        <AlertDescription className="mt-1">{warning.message}</AlertDescription>
       </div>
     </Alert>
   );

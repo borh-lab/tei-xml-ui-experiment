@@ -9,23 +9,23 @@ describe('EntityDetector', () => {
 
   describe('detectPersonalNames', () => {
     test('detects names with titles', () => {
-      const text = "Mr. Darcy looked at Elizabeth";
+      const text = 'Mr. Darcy looked at Elizabeth';
       const result = detector.detectPersonalNames(text);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
         text: 'Mr. Darcy',
         type: 'persName',
-        confidence: expect.any(Number)
+        confidence: expect.any(Number),
       });
       expect(result[1]).toMatchObject({
         text: 'Elizabeth',
-        type: 'persName'
+        type: 'persName',
       });
     });
 
     test('detects multiple titles', () => {
-      const text = "Mrs. Bennet and Miss Bingley arrived";
+      const text = 'Mrs. Bennet and Miss Bingley arrived';
       const result = detector.detectPersonalNames(text);
 
       expect(result).toHaveLength(2);
@@ -34,7 +34,7 @@ describe('EntityDetector', () => {
     });
 
     test('excludes common words at sentence start', () => {
-      const text = "The sun was bright";
+      const text = 'The sun was bright';
       const result = detector.detectPersonalNames(text);
 
       expect(result).toHaveLength(0);
@@ -43,7 +43,7 @@ describe('EntityDetector', () => {
 
   describe('detectPlaces', () => {
     test('detects locations with prepositions', () => {
-      const text = "in London and at Hertfordshire";
+      const text = 'in London and at Hertfordshire';
       const result = detector.detectPlaces(text);
 
       expect(result).toHaveLength(2);

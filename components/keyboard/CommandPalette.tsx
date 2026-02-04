@@ -22,7 +22,7 @@ import {
   Layers,
   CheckCircle2,
   AlertCircle,
-  XCircle
+  XCircle,
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -48,7 +48,7 @@ export function CommandPalette({
   onToggleBulkMode,
   onToggleVisualizations,
   isBulkMode = false,
-  isVizPanelOpen = false
+  isVizPanelOpen = false,
 }: CommandPaletteProps) {
   const { document, loadDocument, loadSample, clearDocument } = useDocumentService();
   const [toast, setToast] = useState<Toast | null>(null);
@@ -195,35 +195,23 @@ export function CommandPalette({
 
           {/* Document Actions */}
           <CommandGroup heading="Document Actions">
-            <CommandItem
-              onSelect={handleSaveDocument}
-              disabled={!document || isLoading}
-            >
+            <CommandItem onSelect={handleSaveDocument} disabled={!document || isLoading}>
               <FileDown className="mr-2 h-4 w-4" />
               <span>Save document</span>
               {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
               <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘S</kbd>
             </CommandItem>
-            <CommandItem
-              onSelect={handleExportTEI}
-              disabled={!document || isLoading}
-            >
+            <CommandItem onSelect={handleExportTEI} disabled={!document || isLoading}>
               <FileText className="mr-2 h-4 w-4" />
               <span>Export TEI XML</span>
               {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
             </CommandItem>
-            <CommandItem
-              onSelect={handleExportHTML}
-              disabled={!document || isLoading}
-            >
+            <CommandItem onSelect={handleExportHTML} disabled={!document || isLoading}>
               <FileDown className="mr-2 h-4 w-4" />
               <span>Export HTML</span>
               {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
             </CommandItem>
-            <CommandItem
-              onSelect={handleClearDocument}
-              disabled={!document || isLoading}
-            >
+            <CommandItem onSelect={handleClearDocument} disabled={!document || isLoading}>
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Clear document</span>
               {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
@@ -232,24 +220,26 @@ export function CommandPalette({
 
           {/* View Options */}
           <CommandGroup heading="View Options">
-            <CommandItem
-              onSelect={handleToggleBulkMode}
-              disabled={!document || isLoading}
-            >
+            <CommandItem onSelect={handleToggleBulkMode} disabled={!document || isLoading}>
               <Layers className="mr-2 h-4 w-4" />
               <span>Toggle bulk mode</span>
               {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
-              {isBulkMode && <span className="ml-auto text-xs bg-green-100 dark:bg-green-900 px-2 py-1 rounded">Active</span>}
+              {isBulkMode && (
+                <span className="ml-auto text-xs bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
+                  Active
+                </span>
+              )}
               <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘B</kbd>
             </CommandItem>
-            <CommandItem
-              onSelect={handleToggleVisualizations}
-              disabled={!document || isLoading}
-            >
+            <CommandItem onSelect={handleToggleVisualizations} disabled={!document || isLoading}>
               <Eye className="mr-2 h-4 w-4" />
               <span>Toggle visualizations</span>
               {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
-              {isVizPanelOpen && <span className="ml-auto text-xs bg-green-100 dark:bg-green-900 px-2 py-1 rounded">Visible</span>}
+              {isVizPanelOpen && (
+                <span className="ml-auto text-xs bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
+                  Visible
+                </span>
+              )}
             </CommandItem>
           </CommandGroup>
 
@@ -282,8 +272,8 @@ export function CommandPalette({
               toast.type === 'success'
                 ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900'
                 : toast.type === 'error'
-                ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900'
-                : 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
+                  ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900'
+                  : 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
             }`}
           >
             {toast.type === 'success' && <CheckCircle2 className="h-4 w-4 text-green-600" />}
@@ -294,8 +284,8 @@ export function CommandPalette({
                 toast.type === 'success'
                   ? 'text-green-900 dark:text-green-100'
                   : toast.type === 'error'
-                  ? 'text-red-900 dark:text-red-100'
-                  : 'text-blue-900 dark:text-blue-100'
+                    ? 'text-red-900 dark:text-red-100'
+                    : 'text-blue-900 dark:text-blue-100'
               }`}
             >
               {toast.message}

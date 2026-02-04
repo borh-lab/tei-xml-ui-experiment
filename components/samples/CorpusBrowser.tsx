@@ -43,7 +43,7 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
         .map((f: any) => ({
           title: f.name.replace('.xml', ''),
           author: 'Various',
-          path: f.download_url
+          path: f.download_url,
         }))
         .slice(0, 20); // Limit to 20 for now
 
@@ -61,9 +61,7 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
     fetchNovels();
   }, []);
 
-  const filtered = novels.filter(n =>
-    n.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = novels.filter((n) => n.title.toLowerCase().includes(search.toLowerCase()));
 
   const loadNovel = async (path: string, title: string) => {
     setError(null);
@@ -89,7 +87,8 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
       onLoadNovel?.(title);
     } catch (err) {
       console.error('Failed to load novel:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load novel. Please try again.';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to load novel. Please try again.';
       setError(`${errorMessage} Please check your internet connection and try again.`);
     }
   };
@@ -98,9 +97,7 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
     <Card>
       <CardHeader>
         <CardTitle>Browse Wright American Fiction Corpus</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Access 3,000+ novels from 1851-1875
-        </p>
+        <p className="text-sm text-muted-foreground">Access 3,000+ novels from 1851-1875</p>
       </CardHeader>
       <CardContent>
         <Input
@@ -113,11 +110,7 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
         {error ? (
           <div className="text-destructive p-4 border border-destructive rounded">
             <p className="mb-2">{error}</p>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={fetchNovels}
-            >
+            <Button size="sm" variant="outline" onClick={fetchNovels}>
               Retry
             </Button>
           </div>
@@ -142,10 +135,7 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
                     <p className="font-medium">{novel.title}</p>
                     <p className="text-sm text-muted-foreground">{novel.author}</p>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => loadNovel(novel.path, novel.title)}
-                  >
+                  <Button size="sm" onClick={() => loadNovel(novel.path, novel.title)}>
                     Load
                   </Button>
                 </div>

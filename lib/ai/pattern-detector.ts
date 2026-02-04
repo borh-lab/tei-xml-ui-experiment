@@ -6,12 +6,7 @@
  */
 
 import type { TEIDocument } from '@/lib/tei/types';
-import type {
-  DetectionResult,
-  DialogueDetection,
-  SpeakerPattern,
-  TextRange,
-} from './types';
+import type { DetectionResult, DialogueDetection, SpeakerPattern, TextRange } from './types';
 
 // ============================================================================
 // Public API
@@ -89,9 +84,7 @@ export function detectDialogueInDocument(
 
   for (const passage of doc.state.passages) {
     // Find existing dialogue tags
-    const dialogueTags = passage.tags.filter(
-      (t) => t.type === 'said' || t.type === 'q'
-    );
+    const dialogueTags = passage.tags.filter((t) => t.type === 'said' || t.type === 'q');
 
     // For each existing tag, detect speaker attribution
     for (const tag of dialogueTags) {
@@ -112,9 +105,7 @@ export function detectDialogueInDocument(
     const untaggedQuotes = findUntaggedDialogue(passage.content);
     for (const quote of untaggedQuotes) {
       // Skip if this quote overlaps with an existing tag
-      const overlaps = dialogueTags.some((tag) =>
-        rangesOverlap(quote.range, tag.range)
-      );
+      const overlaps = dialogueTags.some((tag) => rangesOverlap(quote.range, tag.range));
       if (overlaps) continue;
 
       const speakers = detectSpeaker(quote.text, doc.state.characters, patterns);

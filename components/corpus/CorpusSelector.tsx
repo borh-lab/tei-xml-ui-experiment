@@ -67,9 +67,7 @@ export function CorpusSelector({ onSelectCorpus }: CorpusSelectorProps) {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardTitle className="text-xl mb-1">{corpus.name}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {corpus.description}
-                  </CardDescription>
+                  <CardDescription className="text-sm">{corpus.description}</CardDescription>
                 </div>
                 <div className="text-4xl">{corpus.icon}</div>
               </div>
@@ -77,12 +75,7 @@ export function CorpusSelector({ onSelectCorpus }: CorpusSelectorProps) {
             <CardContent>
               <div className="flex items-center text-sm text-primary font-medium">
                 <span>Browse Collection</span>
-                <svg
-                  className="ml-2 w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -99,9 +92,9 @@ export function CorpusSelector({ onSelectCorpus }: CorpusSelectorProps) {
       <div className="mt-12 p-6 bg-muted/50 rounded-lg">
         <h3 className="font-semibold mb-2">About These Corpora</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          These collections contain TEI-encoded XML documents with varying levels of markup,
-          from minimal metadata to rich dialogue annotations. Select a corpus to view its
-          documents and explore their encoding patterns.
+          These collections contain TEI-encoded XML documents with varying levels of markup, from
+          minimal metadata to rich dialogue annotations. Select a corpus to view its documents and
+          explore their encoding patterns.
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>

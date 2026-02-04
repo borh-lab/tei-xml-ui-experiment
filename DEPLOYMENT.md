@@ -53,18 +53,21 @@ The application will be available at `http://localhost:3000`.
 <img src="docs/screenshots/welcome-screen.png" alt="Application Running Successfully" width="800">
 
 **You should see:**
+
 - ✅ Welcome page with sample gallery loaded
 - ✅ No console errors (check browser DevTools)
 - ✅ File upload button is functional
 - ✅ Can click on samples to load them
 
 **If you see errors:**
+
 - Check browser console (F12 → Console tab)
 - Verify port 3000 is available
 - Ensure all dependencies installed (`node_modules` exists)
 - See [Troubleshooting](#troubleshooting) below
 
 **Quick Test:**
+
 1. Click on a sample document (e.g., "The Gift of the Magi")
 2. Click "Load Sample"
 3. Should see the editor with annotated passages
@@ -162,6 +165,7 @@ See `docs/plans/2026-01-27-critical-issues-fixes.md` for tracking ongoing issues
 Before diving into specific errors, run through this checklist:
 
 **Environment Check:**
+
 ```bash
 # Check Node version (must be 18+)
 node --version
@@ -177,6 +181,7 @@ ls node_modules | head -10  # Should show packages
 ```
 
 **Quick Health Check:**
+
 1. Can you run `npm run dev` without errors?
 2. Does browser show the welcome screen?
 3. Can you load a sample document?
@@ -187,18 +192,22 @@ ls node_modules | head -10  # Should show packages
 #### Issue: Module not found errors
 
 **Symptoms:**
+
 ```
 Error: Cannot find module 'some-package'
 ```
 
 **Solutions:**
+
 1. Reinstall dependencies:
+
    ```bash
    rm -rf node_modules package-lock.json
    npm install
    ```
 
 2. Clear npm cache:
+
    ```bash
    npm cache clean --force
    npm install
@@ -212,12 +221,15 @@ Error: Cannot find module 'some-package'
 #### Issue: Port already in use
 
 **Symptoms:**
+
 ```
 Error: listen EADDRINUSE: address already in use :::3000
 ```
 
 **Solutions:**
+
 1. Kill process on port 3000:
+
    ```bash
    # Find process
    lsof -i :3000
@@ -234,24 +246,29 @@ Error: listen EADDRINUSE: address already in use :::3000
 #### Issue: WASM module fails to load
 
 **Symptoms:**
+
 - Console errors about `.wasm` files
 - Pattern features not working
 - Performance issues
 
 **Solutions:**
+
 1. Build WASM module:
+
    ```bash
    cd pattern-engine
    wasm-pack build --target web --out-dir ../public/wasm
    ```
 
 2. Verify files exist:
+
    ```bash
    ls public/wasm/
    # Should see: pattern_engine.js, pattern_engine_bg.wasm, etc.
    ```
 
 3. Check Rust toolchain:
+
    ```bash
    rustc --version
    wasm-pack --version
@@ -262,16 +279,20 @@ Error: listen EADDRINUSE: address already in use :::3000
 #### Issue: Cannot find .env.local
 
 **Symptoms:**
+
 - API features not working
 - Console shows "API key not provided"
 
 **Solutions:**
+
 1. Create environment file:
+
    ```bash
    cp .env.local.example .env.local
    ```
 
 2. Edit with your API keys:
+
    ```bash
    # Edit .env.local and add:
    OPENAI_API_KEY=sk-your-key-here
@@ -284,6 +305,7 @@ Error: listen EADDRINUSE: address already in use :::3000
 ### API Key Errors
 
 If you see "API key not provided" errors:
+
 - Ensure `.env.local` exists with valid API keys
 - Check that the environment variables are loaded (restart dev server)
 - Verify API key format (no extra spaces or quotes)
@@ -291,6 +313,7 @@ If you see "API key not provided" errors:
 ### WASM Module Errors
 
 If WASM features don't work:
+
 - Ensure `public/wasm/pattern_engine.js` and `.wasm` files exist
 - Rebuild WASM module: `cd pattern-engine && wasm-pack build --target web --out-dir ../public/wasm`
 - Check browser console for specific error messages
@@ -298,6 +321,7 @@ If WASM features don't work:
 ### Database Errors
 
 If pattern storage fails:
+
 - Check that IndexedDB is enabled in your browser
 - Ensure you're not in private browsing mode
 - Clear browser cache and IndexedDB data
@@ -369,6 +393,7 @@ For large-scale deployments:
 ## Support
 
 For issues, questions, or contributions:
+
 - GitHub Issues: [repository-url]
 - Documentation: `docs/` directory
 - Implementation Plans: `docs/plans/` directory

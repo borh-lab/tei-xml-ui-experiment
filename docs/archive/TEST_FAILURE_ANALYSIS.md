@@ -20,6 +20,7 @@ After comprehensive infrastructure fixes (173 passing tests), 171 test failures 
 **Pattern:** Tests expecting UI text/elements that don't exist or have changed
 
 #### Common Issues:
+
 1. **"Rendered View" heading** (8+ instances)
    - **Location:** `tei-editor-real.spec.ts`, `error-scenarios.spec.ts`, `tei-dialogue-editor.spec.ts`
    - **Issue:** Only visible in split view mode, not in default WYSIWYG mode
@@ -46,6 +47,7 @@ After comprehensive infrastructure fixes (173 passing tests), 171 test failures 
    - **Status:** Needs investigation
 
 #### Examples:
+
 ```
 Error: expect(locator).toBeVisible failed
 Locator: getByText('Rendered View')
@@ -53,6 +55,7 @@ Expected: visible
 ```
 
 **Recommendation:** Replace hardcoded text selectors with:
+
 - Role-based selectors: `page.getByRole('button', { name: /.../ })`
 - Element-based: `page.locator('[id^="passage-"]')`
 - Conditional checks with `.or()` fallbacks
@@ -64,6 +67,7 @@ Expected: visible
 **Pattern:** Tests timing out on navigation, loading, or rendering
 
 #### Common Issues:
+
 1. **BeforeEach timeouts** (20+ instances)
    - **Issue:** 60s timeout insufficient for heavy operations
    - **Affected:** Character Network, mobile tests, large documents
@@ -78,12 +82,14 @@ Expected: visible
    - **Fix:** ✅ PARTIAL - Added explicit waits and fallback selectors
 
 #### Examples:
+
 ```
 Error: Test timeout of 30000ms exceeded while running "beforeEach" hook
 Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
 ```
 
 **Recommendation:**
+
 - Use `waitForEditorReady()` protocol consistently
 - Increase timeout for specific slow operations
 - Add retry logic for transient failures
@@ -95,6 +101,7 @@ Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
 **Pattern:** Tests expecting specific application state that doesn't match reality
 
 #### Common Issues:
+
 1. **Auto-load behavior** (10+ instances)
    - **Issue:** Tests expect sample to auto-load, but timing varies
    - **Fix:** ✅ COMPLETED - Use `waitForEditorReady()` protocol
@@ -108,6 +115,7 @@ Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
    - **Status:** Needs explicit state management
 
 #### Examples:
+
 ```
 Error: expect(button).toBeVisible failed
 Expected: "Tag All" button
@@ -115,6 +123,7 @@ Actual: Button text is "Select All Untagged"
 ```
 
 **Recommendation:**
+
 - Explicitly set application state in beforeEach
 - Check current state before asserting expectations
 - Use conditional assertions for optional features
@@ -126,6 +135,7 @@ Actual: Button text is "Select All Untagged"
 **Pattern:** Tests using outdated or incorrect selectors
 
 #### Common Issues:
+
 1. **Button name changes** (8+ instances)
    - **Issue:** Button text has changed in application
    - **Fix:** ✅ COMPLETED - Updated "Tag All" → "Select All Untagged", etc.
@@ -139,6 +149,7 @@ Actual: Button text is "Select All Untagged"
    - **Status:** Needs UI investigation
 
 #### Examples:
+
 ```
 Error: locator.click: Test timeout of 30000ms exceeded
 Waiting for: getByRole('tab', { name: /network/i })
@@ -146,6 +157,7 @@ Actual: Tab name is "Network" (not lowercase)
 ```
 
 **Recommendation:**
+
 - Audit all button/element names against current UI
 - Use partial matching with regex: `{ name: /Network/i }`
 - Add fallback selectors for robustness
@@ -206,15 +218,15 @@ Actual: Tab name is "Network" (not lowercase)
 
 ### Highest Failure Counts:
 
-| Test File | Failures | Priority | Quick Wins |
-|-----------|----------|----------|------------|
-| `tei-editor-real.spec.ts` | 15 | High | 8 (✅ Fixed to 7) |
-| `error-scenarios.spec.ts` | 12 | High | 5 (✅ Fixed) |
-| `document-upload.spec.ts` | 15 | Medium | 5 |
-| `tei-dialogue-editor.spec.ts` | 18 | Medium | 10 (✅ Fixed to 14) |
-| `tag-selection-editing.spec.ts` | 8 | Low | 3 |
-| `mobile-responsive.spec.ts` | 12 | Medium | 6 (✅ Fixed) |
-| `schema-validation-integration.spec.ts` | 10 | Medium | 4 |
+| Test File                               | Failures | Priority | Quick Wins          |
+| --------------------------------------- | -------- | -------- | ------------------- |
+| `tei-editor-real.spec.ts`               | 15       | High     | 8 (✅ Fixed to 7)   |
+| `error-scenarios.spec.ts`               | 12       | High     | 5 (✅ Fixed)        |
+| `document-upload.spec.ts`               | 15       | Medium   | 5                   |
+| `tei-dialogue-editor.spec.ts`           | 18       | Medium   | 10 (✅ Fixed to 14) |
+| `tag-selection-editing.spec.ts`         | 8        | Low      | 3                   |
+| `mobile-responsive.spec.ts`             | 12       | Medium   | 6 (✅ Fixed)        |
+| `schema-validation-integration.spec.ts` | 10       | Medium   | 4                   |
 
 ---
 
@@ -244,24 +256,29 @@ Actual: Tab name is "Network" (not lowercase)
 ## Recommended Next Steps
 
 ### Option 1: Targeted Fix (Recommended)
+
 Focus on high-impact, low-effort fixes:
+
 - Fix remaining "TEI Source" issues (10 tests)
 - Fix validation panel access (8 tests)
 - Fix deprecated dialog tests (5 tests)
-**Expected Result:** ~190 passing tests (+17)
+  **Expected Result:** ~190 passing tests (+17)
 
 ### Option 2: Comprehensive Fix
+
 Address all medium-priority issues:
+
 - Document upload workflows (15 tests)
 - Tag toolbar visibility (10 tests)
 - Mobile touch interactions (12 tests)
-**Expected Result:** ~220 passing tests (+47)
+  **Expected Result:** ~220 passing tests (+47)
 
 ### Option 3: Prune & Stabilize
+
 - Skip tests for deprecated features
 - Focus on core user workflows
 - Document test coverage gaps
-**Expected Result:** ~200 passing tests with better stability
+  **Expected Result:** ~200 passing tests with better stability
 
 ---
 
@@ -288,6 +305,7 @@ Address all medium-priority issues:
 The testing infrastructure has been significantly improved with **23 additional passing tests** (from 169 to 173 through systematic fixes).
 
 The remaining 171 failures are well-understood and categorized:
+
 - **92 (54%)** - Selector/element issues (quick fixes possible)
 - **35 (20%)** - Timeout issues (largely addressed)
 - **25 (15%)** - State management (requires investigation)
@@ -307,7 +325,8 @@ await expect(page.getByText('Rendered View')).toBeVisible();
 
 // ✅ After: Flexible selector with fallback
 await expect(
-  page.getByText('Rendered View')
+  page
+    .getByText('Rendered View')
     .or(page.locator('[id^="passage-"]'))
     .or(page.getByText('TEI Source'))
 ).toBeVisible();
@@ -320,7 +339,7 @@ await page.waitForSelector('[id^="passage-"]', { timeout: 10000 });
 // ✅ After: Explicit readiness protocol
 await waitForEditorReady(page, {
   passagesRendered: true,
-  networkIdle: true
+  networkIdle: true,
 });
 ```
 

@@ -176,8 +176,8 @@ test.describe('Entity Modeling End-to-End', () => {
       }
 
       // Should show either suggestions or empty state
-      const hasSuggestions = await page.getByText(/\d+% confidence/).count() > 0;
-      const hasEmptyState = await page.getByText('No entities detected').count() > 0;
+      const hasSuggestions = (await page.getByText(/\d+% confidence/).count()) > 0;
+      const hasEmptyState = (await page.getByText('No entities detected').count()) > 0;
 
       expect(hasSuggestions || hasEmptyState).toBeTruthy();
     });
@@ -245,19 +245,31 @@ test.describe('Entity Modeling End-to-End', () => {
       await expect(page.getByText('Entity Editor')).toBeVisible();
 
       // Characters tab should be active by default
-      await expect(page.getByRole('tab', { name: 'Characters' })).toHaveAttribute('data-state', 'active');
+      await expect(page.getByRole('tab', { name: 'Characters' })).toHaveAttribute(
+        'data-state',
+        'active'
+      );
 
       // Switch to Relationships tab
       await page.getByRole('tab', { name: 'Relationships' }).click();
-      await expect(page.getByRole('tab', { name: 'Relationships' })).toHaveAttribute('data-state', 'active');
+      await expect(page.getByRole('tab', { name: 'Relationships' })).toHaveAttribute(
+        'data-state',
+        'active'
+      );
 
       // Switch to NER Tags tab
       await page.getByRole('tab', { name: 'NER Tags' }).click();
-      await expect(page.getByRole('tab', { name: 'NER Tags' })).toHaveAttribute('data-state', 'active');
+      await expect(page.getByRole('tab', { name: 'NER Tags' })).toHaveAttribute(
+        'data-state',
+        'active'
+      );
 
       // Switch back to Characters
       await page.getByRole('tab', { name: 'Characters' }).click();
-      await expect(page.getByRole('tab', { name: 'Characters' })).toHaveAttribute('data-state', 'active');
+      await expect(page.getByRole('tab', { name: 'Characters' })).toHaveAttribute(
+        'data-state',
+        'active'
+      );
     });
   });
 });

@@ -200,8 +200,8 @@ export function getAllFeatureFlags(): Record<FeatureFlag, FeatureFlagState> {
  * ```
  */
 export function getEnabledFeatures(): FeatureFlag[] {
-  return Object.keys(FeatureFlags).filter(
-    (flag) => isFeatureEnabled(flag as FeatureFlag)
+  return Object.keys(FeatureFlags).filter((flag) =>
+    isFeatureEnabled(flag as FeatureFlag)
   ) as FeatureFlag[];
 }
 
@@ -361,7 +361,9 @@ export function createDebugUI(): string {
                 });
               location.reload();
             } else if (action === 'reset') {
-              ${Object.keys(FeatureFlags).map((flag) => `localStorage.removeItem('feature-${flag}');`).join('\n')}
+              ${Object.keys(FeatureFlags)
+                .map((flag) => `localStorage.removeItem('feature-${flag}');`)
+                .join('\n')}
               location.reload();
             }
           }

@@ -118,45 +118,44 @@
 ## Data Transformation Example
 
 ### Input
+
 ```javascript
-paragraph = "One dollar and eighty-seven cents."
-selectedText = "dollar and eighty-seven"
-tag = "said"
+paragraph = 'One dollar and eighty-seven cents.';
+selectedText = 'dollar and eighty-seven';
+tag = 'said';
 ```
 
 ### Process
+
 ```javascript
 // 1. Split text
-before = "One "
-middle = "dollar and eighty-seven"
-after = " cents."
+before = 'One ';
+middle = 'dollar and eighty-seven';
+after = ' cents.';
 
 // 2. Create TEI element
 taggedElement = {
-  "#said": "dollar and eighty-seven",
-  "@_rend": "plain"
-}
+  '#said': 'dollar and eighty-seven',
+  '@_rend': 'plain',
+};
 
 // 3. Create mixed content array
-result = [
-  "One ",
-  { "#said": "dollar and eighty-seven", "@_rend": "plain" },
-  " cents."
-]
+result = ['One ', { '#said': 'dollar and eighty-seven', '@_rend': 'plain' }, ' cents.'];
 ```
 
 ### Output (XML)
+
 ```xml
 <p>One <said rend="plain">dollar and eighty-seven</said> cents.</p>
 ```
 
 ## Tag Options
 
-| Tag Button | TEI Element | Default Attributes | Common Use |
-|-----------|-------------|-------------------|------------|
-| `<said>` | `<said>` | `rend="plain"` | Dialogue attribution |
-| `<q>` | `<q>` | `rend="plain"` | Quotes within text |
-| `<persName>` | `<persName>` | `rend="plain"` | Character names |
+| Tag Button   | TEI Element  | Default Attributes | Common Use           |
+| ------------ | ------------ | ------------------ | -------------------- |
+| `<said>`     | `<said>`     | `rend="plain"`     | Dialogue attribution |
+| `<q>`        | `<q>`        | `rend="plain"`     | Quotes within text   |
+| `<persName>` | `<persName>` | `rend="plain"`     | Character names      |
 
 ## Error Handling Flow
 

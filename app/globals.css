@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -166,13 +166,13 @@
   border-left: 2px solid oklch(0.55 0.12 250);
 }
 
-.tei-tag[data-selected="true"] {
+.tei-tag[data-selected='true'] {
   outline: 2px solid oklch(0.65 0.15 250);
   outline-offset: 2px;
   background-color: oklch(0.94 0.04 250);
 }
 
-.dark .tei-tag[data-selected="true"] {
+.dark .tei-tag[data-selected='true'] {
   outline: 2px solid oklch(0.55 0.12 250);
   background-color: oklch(0.23 0.04 250);
 }

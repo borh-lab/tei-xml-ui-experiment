@@ -90,7 +90,11 @@ export function applyTagToParagraph(
   // If paragraph is already an object with structure
   if (typeof para === 'object') {
     // Check if it has #text property (simple paragraph with attributes)
-    if (para['#text'] && typeof para['#text'] === 'string' && para['#text'].includes(selectedText)) {
+    if (
+      para['#text'] &&
+      typeof para['#text'] === 'string' &&
+      para['#text'].includes(selectedText)
+    ) {
       const fullText = para['#text'];
       const index = fullText.indexOf(selectedText);
       const before = fullText.substring(0, index);
@@ -132,7 +136,7 @@ export function applyTagToParagraph(
     }
 
     // Handle array-based content (already mixed content)
-    const keys = Object.keys(para).filter(k => !k.startsWith('@'));
+    const keys = Object.keys(para).filter((k) => !k.startsWith('@'));
     if (keys.length > 0) {
       const contentKey = keys[0];
       const content = para[contentKey];
@@ -141,7 +145,7 @@ export function applyTagToParagraph(
         // Search through the array for the text
         for (let i = 0; i < content.length; i++) {
           const item = content[i];
-          const itemText = typeof item === 'string' ? item : (item?.['#text'] || '');
+          const itemText = typeof item === 'string' ? item : item?.['#text'] || '';
 
           if (itemText.includes(selectedText)) {
             const before = itemText.substring(0, itemText.indexOf(selectedText));

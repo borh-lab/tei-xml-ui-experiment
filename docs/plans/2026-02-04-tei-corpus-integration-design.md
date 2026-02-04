@@ -7,6 +7,7 @@
 ## Overview
 
 This design integrates external TEI-encoded novel repositories into the TEI Dialogue Editor project for:
+
 1. **ML model training** - Improve dialogue detection accuracy with real data
 2. **Parser testing** - Validate correct parsing of various TEI structures
 3. **Schema analysis** - Understand and categorize different TEI encoding patterns
@@ -41,14 +42,14 @@ tei-xml/
 
 ## Corpus Sources
 
-| Repository | Size | TEI Version | Content |
-|------------|------|-------------|---------|
-| Wright American Fiction | ~3,000 novels | P4→P5 | American novels 1851-1875 |
-| Victorian Women Writers | ~100s texts | P5 | British women writers |
-| Indiana Magazine History | Periodicals | Mixed | Historical journal |
-| Indiana Authors Books | Varied | Mixed | Indiana authors |
-| Brevier Legislative | Varied | Mixed | Legislative reports |
-| tei-texts | ~20 novels | P5 | French novels (clean) |
+| Repository               | Size          | TEI Version | Content                   |
+| ------------------------ | ------------- | ----------- | ------------------------- |
+| Wright American Fiction  | ~3,000 novels | P4→P5       | American novels 1851-1875 |
+| Victorian Women Writers  | ~100s texts   | P5          | British women writers     |
+| Indiana Magazine History | Periodicals   | Mixed       | Historical journal        |
+| Indiana Authors Books    | Varied        | Mixed       | Indiana authors           |
+| Brevier Legislative      | Varied        | Mixed       | Legislative reports       |
+| tei-texts                | ~20 novels    | P5          | French novels (clean)     |
 
 ## Metadata Schema
 
@@ -60,9 +61,9 @@ interface CorpusMetadata {
   sourceUrl: string;
   documentCount: number;
   totalSizeBytes: number;
-  teiVersion: string[];              // "P4", "P5", "mixed"
+  teiVersion: string[]; // "P4", "P5", "mixed"
   tagFrequency: {
-    [tagName: string]: number;       // <said>, <q>, <sp>, <speaker>, etc.
+    [tagName: string]: number; // <said>, <q>, <sp>, <speaker>, etc.
   };
   structuralPatterns: {
     usesSaid: boolean;
@@ -72,14 +73,15 @@ interface CorpusMetadata {
     nestingLevels: number;
   };
   encodingType: 'dialogue-focused' | 'dramatic-text' | 'minimal-markup' | 'mixed';
-  sampleDocuments: string[];         // 5 representative file paths
-  issues: string[];                  // Encoding problems found
+  sampleDocuments: string[]; // 5 representative file paths
+  issues: string[]; // Encoding problems found
 }
 ```
 
 ## Train/Validation/Test Split
 
 **Configuration:**
+
 - **Split ratio**: 70% train, 15% validation, 15% test
 - **Strategy**: Document-level (entire documents go to one set)
 - **Seed**: 42 (for reproducible shuffling)
@@ -92,18 +94,18 @@ interface SplitDefinition {
   version: string;
   generatedAt: string;
   config: {
-    train: 0.70,
-    validation: 0.15,
-    test: 0.15,
-    seed: 42
+    train: 0.7;
+    validation: 0.15;
+    test: 0.15;
+    seed: 42;
   };
   corpora: {
     [corpusName: string]: {
-      train: string[];      // Relative file paths
+      train: string[]; // Relative file paths
       validation: string[];
       test: string[];
-      excluded: string[];   // Malformed, non-TEI, too small
-    }
+      excluded: string[]; // Malformed, non-TEI, too small
+    };
   };
   summary: {
     totalDocuments: number;
@@ -111,11 +113,12 @@ interface SplitDefinition {
     valCount: number;
     testCount: number;
     excludedCount: number;
-  }
+  };
 }
 ```
 
 **Exclusion Criteria:**
+
 - Malformed XML files
 - Non-TEI files (`.txt`, `.md`, etc.)
 - Documents too small (< 500 characters)
@@ -127,35 +130,38 @@ interface SplitDefinition {
 // lib/corpora/index.ts
 export class CorpusManager {
   // Get all documents from a specific split
-  getSplit(split: 'train' | 'validation' | 'test'): TEIDocument[]
+  getSplit(split: 'train' | 'validation' | 'test'): TEIDocument[];
 
   // Get metadata for a specific corpus
-  getCorpus(name: string): CorpusMetadata
+  getCorpus(name: string): CorpusMetadata;
 
   // Get a random document from a split
-  getRandomDocument(split: string): TEIDocument
+  getRandomDocument(split: string): TEIDocument;
 
   // Get documents containing specific tags
-  getDocumentsByTag(tagName: string, split: string): TEIDocument[]
+  getDocumentsByTag(tagName: string, split: string): TEIDocument[];
 
   // Get all corpora using a specific encoding pattern
-  getCorporaByEncoding(type: EncodingType): CorpusMetadata[]
+  getCorporaByEncoding(type: EncodingType): CorpusMetadata[];
 }
 ```
 
 ## Integration Points
 
 ### ML/AI Features
+
 - `lib/ai/ax-provider.ts` - Optionally train on corpus data
 - `lib/ai/corpus-trainer.ts` - New: Batch processing for ML
 - Accuracy metrics against corpus ground truth
 
 ### Testing
+
 - Extend existing tests to use real corpus documents
 - `tests/integration/corpus-validation.test.ts` - Parser testing
 - Parameterize tests to run against all corpora
 
 ### Schema Validation
+
 - Use `splits.json` in existing schema tests
 - Track validation failures per corpus
 

@@ -22,7 +22,7 @@ export class QuickSearch {
     query: '',
     results: [],
     currentIndex: -1,
-    totalResults: 0
+    totalResults: 0,
   };
 
   constructor(document: TEIDocument | null = null) {
@@ -40,7 +40,7 @@ export class QuickSearch {
         query,
         results: [],
         currentIndex: -1,
-        totalResults: 0
+        totalResults: 0,
       };
       return this.state;
     }
@@ -55,7 +55,7 @@ export class QuickSearch {
         speaker: d.who || 'Unknown',
         chapter: d.element?.closest?.getAttribute?.('n') || undefined,
         index: idx,
-        element: d.element
+        element: d.element,
       }))
       .filter((result) => result.content.toLowerCase().includes(searchLower));
 
@@ -63,7 +63,7 @@ export class QuickSearch {
       query,
       results,
       currentIndex: results.length > 0 ? 0 : -1,
-      totalResults: results.length
+      totalResults: results.length,
     };
 
     return this.state;
@@ -72,8 +72,7 @@ export class QuickSearch {
   nextResult(): SearchResult | null {
     if (this.state.results.length === 0) return null;
 
-    this.state.currentIndex =
-      (this.state.currentIndex + 1) % this.state.results.length;
+    this.state.currentIndex = (this.state.currentIndex + 1) % this.state.results.length;
     return this.state.results[this.state.currentIndex];
   }
 
@@ -81,8 +80,7 @@ export class QuickSearch {
     if (this.state.results.length === 0) return null;
 
     this.state.currentIndex =
-      (this.state.currentIndex - 1 + this.state.results.length) %
-      this.state.results.length;
+      (this.state.currentIndex - 1 + this.state.results.length) % this.state.results.length;
     return this.state.results[this.state.currentIndex];
   }
 
@@ -109,7 +107,7 @@ export class QuickSearch {
       query: '',
       results: [],
       currentIndex: -1,
-      totalResults: 0
+      totalResults: 0,
     };
   }
 

@@ -5,9 +5,12 @@ import { join } from 'path';
 /**
  * Uploads a test document to the editor
  */
-export async function uploadTestDocument(page: Page, doc: { name: string; content: string }): Promise<void> {
+export async function uploadTestDocument(
+  page: Page,
+  doc: { name: string; content: string }
+): Promise<void> {
   // Check if a document is already loaded
-  const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+  const hasDocument = (await page.locator('[id^="passage-"]').count()) > 0;
 
   if (!hasDocument) {
     // No document loaded, we need to get to the editor first
@@ -97,7 +100,7 @@ export async function waitForEditorReady(page: Page): Promise<void> {
 export async function mockConsoleErrors(page: Page): Promise<string[]> {
   const errors: string[] = [];
 
-  page.on('console', msg => {
+  page.on('console', (msg) => {
     if (msg.type() === 'error') {
       errors.push(msg.text());
     }
@@ -183,7 +186,7 @@ export async function loadSample(page: Page, sampleId: string): Promise<void> {
     'gift-of-the-magi': 'The Gift of the Magi',
     'tell-tale-heart': 'The Tell-Tale Heart',
     'owl-creek-bridge': 'An Occurrence at Owl Creek Bridge',
-    'pride-prejudice-ch1': 'Pride and Prejudice'
+    'pride-prejudice-ch1': 'Pride and Prejudice',
   };
 
   const title = titleMap[sampleId] || sampleId;
@@ -281,7 +284,9 @@ export function createMinimalTEI(options: { passages?: number[] }): string {
 /**
  * Creates a malformed TEI document for error testing
  */
-export function createMalformedTEI(options: { error: 'unclosed-tag' | 'invalid-xml' | 'missing-root' }): string {
+export function createMalformedTEI(options: {
+  error: 'unclosed-tag' | 'invalid-xml' | 'missing-root';
+}): string {
   const { error } = options;
 
   switch (error) {

@@ -8,7 +8,7 @@ import {
   getRecentDocument,
   formatTimestamp,
   getRecentDocumentsStats,
-  RecentDocument
+  RecentDocument,
 } from '@/lib/storage/recentDocuments';
 
 // Mock localStorage
@@ -25,12 +25,12 @@ const localStorageMock = (() => {
     },
     clear: () => {
       store = {};
-    }
+    },
   };
 })();
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 });
 
 describe('Recent Documents Storage', () => {
@@ -43,7 +43,7 @@ describe('Recent Documents Storage', () => {
     id: 'doc1',
     title: 'Test Document',
     timestamp: Date.now(),
-    progress: 50
+    progress: 50,
   };
 
   describe('getRecentDocuments', () => {
@@ -66,10 +66,7 @@ describe('Recent Documents Storage', () => {
       const newDoc = { ...mockDoc, id: 'doc2', timestamp: 2000 };
       const midDoc = { ...mockDoc, id: 'doc3', timestamp: 1500 };
 
-      localStorage.setItem(
-        'tei-recent-docs',
-        JSON.stringify([oldDoc, newDoc, midDoc])
-      );
+      localStorage.setItem('tei-recent-docs', JSON.stringify([oldDoc, newDoc, midDoc]));
 
       const result = getRecentDocuments();
       expect(result[0].id).toBe('doc2');
@@ -80,7 +77,7 @@ describe('Recent Documents Storage', () => {
     it('should filter invalid documents', () => {
       const invalidDocs = [
         { id: '', title: 'Invalid', timestamp: Date.now(), progress: 0 },
-        { id: 'valid', title: '', timestamp: Date.now(), progress: 0 }
+        { id: 'valid', title: '', timestamp: Date.now(), progress: 0 },
       ];
 
       localStorage.setItem('tei-recent-docs', JSON.stringify(invalidDocs));
@@ -141,7 +138,7 @@ describe('Recent Documents Storage', () => {
         addRecentDocument({
           ...mockDoc,
           id: `doc${i}`,
-          timestamp: Date.now() + i
+          timestamp: Date.now() + i,
         });
       }
 

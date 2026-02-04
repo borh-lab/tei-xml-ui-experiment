@@ -3,6 +3,7 @@
 ## Test Suite Status After Fixes
 
 ### Initial Baseline (Before Fixes)
+
 - **Total Tests:** 234
 - **Passed:** 72 (30.8%)
 - **Failed:** 159 (67.9%)
@@ -13,27 +14,31 @@
 #### 1. Test Helper Optimizations (`test-helpers.ts`)
 
 **Added Timeout Constants:**
+
 ```typescript
 const TIMEOUTS = {
-  QUICK: 5000,      // Quick UI checks
-  STANDARD: 10000,  // Standard element waits
-  NETWORK: 15000,   // Network operations
-  FILE: 30000,      // File operations (upload/download)
-  SLOW: 20000,      // Slow operations (large documents)
+  QUICK: 5000, // Quick UI checks
+  STANDARD: 10000, // Standard element waits
+  NETWORK: 15000, // Network operations
+  FILE: 30000, // File operations (upload/download)
+  SLOW: 20000, // Slow operations (large documents)
 };
 ```
 
 **Critical Bug Fix - File Upload Flow:**
+
 - **Problem:** Tests tried to upload files from welcome page, but file input only exists in EditorLayout
 - **Solution:** `uploadTestDocument()` now automatically loads a sample if on welcome page
 - **Impact:** Fixed document-upload tests from 0/31 to 6/31 passing (19.4%)
 
 **Optimized Sample Loading:**
+
 - **Problem:** `loadSample()` had too many waits causing 60s timeouts on mobile tests
 - **Solution:** Removed redundant `waitForTimeout()` calls and extra networkidle waits
 - **Impact:** Reduced test execution time significantly
 
 **Condition-Based Waiting:**
+
 - Replaced fixed `waitForSelector()` with `waitForFunction()` where appropriate
 - Added fallback mechanisms for timeout scenarios
 - Improved error handling with `.catch()` blocks
@@ -41,6 +46,7 @@ const TIMEOUTS = {
 #### 2. Mobile Test Timeout Configuration
 
 **Added to `mobile-responsive.spec.ts`:**
+
 ```typescript
 test.describe('Mobile Viewports', () => {
   test.setTimeout(90000);  // Increased from 60000ms default
@@ -76,22 +82,24 @@ test.describe('Mobile Viewports', () => {
 
 ## Remaining Work by Test Suite
 
-| Test Suite | Failures | Priority | Root Cause |
-|------------|----------|----------|------------|
-| mobile-responsive.spec.ts | 38 | HIGH | Timeout issues, navigation timing |
-| export-validation.spec.ts | 33 | HIGH | Export button availability, timing |
-| tei-editor-real.spec.ts | 24 | MEDIUM | Editor initialization, large docs |
-| tei-dialogue-editor.spec.ts | 23 | MEDIUM | State management, rendering waits |
-| error-scenarios.spec.ts | 22 | LOW | Error state detection |
+| Test Suite                  | Failures | Priority | Root Cause                         |
+| --------------------------- | -------- | -------- | ---------------------------------- |
+| mobile-responsive.spec.ts   | 38       | HIGH     | Timeout issues, navigation timing  |
+| export-validation.spec.ts   | 33       | HIGH     | Export button availability, timing |
+| tei-editor-real.spec.ts     | 24       | MEDIUM   | Editor initialization, large docs  |
+| tei-dialogue-editor.spec.ts | 23       | MEDIUM   | State management, rendering waits  |
+| error-scenarios.spec.ts     | 22       | LOW      | Error state detection              |
 
 ## Estimated Impact of Completed Fixes
 
 Based on document-upload test improvement:
+
 - **Before:** 0/31 passing (0%)
 - **After:** 6/31 passing (19.4%)
 - **Improvement:** +19.4 percentage points
 
 If similar improvement applies to other test suites:
+
 - **Expected Full Suite:** ~115-130/234 passing (49-56%)
 - **Target:** 211/234 (90%)
 - **Remaining Gap:** ~80-95 tests need fixing
