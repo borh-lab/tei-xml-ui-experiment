@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { QuickSearch, SearchResult, SearchState } from '@/lib/search/QuickSearch';
 import { Search, ChevronUp, ChevronDown, X } from 'lucide-react';
 import { sanitizeHTML } from '@/lib/utils/sanitizer';
@@ -20,7 +20,7 @@ export function QuickSearchDialog({
   onOpenChange,
   onResultClick
 }: QuickSearchDialogProps) {
-  const { document } = useDocumentContext();
+  const { document } = useDocumentService();
   const [search] = useState(() => new QuickSearch());
   const [query, setQuery] = useState('');
   const [searchState, setSearchState] = useState<SearchState>({

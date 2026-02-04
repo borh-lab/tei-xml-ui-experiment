@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { serializeDocument } from '@/lib/tei/operations';
 import { Card } from '@/components/ui/card';
 import { TagToolbar } from './TagToolbar';
@@ -41,7 +41,7 @@ interface Issue {
 type ViewMode = 'wysiwyg' | 'xml' | 'split';
 
 export function EditorLayout() {
-  const { document, updateDocument, loadingSample, loadingProgress, validationResults, isValidating } = useDocumentContext();
+  const { document, updateDocument, loadingSample, loadingProgress, validationResults, isValidating, loadSample, validateDocument } = useDocumentService();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
   const [suggestions, setSuggestions] = useState<DialogueSpan[]>([]);

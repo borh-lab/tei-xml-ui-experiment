@@ -9,7 +9,7 @@ import {
   CommandItem,
   CommandList,
 } from 'cmdk';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { downloadFile } from '@/lib/tei/export';
 import { serializeDocument } from '@/lib/tei/operations';
 import { getSamples } from '@/lib/samples/sampleLoader';
@@ -50,7 +50,7 @@ export function CommandPalette({
   isBulkMode = false,
   isVizPanelOpen = false
 }: CommandPaletteProps) {
-  const { document, loadDocument, loadSample, clearDocument } = useDocumentContext();
+  const { document, loadDocument, loadSample, clearDocument } = useDocumentService();
   const [toast, setToast] = useState<Toast | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 

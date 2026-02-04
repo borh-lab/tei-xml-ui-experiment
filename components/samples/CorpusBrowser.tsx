@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { TEIDocument } from '@/lib/tei';
 
 interface Novel {
@@ -18,7 +18,7 @@ interface CorpusBrowserProps {
 }
 
 export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
-  const { loadDocument } = useDocumentContext();
+  const { loadDocument } = useDocumentService();
   const [novels, setNovels] = useState<Novel[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);

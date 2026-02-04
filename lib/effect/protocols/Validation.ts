@@ -4,28 +4,39 @@
  * Validates XML documents against RelaxNG schemas with detailed error reporting.
  */
 
-import { Effect, Context, Schema } from 'effect';
+import { Effect, Context } from 'effect';
 
 // ============================================================================
 // Error Types
 // ============================================================================
 
-export class ValidationError extends Schema.Class<'ValidationError'>({
-  message: Schema.String,
-  line: Schema.Number.orElse(Schema.Undefined),
-  column: Schema.Number.orElse(Schema.Undefined),
-  context: Schema.String.orElse(Schema.Undefined),
-}) {
+export class ValidationError extends Error {
   readonly _tag = 'ValidationError';
+  constructor(
+    message: string,
+    public readonly line?: number,
+    public readonly column?: number,
+    public readonly context?: string
+  ) {
+    super(message);
+    this.name = 'ValidationError';
+  }
 }
 
 export class SchemaLoadError extends ValidationError {
   readonly _tag = 'SchemaLoadError';
-  readonly schemaPath: string;
+  constructor(message: string, public readonly schemaPath: string) {
+    super(message);
+    this.name = 'SchemaLoadError';
+  }
 }
 
 export class ValidationExecutionError extends ValidationError {
   readonly _tag = 'ValidationExecutionError';
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationExecutionError';
+  }
 }
 
 // ============================================================================

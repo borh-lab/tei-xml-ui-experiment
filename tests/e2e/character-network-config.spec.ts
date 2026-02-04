@@ -58,24 +58,25 @@ test.describe('Character Network Configuration', () => {
     });
 
     test('should change proximity method to dialogue', async ({ page }) => {
-    // Simplified test - just verify basic UI
-    const vizButton = page.getByRole('button', { name: 'Visualizations' });
-    if (await vizButton.count() > 0) {
-      await vizButton.click();
-      await page.waitForTimeout(500);
-    }
-    await expect(page.getByRole('button', { name: 'Visualizations' })).or(page.locator('[id^="passage-"]')).first().toBeVisible();
+      // Simplified test - just verify basic UI
+      const vizButton = page.getByRole('button', { name: 'Visualizations' });
+      if (await vizButton.count() > 0) {
+        await vizButton.click();
+        await page.waitForTimeout(500);
+      }
+      await expect(page.getByRole('button', { name: 'Visualizations' })).or(page.locator('[id^="passage-"]')).first().toBeVisible();
+    });
   });
 
   test.describe('Distance Threshold Adjustment', () => {
     test('should display distance threshold slider', async ({ page }) => {
-    // Simplified test - verify UI exists
-    const hasSlider = await page.locator('input[type="range"]').count() > 0;
-    const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
-    expect(hasSlider || hasPassage).toBe(true);
+      // Simplified test - verify UI exists
+      const hasSlider = await page.locator('input[type="range"]').count() > 0;
+      const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+      expect(hasSlider || hasPassage).toBe(true);
+    });
   });
 
-  
   test.describe('Edge Directionality', () => {
     test('should display edge directionality toggle', async ({ page }) => {
       // Should show direction toggle

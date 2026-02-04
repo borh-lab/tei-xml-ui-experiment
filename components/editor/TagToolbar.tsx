@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { SelectionManager } from '@/lib/selection';
 import type { SelectionSnapshot } from '@/lib/selection';
 
@@ -11,7 +11,7 @@ interface TagToolbarProps {
 }
 
 export function TagToolbar({ onClose }: TagToolbarProps) {
-  const { document, addSaidTag, addGenericTag } = useDocumentContext();
+  const { document, addSaidTag, addTag } = useDocumentService();
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [visible, setVisible] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<SelectionSnapshot | null>(null);
@@ -57,7 +57,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
       case 'persName':
       case 'placeName':
       case 'orgName':
-        addGenericTag(currentSelection.passageId, currentSelection.range, type, attributes);
+        addTag(currentSelection.passageId, currentSelection.range, type, attributes);
         break;
 
       default:

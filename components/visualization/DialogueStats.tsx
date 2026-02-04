@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function DialogueStats() {
-  const { document } = useDocumentContext();
+  const { document } = useDocumentService();
 
   const stats = useMemo(() => {
     if (!document) return null;

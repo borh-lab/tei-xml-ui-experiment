@@ -4,32 +4,47 @@
  * Extends existing AI provider interface to use Effect for composability.
  */
 
-import { Effect, Context, Schema } from 'effect';
+import { Effect, Context } from 'effect';
 import type { DialogueSpan, SpeakerAttribution, Issue } from '@/lib/ai/types';
 
 // ============================================================================
 // Error Types
 // ============================================================================
 
-export class AIError extends Schema.Class<'AIError'>({
-  message: Schema.String,
-  provider: Schema.String,
-  cause: Schema.Unknown.orElse(Schema.Undefined),
-}) {
+export class AIError extends Error {
   readonly _tag = 'AIError';
+  constructor(
+    message: string,
+    public readonly provider: string,
+    public readonly cause?: unknown
+  ) {
+    super(message);
+    this.name = 'AIError';
+  }
 }
 
 export class AIRateLimitError extends AIError {
   readonly _tag = 'AIRateLimitError';
-  readonly retryAfter?: number;
+  constructor(message: string, provider: string, public readonly retryAfter?: number) {
+    super(message, provider);
+    this.name = 'AIRateLimitError';
+  }
 }
 
 export class AIAuthenticationError extends AIError {
   readonly _tag = 'AIAuthenticationError';
+  constructor(message: string, provider: string) {
+    super(message, provider);
+    this.name = 'AIAuthenticationError';
+  }
 }
 
 export class AIInvalidRequestError extends AIError {
   readonly _tag = 'AIInvalidRequestError';
+  constructor(message: string, provider: string) {
+    super(message, provider);
+    this.name = 'AIInvalidRequestError';
+  }
 }
 
 // ============================================================================

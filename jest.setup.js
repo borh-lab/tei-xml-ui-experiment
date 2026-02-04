@@ -1,5 +1,12 @@
 import '@testing-library/jest-dom'
 
+// Polyfill for TextEncoder/TextDecoder (required by Effect)
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util')
+  global.TextEncoder = TextEncoder
+  global.TextDecoder = TextDecoder
+}
+
 // Polyfill for fetch (required by salve-annos for Node.js)
 if (typeof global.fetch === 'undefined') {
   const fetch = require('node-fetch')

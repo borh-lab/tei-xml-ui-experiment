@@ -1,12 +1,12 @@
 'use client';
 
-import { DocumentProvider, useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { EditorLayout } from '@/components/editor/EditorLayout';
 import { FileUpload } from '@/components/editor/FileUpload';
 import { SampleGallery } from '@/components/samples/SampleGallery';
 
 function HomeContent() {
-  const { document, loadSample } = useDocumentContext();
+  const { document, loadSample } = useDocumentService();
 
   // Show welcome screen with sample gallery when no document is loaded
   if (!document) {
@@ -24,10 +24,8 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <DocumentProvider>
-      <main className="min-h-screen">
-        <HomeContent />
-      </main>
-    </DocumentProvider>
+    <main className="min-h-screen">
+      <HomeContent />
+    </main>
   );
 }

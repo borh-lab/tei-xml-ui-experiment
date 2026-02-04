@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { TEIDocumentRepository } from '@/lib/entities/EntityRepository';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,7 +19,7 @@ interface EntityEditorPanelProps {
 }
 
 export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
-  const { document, dispatch } = useDocumentContext();
+  const { document, addCharacter, updateCharacter, removeCharacter, addRelationship, removeRelationship } = useDocumentService();
   const [showAddCharacter, setShowAddCharacter] = useState(false);
   const [activeTab, setActiveTab] = useState<'characters' | 'relationships' | 'network'>('characters');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -35,7 +35,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
 
   // Add character handler
   const handleAddCharacter = useCallback(
-    (character: Character) => {
+    async (character: Character) => {
       if (!repository) return;
 
       const validation = repository.validateCharacter(character);
@@ -45,8 +45,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
       }
 
       try {
-        const newRepo = repository.addCharacter(character);
-        dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+        await addCharacter(character);
         setShowAddCharacter(false);
         setValidationErrors([]);
         toast.success('Character added', {
@@ -59,24 +58,23 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
         });
       }
     },
-    [repository, dispatch]
+    [repository, addCharacter]
   );
 
   // Remove character handler
   const handleRemoveCharacter = useCallback(
-    (id: CharacterID) => {
+    async (id: CharacterID) => {
       if (!repository) return;
 
-      const newRepo = repository.removeCharacter(id);
-      dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+      await removeCharacter(id);
       toast.success('Character removed');
     },
-    [repository, dispatch]
+    [repository, removeCharacter]
   );
 
   // Add relationship handler
   const handleAddRelation = useCallback(
-    (relation: Omit<Relationship, 'id'>) => {
+    async (relation: Omit<Relationship, 'id'>) => {
       if (!repository) return;
 
       const validation = repository.validateRelation(relation as Relationship);
@@ -86,8 +84,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
       }
 
       try {
-        const newRepo = repository.addRelation(relation);
-        dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+        await addRelationship(relation);
         setValidationErrors([]);
         toast.success('Relationship added');
       } catch (error) {
@@ -97,19 +94,18 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
         });
       }
     },
-    [repository, dispatch]
+    [repository, addRelationship]
   );
 
   // Remove relationship handler
   const handleRemoveRelation = useCallback(
-    (id: string) => {
+    async (id: string) => {
       if (!repository) return;
 
-      const newRepo = repository.removeRelation(id);
-      dispatch({ type: 'SET_DOCUMENT', document: newRepo.getDocument() });
+      await removeRelationship(id);
       toast.success('Relationship removed');
     },
-    [repository, dispatch]
+    [repository, removeRelationship]
   );
 
   if (!document || !repository) {

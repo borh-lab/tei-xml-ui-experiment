@@ -10,29 +10,34 @@
  * - Portable (swap implementations without changing code)
  */
 
-import { Effect, Context, Schema } from 'effect';
+import { Effect, Context } from 'effect';
 
 // ============================================================================
 // Error Types
 // ============================================================================
 
-export class StorageError extends Schema.Class<'StorageError'>({
-  message: Schema.String,
-  key: Schema.String.orElse(Schema.Undefined),
-  cause: Schema.Unknown.orElse(Schema.Undefined),
-}) {
+export class StorageError extends Error {
   readonly _tag = 'StorageError';
+  constructor(message: string, public readonly key?: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = 'StorageError';
+  }
 }
 
 export class StorageKeyNotFoundError extends StorageError {
   readonly _tag = 'StorageKeyNotFoundError';
-  readonly key: string;
+  constructor(message: string, key: string) {
+    super(message, key);
+    this.key = key;
+  }
 }
 
 export class StorageQuotaExceededError extends StorageError {
   readonly _tag = 'StorageQuotaExceededError';
-  readonly quota: number;
-  readonly attempted: number;
+  constructor(message: string, public readonly quota: number, public readonly attempted: number) {
+    super(message);
+    this.name = 'StorageQuotaExceededError';
+  }
 }
 
 // ============================================================================
