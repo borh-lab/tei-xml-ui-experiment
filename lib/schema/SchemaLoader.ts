@@ -13,10 +13,28 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { SaxesParser } from 'saxes';
 
+/**
+ * Interface for salve validation error
+ */
+interface SalveValidationError {
+  message?: string;
+  line?: number;
+  column?: number;
+}
+
+/**
+ * Interface for salve name pattern
+ */
+interface SalveNamePattern {
+  pattern?: string;
+  ns?: string;
+  name?: string;
+}
+
 export interface ParsedSchema {
   pattern: salve.Grammar;
   warnings: string[];
-  simplified?: any;
+  simplified?: Record<string, unknown>;
 }
 
 /**
@@ -301,7 +319,7 @@ export class SchemaLoader {
 
       // Add any finalization errors
       if (endErrors && endErrors.length > 0) {
-        endErrors.forEach((err: any) => {
+        endErrors.forEach((err: SalveValidationError) => {
           errors.push({
             message: err.message || 'Unknown validation error',
             line: err.line,
@@ -352,10 +370,11 @@ export class SchemaLoader {
 
       // Extract element tags from possible events
       for (const event of possible) {
-        if ((event as any)[0] === 'enterStartTag') {
-          const namePattern = (event as any)[1]?.[0];
+        const ev = event as [string, unknown[]];
+        if (ev[0] === 'enterStartTag') {
+          const namePattern = ev[1]?.[0];
           if (namePattern && typeof namePattern === 'object') {
-            const tagInfo = this.extractTagInfo(namePattern);
+            const tagInfo = this.extractTagInfo(namePattern as SalveNamePattern);
             if (tagInfo) {
               tags.push(tagInfo);
             }
@@ -396,10 +415,11 @@ export class SchemaLoader {
 
       // Extract attribute definitions
       for (const event of possible) {
-        if ((event as any)[0] === 'attributeName') {
-          const namePattern = (event as any)[1]?.[0];
+        const ev = event as [string, unknown[]];
+        if (ev[0] === 'attributeName') {
+          const namePattern = ev[1]?.[0];
           if (namePattern && typeof namePattern === 'object') {
-            const attrInfo = this.extractAttributeInfo(namePattern);
+            const attrInfo = this.extractAttributeInfo(namePattern as SalveNamePattern);
             if (attrInfo) {
               attributes.push(attrInfo);
             }
@@ -453,7 +473,7 @@ export class SchemaLoader {
     return { name: attrName, prefix: '' };
   }
 
-  private formatErrorMessage(error: any): string {
+  private formatErrorMessage(error: string | { message?: string }): string {
     if (typeof error === 'string') {
       return error;
     }
@@ -473,7 +493,7 @@ export class SchemaLoader {
     return String(result);
   }
 
-  private extractTagInfo(namePattern: any): TagDefinition | null {
+  private extractTagInfo(namePattern: SalveNamePattern): TagDefinition | null {
     try {
       // Handle different name pattern types
       if (namePattern.pattern === 'AnyName') {
@@ -507,7 +527,7 @@ export class SchemaLoader {
     }
   }
 
-  private extractAttributeInfo(namePattern: any): AttributeDefinition | null {
+  private extractAttributeInfo(namePattern: SalveNamePattern): AttributeDefinition | null {
     try {
       if (namePattern.ns !== undefined && namePattern.name !== undefined) {
         return {
@@ -531,7 +551,7 @@ export class SchemaLoader {
   }
 
   private walkToContext(
-    walker: salve.GrammarWalker<any>,
+    walker: salve.GrammarWalker<unknown>,
     nameResolver: salve.DefaultNameResolver,
     context: XmlPath
   ): void {
