@@ -48,6 +48,7 @@ An AI-assisted tool for annotating dialogue in TEI XML documents.
 
 ## Key Features
 
+- **TEI Corpus Browser**: Browse and explore 6 TEI corpora with 10,793 documents ([documentation](./docs/corpus-browsing.md))
 - Manual dialogue annotation with TEI markup (`<said>`, `<q>`)
 - AI-assisted dialogue detection (Ax framework with NLP fallback)
 - Pattern learning from user corrections for improved accuracy
