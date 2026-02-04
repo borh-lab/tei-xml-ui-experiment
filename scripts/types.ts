@@ -1,96 +1,56 @@
-export interface TEICorpus {
-  id: string;
+export interface CorpusMetadata {
   name: string;
-  path: string;
-  description?: string;
-  encoding?: string;
-  version?: string;
-  files: TEIFile[];
-  metadata?: {
-    totalFiles: number;
-    totalSize: number;
-    tags: TagFrequency[];
-    encodingTypes: Record<string, number>;
-    versions: Record<string, number>;
-    dateProcessed: string;
+  sourceUrl: string;
+  documentCount: number;
+  totalSizeBytes: number;
+  teiVersion: string[];
+  tagFrequency: Record<string, number>;
+  structuralPatterns: {
+    usesSaid: boolean;
+    usesQ: boolean;
+    usesSp: boolean;
+    usesWhoAttributes: boolean;
+    nestingLevels: number;
+  };
+  encodingType: 'dialogue-focused' | 'dramatic-text' | 'minimal-markup' | 'mixed';
+  sampleDocuments: string[];
+  issues: string[];
+}
+
+export interface SplitDefinition {
+  version: string;
+  generatedAt: string;
+  config: {
+    train: number;
+    validation: number;
+    test: number;
+    seed: number;
+  };
+  corpora: Record<string, {
+    train: string[];
+    validation: string[];
+    test: string[];
+    excluded: string[];
+  }>;
+  summary: {
+    totalDocuments: number;
+    trainCount: number;
+    valCount: number;
+    testCount: number;
+    excludedCount: number;
   };
 }
 
-export interface TEIFile {
-  id: string;
+export interface TEIFileInfo {
   path: string;
-  fileName: string;
   size: number;
+  isTEI: boolean;
   isValid: boolean;
-  errors?: ValidationError[];
-  warnings?: ValidationWarning[];
-  encoding?: string;
-  version?: string;
-  tags?: Tag[];
-  metadata?: {
-    title?: string;
-    author?: string;
-    date?: string;
-    language?: string;
-  };
+  error?: string;
 }
 
-export interface ValidationError {
-  line: number;
-  column: number;
-  message: string;
-  severity: 'error' | 'warning';
-  rule?: string;
-}
-
-export interface ValidationWarning {
-  line: number;
-  column: number;
-  message: string;
-  severity: 'warning';
-  rule?: string;
-}
-
-export interface Tag {
-  name: string;
+export interface TagAnalysis {
+  tagName: string;
   count: number;
   attributes: Record<string, number>;
-  context?: string[];
-}
-
-export interface TagFrequency {
-  tag: string;
-  count: number;
-  percentage: number;
-  files: string[];
-}
-
-export interface EncodingType {
-  name: string;
-  confidence: number;
-  signature?: string;
-  examples: string[];
-}
-
-export interface AnalysisResult {
-  corpus: TEICorpus;
-  summary: {
-    totalFiles: number;
-    totalSize: number;
-    validFiles: number;
-    invalidFiles: number;
-    uniqueTags: number;
-    encodingTypes: Record<string, number>;
-    versions: Record<string, number>;
-  };
-  insights: {
-    mostFrequentTags: TagFrequency[];
-    encodingDistribution: Record<string, number>;
-    versionDistribution: Record<string, number>;
-    qualityMetrics: {
-      averageErrorsPerFile: number;
-      averageWarningsPerFile: number;
-      errorRate: number;
-    };
-  };
 }
