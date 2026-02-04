@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 
 // Polyfill for TextEncoder/TextDecoder (required by Effect)
 if (typeof global.TextEncoder === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TextEncoder, TextDecoder } = require('util');
   global.TextEncoder = TextEncoder;
   global.TextDecoder = TextDecoder;
@@ -9,6 +10,7 @@ if (typeof global.TextEncoder === 'undefined') {
 
 // Polyfill for fetch (required by salve-annos for Node.js)
 if (typeof global.fetch === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const fetch = require('node-fetch');
   global.fetch = fetch;
   global.Request = fetch.Request;
@@ -33,11 +35,13 @@ Element.prototype.scrollIntoView = jest.fn();
 
 // Polyfill for TransformStream (required by @ax-llm/ax)
 if (typeof global.TransformStream === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TransformStream } = require('web-streams-polyfill/dist/ponyfill');
   global.TransformStream = TransformStream;
 }
 
 // Polyfill for IndexedDB (required by Dexie)
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fakeIndexedDB = require('fake-indexeddb');
 global.indexedDB = fakeIndexedDB.indexedDB;
 global.IDBDatabase = fakeIndexedDB.IDBDatabase;
