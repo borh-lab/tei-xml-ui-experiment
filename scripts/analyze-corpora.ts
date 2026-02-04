@@ -1,4 +1,4 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env bun
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import type { CorpusMetadata } from './types';

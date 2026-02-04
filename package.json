@@ -19,8 +19,8 @@
     "test:e2e:firefox": "playwright test --project=firefox",
     "test:e2e:webkit": "playwright test --project=webkit",
     "corpus:setup": "scripts/setup-corpora.sh",
-    "corpus:analyze": "tsx scripts/analyze-corpora.ts",
-    "corpus:split": "tsx scripts/generate-splits.ts",
+    "corpus:analyze": "bun scripts/analyze-corpora.ts",
+    "corpus:split": "bun scripts/generate-splits.ts",
     "corpus:all": "npm run corpus:setup && npm run corpus:analyze && npm run corpus:split"
   },
   "dependencies": {

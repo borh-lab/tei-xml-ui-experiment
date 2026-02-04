@@ -36,6 +36,7 @@
           buildInputs = with pkgs; [
             nodejs
             nodePackages.npm
+            bun
             git
             wasm-pack
           ];
@@ -55,6 +56,7 @@
             echo "🔧 TEI Dialogue Editor Development Environment"
             echo "Node.js version: $(node --version)"
             echo "npm version: $(npm --version)"
+            echo "Bun version: $(bun --version)"
             echo "Rust version: $(rustc --version)"
             echo ""
             echo "Available commands:"
@@ -62,6 +64,11 @@
             echo "  npm run dev    - Start development server"
             echo "  npm test       - Run tests"
             echo "  npm run build  - Build for production"
+            echo ""
+            echo "Corpus Analysis (with Bun):"
+            echo "  npm run corpus:analyze - Analyze TEI corpora"
+            echo "  npm run corpus:split   - Generate train/val/test splits"
+            echo "  npm run corpus:all     - Run all corpus scripts"
             echo ""
             echo "WASM Build:"
             echo "  cd pattern-engine && wasm-pack build --target web --out-dir ../public/wasm"
@@ -73,6 +80,7 @@
           buildInputs = with pkgs; [
             nodejs
             nodePackages.npm
+            bun
             rustToolchain
             wasm-pack
           ];
@@ -86,6 +94,7 @@
           buildInputs = with pkgs; [
             nodejs
             nodePackages.npm
+            bun
           ];
 
           buildPhase = ''
