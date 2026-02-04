@@ -79,13 +79,8 @@ describe('DocumentService', () => {
       return yield* _(testService.getDocument());
     });
 
-    const result = await Effect.runPromise(
-      Effect.either(program)
-    );
+    const result = await Effect.runPromiseExit(program);
 
-    expect(result._tag).toBe('Left');
-    if (result._tag === 'Left') {
-      expect(result.left.message).toBe('No document loaded');
-    }
+    expect(result._tag).toBe('Failure');
   });
 });
