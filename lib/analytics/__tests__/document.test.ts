@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { extractQuotes, calculateRankings, buildConversationMatrix } from '../document';
+import { extractQuotes, calculateRankings, buildConversationMatrix, lookupCharacterName } from '../document';
 
 describe('extractQuotes', () => {
   it('should extract quotes from document state', () => {
@@ -105,5 +105,27 @@ describe('buildConversationMatrix', () => {
     const matrix = buildConversationMatrix([]);
     expect(matrix.totalInteractions).toBe(0);
     expect(matrix.matrix.size).toBe(0);
+  });
+});
+
+describe('lookupCharacterName', () => {
+  const mockCharacters = [
+    { id: 'char-1', xmlId: 'alice', name: 'Alice Smith' },
+    { id: 'char-2', xmlId: 'bob', name: 'Bob Jones' }
+  ] as any;
+
+  it('should return character name when found', () => {
+    const name = lookupCharacterName('char-1', mockCharacters);
+    expect(name).toBe('Alice Smith');
+  });
+
+  it('should fallback to ID when character not found', () => {
+    const name = lookupCharacterName('char-999', mockCharacters);
+    expect(name).toBe('char-999');
+  });
+
+  it('should return "Unknown" for null speaker', () => {
+    const name = lookupCharacterName(null, mockCharacters);
+    expect(name).toBe('Unknown');
   });
 });

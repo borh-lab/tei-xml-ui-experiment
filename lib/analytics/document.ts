@@ -1,5 +1,5 @@
 import type { Quote, CharacterRanking, ConversationMatrix } from './types';
-import type { TEIDocument } from '@/lib/tei/types';
+import type { TEIDocument, Character } from '@/lib/tei/types';
 
 /**
  * Extract quotes from TEI document state.
@@ -65,4 +65,21 @@ export function buildConversationMatrix(quotes: readonly Quote[]): ConversationM
     matrix: matrix as ReadonlyMap<string, ReadonlyMap<string, number>>,
     totalInteractions
   };
+}
+
+/**
+ * Look up character name from character index.
+ * Pure function - no side effects.
+ * @param characterId - Character ID to look up (null = unknown speaker)
+ * @param characters - Array of characters from document state
+ * @returns Character name if found, ID as fallback, or "Unknown" for null
+ */
+export function lookupCharacterName(
+  characterId: string | null,
+  characters: readonly Character[]
+): string {
+  if (characterId === null) return "Unknown";
+
+  const character = characters.find(c => c.id === characterId);
+  return character?.name ?? characterId;
 }
