@@ -4,7 +4,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 
 interface EntityTooltipProps {
-  entity: any;
+  entity: Record<string, unknown>;
   position: { x: number; y: number };
   visible: boolean;
 }
