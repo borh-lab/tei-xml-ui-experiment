@@ -20,6 +20,7 @@ The corpus browser provides access to a comprehensive collection of TEI-encoded 
 | Indiana Magazine of History     | 7,289     | dialogue-focused | P4          | Scholarly articles on Indiana history     |
 | Indiana Authors and Their Books | 394       | dramatic-text    | P4          | Bibliographic database of Indiana authors |
 | Brevier Legislative Reports     | 19        | dialogue-focused | P5          | Indiana legislative reports               |
+| Novel Dialogism Corpus        | 28        | dialogue-focused | P5          | Novels with rich quotation annotations |
 | TEI Texts (French Novels)       | 14        | mixed            | P5          | Sample French novels in TEI format        |
 
 ## Using the Corpus Browser
