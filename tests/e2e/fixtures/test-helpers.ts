@@ -40,6 +40,8 @@ export async function uploadTestDocument(page: Page, doc: { name: string; conten
   const tempPath = join(process.cwd(), 'tests/fixtures', 'temp-test.tei.xml');
   writeFileSync(tempPath, doc.content);
 
+  // Wait for file input to be present in DOM (it's hidden but should exist after document loads)
+  await page.waitForSelector('input[type="file"]', { state: 'attached', timeout: 5000 });
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles(tempPath);
 
