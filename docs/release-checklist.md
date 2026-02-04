@@ -211,7 +211,7 @@
 1. Monitor for 24-48 hours
 2. Address critical issues immediately
 3. Collect user feedback
-8. Plan next iteration
+4. Plan next iteration
 
 ## Versioning Strategy
 
@@ -224,6 +224,7 @@ Following Semantic Versioning (SemVer):
 Current version: `0.2.0-alpha`
 
 Next versions:
+
 - `0.2.0-beta` - Beta release
 - `0.2.0` - First stable release
 - `1.0.0` - Production-ready with all features
@@ -231,12 +232,15 @@ Next versions:
 ## Definitions
 
 ### Must Complete
+
 Required for release. Release should be blocked if not complete.
 
 ### Should Complete
+
 Important for quality but not blocking. Can be deferred to patch release if needed.
 
 ### Nice to Have
+
 Optional enhancements. Can be scheduled for future releases.
 
 ## Current Status
@@ -247,6 +251,7 @@ Optional enhancements. Can be scheduled for future releases.
 **Risk Level**: Medium (accuracy needs improvement for production use)
 
 **Recent accomplishments (2026-01-27)**:
+
 - ✅ Nix development environment fully configured with Rust/WASM support
 - ✅ All 404 unit tests passing in Nix environment
 - ✅ Playwright E2E testing framework installed and configured
@@ -255,6 +260,7 @@ Optional enhancements. Can be scheduled for future releases.
 - ✅ Development environment fully reproducible via `nix develop`
 
 **Next priorities**:
+
 1. Complete manual testing of all features
 2. Cross-browser testing (Chrome, Firefox, Safari, Edge)
 3. Improve AI accuracy (currently ~11% F1 score, target >70%)

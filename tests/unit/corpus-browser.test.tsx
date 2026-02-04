@@ -28,7 +28,7 @@ describe('CorpusBrowser', () => {
   test('should display corpus browser card', () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => []
+      json: async () => [],
     });
 
     render(
@@ -46,12 +46,12 @@ describe('CorpusBrowser', () => {
   test('should filter novels based on search', async () => {
     const mockNovels = [
       { name: 'novel1.xml', download_url: 'https://example.com/novel1.xml' },
-      { name: 'novel2.xml', download_url: 'https://example.com/novel2.xml' }
+      { name: 'novel2.xml', download_url: 'https://example.com/novel2.xml' },
     ];
 
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => mockNovels
+      json: async () => mockNovels,
     });
 
     render(
@@ -94,7 +94,7 @@ describe('CorpusBrowser', () => {
   test('should display no results message when search matches nothing', async () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => []
+      json: async () => [],
     });
 
     render(

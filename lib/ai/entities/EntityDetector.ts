@@ -19,7 +19,7 @@ export class EntityDetector {
         end: match.index + match[0].length,
         text: match[0],
         type: 'persName',
-        confidence: 0.95
+        confidence: 0.95,
       });
     }
 
@@ -31,21 +31,35 @@ export class EntityDetector {
       const nameText = match[1];
 
       // Skip common words that are capitalized but not names
-      const commonWords = ['The', 'A', 'An', 'It', 'He', 'She', 'They', 'This', 'That', 'In', 'On', 'At', 'But', 'And', 'Or'];
+      const commonWords = [
+        'The',
+        'A',
+        'An',
+        'It',
+        'He',
+        'She',
+        'They',
+        'This',
+        'That',
+        'In',
+        'On',
+        'At',
+        'But',
+        'And',
+        'Or',
+      ];
       if (commonWords.includes(nameText)) {
         continue;
       }
 
       // Skip if already captured by title pattern
-      const alreadyCaptured = entities.some(e =>
-        match!.index >= e.start && match!.index < e.end
-      );
+      const alreadyCaptured = entities.some((e) => match!.index >= e.start && match!.index < e.end);
       if (alreadyCaptured) {
         continue;
       }
 
       // Skip if part of a title (Mr, Mrs, Miss, etc.)
-      if (this.titles.some(title => nameText.startsWith(title))) {
+      if (this.titles.some((title) => nameText.startsWith(title))) {
         continue;
       }
 
@@ -55,7 +69,7 @@ export class EntityDetector {
         end: nameStart + nameText.length,
         text: nameText,
         type: 'persName',
-        confidence: 0.7
+        confidence: 0.7,
       });
     }
 
@@ -76,7 +90,7 @@ export class EntityDetector {
         end: placeStart + match[2].length,
         text: match[2],
         type: 'placeName',
-        confidence: 0.8
+        confidence: 0.8,
       });
     }
 
@@ -100,7 +114,7 @@ export class EntityDetector {
         text: match[1],
         type: 'dialogue',
         speaker: match[3].toLowerCase(),
-        confidence: 0.85
+        confidence: 0.85,
       });
     }
 
@@ -117,7 +131,7 @@ export class EntityDetector {
         text: match[3],
         type: 'dialogue',
         speaker: match[1].toLowerCase(),
-        confidence: 0.9
+        confidence: 0.9,
       });
     }
 
@@ -130,9 +144,9 @@ export class EntityDetector {
 
     const result: EntitySpan[] = [];
     for (const span of sorted) {
-      const overlaps = result.some(r =>
-        span.start >= r.start && span.start < r.end ||
-        span.end > r.start && span.end <= r.end
+      const overlaps = result.some(
+        (r) =>
+          (span.start >= r.start && span.start < r.end) || (span.end > r.start && span.end <= r.end)
       );
 
       if (!overlaps) {

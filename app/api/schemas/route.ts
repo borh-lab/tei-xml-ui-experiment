@@ -8,18 +8,15 @@ export async function GET() {
     const schemas = resolver.list();
 
     return NextResponse.json({
-      schemas: schemas.map(s => ({
+      schemas: schemas.map((s) => ({
         id: s.id,
         name: s.name,
         description: s.description,
-        tags: s.tags
-      }))
+        tags: s.tags,
+      })),
     });
   } catch (error) {
     console.error('Schema list API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to list schemas' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to list schemas' }, { status: 500 });
   }
 }

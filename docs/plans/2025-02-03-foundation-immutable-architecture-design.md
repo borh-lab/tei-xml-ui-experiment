@@ -15,6 +15,7 @@ This plan refactors the existing mutable `TEIDocument` class into an **immutable
 ### Key Changes from Current Code
 
 **Before (mutable):**
+
 ```typescript
 class TEIDocument {
   public rawXML: string;           // ❌ Mutable
@@ -30,6 +31,7 @@ class TEIDocument {
 ```
 
 **After (immutable):**
+
 ```typescript
 type TEIDocument = {
   readonly state: DocumentState;           // ✅ Immutable value
@@ -60,16 +62,18 @@ function addSaidTag(doc: TEIDocument, ...): TEIDocument {
 ### 1. TEIDocument as Immutable Value
 
 **Files:**
+
 - Create: `lib/tei/types.ts` (new types file)
 - Create: `lib/tei/TEIDocument.ts` (refactored)
 
 **Type Definition:**
+
 ```typescript
 // lib/tei/types.ts
 
 // Stable IDs for content-addressable references
-export type PassageID = string;  // Format: "passage-{hash}"
-export type TagID = string;      // Format: "tag-{hash}"
+export type PassageID = string; // Format: "passage-{hash}"
+export type TagID = string; // Format: "tag-{hash}"
 export type CharacterID = string; // Format: "char-{xml-id}"
 
 // Document state as immutable value
@@ -99,11 +103,31 @@ export interface TEIDocument {
 // Event types (append-only log)
 export type DocumentEvent =
   | { type: 'loaded'; xml: string; timestamp: number; revision: number }
-  | { type: 'saidTagAdded'; id: TagID; passageId: PassageID; range: TextRange; speaker: CharacterID; timestamp: number; revision: number }
+  | {
+      type: 'saidTagAdded';
+      id: TagID;
+      passageId: PassageID;
+      range: TextRange;
+      speaker: CharacterID;
+      timestamp: number;
+      revision: number;
+    }
   | { type: 'tagRemoved'; id: TagID; timestamp: number; revision: number }
-  | { type: 'characterAdded'; id: CharacterID; character: Character; timestamp: number; revision: number }
+  | {
+      type: 'characterAdded';
+      id: CharacterID;
+      character: Character;
+      timestamp: number;
+      revision: number;
+    }
   | { type: 'characterRemoved'; id: CharacterID; timestamp: number; revision: number }
-  | { type: 'relationAdded'; id: string; relation: Relationship; timestamp: number; revision: number }
+  | {
+      type: 'relationAdded';
+      id: string;
+      relation: Relationship;
+      timestamp: number;
+      revision: number;
+    }
   | { type: 'relationRemoved'; id: string; timestamp: number; revision: number };
 
 // Supporting types
@@ -138,7 +162,7 @@ export interface Relationship {
 
 export interface Passage {
   readonly id: PassageID;
-  readonly index: number;  // Display order, not identifier
+  readonly index: number; // Display order, not identifier
   readonly content: string;
   readonly tags: readonly Tag[];
 }
@@ -154,9 +178,11 @@ export interface Tag {
 ### 2. Document Operations (Pure Functions)
 
 **Files:**
+
 - Create: `lib/tei/operations.ts`
 
 **Core Operations:**
+
 ```typescript
 // lib/tei/operations.ts
 
@@ -164,7 +190,9 @@ import { TEIDocument, DocumentState, DocumentEvent } from './types';
 
 // ✅ Pure function: loads document, creates initial value
 export function loadDocument(xml: string): TEIDocument {
-  const parser = new XMLParser({ /* ... */ });
+  const parser = new XMLParser({
+    /* ... */
+  });
   const parsed = parser.parse(xml);
 
   const state: DocumentState = {
@@ -175,14 +203,14 @@ export function loadDocument(xml: string): TEIDocument {
     passages: extractPassages(parsed),
     dialogue: [],
     characters: extractCharacters(parsed),
-    relationships: []
+    relationships: [],
   };
 
   const event: DocumentEvent = {
     type: 'loaded',
     xml,
     timestamp: Date.now(),
-    revision: 0
+    revision: 0,
   };
 
   return { state, events: [event] };
@@ -195,7 +223,7 @@ export function addSaidTag(
   range: TextRange,
   speaker: CharacterID
 ): TEIDocument {
-  const passage = doc.state.passages.find(p => p.id === passageId);
+  const passage = doc.state.passages.find((p) => p.id === passageId);
   if (!passage) throw new Error(`Passage not found: ${passageId}`);
 
   const tagId = `tag-${crypto.randomUUID()}` as TagID;
@@ -203,31 +231,29 @@ export function addSaidTag(
     id: tagId,
     type: 'said',
     range,
-    attributes: { speaker: `#${speaker}` }
+    attributes: { speaker: `#${speaker}` },
   };
 
   const newPassage: Passage = {
     ...passage,
-    tags: [...passage.tags, newTag]
+    tags: [...passage.tags, newTag],
   };
 
-  const updatedPassages = doc.state.passages.map(p =>
-    p.id === passageId ? newPassage : p
-  );
+  const updatedPassages = doc.state.passages.map((p) => (p.id === passageId ? newPassage : p));
 
   const newDialogue: Dialogue = {
     id: tagId,
     passageId,
     range,
     speaker,
-    content: extractContent(passage, newTag)
+    content: extractContent(passage, newTag),
   };
 
   const state: DocumentState = {
     ...doc.state,
     passages: updatedPassages,
     dialogue: [...doc.state.dialogue, newDialogue],
-    revision: doc.state.revision + 1
+    revision: doc.state.revision + 1,
   };
 
   const event: DocumentEvent = {
@@ -237,7 +263,7 @@ export function addSaidTag(
     range,
     speaker,
     timestamp: Date.now(),
-    revision: state.revision
+    revision: state.revision,
   };
 
   return { state, events: [...doc.events, event] };
@@ -247,39 +273,42 @@ export function addSaidTag(
 export function removeTag(doc: TEIDocument, tagId: TagID): TEIDocument {
   const state = doc.state;
 
-  const updatedPassages = state.passages.map(passage => ({
+  const updatedPassages = state.passages.map((passage) => ({
     ...passage,
-    tags: passage.tags.filter(t => t.id !== tagId)
+    tags: passage.tags.filter((t) => t.id !== tagId),
   }));
 
-  const updatedDialogue = state.dialogue.filter(d => d.id !== tagId);
+  const updatedDialogue = state.dialogue.filter((d) => d.id !== tagId);
 
   return {
     state: {
       ...state,
       passages: updatedPassages,
       dialogue: updatedDialogue,
-      revision: state.revision + 1
+      revision: state.revision + 1,
     },
-    events: [...doc.events, {
-      type: 'tagRemoved',
-      id: tagId,
-      timestamp: Date.now(),
-      revision: state.revision + 1
-    }]
+    events: [
+      ...doc.events,
+      {
+        type: 'tagRemoved',
+        id: tagId,
+        timestamp: Date.now(),
+        revision: state.revision + 1,
+      },
+    ],
   };
 }
 
 // ✅ Pure function: undo to specific revision
 export function undoTo(doc: TEIDocument, targetRevision: number): TEIDocument {
-  const events = doc.events.filter(e => e.revision <= targetRevision);
+  const events = doc.events.filter((e) => e.revision <= targetRevision);
   const state = rebuildState(events);
   return { state, events };
 }
 
 // ✅ Pure function: redo (replay events)
 export function redoFrom(doc: TEIDocument, fromRevision: number): TEIDocument {
-  const events = doc.events.filter(e => e.revision > fromRevision);
+  const events = doc.events.filter((e) => e.revision > fromRevision);
   const state = rebuildState(events);
   return { state, events };
 }
@@ -314,9 +343,11 @@ function rebuildState(events: readonly DocumentEvent[]): DocumentState {
 ### 3. Document Context with useReducer
 
 **Files:**
+
 - Modify: `lib/context/DocumentContext.tsx`
 
 **Implementation:**
+
 ```typescript
 // lib/context/DocumentContext.tsx
 'use client';
@@ -382,9 +413,11 @@ export function DocumentProvider({ children }: { children: React.ReactNode }) {
 ### 4. History Management
 
 **Files:**
+
 - Create: `lib/history/HistoryManager.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/history/HistoryManager.ts
 
@@ -403,10 +436,18 @@ export function createHistoryManager(maxHistory: number = 100): HistoryManager {
   let currentRevision = 0;
 
   return {
-    get canUndo() { return currentRevision > 0; },
-    get canRedo() { return currentRevision < maxHistory - 1; },
-    get currentRevision() { return currentRevision; },
-    get totalRevisions() { return maxHistory; },
+    get canUndo() {
+      return currentRevision > 0;
+    },
+    get canRedo() {
+      return currentRevision < maxHistory - 1;
+    },
+    get currentRevision() {
+      return currentRevision;
+    },
+    get totalRevisions() {
+      return maxHistory;
+    },
 
     undo(doc: TEIDocument) {
       if (!this.canUndo) return doc;
@@ -427,7 +468,7 @@ export function createHistoryManager(maxHistory: number = 100): HistoryManager {
     checkpoint(doc: TEIDocument) {
       // Just returns current doc (history already in events)
       return doc;
-    }
+    },
   };
 }
 ```
@@ -437,41 +478,49 @@ export function createHistoryManager(maxHistory: number = 100): HistoryManager {
 ## Implementation Tasks
 
 ### Task 1: Create Immutable Type Definitions
+
 - Create `lib/tei/types.ts` with all immutable types
 - Export `TEIDocument`, `DocumentState`, `DocumentEvent`, etc.
 - Add JSDoc comments for each type
 
 ### Task 2: Refactor TEIDocument Class
+
 - Rename existing `TEIDocument.ts` to `TEIDocument.old.ts`
 - Create new `TEIDocument.ts` with pure functions
 - Implement `loadDocument`, `serialize` (keep existing XML building)
 - Add `addSaidTag`, `removeTag`, `undoTo`, `redoFrom`
 
 ### Task 3: Create Operations Module
+
 - Create `lib/tei/operations.ts` with all document operations
 - Implement pure functions for each operation
 - Add helper functions (`extractContent`, `applySaidTagAdded`, etc.)
 
 ### Task 4: Update Document Context
+
 - Refactor `DocumentContext.tsx` to use `useReducer`
 - Create action types and reducer
 - Add `canUndo`, `canRedo`, `undo`, `redo` to context API
 
 ### Task 5: Create History Manager
+
 - Create `lib/history/HistoryManager.ts`
 - Implement undo/redo with revision tracking
 - Add tests for undo/redo behavior
 
 ### Task 6: Migration Utilities
+
 - Create `lib/tei/migrate.ts` to convert old mutable TEIDocument to new immutable format
 - Add tests for migration correctness
 
 ### Task 7: Unit Tests
+
 - Test all operations return new values (don't mutate input)
 - Test undo/redo restores correct state
 - Test migration from old format
 
 ### Task 8: Integration Tests
+
 - Test React Context with reducer
 - Test undo/redo in UI context
 - Test multiple sequential operations
@@ -481,22 +530,26 @@ export function createHistoryManager(maxHistory: number = 100): HistoryManager {
 ## Success Criteria
 
 ✅ **Immutability:**
+
 - All operations return new values (TypeScript readonly types enforce this)
 - No method on TEIDocument modifies this
 - Unit tests verify input unchanged after operations
 
 ✅ **Time Modeling:**
+
 - Event log preserves complete history
 - Can undo to any past revision
 - Can redo after undo
 - Events have timestamps and revision numbers
 
 ✅ **Performance:**
+
 - Reads are O(1) (access doc.state fields)
 - Writes copy small arrays (characters, dialogue ~100 items)
 - No full document rebuild on every operation
 
 ✅ **Simplicity:**
+
 - Clear separation: state is value, events are log
 - No hidden mutation, no side effects
 - Easy to test (pure functions)
@@ -506,10 +559,12 @@ export function createHistoryManager(maxHistory: number = 100): HistoryManager {
 ## Dependencies
 
 **Required:**
+
 - Existing: `fast-xml-parser`, React 19, Next.js 16
 - New: `immer` (for convenient immutable updates)
 
 **No changes to:**
+
 - XML parsing (keep existing)
 - Serialization (keep existing XMLBuilder)
 - TEI data structures (keep parsed format)

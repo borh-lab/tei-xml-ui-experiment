@@ -2,7 +2,13 @@
  * Unit tests for ValidationService
  */
 
-import { ValidationService, ValidationResult, ValidationError, ValidationWarning, FixSuggestion } from '../../lib/validation/ValidationService';
+import {
+  ValidationService,
+  ValidationResult,
+  ValidationError,
+  ValidationWarning,
+  FixSuggestion,
+} from '../../lib/validation/ValidationService';
 import * as path from 'path';
 
 describe('ValidationService', () => {
@@ -19,7 +25,8 @@ describe('ValidationService', () => {
   describe('validateDocument', () => {
     describe('valid TEI documents', () => {
       it('should validate a valid simple XML document', async () => {
-        const validXml = '<root id="test"><item name="first">Item 1</item><item>Item 2</item></root>';
+        const validXml =
+          '<root id="test"><item name="first">Item 1</item><item>Item 2</item></root>';
         const result = await service.validateDocument(validXml, simpleSchema);
 
         expect(result.valid).toBe(true);
@@ -204,7 +211,7 @@ describe('ValidationService', () => {
         expect(result.valid).toBe(false);
 
         // Find error for unknownTag
-        const unknownTagError = result.errors.find(e => e.message.includes('unknownTag'));
+        const unknownTagError = result.errors.find((e) => e.message.includes('unknownTag'));
         expect(unknownTagError).toBeDefined();
         expect(unknownTagError!.line).toBe(3);
         expect(unknownTagError!.column).toBeGreaterThan(0);
@@ -308,8 +315,12 @@ describe('ValidationService', () => {
     });
 
     it('should handle validation with timeout', async () => {
-      const largeXml = '<root id="test">' +
-        Array(1000).fill(0).map((_, i) => `<item>Item ${i}</item>`).join('') +
+      const largeXml =
+        '<root id="test">' +
+        Array(1000)
+          .fill(0)
+          .map((_, i) => `<item>Item ${i}</item>`)
+          .join('') +
         '</root>';
 
       const result = await service.validateDocument(largeXml, simpleSchema);

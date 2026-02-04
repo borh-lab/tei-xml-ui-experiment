@@ -70,7 +70,7 @@ export function calculateMetrics(result: DetectionResult): Metrics {
 
       // Check for overlap (IoU > 0.5)
       const overlap = calculateOverlap(pred, act);
-      const union = (pred.end - pred.start) + (act.end - act.start) - overlap;
+      const union = pred.end - pred.start + (act.end - act.start) - overlap;
       const iou = union > 0 ? overlap / union : 0;
 
       if (iou > 0.5) {
@@ -85,17 +85,13 @@ export function calculateMetrics(result: DetectionResult): Metrics {
   const falseNegatives = actual.length - truePositives;
 
   // Calculate precision, recall, F1
-  const precision = truePositives + falsePositives > 0
-    ? truePositives / (truePositives + falsePositives)
-    : 0;
+  const precision =
+    truePositives + falsePositives > 0 ? truePositives / (truePositives + falsePositives) : 0;
 
-  const recall = truePositives + falseNegatives > 0
-    ? truePositives / (truePositives + falseNegatives)
-    : 0;
+  const recall =
+    truePositives + falseNegatives > 0 ? truePositives / (truePositives + falseNegatives) : 0;
 
-  const f1 = precision + recall > 0
-    ? 2 * (precision * recall) / (precision + recall)
-    : 0;
+  const f1 = precision + recall > 0 ? (2 * (precision * recall)) / (precision + recall) : 0;
 
   return {
     precision,
@@ -103,7 +99,7 @@ export function calculateMetrics(result: DetectionResult): Metrics {
     f1,
     truePositives,
     falsePositives,
-    falseNegatives
+    falseNegatives,
   };
 }
 
@@ -133,7 +129,7 @@ export function calculateSpeakerAccuracy(
   for (const pred of predicted) {
     for (const act of actual) {
       const overlap = calculateOverlap(pred, act);
-      const union = (pred.end - pred.start) + (act.end - act.start) - overlap;
+      const union = pred.end - pred.start + (act.end - act.start) - overlap;
       const iou = union > 0 ? overlap / union : 0;
 
       if (iou > 0.5) {
@@ -151,7 +147,7 @@ export function calculateSpeakerAccuracy(
           perSpeaker.set(actualSpeaker, {
             correct: 0,
             total: 0,
-            accuracy: 0
+            accuracy: 0,
           });
         }
 
@@ -175,7 +171,7 @@ export function calculateSpeakerAccuracy(
     accuracy,
     correct,
     total,
-    perSpeaker
+    perSpeaker,
   };
 }
 
@@ -194,29 +190,23 @@ export function optimizeConfidenceThreshold(
   let bestRecall = 0;
 
   for (let threshold = 0; threshold <= 1; threshold += step) {
-    const filtered = results.filter(r => r.confidence >= threshold);
+    const filtered = results.filter((r) => r.confidence >= threshold);
 
     if (filtered.length === 0) continue;
 
-    const truePositives = filtered.filter(r => r.isCorrect).length;
+    const truePositives = filtered.filter((r) => r.isCorrect).length;
     const falsePositives = filtered.length - truePositives;
 
     // Calculate false negatives (items below threshold that are correct)
-    const falseNegatives = results.filter(
-      r => r.confidence < threshold && r.isCorrect
-    ).length;
+    const falseNegatives = results.filter((r) => r.confidence < threshold && r.isCorrect).length;
 
-    const precision = truePositives + falsePositives > 0
-      ? truePositives / (truePositives + falsePositives)
-      : 0;
+    const precision =
+      truePositives + falsePositives > 0 ? truePositives / (truePositives + falsePositives) : 0;
 
-    const recall = truePositives + falseNegatives > 0
-      ? truePositives / (truePositives + falseNegatives)
-      : 0;
+    const recall =
+      truePositives + falseNegatives > 0 ? truePositives / (truePositives + falseNegatives) : 0;
 
-    const f1 = precision + recall > 0
-      ? 2 * (precision * recall) / (precision + recall)
-      : 0;
+    const f1 = precision + recall > 0 ? (2 * (precision * recall)) / (precision + recall) : 0;
 
     if (f1 > bestF1) {
       bestF1 = f1;
@@ -230,7 +220,7 @@ export function optimizeConfidenceThreshold(
     threshold: bestThreshold,
     f1: bestF1,
     precision: bestPrecision,
-    recall: bestRecall
+    recall: bestRecall,
   };
 }
 

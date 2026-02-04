@@ -3,24 +3,24 @@ import { test, expect } from '@playwright/test';
 test('debug - what is on the page', async ({ page }) => {
   // Capture console errors
   const errors: string[] = [];
-  page.on('console', msg => {
+  page.on('console', (msg) => {
     if (msg.type() === 'error') {
       errors.push(msg.text());
     }
   });
 
   // Capture page errors
-  page.on('pageerror', error => {
+  page.on('pageerror', (error) => {
     console.log('PAGE ERROR:', error.toString());
   });
 
   await page.goto('/');
   await page.waitForLoadState('networkidle');
-  await page.waitForLoadState("networkidle")
+  await page.waitForLoadState('networkidle');
 
   // Log all console errors
   console.log('=== CONSOLE ERRORS ===');
-  errors.forEach(err => console.log(err));
+  errors.forEach((err) => console.log(err));
 
   // Get all text on the page
   const allText = await page.evaluate(() => document.body.innerText);

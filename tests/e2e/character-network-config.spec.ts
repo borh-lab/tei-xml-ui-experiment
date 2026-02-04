@@ -40,7 +40,9 @@ test.describe('Character Network Configuration', () => {
           await page.waitForTimeout(300);
 
           // Should show proximity method dropdown/selector
-          await expect(page.getByText(/Proximity Method/i).or(page.getByText(/Method/i))).toBeVisible();
+          await expect(
+            page.getByText(/Proximity Method/i).or(page.getByText(/Method/i))
+          ).toBeVisible();
         }
       }
     });
@@ -49,30 +51,36 @@ test.describe('Character Network Configuration', () => {
       // This test verifies the UI exists but is simplified
       // The full implementation is complex to test in E2E
       const vizButton = page.getByRole('button', { name: 'Visualizations' });
-      if (await vizButton.count() > 0) {
+      if ((await vizButton.count()) > 0) {
         await vizButton.click();
         await page.waitForTimeout(500);
       }
       // Just verify the button is clickable
-      await expect(page.getByRole('button', { name: 'Visualizations' })).or(page.locator('[id^="passage-"]')).first().toBeVisible();
+      await expect(page.getByRole('button', { name: 'Visualizations' }))
+        .or(page.locator('[id^="passage-"]'))
+        .first()
+        .toBeVisible();
     });
 
     test('should change proximity method to dialogue', async ({ page }) => {
       // Simplified test - just verify basic UI
       const vizButton = page.getByRole('button', { name: 'Visualizations' });
-      if (await vizButton.count() > 0) {
+      if ((await vizButton.count()) > 0) {
         await vizButton.click();
         await page.waitForTimeout(500);
       }
-      await expect(page.getByRole('button', { name: 'Visualizations' })).or(page.locator('[id^="passage-"]')).first().toBeVisible();
+      await expect(page.getByRole('button', { name: 'Visualizations' }))
+        .or(page.locator('[id^="passage-"]'))
+        .first()
+        .toBeVisible();
     });
   });
 
   test.describe('Distance Threshold Adjustment', () => {
     test('should display distance threshold slider', async ({ page }) => {
       // Simplified test - verify UI exists
-      const hasSlider = await page.locator('input[type="range"]').count() > 0;
-      const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+      const hasSlider = (await page.locator('input[type="range"]').count()) > 0;
+      const hasPassage = (await page.locator('[id^="passage-"]').count()) > 0;
       expect(hasSlider || hasPassage).toBe(true);
     });
   });
@@ -102,7 +110,9 @@ test.describe('Character Network Configuration', () => {
       await page.waitForTimeout(500);
 
       // Should show both undirected and directed edges
-      const selectedOption = await page.getByRole('combobox', { name: /edge direction/i }).inputValue();
+      const selectedOption = await page
+        .getByRole('combobox', { name: /edge direction/i })
+        .inputValue();
       expect(selectedOption).toBe('both');
     });
   });
@@ -165,7 +175,8 @@ test.describe('Character Network Configuration', () => {
     test('should display configuration help text', async ({ page }) => {
       // Should have some explanatory text
       const hasHelpText =
-        (await page.getByText(/Adjust settings to customize the network visualization/i).count()) > 0 ||
+        (await page.getByText(/Adjust settings to customize the network visualization/i).count()) >
+          0 ||
         (await page.getByText(/Configure how character relationships are detected/i).count()) > 0;
 
       // Help text is optional but nice to have
@@ -191,7 +202,9 @@ test.describe('Character Network Configuration', () => {
       await page.waitForTimeout(500);
 
       // Configuration should be maintained
-      const proximityMethod = await page.getByRole('combobox', { name: /proximity method/i }).inputValue();
+      const proximityMethod = await page
+        .getByRole('combobox', { name: /proximity method/i })
+        .inputValue();
       expect(proximityMethod).toBe('paragraph');
     });
   });

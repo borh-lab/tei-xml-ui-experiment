@@ -16,15 +16,10 @@ describe('ValidationPanel', () => {
       const validationResults: ValidationResult = {
         valid: true,
         errors: [],
-        warnings: []
+        warnings: [],
       };
 
-      render(
-        <ValidationPanel
-          validationResults={validationResults}
-          visible={false}
-        />
-      );
+      render(<ValidationPanel validationResults={validationResults} visible={false} />);
 
       expect(screen.queryByText('Validation Results')).not.toBeInTheDocument();
     });
@@ -47,7 +42,7 @@ describe('ValidationPanel', () => {
       const validationResults: ValidationResult = {
         valid: true,
         errors: [],
-        warnings: []
+        warnings: [],
       };
 
       render(
@@ -71,9 +66,9 @@ describe('ValidationPanel', () => {
         errors: [
           { message: 'Error 1', line: 1, column: 5, severity: 'error' },
           { message: 'Error 2', line: 2, column: 10, severity: 'error' },
-          { message: 'Error 3', line: 3, column: 15, severity: 'error' }
+          { message: 'Error 3', line: 3, column: 15, severity: 'error' },
         ],
-        warnings: []
+        warnings: [],
       };
 
       render(
@@ -93,10 +88,8 @@ describe('ValidationPanel', () => {
     it('should display error with line and column information', () => {
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Missing required element', line: 10, column: 5, severity: 'error' }
-        ],
-        warnings: []
+        errors: [{ message: 'Missing required element', line: 10, column: 5, severity: 'error' }],
+        warnings: [],
       };
 
       render(
@@ -120,10 +113,10 @@ describe('ValidationPanel', () => {
             line: 5,
             column: 3,
             context: '<unknownElement>Content</unknownElement>',
-            severity: 'error'
-          }
+            severity: 'error',
+          },
         ],
-        warnings: []
+        warnings: [],
       };
 
       render(
@@ -141,10 +134,8 @@ describe('ValidationPanel', () => {
       const user = userEvent.setup();
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Test error', line: 1, column: 1, severity: 'error' }
-        ],
-        warnings: []
+        errors: [{ message: 'Test error', line: 1, column: 1, severity: 'error' }],
+        warnings: [],
       };
 
       render(
@@ -174,8 +165,8 @@ describe('ValidationPanel', () => {
         errors: [],
         warnings: [
           { message: 'Warning 1', line: 1, column: 5, code: 'WARN001' },
-          { message: 'Warning 2', line: 2, column: 10, code: 'WARN002' }
-        ]
+          { message: 'Warning 2', line: 2, column: 10, code: 'WARN002' },
+        ],
       };
 
       render(
@@ -195,9 +186,7 @@ describe('ValidationPanel', () => {
       const validationResults: ValidationResult = {
         valid: true,
         errors: [],
-        warnings: [
-          { message: 'Deprecated attribute', line: 15, column: 8, code: 'DEPRECATED' }
-        ]
+        warnings: [{ message: 'Deprecated attribute', line: 15, column: 8, code: 'DEPRECATED' }],
       };
 
       render(
@@ -218,12 +207,8 @@ describe('ValidationPanel', () => {
       const user = userEvent.setup();
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Error 1', line: 1, column: 1, severity: 'error' }
-        ],
-        warnings: [
-          { message: 'Warning 1', line: 2, column: 1, code: 'WARN001' }
-        ]
+        errors: [{ message: 'Error 1', line: 1, column: 1, severity: 'error' }],
+        warnings: [{ message: 'Warning 1', line: 2, column: 1, code: 'WARN001' }],
       };
 
       render(
@@ -250,12 +235,8 @@ describe('ValidationPanel', () => {
       const user = userEvent.setup();
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Error 1', line: 1, column: 1, severity: 'error' }
-        ],
-        warnings: [
-          { message: 'Warning 1', line: 2, column: 1, code: 'WARN001' }
-        ]
+        errors: [{ message: 'Error 1', line: 1, column: 1, severity: 'error' }],
+        warnings: [{ message: 'Warning 1', line: 2, column: 1, code: 'WARN001' }],
       };
 
       render(
@@ -278,12 +259,8 @@ describe('ValidationPanel', () => {
       const user = userEvent.setup();
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Error 1', line: 1, column: 1, severity: 'error' }
-        ],
-        warnings: [
-          { message: 'Warning 1', line: 2, column: 1, code: 'WARN001' }
-        ]
+        errors: [{ message: 'Error 1', line: 1, column: 1, severity: 'error' }],
+        warnings: [{ message: 'Warning 1', line: 2, column: 1, code: 'WARN001' }],
       };
 
       render(
@@ -310,9 +287,7 @@ describe('ValidationPanel', () => {
     it('should display fix suggestions when available', () => {
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Unknown element', line: 1, column: 1, severity: 'error' }
-        ],
+        errors: [{ message: 'Unknown element', line: 1, column: 1, severity: 'error' }],
         warnings: [],
         suggestions: [
           {
@@ -320,9 +295,9 @@ describe('ValidationPanel', () => {
             message: 'Check if this element name is correct or remove it',
             line: 1,
             column: 1,
-            suggestion: 'Verify the element name matches the schema'
-          }
-        ]
+            suggestion: 'Verify the element name matches the schema',
+          },
+        ],
       };
 
       render(
@@ -333,7 +308,9 @@ describe('ValidationPanel', () => {
         />
       );
 
-      expect(screen.getByText('Check if this element name is correct or remove it')).toBeInTheDocument();
+      expect(
+        screen.getByText('Check if this element name is correct or remove it')
+      ).toBeInTheDocument();
       expect(screen.getByText('Verify the element name matches the schema')).toBeInTheDocument();
     });
 
@@ -344,16 +321,14 @@ describe('ValidationPanel', () => {
         message: 'Add the required missing elements',
         line: 1,
         column: 1,
-        suggestion: 'Review the schema to see which elements are required'
+        suggestion: 'Review the schema to see which elements are required',
       };
 
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Missing required element', line: 1, column: 1, severity: 'error' }
-        ],
+        errors: [{ message: 'Missing required element', line: 1, column: 1, severity: 'error' }],
         warnings: [],
-        suggestions: [suggestion]
+        suggestions: [suggestion],
       };
 
       render(
@@ -374,11 +349,9 @@ describe('ValidationPanel', () => {
     it('should not display fix suggestions section when none available', () => {
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Error without suggestion', line: 1, column: 1, severity: 'error' }
-        ],
+        errors: [{ message: 'Error without suggestion', line: 1, column: 1, severity: 'error' }],
         warnings: [],
-        suggestions: []
+        suggestions: [],
       };
 
       render(
@@ -397,10 +370,8 @@ describe('ValidationPanel', () => {
     it('should display error badge for errors', () => {
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Critical error', line: 1, column: 1, severity: 'error' }
-        ],
-        warnings: []
+        errors: [{ message: 'Critical error', line: 1, column: 1, severity: 'error' }],
+        warnings: [],
       };
 
       render(
@@ -418,9 +389,7 @@ describe('ValidationPanel', () => {
       const validationResults: ValidationResult = {
         valid: true,
         errors: [],
-        warnings: [
-          { message: 'Minor warning', line: 1, column: 1, code: 'WARN001' }
-        ]
+        warnings: [{ message: 'Minor warning', line: 1, column: 1, code: 'WARN001' }],
       };
 
       render(
@@ -439,10 +408,8 @@ describe('ValidationPanel', () => {
     it('should be accessible with proper ARIA labels', () => {
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'Test error', line: 1, column: 1, severity: 'error' }
-        ],
-        warnings: []
+        errors: [{ message: 'Test error', line: 1, column: 1, severity: 'error' }],
+        warnings: [],
       };
 
       render(
@@ -462,10 +429,8 @@ describe('ValidationPanel', () => {
     it('should handle errors without line/column information', () => {
       const validationResults: ValidationResult = {
         valid: false,
-        errors: [
-          { message: 'General error without location', severity: 'error' }
-        ],
-        warnings: []
+        errors: [{ message: 'General error without location', severity: 'error' }],
+        warnings: [],
       };
 
       render(
@@ -485,13 +450,13 @@ describe('ValidationPanel', () => {
         message: `Error ${i + 1}`,
         line: i + 1,
         column: 1,
-        severity: 'error' as const
+        severity: 'error' as const,
       }));
 
       const validationResults: ValidationResult = {
         valid: false,
         errors,
-        warnings: []
+        warnings: [],
       };
 
       render(

@@ -33,7 +33,7 @@ export function parseTEIDocument(xmlContent: string): ParsedDocument {
   const parser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: '@_',
-    textNodeName: '#text'
+    textNodeName: '#text',
   });
 
   const parsed = parser.parse(xmlContent);
@@ -50,7 +50,7 @@ export function parseTEIDocument(xmlContent: string): ParsedDocument {
     }
 
     if (Array.isArray(node)) {
-      return node.map(item => extractText(item, path)).join('');
+      return node.map((item) => extractText(item, path)).join('');
     }
 
     let result = '';
@@ -66,7 +66,7 @@ export function parseTEIDocument(xmlContent: string): ParsedDocument {
         end,
         text,
         who: node['@_who'],
-        rend: node['@_rend']
+        rend: node['@_rend'],
       });
 
       result += text;
@@ -89,13 +89,11 @@ export function parseTEIDocument(xmlContent: string): ParsedDocument {
   }
 
   // Clean up whitespace
-  plainText = plainText
-    .replace(/\s+/g, ' ')
-    .trim();
+  plainText = plainText.replace(/\s+/g, ' ').trim();
 
   return {
     plainText,
-    annotations
+    annotations,
   };
 }
 
@@ -108,7 +106,7 @@ function extractTextContent(node: any): string {
   }
 
   if (Array.isArray(node)) {
-    return node.map(item => extractTextContent(item)).join('');
+    return node.map((item) => extractTextContent(item)).join('');
   }
 
   let result = '';

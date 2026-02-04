@@ -64,30 +64,33 @@ export function useDocumentService() {
     }
   }, []);
 
-  const addTag = useCallback(async (passageId: string, range: any, tagName: string, attrs?: any) => {
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
+  const addTag = useCallback(
+    async (passageId: string, range: any, tagName: string, attrs?: any) => {
+      try {
+        const program = Effect.gen(function* (_) {
+          const service = yield* _(DocumentService);
 
-        // Route to appropriate addTag method
-        if (tagName === 'said') {
-          return yield* _(service.addSaidTag(passageId, range, attrs?.who?.substring(1)));
-        } else if (tagName === 'q') {
+          // Route to appropriate addTag method
+          if (tagName === 'said') {
+            return yield* _(service.addSaidTag(passageId, range, attrs?.who?.substring(1)));
+          } else if (tagName === 'q') {
+            return yield* _(service.addQTag(passageId, range));
+          } else if (tagName === 'persName') {
+            return yield* _(service.addPersNameTag(passageId, range, attrs?.ref));
+          }
+
+          // Generic addTag
           return yield* _(service.addQTag(passageId, range));
-        } else if (tagName === 'persName') {
-          return yield* _(service.addPersNameTag(passageId, range, attrs?.ref));
-        }
+        });
 
-        // Generic addTag
-        return yield* _(service.addQTag(passageId, range));
-      });
-
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, []);
+        const updated = await Effect.runPromise(program);
+        setDocument(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
+    },
+    []
+  );
 
   const removeTag = useCallback(async (tagId: string) => {
     try {
@@ -132,19 +135,22 @@ export function useDocumentService() {
   }, []);
 
   // Tag-specific operations
-  const addSaidTag = useCallback(async (passageId: PassageID, range: TextRange, speaker: CharacterID) => {
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
-        return yield* _(service.addSaidTag(passageId, range, speaker));
-      });
+  const addSaidTag = useCallback(
+    async (passageId: PassageID, range: TextRange, speaker: CharacterID) => {
+      try {
+        const program = Effect.gen(function* (_) {
+          const service = yield* _(DocumentService);
+          return yield* _(service.addSaidTag(passageId, range, speaker));
+        });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, []);
+        const updated = await Effect.runPromise(program);
+        setDocument(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
+    },
+    []
+  );
 
   const addQTag = useCallback(async (passageId: PassageID, range: TextRange) => {
     try {
@@ -160,19 +166,22 @@ export function useDocumentService() {
     }
   }, []);
 
-  const addPersNameTag = useCallback(async (passageId: PassageID, range: TextRange, ref: string) => {
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
-        return yield* _(service.addPersNameTag(passageId, range, ref));
-      });
+  const addPersNameTag = useCallback(
+    async (passageId: PassageID, range: TextRange, ref: string) => {
+      try {
+        const program = Effect.gen(function* (_) {
+          const service = yield* _(DocumentService);
+          return yield* _(service.addPersNameTag(passageId, range, ref));
+        });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, []);
+        const updated = await Effect.runPromise(program);
+        setDocument(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
+    },
+    []
+  );
 
   // Character operations
   const addCharacter = useCallback(async (character: Character) => {
@@ -189,19 +198,22 @@ export function useDocumentService() {
     }
   }, []);
 
-  const updateCharacter = useCallback(async (characterId: CharacterID, updates: Partial<Omit<Character, 'id' | 'xmlId'>>) => {
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
-        return yield* _(service.updateCharacter(characterId, updates));
-      });
+  const updateCharacter = useCallback(
+    async (characterId: CharacterID, updates: Partial<Omit<Character, 'id' | 'xmlId'>>) => {
+      try {
+        const program = Effect.gen(function* (_) {
+          const service = yield* _(DocumentService);
+          return yield* _(service.updateCharacter(characterId, updates));
+        });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, []);
+        const updated = await Effect.runPromise(program);
+        setDocument(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
+    },
+    []
+  );
 
   const removeCharacter = useCallback(async (characterId: CharacterID) => {
     try {
@@ -247,29 +259,32 @@ export function useDocumentService() {
   }, []);
 
   // Load sample document
-  const loadSample = useCallback(async (sampleId: string) => {
-    setLoadingSample(true);
-    setLoadingProgress(0);
-    setError(null);
-
-    try {
-      // Load sample content using the existing sample loader
-      const xml = await loadSampleContent(sampleId);
-
-      // Update progress
-      setLoadingProgress(50);
-
-      // Load document using Effect
-      await loadDocument(xml);
-
-      setLoadingProgress(100);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setLoadingSample(false);
+  const loadSample = useCallback(
+    async (sampleId: string) => {
+      setLoadingSample(true);
       setLoadingProgress(0);
-    }
-  }, [loadDocument]);
+      setError(null);
+
+      try {
+        // Load sample content using the existing sample loader
+        const xml = await loadSampleContent(sampleId);
+
+        // Update progress
+        setLoadingProgress(50);
+
+        // Load document using Effect
+        await loadDocument(xml);
+
+        setLoadingProgress(100);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        setLoadingSample(false);
+        setLoadingProgress(0);
+      }
+    },
+    [loadDocument]
+  );
 
   // Update document from XML
   const updateDocument = useCallback(async (xml: string) => {
@@ -299,27 +314,30 @@ export function useDocumentService() {
   }, []);
 
   // Validate document
-  const validateDocument = useCallback(async (schemaPath?: string) => {
-    if (!document) return null;
+  const validateDocument = useCallback(
+    async (schemaPath?: string) => {
+      if (!document) return null;
 
-    setIsValidating(true);
-    try {
-      const xml = document.xml; // Assuming TEIDocument has xml property
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(ValidationService);
-        return yield* _(service.validateDocument(xml, schemaPath || '/tei-schema.xsd'));
-      });
+      setIsValidating(true);
+      try {
+        const xml = document.xml; // Assuming TEIDocument has xml property
+        const program = Effect.gen(function* (_) {
+          const service = yield* _(ValidationService);
+          return yield* _(service.validateDocument(xml, schemaPath || '/tei-schema.xsd'));
+        });
 
-      const result = await Effect.runPromise(program);
-      setValidationResults(result);
-      return result;
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-      return null;
-    } finally {
-      setIsValidating(false);
-    }
-  }, [document]);
+        const result = await Effect.runPromise(program);
+        setValidationResults(result);
+        return result;
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+        return null;
+      } finally {
+        setIsValidating(false);
+      }
+    },
+    [document]
+  );
 
   // History state helpers
   const historyState = useMemo(() => {
@@ -327,7 +345,7 @@ export function useDocumentService() {
     const currentRevision = document.state.revision;
     return {
       canUndo: currentRevision > 0,
-      canRedo: document.events.some(e => e.revision > currentRevision),
+      canRedo: document.events.some((e) => e.revision > currentRevision),
     };
   }, [document]);
 
@@ -371,7 +389,7 @@ export function useDocumentService() {
  * Provides React hook interface to StorageService.
  */
 export function useStorageService() {
-  const get = useCallback(async <T,>(key: string): Promise<T | null> => {
+  const get = useCallback(async <T>(key: string): Promise<T | null> => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(StorageService);
       return yield* _(service.get<T>(key));
@@ -380,7 +398,7 @@ export function useStorageService() {
     return Effect.runPromise(program);
   }, []);
 
-  const set = useCallback(async <T,>(key: string, value: T): Promise<void> => {
+  const set = useCallback(async <T>(key: string, value: T): Promise<void> => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(StorageService);
       return yield* _(service.set(key, value));
@@ -465,19 +483,22 @@ export function useAIService() {
     }
   }, []);
 
-  const attributeSpeaker = useCallback(async (text: string, dialogue: DialogueSpan[]): Promise<string> => {
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(AIService);
-        return yield* _(service.attributeSpeaker(text, dialogue));
-      });
+  const attributeSpeaker = useCallback(
+    async (text: string, dialogue: DialogueSpan[]): Promise<string> => {
+      try {
+        const program = Effect.gen(function* (_) {
+          const service = yield* _(AIService);
+          return yield* _(service.attributeSpeaker(text, dialogue));
+        });
 
-      return await Effect.runPromise(program);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-      return '';
-    }
-  }, []);
+        return await Effect.runPromise(program);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+        return '';
+      }
+    },
+    []
+  );
 
   return {
     isDetecting,

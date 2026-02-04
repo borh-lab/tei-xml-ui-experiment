@@ -27,7 +27,9 @@ interface SampleGalleryProps {
 export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'beginner' | 'intermediate' | 'advanced'>('all');
+  const [difficultyFilter, setDifficultyFilter] = useState<
+    'all' | 'beginner' | 'intermediate' | 'advanced'
+  >('all');
 
   // Filter samples by difficulty
   const filteredSamples = useMemo(() => {
@@ -69,9 +71,9 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
       <div className="mb-8">
         <h1 className="text-2xl md:text-4xl font-bold mb-4">Welcome to TEI Dialogue Editor</h1>
         <p className="text-base md:text-lg text-muted-foreground mb-6">
-          Explore dialogue annotation with our curated sample collection or browse the Wright American
-          Fiction corpus. Each document includes pre-annotated dialogue passages with speaker attributions,
-          perfect for learning and experimentation.
+          Explore dialogue annotation with our curated sample collection or browse the Wright
+          American Fiction corpus. Each document includes pre-annotated dialogue passages with
+          speaker attributions, perfect for learning and experimentation.
         </p>
         <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -91,8 +93,12 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
 
       <Tabs defaultValue="samples" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2 mb-6 mx-auto md:mx-0">
-          <TabsTrigger value="samples" className="text-sm">Sample Gallery</TabsTrigger>
-          <TabsTrigger value="corpus" className="text-sm">Browse Corpus</TabsTrigger>
+          <TabsTrigger value="samples" className="text-sm">
+            Sample Gallery
+          </TabsTrigger>
+          <TabsTrigger value="corpus" className="text-sm">
+            Browse Corpus
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="samples" className="space-y-6">
@@ -162,11 +168,7 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
 
                     <div className="flex flex-wrap gap-1">
                       {sample.tags.map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="outline"
-                          className="text-xs"
-                        >
+                        <Badge key={tag} variant="outline" className="text-xs">
                           {tag}
                         </Badge>
                       ))}
@@ -188,8 +190,8 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
           <div className="mt-12 p-6 bg-muted rounded-lg">
             <h3 className="font-semibold mb-2">Want to use your own documents?</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              You can upload your own TEI XML files or start with a blank document.
-              Use the file upload button in the editor toolbar.
+              You can upload your own TEI XML files or start with a blank document. Use the file
+              upload button in the editor toolbar.
             </p>
           </div>
         </TabsContent>
@@ -200,9 +202,9 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
             <div className="mt-6 p-6 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">About the Wright American Fiction Corpus</h3>
               <p className="text-sm text-muted-foreground mb-2">
-                A comprehensive collection of 3,000+ novels published in the United States
-                between 1851 and 1875. This corpus provides a rich resource for exploring
-                19th-century American literature and dialogue patterns.
+                A comprehensive collection of 3,000+ novels published in the United States between
+                1851 and 1875. This corpus provides a rich resource for exploring 19th-century
+                American literature and dialogue patterns.
               </p>
               <p className="text-xs text-muted-foreground">
                 Source: Wright American Fiction, hosted on GitHub by iulibdcs

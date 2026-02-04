@@ -37,16 +37,28 @@ export function findXMLFiles(dir: string): string[] {
 
 export function validateTEIFile(filePath: string): TEIFileInfo {
   try {
-    let content = readFileSync(filePath, 'utf-8');
+    const content = readFileSync(filePath, 'utf-8');
     const stats = statSync(filePath);
 
     if (content.length < 500) {
-      return { path: filePath, size: stats.size, isTEI: false, isValid: false, error: 'File too small (< 500 chars)' };
+      return {
+        path: filePath,
+        size: stats.size,
+        isTEI: false,
+        isValid: false,
+        error: 'File too small (< 500 chars)',
+      };
     }
 
     const hasTEIRoot = /<TEI[^>]*>|<TEI\.2[^>]*>/.test(content);
     if (!hasTEIRoot) {
-      return { path: filePath, size: stats.size, isTEI: false, isValid: false, error: 'No TEI root element found' };
+      return {
+        path: filePath,
+        size: stats.size,
+        isTEI: false,
+        isValid: false,
+        error: 'No TEI root element found',
+      };
     }
 
     try {
@@ -61,10 +73,22 @@ export function validateTEIFile(filePath: string): TEIFileInfo {
           parser.parse(cleanedContent);
           return { path: filePath, size: stats.size, isTEI: true, isValid: true };
         } catch (retryError) {
-          return { path: filePath, size: stats.size, isTEI: true, isValid: false, error: `Parse error (after DOCTYPE strip): ${retryError}` };
+          return {
+            path: filePath,
+            size: stats.size,
+            isTEI: true,
+            isValid: false,
+            error: `Parse error (after DOCTYPE strip): ${retryError}`,
+          };
         }
       }
-      return { path: filePath, size: stats.size, isTEI: true, isValid: false, error: `Parse error: ${parseError}` };
+      return {
+        path: filePath,
+        size: stats.size,
+        isTEI: true,
+        isValid: false,
+        error: `Parse error: ${parseError}`,
+      };
     }
   } catch (error) {
     return { path: filePath, size: 0, isTEI: false, isValid: false, error: `Read error: ${error}` };

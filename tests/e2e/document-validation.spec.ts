@@ -94,7 +94,7 @@ test.describe('Document Validation Integration', () => {
     await page.waitForTimeout(100);
 
     // The toolbar should appear
-    const toolbarVisible = await page.locator('.fixed.z-50.bg-background.border').count() > 0;
+    const toolbarVisible = (await page.locator('.fixed.z-50.bg-background.border').count()) > 0;
     // Toolbar might not be visible if no text selected, that's ok
 
     // Validation panel should still be visible
@@ -241,7 +241,9 @@ test.describe('Document Validation Integration', () => {
     await page.waitForTimeout(300);
 
     // Panel should be hidden (visible prop set to false)
-    const panelCount = await page.locator('[role="region"][aria-label="Validation Results"]').count();
+    const panelCount = await page
+      .locator('[role="region"][aria-label="Validation Results"]')
+      .count();
     // When closed, the panel might not be rendered at all
     expect(panelCount).toBe(0);
   });

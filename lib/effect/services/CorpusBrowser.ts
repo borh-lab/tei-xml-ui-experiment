@@ -8,7 +8,8 @@ import {
   DataSourceErrorType,
   type CorpusId,
 } from '../protocols/CorpusDataSource';
-import { LocalCorpusDataSourceLive } from './LocalCorpusDataSource';
+// Import removed - data source layer is provided by consumer
+// import { LocalCorpusDataSourceLive } from './LocalCorpusDataSource';
 
 // ============================================================================
 // Explicit State Types
@@ -67,12 +68,8 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
   const dataSource = yield* _(CorpusDataSource);
 
   // State as Ref (explicit time)
-  const browserState = yield* _(
-    Ref.make<BrowserState>({ _tag: 'initial' })
-  );
-  const documentState = yield* _(
-    Ref.make<DocumentViewState>({ _tag: 'no-selection' })
-  );
+  const browserState = yield* _(Ref.make<BrowserState>({ _tag: 'initial' }));
+  const documentState = yield* _(Ref.make<DocumentViewState>({ _tag: 'no-selection' }));
 
   const service: CorpusBrowser = {
     getState: () => Ref.get(browserState),
@@ -82,13 +79,13 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
         yield* _(Ref.set(browserState, { _tag: 'loading', corpus }));
 
         const metadata = yield* _(
-          dataSource.getCorpusMetadata(corpus).pipe(
-            Effect.catchAll((error) =>
-              Ref.set(browserState, { _tag: 'error', error }).pipe(
-                Effect.as(null)
+          dataSource
+            .getCorpusMetadata(corpus)
+            .pipe(
+              Effect.catchAll((error) =>
+                Ref.set(browserState, { _tag: 'error', error }).pipe(Effect.as(null))
               )
             )
-          )
         );
 
         if (metadata === null) {
@@ -98,19 +95,19 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
         yield* _(Ref.set(browserState, { _tag: 'loaded', metadata, page: 0 }));
       }),
 
-    listDocuments: () => Ref.get(browserState).pipe(
-      Effect.flatMap((state) =>
-        state._tag === 'loaded'
-          ? dataSource.listDocuments(
-              state.metadata.id,
-              { page: state.page, pageSize: 20 }
-            )
-          : Effect.fail(new DataSourceError({
-              _tag: 'IOError',
-              cause: 'No corpus loaded',
-            }))
-      )
-    ),
+    listDocuments: () =>
+      Ref.get(browserState).pipe(
+        Effect.flatMap((state) =>
+          state._tag === 'loaded'
+            ? dataSource.listDocuments(state.metadata.id, { page: state.page, pageSize: 20 })
+            : Effect.fail(
+                new DataSourceError({
+                  _tag: 'IOError',
+                  cause: 'No corpus loaded',
+                })
+              )
+        )
+      ),
 
     getDocumentState: () => Ref.get(documentState),
 
@@ -121,14 +118,10 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
         const metadata = yield* _(dataSource.getDocumentMetadata(docId));
         const content = yield* _(dataSource.getDocumentContent(docId));
 
-        yield* _(
-          Ref.set(documentState, { _tag: 'loaded', metadata, content })
-        );
+        yield* _(Ref.set(documentState, { _tag: 'loaded', metadata, content }));
       }).pipe(
         Effect.catchAll((error) =>
-          Ref.set(documentState, { _tag: 'error', error }).pipe(
-            Effect.as(null)
-          )
+          Ref.set(documentState, { _tag: 'error', error }).pipe(Effect.as(null))
         )
       ),
   };
@@ -136,7 +129,5 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
   return service;
 });
 
-export const CorpusBrowserLive = Layer.effect(
-  CorpusBrowser,
-  makeCorpusBrowser
-).pipe(Layer.provide(LocalCorpusDataSourceLive));
+// Data source layer is provided by consumer (browser uses Fetch, tests use Local)
+export const CorpusBrowserLive = Layer.effect(CorpusBrowser, makeCorpusBrowser);

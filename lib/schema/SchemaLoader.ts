@@ -2,7 +2,11 @@
  * SchemaLoader - Load and parse TEI RelaxNG schemas
  *
  * Uses salve-annos library for RelaxNG validation and parsing
+ *
+ * NOTE: This module can only run on the server side due to Node.js dependencies
  */
+
+'use server';
 
 import * as salve from 'salve-annos';
 import * as fs from 'fs/promises';
@@ -39,7 +43,9 @@ class FileSystemResourceLoader implements salve.ResourceLoader {
         try {
           return await fs.readFile(filePath, 'utf-8');
         } catch (error) {
-          throw new Error(`Failed to read file ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
+          throw new Error(
+            `Failed to read file ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+          );
         }
       },
     };
@@ -198,7 +204,7 @@ export class SchemaLoader {
           }
 
           // Get the namespace URI for this element
-          let elementUri = tag.uri || '';
+          const elementUri = tag.uri || '';
 
           // Prepare attribute data array for compact event
           const attribs: string[] = [];
@@ -462,7 +468,7 @@ export class SchemaLoader {
       return result;
     }
     if (Array.isArray(result)) {
-      return result.map(r => typeof r === 'string' ? r : JSON.stringify(r)).join('; ');
+      return result.map((r) => (typeof r === 'string' ? r : JSON.stringify(r))).join('; ');
     }
     return String(result);
   }
@@ -524,7 +530,11 @@ export class SchemaLoader {
     }
   }
 
-  private walkToContext(walker: salve.GrammarWalker<any>, nameResolver: salve.DefaultNameResolver, context: XmlPath): void {
+  private walkToContext(
+    walker: salve.GrammarWalker<any>,
+    nameResolver: salve.DefaultNameResolver,
+    context: XmlPath
+  ): void {
     for (const ctx of context) {
       nameResolver.enterContext();
       if (ctx.namespace) {

@@ -40,12 +40,14 @@ const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false);
 ```
 
 **Hickey Analysis:**
+
 - **Braided concerns:** UI state, business logic, data fetching, side effects all mixed
 - **Easy (familiar):** Standard React pattern everyone knows
 - **Simple (unentangled):** NO - Each state variable is a "twist" that entangles with others
 - **Mutation hidden:** `setBulkPanelOpen` doesn't just change one thing—it triggers re-renders, affects layout, changes focus
 
 **Better Approach (Values Over Places):**
+
 ```typescript
 // ✅ Simple: Value-oriented state (succession of values)
 interface EditorState {
@@ -65,7 +67,7 @@ interface EditorState {
 // State transition returns NEW value (immutability)
 const nextState: EditorState = {
   ...currentState,
-  panels: { ...currentState.panels, bulk: true }
+  panels: { ...currentState.panels, bulk: true },
 };
 ```
 
@@ -83,11 +85,13 @@ const [isValidating, setIsValidating] = useState(false);
 ```
 
 **Hickey Analysis:**
+
 - **Places, not values:** Each `setXxx mutates a place that components must defensively copy
 - **Hidden temporal coupling:** `loadingProgress` must be updated at specific times during `loadSample`—implicit protocol
 - **No composition:** Can't combine `loadingSample` + `validationResults` into reusable workflows
 
 **Effect Pattern:**
+
 ```typescript
 // ✅ Declarative: Program describes WHAT, not HOW
 import { Effect } from 'effect';
@@ -109,6 +113,7 @@ const loadDocument = (sampleId: string) =>
 ### Red Flag: "Team knows this pattern"
 
 **Current Code:**
+
 ```tsx
 // ❌ Familiar but entangled
 useEffect(() => {
@@ -124,6 +129,7 @@ useEffect(() => {
 **Hickey Feedback:** "This is the 'easy' way (standard React localStorage pattern). Is it 'simple' (unentangled)? The component is now tightly coupled to browser localStorage, making it hard to test and impossible to compose."
 
 **Simple Alternative (Protocol First):**
+
 ```typescript
 // ✅ Protocol: ViewModeStorage interface
 interface ViewModeStorage {
@@ -144,8 +150,12 @@ class BrowserViewModeStorage implements ViewModeStorage {
 // Test implementation (no browser, pure values)
 class TestViewModeStorage implements ViewModeStorage {
   private mode: ViewMode | null = null;
-  async get() { return this.mode; }
-  async set(mode: ViewMode) { this.mode = mode; }
+  async get() {
+    return this.mode;
+  }
+  async set(mode: ViewMode) {
+    this.mode = mode;
+  }
 }
 ```
 
@@ -169,19 +179,21 @@ export function addSaidTag(
   const passage = doc.parsed.TEI.text.body.p[passageId];
   passage.said = {
     speaker: `#${speaker}`,
-    ...range
+    ...range,
   };
   return doc; // Returns "same" object but it's mutated
 }
 ```
 
 **Hickey Analysis:**
+
 - **Places everywhere:** The `doc` parameter is a place—mutation has side effects
 - **Hidden mutation:** Returns `doc` like nothing changed, but it's different now
 - **No composability:** Can't chain operations reliably without copying between each step
 - **Time erased:** Can't see the succession of states (untagged → tagged)
 
 **Effect Pattern:**
+
 ```typescript
 // ✅ Value-oriented: Each operation returns NEW value
 import { Effect } from 'effect';
@@ -196,10 +208,7 @@ interface TagEvent {
 }
 
 // Pure function - no mutation
-const addSaidTag = (
-  doc: TEIDocument,
-  event: TagEvent
-): TEIDocument => ({
+const addSaidTag = (doc: TEIDocument, event: TagEvent): TEIDocument => ({
   ...doc,
   parsed: {
     ...doc.parsed,
@@ -207,14 +216,12 @@ const addSaidTag = (
       ...doc.parsed.TEI,
       text: {
         ...doc.parsed.TEI.text,
-        body: doc.parsed.TEI.text.body.map(passage =>
-          passage.id === event.passageId
-            ? { ...passage, said: event.speaker }
-            : passage
-        )
-      }
-    }
-  }
+        body: doc.parsed.TEI.text.body.map((passage) =>
+          passage.id === event.passageId ? { ...passage, said: event.speaker } : passage
+        ),
+      },
+    },
+  },
 });
 ```
 
@@ -237,16 +244,13 @@ export class SelectionManager {
 **Hickey Feedback:** "This is a mutable place. Any caller holding a reference to `SelectionManager` sees different state over time—place creates coordination problems. Values share safely; places don't."
 
 **Simple Alternative:**
+
 ```typescript
 // ✅ Value: Selection as immutable value
 type Selection = { readonly start: number; readonly end: number } | null;
 
 // Function returns new state (value, not place)
-const selectText = (
-  current: Selection,
-  start: number,
-  end: number
-): Selection => ({ start, end });
+const selectText = (current: Selection, start: number, end: number): Selection => ({ start, end });
 
 // Composition is trivial and safe
 const selection1 = selectText(null, 10, 20);
@@ -269,19 +273,21 @@ export async function detectDialogue(text: string): Promise<DialogueSpan[]> {
     method: 'POST',
     body: JSON.stringify({
       model: 'gpt-4',
-      messages: [{ role: 'system', content: '...' }]
-    })
+      messages: [{ role: 'system', content: '...' }],
+    }),
   });
   // OpenAI-specific logic inseparable from interface
 }
 ```
 
 **Hickey Analysis:**
+
 - **Not separable:** Can't use `detectDialogue` without OpenAI dependency
 - **Can't compose:** Can't wrap with caching, logging, retry logic without changing implementation
 - **Testing pain:** Must mock HTTP requests or hit real API
 
 **Effect Pattern (Protocol First, Composable):**
+
 ```typescript
 // ✅ Protocol First: Define what we need
 interface DialogueDetection {
@@ -300,9 +306,7 @@ const detectDialogue = (text: string) =>
 
 // ✅ Test implementation without HTTP
 const mockDetectDialogue = (text: string) =>
-  Effect.succeed([
-    { start: 0, end: 10, text: '...', confidence: 0.9 }
-  ]);
+  Effect.succeed([{ start: 0, end: 10, text: '...', confidence: 0.9 }]);
 ```
 
 ---
@@ -311,34 +315,29 @@ const mockDetectDialogue = (text: string) =>
 
 ```tsx
 // ❌ DocumentContext.loadDocumentHandler - Validation mixed with loading
-const loadDocumentHandler = useCallback((xml: string) => {
-  dispatch({ type: 'LOAD', xml });
-  setValidationResults(null);
-  validateOnly(xml).catch(err => {
-    console.error('Failed to validate after load:', err);
-  });
-}, [logError, validateOnly]);
+const loadDocumentHandler = useCallback(
+  (xml: string) => {
+    dispatch({ type: 'LOAD', xml });
+    setValidationResults(null);
+    validateOnly(xml).catch((err) => {
+      console.error('Failed to validate after load:', err);
+    });
+  },
+  [logError, validateOnly]
+);
 ```
 
 **Hickey Feedback:** "Validation is cross-cutting (happens during loading AND saving), but it's braided into the loading logic. Can't validate independently without triggering a document load. This is not composable."
 
 **Simple Alternative (Composable):**
+
 ```typescript
 // ✅ Composable: Validation as separate Effect
 const loadDocument = (xml: string) =>
-  pipe(
-    parseXML,
-    validateDocument,
-    loadIntoState,
-    clearValidationCache
-  )(xml);
+  pipe(parseXML, validateDocument, loadIntoState, clearValidationCache)(xml);
 
 const validateDocument = (xml: string) =>
-  pipe(
-    sendToValidationAPI,
-    cacheValidationResult,
-    logValidationErrors
-  )(xml);
+  pipe(sendToValidationAPI, cacheValidationResult, logValidationErrors)(xml);
 
 // Tests can use validation independently
 const validationResult = await validateDocument(xml).runPromise();
@@ -364,17 +363,19 @@ export function getHistoryState(document: TEIDocument | null) {
   return {
     canUndo: document.revision > 0,
     canRedo: document.revision < document.history.length - 1,
-    currentRevision: document.revision
+    currentRevision: document.revision,
   };
 }
 ```
 
 **Hickey Analysis:**
+
 - **Time implicit:** History is "there" but not explicitly modeled as succession
 - **Mutation erases past:** When `dispatch({ type: 'ADD_SAID_TAG' })` happens, old document is gone—can't see what changed
 - **No time travel:** Can't inspect document at revision 50 without replaying 1-49
 
 **Effect Pattern (Explicit Time Modeling):**
+
 ```typescript
 // ✅ Explicit time: Event Sourcing
 type DocumentEvent =
@@ -409,8 +410,8 @@ const stateAtRevision50 = { ...state, events: state.events.slice(0, 51) };
 ```typescript
 // ❌ Current test: Can't see intermediate states
 test('should add tag and validate', async ({ page }) => {
-  await page.click(passage);  // 1. Click
-  await page.click('said');   // 2. Tag
+  await page.click(passage); // 1. Click
+  await page.click('said'); // 2. Tag
   // ❌ Can't verify intermediate state after click
   // ❌ Can't test validation independently of tagging
 });
@@ -419,19 +420,22 @@ test('should add tag and validate', async ({ page }) => {
 **Hickey Feedback:** "Tests can't observe the succession of states because mutation hides history. You can't say 'state after click but before tag'—that state never existed as a value."
 
 **Effect Pattern (Observable State):**
+
 ```typescript
 // ✅ Tests can observe each state transition
-const tagAddedState = await stateStream.pipe(
-  filter(state => state.lastEvent.type === 'tag-added'),
-  take(1)
-).runPromise();
+const tagAddedState = await stateStream
+  .pipe(
+    filter((state) => state.lastEvent.type === 'tag-added'),
+    take(1)
+  )
+  .runPromise();
 
 expect(tagAddedState.document.tags).toContain(expectedTag);
 
 // ✅ Can validate at any point in time
-const validationState = await stateStream.pipe(
-  filter(state => state.phase === 'validating')
-).runPromise();
+const validationState = await stateStream
+  .pipe(filter((state) => state.phase === 'validating'))
+  .runPromise();
 ```
 
 ---
@@ -449,11 +453,13 @@ export async function uploadTestDocument(page: Page, doc: { name: string; conten
 
   // ❌ Protocol is implicit: "call setInputFiles, then wait for passages"
   // No explicit contract for what "upload" means
-  await fileInput.setInputFiles([{
-    name: doc.name,
-    mimeType: 'application/xml',
-    buffer: Buffer.from(doc.content, 'utf-8')
-  }]);
+  await fileInput.setInputFiles([
+    {
+      name: doc.name,
+      mimeType: 'application/xml',
+      buffer: Buffer.from(doc.content, 'utf-8'),
+    },
+  ]);
 
   // ❌ After this, state changes invisibly - no way to observe
 }
@@ -462,6 +468,7 @@ export async function uploadTestDocument(page: Page, doc: { name: string; conten
 **Hickey Feedback:** "The upload protocol is implicit. You call `setInputFiles`, then wait for passages to appear. But there's no explicit 'DocumentUploaded' event or state. Tests must guess when upload is complete by polling DOM—brittle."
 
 **Effect Pattern (Protocol First):**
+
 ```typescript
 // ✅ Protocol: Explicit upload contract
 interface DocumentUpload {
@@ -473,18 +480,17 @@ const uploadDocument = (doc: TestDocument) =>
   Effect.gen(function* (_) {
     // 1. Trigger upload
     yield Effect.tryPromise(() =>
-      page.locator('input[type="file"]').setInputFiles([{
-        name: doc.name,
-        mimeType: 'application/xml',
-        buffer: Buffer.from(doc.content, 'utf-8')
-      }])
+      page.locator('input[type="file"]').setInputFiles([
+        {
+          name: doc.name,
+          mimeType: 'application/xml',
+          buffer: Buffer.from(doc.content, 'utf-8'),
+        },
+      ])
     );
 
     // 2. Wait for upload event (explicit state transition)
-    yield Effect.retry(
-      page.waitForSelector('[id^="passage-"]', { timeout: 10000 }),
-      { times: 3 }
-    );
+    yield Effect.retry(page.waitForSelector('[id^="passage-"]', { timeout: 10000 }), { times: 3 });
 
     // 3. Return success value (observable result)
     return { uploaded: true, passageCount: yield getPassageCount() };
@@ -509,22 +515,24 @@ export function addCharacter(doc: TEIDocument, character: Character): TEIDocumen
   // ❌ NO CONSTRAINT: accepts any object with 'id' field
   doc.parsed.TEI.teiHeader.castList.push({
     xmlId: character.xmlId,
-    ...character  // Spreads everything - no validation
+    ...character, // Spreads everything - no validation
   });
   return doc;
 }
 ```
 
 **Hickey Analysis:**
+
 - **Too flexible:** Function accepts anything with `.id`—bugs waiting to happen
 - **No learning:** Can't understand what this function requires without reading implementation
 - **No composability:** Can't compose with validation without knowing the implicit contract
 
 **Effect Pattern (Constrained Types):**
+
 ```typescript
 // ✅ Explicit types as constraints
 interface Character {
-  readonly xmlId: string;  // Branded type - must follow format
+  readonly xmlId: string; // Branded type - must follow format
   readonly name: string;
   readonly description?: string;
 }
@@ -532,40 +540,38 @@ interface Character {
 // ✅ Add character is constrained
 const addCharacter = (doc: TEIDocument, character: Character) =>
   Effect.gen(function* (_) {
-  // Validate constraint
-  yield Effect.tryPromise(() =>
-    validateXmlId(character.xmlId)
-  );
+    // Validate constraint
+    yield Effect.tryPromise(() => validateXmlId(character.xmlId));
 
-  // Only then proceed
-  return {
-    ...doc,
-    parsed: {
-      ...doc.parsed,
-      TEI: {
-        ...doc.parsed.TEI,
-        teiHeader: {
-          ...doc.parsed.TEI.teiHeader,
-          castList: [...doc.parsed.TEI.teiHeader.teiCastList, character]
-        }
-      }
-    }
-  };
-});
+    // Only then proceed
+    return {
+      ...doc,
+      parsed: {
+        ...doc.parsed,
+        TEI: {
+          ...doc.parsed.TEI,
+          teiHeader: {
+            ...doc.parsed.TEI.teiHeader,
+            castList: [...doc.parsed.TEI.teiHeader.teiCastList, character],
+          },
+        },
+      },
+    };
+  });
 ```
 
 ---
 
 ## Summary: Hickey Principle Violations
 
-| Principle | Current State | Violation Severity | Fix Priority |
-|----------|--------------|-------------------|--------------|
-| **Simplicity** | 22 useState hooks in one component | HIGH | Critical |
-| **Values over Places** | State mutation everywhere | HIGH | Critical |
-| **Composability** | AI providers can't be layered | HIGH | High |
-| **Time Modeling** | History implicit, mutation erases past | MEDIUM | High |
-| **Protocols First** | Upload/validation contracts implicit | HIGH | High |
-| **Constraints** | TEI operations accept anything | MEDIUM | Medium |
+| Principle              | Current State                          | Violation Severity | Fix Priority |
+| ---------------------- | -------------------------------------- | ------------------ | ------------ |
+| **Simplicity**         | 22 useState hooks in one component     | HIGH               | Critical     |
+| **Values over Places** | State mutation everywhere              | HIGH               | Critical     |
+| **Composability**      | AI providers can't be layered          | HIGH               | High         |
+| **Time Modeling**      | History implicit, mutation erases past | MEDIUM             | High         |
+| **Protocols First**    | Upload/validation contracts implicit   | HIGH               | High         |
+| **Constraints**        | TEI operations accept anything         | MEDIUM             | Medium       |
 
 ---
 
@@ -592,22 +598,26 @@ const addCharacter = (doc: TEIDocument, character: Character) =>
 ### Migration Strategy:
 
 **Phase 1: Core Protocols** (Critical Path)
+
 - Define `Document` as event-sourced value
 - Create `AIProvider` protocol (already exists, good!)
 - Create `DocumentStorage` protocol (localStorage replacement)
 - Create `ValidationService` protocol
 
 **Phase 2: Component Simplification**
+
 - Break EditorLayout into focused components
 - Each component takes Effect programs, not callbacks
 - Components become pure functions of state
 
 **Phase 3: Test Architecture**
+
 - Tests provide Effect implementations (mocks)
 - Test scenarios as Effect compositions
 - Can replay history for debugging
 
 **Phase 4: Application Layer**
+
 - Route requests to Effect programs
 - Side effects (file I/O, network) at boundaries
 - Core logic pure and testable

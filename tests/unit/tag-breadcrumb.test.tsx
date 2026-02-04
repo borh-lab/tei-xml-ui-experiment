@@ -62,9 +62,7 @@ describe('TagBreadcrumb', () => {
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
     // Trigger the selection handler via keyup event (which uses getTagHierarchyFromSelection)
-    const keyupCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'keyup'
-    )?.[1];
+    const keyupCallback = mockAddEventListener.mock.calls.find((call) => call[0] === 'keyup')?.[1];
 
     if (keyupCallback) {
       keyupCallback();
@@ -92,9 +90,7 @@ describe('TagBreadcrumb', () => {
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
     // Trigger initial selection via keyup
-    const keyupCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'keyup'
-    )?.[1];
+    const keyupCallback = mockAddEventListener.mock.calls.find((call) => call[0] === 'keyup')?.[1];
 
     if (keyupCallback) {
       keyupCallback();
@@ -142,9 +138,7 @@ describe('TagBreadcrumb', () => {
     render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
     // Trigger selection via keyup
-    const keyupCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'keyup'
-    )?.[1];
+    const keyupCallback = mockAddEventListener.mock.calls.find((call) => call[0] === 'keyup')?.[1];
 
     if (keyupCallback) {
       keyupCallback();
@@ -188,9 +182,7 @@ describe('TagBreadcrumb', () => {
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
     // Trigger selection via keyup
-    const keyupCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'keyup'
-    )?.[1];
+    const keyupCallback = mockAddEventListener.mock.calls.find((call) => call[0] === 'keyup')?.[1];
 
     if (keyupCallback) {
       keyupCallback();
@@ -224,9 +216,7 @@ describe('TagBreadcrumb', () => {
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
     // Trigger selection via keyup
-    const keyupCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'keyup'
-    )?.[1];
+    const keyupCallback = mockAddEventListener.mock.calls.find((call) => call[0] === 'keyup')?.[1];
 
     if (keyupCallback) {
       keyupCallback();
@@ -297,9 +287,7 @@ describe('TagBreadcrumb', () => {
     const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
 
     // Trigger selection via keyup
-    const keyupCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'keyup'
-    )?.[1];
+    const keyupCallback = mockAddEventListener.mock.calls.find((call) => call[0] === 'keyup')?.[1];
 
     if (keyupCallback) {
       keyupCallback();
@@ -334,9 +322,7 @@ describe('TagBreadcrumb', () => {
     const { container } = render(<TagBreadcrumb />);
 
     // Trigger selection via keyup
-    const keyupCallback = mockAddEventListener.mock.calls.find(
-      call => call[0] === 'keyup'
-    )?.[1];
+    const keyupCallback = mockAddEventListener.mock.calls.find((call) => call[0] === 'keyup')?.[1];
 
     if (keyupCallback) {
       keyupCallback();

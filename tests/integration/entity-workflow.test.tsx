@@ -18,7 +18,7 @@ describe('Entity Tagging Workflow', () => {
     expect(typeof doc.addSaidTag).toBe('function');
 
     // Call the mutation
-    doc.addSaidTag(0, {start: 0, end: 11}, 'speaker1');
+    doc.addSaidTag(0, { start: 0, end: 11 }, 'speaker1');
 
     // Verify document was updated
     const serialized = doc.serialize();
@@ -33,7 +33,7 @@ describe('Entity Tagging Workflow', () => {
     doc.addCharacter({
       'xml:id': 'test',
       persName: 'Test Character',
-      sex: 'M'
+      sex: 'M',
     });
 
     // Verify getCharacters works

@@ -36,15 +36,18 @@ interface TagEditDialogProps {
 }
 
 // TEI tag schema definitions for common tags
-const TAG_SCHEMAS: Record<string, {
-  attributes: Array<{
-    name: string;
-    type: 'text' | 'select';
-    required: boolean;
-    options?: string[];
-    defaultValue?: string;
-  }>;
-}> = {
+const TAG_SCHEMAS: Record<
+  string,
+  {
+    attributes: Array<{
+      name: string;
+      type: 'text' | 'select';
+      required: boolean;
+      options?: string[];
+      defaultValue?: string;
+    }>;
+  }
+> = {
   said: {
     attributes: [
       {
@@ -52,32 +55,32 @@ const TAG_SCHEMAS: Record<string, {
         type: 'select',
         required: true,
         options: ['speaker1', 'speaker2', 'speaker3', 'speaker4', 'speaker5'],
-        defaultValue: 'speaker1'
+        defaultValue: 'speaker1',
       },
       {
         name: 'direct',
         type: 'select',
         required: false,
         options: ['true', 'false'],
-        defaultValue: 'false'
+        defaultValue: 'false',
       },
       {
         name: 'aloud',
         type: 'select',
         required: false,
         options: ['true', 'false'],
-        defaultValue: 'true'
-      }
-    ]
+        defaultValue: 'true',
+      },
+    ],
   },
   q: {
     attributes: [
       {
         name: 'who',
         type: 'text',
-        required: false
-      }
-    ]
+        required: false,
+      },
+    ],
   },
   stage: {
     attributes: [
@@ -86,19 +89,19 @@ const TAG_SCHEMAS: Record<string, {
         type: 'select',
         required: false,
         options: ['enter', 'exit', 'setting', 'delivery', 'action'],
-        defaultValue: 'action'
-      }
-    ]
+        defaultValue: 'action',
+      },
+    ],
   },
   p: {
     attributes: [
       {
         name: 'id',
         type: 'text',
-        required: false
-      }
-    ]
-  }
+        required: false,
+      },
+    ],
+  },
 };
 
 export function TagEditDialog({ isOpen, onClose, tagInfo, onApply }: TagEditDialogProps) {
@@ -205,7 +208,9 @@ export function TagEditDialog({ isOpen, onClose, tagInfo, onApply }: TagEditDial
                       )}
 
                       <p className="text-xs text-muted-foreground">
-                        {attrDef.type === 'select' ? 'Select from predefined options' : 'Enter a value'}
+                        {attrDef.type === 'select'
+                          ? 'Select from predefined options'
+                          : 'Enter a value'}
                       </p>
                     </div>
                   );
@@ -262,8 +267,12 @@ export function TagEditDialog({ isOpen, onClose, tagInfo, onApply }: TagEditDial
             <div className="space-y-2">
               <Label>Element Info</Label>
               <div className="p-3 bg-muted rounded-md text-sm">
-                <div><strong>Tag:</strong> &lt;{tagInfo.tagName}&gt;</div>
-                <div><strong>Attributes:</strong> {Object.keys(editedAttributes).length}</div>
+                <div>
+                  <strong>Tag:</strong> &lt;{tagInfo.tagName}&gt;
+                </div>
+                <div>
+                  <strong>Attributes:</strong> {Object.keys(editedAttributes).length}
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -273,9 +282,7 @@ export function TagEditDialog({ isOpen, onClose, tagInfo, onApply }: TagEditDial
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleApply}>
-            Apply Changes
-          </Button>
+          <Button onClick={handleApply}>Apply Changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

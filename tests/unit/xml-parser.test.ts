@@ -4,11 +4,7 @@
  * Tests the TEI document parsing and dialogue extraction utilities
  */
 
-import {
-  parseTEIDocument,
-  calculateIoU,
-  spansMatch
-} from '@/tests/utils/xml-parser';
+import { parseTEIDocument, calculateIoU, spansMatch } from '@/tests/utils/xml-parser';
 
 describe('XML Parser Utilities', () => {
   describe('parseTEIDocument', () => {

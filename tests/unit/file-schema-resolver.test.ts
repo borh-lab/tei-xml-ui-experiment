@@ -8,8 +8,8 @@ describe('FileSchemaResolver', () => {
       name: 'Test Schema',
       description: 'A test schema',
       path: '/schemas/test.rng',
-      tags: ['test']
-    }
+      tags: ['test'],
+    },
   };
 
   it('should resolve known schema ID to path', () => {

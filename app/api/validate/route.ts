@@ -18,10 +18,7 @@ export async function POST(request: NextRequest) {
     const { xml, schemaId } = body;
 
     if (!xml) {
-      return NextResponse.json(
-        { error: 'Missing XML content' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing XML content' }, { status: 400 });
     }
 
     // Default to tei-minimal for fast validation
@@ -33,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: `Unknown schema: ${effectiveSchemaId}`,
-          availableSchemas: availableSchemas.map(s => s.id)
+          availableSchemas: availableSchemas.map((s) => s.id),
         },
         { status: 400 }
       );

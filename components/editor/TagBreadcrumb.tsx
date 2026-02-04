@@ -34,9 +34,7 @@ export function TagBreadcrumb({ onTagSelect }: TagBreadcrumbProps) {
       <span className="text-muted-foreground">Tag:</span>
       <span className="font-mono">{selectedTag.tagName}</span>
       {selectedTag.attributes?.who && (
-        <span className="text-muted-foreground">
-          (who: {selectedTag.attributes.who})
-        </span>
+        <span className="text-muted-foreground">(who: {selectedTag.attributes.who})</span>
       )}
     </div>
   );

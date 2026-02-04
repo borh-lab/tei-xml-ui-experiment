@@ -1,5 +1,10 @@
 import { Page, expect } from '@playwright/test';
-import { waitForEditorReady, annotatePassage, exportDocument, hasDocumentLoaded } from '../fixtures/test-helpers';
+import {
+  waitForEditorReady,
+  annotatePassage,
+  exportDocument,
+  hasDocumentLoaded,
+} from '../fixtures/test-helpers';
 
 export class EditorPage {
   constructor(private page: Page) {}

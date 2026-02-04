@@ -22,7 +22,8 @@ describe('Corpus Validation Integration', () => {
 
     const trainDocs = corpus.getSplit('train');
 
-    for (const doc of trainDocs.slice(0, 10)) { // Test first 10
+    for (const doc of trainDocs.slice(0, 10)) {
+      // Test first 10
       expect(() => {
         TEIDocument.parse(doc.content);
       }).not.toThrow();
@@ -36,7 +37,8 @@ describe('Corpus Validation Integration', () => {
 
     expect(saidDocs.length).toBeGreaterThan(0);
 
-    for (const doc of saidDocs.slice(0, 5)) { // Test first 5
+    for (const doc of saidDocs.slice(0, 5)) {
+      // Test first 5
       const tei = TEIDocument.parse(doc.content);
       const saidElements = tei.querySelectorAll('said');
       expect(saidElements.length).toBeGreaterThan(0);

@@ -19,6 +19,7 @@ This document describes comprehensive enhancements to the TEI Dialogue Editor, f
 ### 1.2 Key Features
 
 **Annotation Enhancements:**
+
 - Configurable AI modes (Manual/Suggest/Auto)
 - Comprehensive keyboard shortcuts (Vim/Emacs modes)
 - Bulk tagging operations with multi-select
@@ -26,6 +27,7 @@ This document describes comprehensive enhancements to the TEI Dialogue Editor, f
 - Navigation commands (jump, filter, outline)
 
 **AI Integration:**
+
 - Ax framework for structured generation
 - Multi-provider support (OpenAI, Anthropic, Google, etc.)
 - Pattern-based speaker recognition (Rust WASM)
@@ -33,12 +35,14 @@ This document describes comprehensive enhancements to the TEI Dialogue Editor, f
 - Confidence scoring and validation
 
 **Sample Gallery:**
+
 - 5 prepared examples with pre-tagged dialogue
 - Live corpus integration (Wright American Fiction)
 - Tutorial mode with inline guidance
 - Export/import custom samples
 
 **Visualizations:**
+
 - Interactive character dialogue network
 - Timeline visualization with filtering
 - Statistics dashboard with export
@@ -80,6 +84,7 @@ Users can start with manual annotation, enable AI suggestions, or request full a
 ### 2.3 Technical Stack
 
 **New Dependencies:**
+
 ```json
 {
   "dependencies": {
@@ -100,6 +105,7 @@ Users can start with manual annotation, enable AI suggestions, or request full a
 ```
 
 **Nix Integration:**
+
 - Playwright browsers via `playwright-web-flake`
 - Node.js 22 development environment
 - All dependencies reproducible
@@ -109,6 +115,7 @@ Users can start with manual annotation, enable AI suggestions, or request full a
 ### 3.1 Keyboard-First Design
 
 **Global Shortcuts:**
+
 - `Cmd/Ctrl+K`: Open command palette
 - `Cmd/Ctrl+S`: Save document
 - `Cmd/Ctrl+Z`: Undo
@@ -117,6 +124,7 @@ Users can start with manual annotation, enable AI suggestions, or request full a
 - `Esc`: Close modal/palette, exit bulk mode
 
 **Navigation Shortcuts:**
+
 - `J`: Next dialogue passage
 - `K`: Previous dialogue passage
 - `Shift+J/K`: Extend selection (bulk mode)
@@ -126,6 +134,7 @@ Users can start with manual annotation, enable AI suggestions, or request full a
 - `Cmd/Ctrl+Shift+N`: Select all by character
 
 **Tagging Shortcuts:**
+
 - `1-9`: Quick-assign to speakers 1-9
 - `T`: Tag current selection (opens tag menu)
 - `R`: Remove tag from selection
@@ -135,6 +144,7 @@ Users can start with manual annotation, enable AI suggestions, or request full a
 - `Shift+X`: Reject all visible AI suggestions
 
 **Customization:**
+
 - Settings panel to remap all shortcuts
 - Preset modes: Emacs, Vim, VS Code, Custom
 - Export/import shortcut configuration
@@ -144,11 +154,13 @@ Users can start with manual annotation, enable AI suggestions, or request full a
 Three-position toggle in toolbar:
 
 **Manual Mode:**
+
 - AI completely disabled
 - Traditional annotation workflow
 - Full manual control
 
 **Suggest Mode:**
+
 - AI highlights passages with dialogue
 - Inline suggestions shown with confidence scores
 - User accepts/rejects individually
@@ -156,12 +168,14 @@ Three-position toggle in toolbar:
 - Ax provides suggestions for low-confidence cases
 
 **Auto Mode:**
+
 - AI tags entire document
 - Color-coded by confidence (green >90%, yellow 70-90%, red <70%)
 - User reviews and edits
 - Progress indicator shows completion
 
 **Real-Time Mode:**
+
 - As user types/edits, AI updates nearby passages
 - Configurable proximity (1-5 paragraphs)
 - Background processing, non-blocking
@@ -170,6 +184,7 @@ Three-position toggle in toolbar:
 ### 3.3 Bulk Operations Panel
 
 **Sidebar Panel Features:**
+
 - Toggle button in toolbar or `Cmd/Ctrl+B`
 - Multi-selection mode indicator
 - Selection counter badge
@@ -180,6 +195,7 @@ Three-position toggle in toolbar:
   - "Select in current chapter"
 
 **Bulk Actions:**
+
 - "Tag all as [speaker]" (with speaker dropdown)
 - "Accept all AI suggestions" (with confidence threshold)
 - "Reject all AI suggestions"
@@ -187,6 +203,7 @@ Three-position toggle in toolbar:
 - "Export selection statistics"
 
 **Visual Feedback:**
+
 - Selected passages highlighted with accent color
 - Border indicator shows selection mode active
 - Last action: Undo/redo support
@@ -195,6 +212,7 @@ Three-position toggle in toolbar:
 ### 3.4 Navigation Enhancements
 
 **Dialogue Outline Panel:**
+
 - Tree view: Volume → Chapter → Dialogue Passages
 - Icons indicate status:
   - ✓ Fully tagged
@@ -209,6 +227,7 @@ Three-position toggle in toolbar:
 - Breadcrumb navigation: Chapter → Passage # → Nearest dialogue
 
 **Quick Search:**
+
 - `Cmd/Ctrl+F`: Find passages by text
 - `Cmd/Ctrl+Shift+F`: Find by speaker
 - Search across entire document or current chapter
@@ -225,18 +244,21 @@ High-performance pattern matching compiled to WebAssembly for instant suggestion
 **Pattern Types:**
 
 1. **Recency Pattern:**
+
    ```
    If current passage within 3 paragraphs of <said who="#X">
    → Suggest X with confidence 0.8
    ```
 
 2. **Chapter Frequency Pattern:**
+
    ```
    If chapter has 80%+ dialogue from character X
    → Suggest X with confidence proportional to frequency
    ```
 
 3. **Turn-Taking Pattern:**
+
    ```
    If pattern: A → B → A detected
    → Suggest B after A with confidence 0.7
@@ -249,6 +271,7 @@ High-performance pattern matching compiled to WebAssembly for instant suggestion
    ```
 
 **WASM Module Interface:**
+
 ```rust
 // Compiled to pattern-engine.wasm
 pub fn detect_speaker_patterns(
@@ -271,6 +294,7 @@ pub fn calculate_confidence(
 ```
 
 **Performance:**
+
 - Pattern matching: <1ms per passage
 - Database update: <5ms
 - Zero latency for instant suggestions
@@ -281,13 +305,13 @@ pub fn calculate_confidence(
 **Replace OpenAI provider with Ax-powered system:**
 
 ```typescript
-import { ax, ai } from "@ax-llm/ax";
-import { createOpenAI } from "@ax-llm/ax-ai-sdk-provider";
+import { ax, ai } from '@ax-llm/ax';
+import { createOpenAI } from '@ax-llm/ax-ai-sdk-provider';
 
 // Configure AI provider (supports all LLMs)
 const llm = ai({
-  name: "openai",
-  apiKey: process.env.OPENAI_API_KEY
+  name: 'openai',
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Alternative providers supported:
@@ -324,13 +348,13 @@ const result = await speakerAttributor.forward(llm, {
   context: 'Jane looked at Mr. Rochester...',
   knownSpeakers: [
     { id: 'jane', name: 'Jane Eyre', description: 'Protagonist, governess' },
-    { id: 'rochester', name: 'Mr. Rochester', description: 'Byronic hero' }
-  ]
+    { id: 'rochester', name: 'Mr. Rochester', description: 'Byronic hero' },
+  ],
 });
 
-console.log(result.speakerId);     // "jane"
-console.log(result.confidence);     // 0.92
-console.log(result.reasoning);      // AI explanation
+console.log(result.speakerId); // "jane"
+console.log(result.confidence); // 0.92
+console.log(result.reasoning); // AI explanation
 ```
 
 **Prompt Optimization with Ax:**
@@ -343,16 +367,17 @@ const examples = [
     context: 'Jane answered boldly...',
     speakerId: 'jane',
     confidence: 0.95,
-    reasoning: 'Direct speech with said verb'
+    reasoning: 'Direct speech with said verb',
   },
   // ... 3-5 more examples
 ];
 
 const optimizedAttributor = ax(signature, { examples });
-await optimizedAttributor.compile(llm);  // MiPRO optimizer
+await optimizedAttributor.compile(llm); // MiPRO optimizer
 ```
 
 **Provider Switching:**
+
 - Settings UI: Select provider (OpenAI, Anthropic, Google, Ollama)
 - Cost tracking: Show estimated cost per 1k passages
 - Rate limiting: Configurable budget caps
@@ -368,33 +393,34 @@ interface PatternDatabase {
     [xmlId: string]: {
       name: string;
       patterns: {
-        lastUsed: number;           // Timestamp
-        positionFrequency: Map<string, number>;  // Position patterns
-        commonFollowers: string[];   // Who typically speaks after
-        commonPreceders: string[];  // Who typically speaks before
-        chapterAffinity: Map<string, number>;  // Which chapters
-      }
-    }
-  },
+        lastUsed: number; // Timestamp
+        positionFrequency: Map<string, number>; // Position patterns
+        commonFollowers: string[]; // Who typically speaks after
+        commonPreceders: string[]; // Who typically speaks before
+        chapterAffinity: Map<string, number>; // Which chapters
+      };
+    };
+  };
   chapters: {
     [chapterId: string]: {
       dominantSpeaker: string;
       dialogueCount: number;
       speakerDistribution: Map<string, number>;
       turnTakingPatterns: string[][];
-    }
-  },
+    };
+  };
   corrections: {
     timestamp: number;
     passage: string;
     accepted: string;
     rejected: string[];
     confidence: number;
-  }[]
+  }[];
 }
 ```
 
 **Persistence:**
+
 - Survives browser sessions (IndexedDB)
 - Export as JSON for backup/sharing
 - Import to restore or transfer
@@ -403,10 +429,7 @@ interface PatternDatabase {
 **Confidence Scoring:**
 
 ```typescript
-function calculateConfidence(
-  patternMatch: PatternMatch,
-  context: Context
-): number {
+function calculateConfidence(patternMatch: PatternMatch, context: Context): number {
   let score = 0.0;
 
   // Recency boost
@@ -453,6 +476,7 @@ function calculateConfidence(
    - Per-provider cost tracking
 
 **Privacy Controls:**
+
 - "Learning disabled" toggle
 - Clear learning database button
 - Export/delete data options
@@ -465,6 +489,7 @@ function calculateConfidence(
 **Welcome Screen Components:**
 
 **1. Quick Start Section:**
+
 - 3 recommended samples for first-time users
 - Cards with: Title, Author, Description, "Load" button
 - Difficulty indicator: Beginner → Intermediate → Advanced
@@ -472,6 +497,7 @@ function calculateConfidence(
 **2. Full Sample Gallery:**
 
 **Sample 1: "Pride and Prejudice" (Chapter 1)**
+
 - Title: "Pride and Prejudice - Chapter 1"
 - Author: Jane Austen
 - Dialogue passages: 12
@@ -481,6 +507,7 @@ function calculateConfidence(
 - Teaches: Basic speaker attribution
 
 **Sample 2: "Dracula" (Chapter 3)**
+
 - Title: "Dracula - Jonathan Harker's Journal"
 - Author: Bram Stoker
 - Dialogue passages: 18
@@ -490,6 +517,7 @@ function calculateConfidence(
 - Teaches: Advanced structures, embedded texts
 
 **Sample 3: "Jane Eyre" (Chapter 1)**
+
 - Title: "Jane Eyre - Chapter I"
 - Author: Charlotte Brontë
 - Dialogue passages: 8
@@ -499,6 +527,7 @@ function calculateConfidence(
 - Teaches: Narrative vs dialogue distinction
 
 **Sample 4: "The Yellow Wallpaper" (Full Story)**
+
 - Title: "The Yellow Wallpaper"
 - Author: Charlotte Perkins Gilman
 - Dialogue passages: 15
@@ -510,6 +539,7 @@ function calculateConfidence(
 - Teaches: Complete annotation workflow
 
 **Sample 5: Tutorial Example**
+
 - Minimal snippet (5 passages)
 - Inline guidance tooltips
 - Step-by-step: "Try tagging this dialogue"
@@ -517,6 +547,7 @@ function calculateConfidence(
 - Teaches: Tool features step-by-step
 
 **Sample Card UI:**
+
 - Book cover (auto-generated placeholder)
 - Metadata: Title, author, year
 - Statistics: Dialogue count, character count
@@ -525,6 +556,7 @@ function calculateConfidence(
 - Difficulty badge: color-coded (green/yellow/red)
 
 **3. Tutorial Mode:**
+
 - First-time users: Guided tour
 - Feature highlights with tooltips
 - Interactive tasks: "Tag this passage"
@@ -536,6 +568,7 @@ function calculateConfidence(
 **Corpus Browser Interface:**
 
 **Search/Filter Panel:**
+
 - Text search: Title, author, full-text
 - Filters: Year range, dialogue count, character count
 - Sort: Relevance, Title, Date, Dialogue Count
@@ -543,6 +576,7 @@ function calculateConfidence(
 **Corpus Sources:**
 
 **1. Wright American Fiction (1851-1875)**
+
 - GitHub API integration
 - ~3,000 novels available
 - Metadata: Title, author, year, genre
@@ -551,6 +585,7 @@ function calculateConfidence(
 - Caching: Frequently accessed in IndexedDB
 
 **API Integration:**
+
 ```typescript
 async function fetchWrightFiction(): Promise<Novel[]> {
   const response = await fetch(
@@ -558,22 +593,24 @@ async function fetchWrightFiction(): Promise<Novel[]> {
   );
   const files = await response.json();
   return files
-    .filter(f => f.name.endsWith('.xml'))
-    .map(f => ({
+    .filter((f) => f.name.endsWith('.xml'))
+    .map((f) => ({
       title: extractTitle(f.name),
       path: f.download_url,
-      metadata: extractMetadata(f)
+      metadata: extractMetadata(f),
     }));
 }
 ```
 
 **2. Future Sources:**
+
 - Victorian Women Writers Project
 - Christof Schöch's TEI texts
 - Oxford Text Archive (if API available)
 - User-contributed samples
 
 **Corpus Card UI:**
+
 - Title and author
 - Year and source
 - Estimated dialogue count (AI-calculated from preview)
@@ -585,12 +622,14 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 ### 5.3 Recent Documents
 
 **Quick Access:**
+
 - Recently opened documents (localStorage)
 - Last edited: Timestamp
 - Progress indicator: Tagging completion %
 - Quick actions: "Continue", "Duplicate", "Delete"
 
 **Persistence:**
+
 - localStorage for recent documents list
 - IndexedDB for document content
 - Export/import for backup
@@ -598,18 +637,21 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 ### 5.4 Import/Export for Samples
 
 **Custom Samples:**
+
 - Users can save work as sample template
 - "Save as Sample" button in toolbar
 - Prompts for: Title, author, description, tags
 - Stored in IndexedDB, exportable as JSON
 
 **Export Formats:**
+
 - TEI XML (standard)
 - JSON (sample data)
 - URL-encoded (shareable link)
 - PDF (for documentation)
 
 **Import:**
+
 - Drag-and-drop .xml file
 - "Import from URL" feature
 - "Load from backup" (IndexedDB restore)
@@ -621,6 +663,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Force-Directed Graph:**
 
 **Visual Elements:**
+
 - Nodes: Characters
   - Size ∝ dialogue volume
   - Color: Role-based (Protagonist=blue, Antagonist=red, Other=gray)
@@ -631,6 +674,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
   - Color: Dialogue density (gradient)
 
 **Interactivity:**
+
 - Hover node:
   - Tooltip: Stats (dialogue count, % of total)
   - Highlight connected edges
@@ -644,12 +688,14 @@ async function fetchWrightFiction(): Promise<Novel[]> {
   - Save layout preference
 
 **Layout Options:**
+
 - Force (default): Physics-based simulation
 - Circular: Characters in circle
 - Hierarchical: Chapter-based clustering
 - Manual: User-positioned
 
 **Export:**
+
 - PNG (image)
 - SVG (vector graphics)
 - JSON (data for external analysis)
@@ -659,28 +705,33 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Gantt-Style Timeline:**
 
 **Axes:**
+
 - X-axis: Position in novel (chapter/paragraph)
 - Y-axis: Characters (sorted by dialogue count)
 - Bars: Individual dialogue passages
 
 **Features:**
+
 - Zoom: Scroll to zoom into time range
 - Filter: Show/hide characters
 - Click event: Jump to passage in editor
 - Color: Confidence or character
 
 **Dual View:**
+
 - Timeline (top)
 - Statistics (bottom)
 - Synchronized scrolling
 - Linked interactions
 
 **Pattern Detection:**
+
 - Highlight dialogues between character pairs
 - Show conversation clusters
 - Identify long monologues
 
 **Performance:**
+
 - Virtualization for long novels (>100k words)
 - Canvas rendering for >1000 passages
 - Web Worker for layout calculations
@@ -690,6 +741,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Four-Panel Dashboard:**
 
 **Panel 1: Dialogue Volume (Bar Chart)**
+
 - X-axis: Chapters
 - Y-axis: Dialogue passage count
 - Stacked by character
@@ -697,23 +749,27 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Hover: Exact counts
 
 **Panel 2: Speaker Distribution (Pie Chart)**
+
 - Segments: Characters
 - Size: % of total dialogue
 - Labels: Name + percentage
 - Click: Filter to character
 
 **Panel 3: Dialogue Length (Histogram)**
+
 - Buckets: Short (<50 words), Medium (50-100), Long (>100)
 - Count per bucket
 - Color by speaker (stacked)
 - Analysis: Average length
 
 **Panel 4: Tagging Progress (Donut Chart)**
+
 - Segments: Tagged, Untagged, AI-suggested
 - Progress toward completion
 - Color: Green (done), Yellow (in progress), Red (todo)
 
 **Export:**
+
 - "Export Dashboard as PDF"
 - Single report with all charts
 - Include summary statistics
@@ -724,11 +780,13 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Multi-Document View:**
 
 **Load Panel:**
+
 - "Add Document to Comparison"
 - Select from samples or upload
 - Max 5 documents (UI constraint)
 
 **Comparison Metrics:**
+
 - Total dialogue passages
 - Character count
 - Average dialogue length
@@ -736,18 +794,21 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Vocabulary richness
 
 **Visualizations:**
+
 - Side-by-side bar charts
 - Radar chart: Multi-dimensional comparison
 - Table: Sortable metrics
 - Scatter plot: Dialogue vs narration ratio
 
 **Use Cases:**
+
 - Author style analysis
 - Genre comparison
 - Chronological analysis (author's evolution)
 - Teaching: Show different encoding approaches
 
 **Export:**
+
 - CSV (for statistical analysis)
 - Excel format
 - PDF report
@@ -755,22 +816,26 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 ### 6.5 Performance Optimization
 
 **Lazy Loading:**
+
 - Code split visualization components
 - Load on-demand when tab opened
 - Reduce initial bundle size
 
 **Web Workers:**
+
 - Graph layout calculations (React Flow)
 - Timeline rendering (D3)
 - Statistics aggregation
 - Prevent UI blocking
 
 **Caching:**
+
 - Visualization results in IndexedDB
 - Cache key: Document hash + visualization type
 - Invalidate on document change
 
 **Progressive Enhancement:**
+
 - Render placeholder immediately
 - Show loading skeleton
 - Stream results as calculated
@@ -782,6 +847,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Tasks:**
 
 **1.1 Dataset Creation (Parallel with development)**
+
 - Select 5 public domain works
 - Manually annotate all dialogue with `<said>` tags
 - Create listPerson entries
@@ -795,6 +861,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
   - "Pride and Prejudice" Chapter 1 (~5k words)
 
 **1.2 Ax Provider Integration**
+
 - Install `@ax-llm/ax` and `@ax-llm/ax-ai-sdk-provider`
 - Create `lib/ai/ax-provider.ts`
 - Implement signatures: detectDialogue, attributeSpeaker
@@ -802,6 +869,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Support OpenAI initially (extensible)
 
 **1.3 Command Palette**
+
 - Install cmdk package
 - Create `components/keyboard/CommandPalette.tsx`
 - Implement global keyboard handler
@@ -809,6 +877,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Keyboard shortcut: `Cmd/Ctrl+K`
 
 **1.4 Basic Keyboard Shortcuts**
+
 - Install react-hotkeys-hook
 - Implement navigation: J/K
 - Implement tagging: T, A, X, R
@@ -816,6 +885,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Add settings panel for customization
 
 **1.5 Pattern Database Structure**
+
 - Install dexie (IndexedDB wrapper)
 - Create database schema
 - Implement basic CRUD operations
@@ -823,6 +893,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Write unit tests
 
 **Deliverables:**
+
 - Working annotation UI with keyboard shortcuts
 - Ax provider integrated and tested
 - Pattern database schema and tests
@@ -834,6 +905,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Tasks:**
 
 **2.1 Pattern Engine (WASM)**
+
 - Set up Rust environment with wasm-pack
 - Implement pattern matching algorithms
 - Compile to WASM
@@ -841,12 +913,14 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Performance test (<1ms per passage)
 
 **2.2 Learning System**
+
 - Implement feedback loop
 - Update pattern database from corrections
 - Confidence scoring algorithm
 - Add learning toggle UI
 
 **2.3 AI Mode Switcher**
+
 - Implement mode toggle (Manual/Suggest/Auto)
 - Manual: Disable AI
 - Suggest: Show inline suggestions
@@ -854,18 +928,21 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Add mode-specific UI elements
 
 **2.4 Ax Optimization**
+
 - Implement few-shot learning
 - Add example passages (from dataset)
 - Use MiPRO optimizer (Ax feature)
 - Test on held-out set
 
 **2.5 Speaker Attribution**
+
 - Implement Ax signature for speaker attribution
 - Add context awareness
 - Multi-character support
 - Confidence calibration
 
 **Deliverables:**
+
 - Pattern engine WASM module
 - Learning system with feedback
 - AI mode switcher functional
@@ -877,6 +954,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Tasks:**
 
 **3.1 Sample Gallery**
+
 - Create welcome screen
 - Design sample cards
 - Implement sample loader
@@ -884,6 +962,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Create "First Run" experience
 
 **3.2 Corpus Browser**
+
 - Implement Wright American Fiction API
 - Search and filter UI
 - Preview modal
@@ -891,6 +970,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Caching layer
 
 **3.3 Bulk Operations Panel**
+
 - Sidebar component
 - Multi-select logic
 - Filter options
@@ -898,6 +978,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Visual feedback
 
 **3.4 Navigation Enhancements**
+
 - Dialogue outline panel
 - Tree view component
 - Filter by character/status
@@ -905,6 +986,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Quick search (Cmd/Ctrl+F)
 
 **Deliverables:**
+
 - Sample gallery with 5 samples
 - Corpus browser functional
 - Bulk operations working
@@ -915,6 +997,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Tasks:**
 
 **4.1 Character Network**
+
 - Install react-flow-renderer
 - Implement force-directed layout
 - Add character nodes
@@ -922,6 +1005,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Export PNG/SVG
 
 **4.2 Dialogue Timeline**
+
 - Install d3 package
 - Implement Gantt chart
 - Add zoom/pan
@@ -929,6 +1013,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Dual view with stats
 
 **4.3 Statistics Dashboard**
+
 - Install recharts
 - Create 4-panel layout
 - Implement all charts
@@ -936,12 +1021,14 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Real-time updates
 
 **4.4 Comparative Analysis**
+
 - Multi-document loader
 - Comparison metrics
 - Radar chart
 - CSV export
 
 **Deliverables:**
+
 - All visualizations working
 - Performance optimized
 - Export functional
@@ -951,6 +1038,7 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 **Tasks:**
 
 **5.1 E2E Testing with Playwright**
+
 - Write comprehensive tests
 - Cover all keyboard shortcuts
 - Test AI mode switching
@@ -958,12 +1046,14 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Screenshot testing
 
 **5.2 Performance Optimization**
+
 - Web Workers for heavy computations
 - Virtualization for large datasets
 - Bundle size optimization
 - Load time profiling
 
 **5.3 Documentation**
+
 - Update README
 - Write keyboard shortcuts guide
 - Create "AI Settings" guide
@@ -971,18 +1061,21 @@ async function fetchWrightFiction(): Promise<Novel[]> {
 - Add screenshots
 
 **5.4 Beta Testing**
+
 - Recruit testers (target: 5-10 users)
 - Gather feedback
 - Fix critical bugs
 - Polish UI/UX
 
 **5.5 Release Preparation**
+
 - Version bump
 - Changelog
 - Tag release
 - Deploy documentation
 
 **Deliverables:**
+
 - Production-ready release
 - Comprehensive test suite
 - Complete documentation
@@ -1064,6 +1157,7 @@ tests/e2e/
 ### 8.3 Key Test Scenarios
 
 **Keyboard Shortcuts Suite:**
+
 ```typescript
 test('command palette opens with Cmd+K', async ({ page }) => {
   await page.goto('/');
@@ -1076,10 +1170,10 @@ test('J/K navigate between passages', async ({ page }) => {
   await loadSample('pride-prejudice-ch1.xml');
   const initial = getSelectedPassage(page);
 
-  await page.keyboard.press('j');  // Next
+  await page.keyboard.press('j'); // Next
   await expect(getSelectedPassage(page)).not.toBe(initial);
 
-  await page.keyboard.press('k');  // Previous
+  await page.keyboard.press('k'); // Previous
   await expect(getSelectedPassage(page)).toBe(initial);
 });
 
@@ -1093,6 +1187,7 @@ test('quick speaker assignment 1-9', async ({ page }) => {
 ```
 
 **AI Integration Suite:**
+
 ```typescript
 test('mode switching preserves state', async ({ page }) => {
   await page.goto('/');
@@ -1124,6 +1219,7 @@ test('Ax provider switching', async ({ page }) => {
 ```
 
 **Learning System Suite:**
+
 ```typescript
 test('pattern learning from corrections', async ({ page }) => {
   await page.goto('/');
@@ -1131,11 +1227,11 @@ test('pattern learning from corrections', async ({ page }) => {
 
   // Tag first passage manually
   await selectPassage(page, 1);
-  await page.keyboard.press('1');  // Tag as speaker1
+  await page.keyboard.press('1'); // Tag as speaker1
 
   // Tag second passage manually
   await selectPassage(page, 2);
-  await page.keyboard.press('1');  // Also speaker1
+  await page.keyboard.press('1'); // Also speaker1
 
   // Third passage should suggest speaker1 (pattern learning)
   await selectPassage(page, 3);
@@ -1164,6 +1260,7 @@ test('character network snapshot', async ({ page }) => {
 **Documentation Screenshots:**
 
 All screenshots for documentation will be captured during Phase 5:
+
 - Use Playwright to capture UI states
 - Automated screenshot generation
 - Organized in `docs/screenshots/` directory
@@ -1172,6 +1269,7 @@ All screenshots for documentation will be captured during Phase 5:
 ### 8.5 Test Coverage Goals
 
 **Unit Tests (Jest):**
+
 - Pattern matching algorithms: 100%
 - Confidence scoring: 100%
 - Keyboard shortcuts handlers: 90%+
@@ -1179,11 +1277,13 @@ All screenshots for documentation will be captured during Phase 5:
 - State management: 90%+
 
 **Integration Tests (Jest):**
+
 - Ax provider integration: 100%
 - Pattern database operations: 100%
 - TEI document operations: 100%
 
 **E2E Tests (Playwright):**
+
 - Critical user flows: 100%
 - Keyboard shortcuts: 80%+
 - Visualizations: 60%+ (expensive)
@@ -1194,12 +1294,14 @@ All screenshots for documentation will be captured during Phase 5:
 ### 9.1 Dataset Requirements
 
 **Why We Need a Dataset:**
+
 - Train and test pattern recognition engine
 - Validate Ax prompt optimization
 - Benchmark AI provider accuracy
 - Provide ground truth for evaluation
 
 **Current State:**
+
 - 1 minimal sample (4 passages)
 - Public TEI corpora lack comprehensive speech tagging
 - No existing open dataset for dialogue annotation
@@ -1309,6 +1411,7 @@ tests/dataset/
 ### 9.4 Dataset Sources
 
 **Selection Criteria:**
+
 - Public domain (no copyright issues)
 - Manageable length (2-10k words each)
 - Diverse dialogue patterns
@@ -1352,6 +1455,7 @@ tests/dataset/
    - Patterns: Witty dialogue, irony, social commentary
 
 **Total Dataset:**
+
 - Documents: 5
 - Total words: ~19,000
 - Tagged passages: ~65
@@ -1361,12 +1465,14 @@ tests/dataset/
 ### 9.5 Quality Assurance
 
 **Inter-Annotator Agreement:**
+
 - Target: >90% agreement on manual set
 - Process: Two annotators per document
 - Resolution: Third party adjudicates disputes
 - Document disagreements in notes
 
 **Annotation Checklist:**
+
 - [ ] All dialogue tagged with `<said>`
 - [ ] All `<said>` have `@who` attribute
 - [ ] All `@who` reference valid `xml:id`
@@ -1428,6 +1534,7 @@ See [AI_SETUP.md](AI_SETUP.md)
 **KEYBOARD_SHORTCUTS.md:**
 
 Complete reference for all shortcuts:
+
 - Global shortcuts table
 - Annotation shortcuts table
 - Navigation shortcuts table
@@ -1447,6 +1554,7 @@ Complete reference for all shortcuts:
 **CONTRIBUTING.md Updates:**
 
 Add sections:
+
 - Ax integration patterns
 - Dataset contribution guidelines
 - Visualization customization
@@ -1515,6 +1623,7 @@ docs/screenshots/
    - Version: `v2` suffix if updated
 
 5. **Integration in Documentation:**
+
    ```markdown
    ## Command Palette
 
@@ -1523,6 +1632,7 @@ docs/screenshots/
    ![Command Palette](../../screenshots/annotation/02-command-palette.png)
 
    Available commands:
+
    - Save document
    - Load sample
    - Export TEI
@@ -1559,6 +1669,7 @@ Create step-by-step tutorial with screenshots:
    - Export options
 
 **Tutorial Format:**
+
 - Markdown with embedded screenshots
 - Step-by-step instructions
 - Click targets highlighted (in screenshots)
@@ -1570,17 +1681,20 @@ Create step-by-step tutorial with screenshots:
 If time permits in Phase 5:
 
 **Short Videos (2-3 minutes each):**
+
 - "Getting Started in 3 Minutes"
 - "Keyboard Shortcuts Power Tips"
 - "AI-Assisted Annotation Workflow"
 - "Creating Custom Visualizations"
 
 **Tools:**
+
 - OBS Studio for recording
 - macOS built-in screen recorder
 - Editing: DaVinci Resolve or Final Cut Pro
 
 **Hosting:**
+
 - Embed in documentation
 - Upload to YouTube (unlisted)
 - Link from README
@@ -1588,6 +1702,7 @@ If time permits in Phase 5:
 ## 11. Success Criteria
 
 **Phase 1:**
+
 - [x] Dataset created with 5 annotated works (200-500 passages)
 - [ ] Ax provider integrated and tested
 - [ ] Command palette functional
@@ -1595,6 +1710,7 @@ If time permits in Phase 5:
 - [ ] Pattern database schema implemented
 
 **Phase 2:**
+
 - [ ] Pattern engine WASM module operational
 - [ ] Learning system with feedback loop
 - [ ] AI mode switcher (Manual/Suggest/Auto)
@@ -1602,6 +1718,7 @@ If time permits in Phase 5:
 - [ ] Confidence scoring calibrated
 
 **Phase 3:**
+
 - [ ] Sample gallery with 5 examples
 - [ ] Corpus browser (Wright American Fiction)
 - [ ] Bulk operations panel
@@ -1609,6 +1726,7 @@ If time permits in Phase 5:
 - [ ] Recent documents feature
 
 **Phase 4:**
+
 - [ ] Character network graph functional
 - [ ] Dialogue timeline with zoom/pan
 - [ ] Statistics dashboard with 4 panels
@@ -1616,6 +1734,7 @@ If time permits in Phase 5:
 - [ ] Export to PNG/SVG/PDF
 
 **Phase 5:**
+
 - [ ] 100+ E2E tests passing
 - [ ] Performance budget met (no test >10s)
 - [ ] Complete documentation with screenshots
@@ -1623,6 +1742,7 @@ If time permits in Phase 5:
 - [ ] Production deployment ready
 
 **Overall Metrics:**
+
 - Annotation speed: 5x improvement over manual
 - AI accuracy: >85% on test set
 - Pattern learning: User corrections reduce AI errors by 40%
@@ -1678,6 +1798,7 @@ If time permits in Phase 5:
 **End of Design Document**
 
 Next steps:
+
 1. Create implementation plan with detailed tasks
 2. Set up git worktree for feature development
 3. Begin Phase 1: Dataset creation and Ax integration

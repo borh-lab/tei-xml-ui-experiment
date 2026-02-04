@@ -9,6 +9,7 @@ This directory contains utility scripts for TEI corpus management and project ma
 Clones and sets up TEI corpus repositories from GitHub. Automatically extracts zip files and ensures repositories are up-to-date.
 
 **Usage:**
+
 ```bash
 bun run corpus:setup
 # or
@@ -16,12 +17,14 @@ npm run corpus:setup
 ```
 
 **Features:**
+
 - Non-destructive: Won't remove existing repositories
 - Makefile-like: Only updates when new commits are available
-- Auto-extraction: Extracts *.zip files in corpus directories
+- Auto-extraction: Extracts \*.zip files in corpus directories
 - Idempotent: Safe to run multiple times
 
 **Corpora:**
+
 - `wright-american-fiction` - Wright American Fiction collection
 - `victorian-women-writers` - Victorian Women Writers Project
 - `indiana-magazine-history` - Indiana Magazine of History
@@ -30,6 +33,7 @@ npm run corpus:setup
 - `tei-texts` - French Novels (TEI Texts)
 
 **Output:**
+
 - Repository contents in `corpora/`
 - Extracted XML files ready for analysis
 
@@ -40,6 +44,7 @@ npm run corpus:setup
 Analyzes TEI XML files in corpus directories and generates metadata.
 
 **Usage:**
+
 ```bash
 bun run corpus:analyze
 # or
@@ -47,6 +52,7 @@ npm run corpus:analyze
 ```
 
 **Features:**
+
 - Scans all corpus directories for TEI XML files
 - Validates TEI structure and version
 - Analyzes tag frequency and patterns
@@ -54,10 +60,12 @@ npm run corpus:analyze
 - Generates per-corpus metadata files
 
 **Output:**
+
 - `tests/corpora/metadata/{corpus-name}.json` - Individual corpus metadata
 - `tests/corpora/metadata/summary.json` - Combined summary
 
 **Metrics Collected:**
+
 - Document count and total size
 - TEI version (P4, P5)
 - Tag frequency distribution
@@ -71,6 +79,7 @@ npm run corpus:analyze
 Generates train/validation/test splits for corpus documents using seeded random sampling.
 
 **Usage:**
+
 ```bash
 bun run corpus:split
 # or
@@ -78,15 +87,18 @@ npm run corpus:split
 ```
 
 **Features:**
+
 - 70% train, 15% validation, 15% test split (configurable)
 - Seeded random sampling (seed=42) for reproducibility
 - Only includes valid TEI documents
 - Uses relative paths for portability
 
 **Output:**
+
 - `tests/corpora/splits.json` - Split definitions for all corpora
 
 **Format:**
+
 ```json
 {
   "corpus-name": {
@@ -105,6 +117,7 @@ npm run corpus:split
 Shared utility functions for corpus analysis.
 
 **Functions:**
+
 - `findXMLFiles(dir)` - Recursively finds XML files (excludes `toolbox/`, `.git/`, `node_modules/`)
 - `validateTEIFile(path)` - Validates TEI structure and parses XML
 - `getTEIVersion(xml)` - Detects TEI version (P4, P5)
@@ -112,6 +125,7 @@ Shared utility functions for corpus analysis.
 - `determineEncodingType(tags)` - Classifies encoding type
 
 **Used by:**
+
 - `analyze-corpora.ts`
 - `generate-splits.ts`
 
@@ -134,6 +148,7 @@ bun run corpus:all
 ```
 
 This runs:
+
 1. `corpus:setup` - Clone/update repositories
 2. `corpus:analyze` - Generate metadata
 3. `corpus:split` - Create train/val/test splits
@@ -142,14 +157,14 @@ This runs:
 
 Current corpus (as of 2026-02-04):
 
-| Corpus | Documents | Type | TEI Ver |
-|--------|-----------|------|---------|
-| indiana-magazine-history | 7,289 | dialogue-focused | P4 |
-| wright-american-fiction | 2,876 | dramatic-text | P5 |
-| indiana-authors-books | 394 | dramatic-text | P4 |
-| victorian-women-writers | 199 | dramatic-text | P5 |
-| brevier-legislative | 19 | dialogue-focused | P5 |
-| tei-texts | 14 | mixed | P5 |
-| **Total** | **10,791** | | |
+| Corpus                   | Documents  | Type             | TEI Ver |
+| ------------------------ | ---------- | ---------------- | ------- |
+| indiana-magazine-history | 7,289      | dialogue-focused | P4      |
+| wright-american-fiction  | 2,876      | dramatic-text    | P5      |
+| indiana-authors-books    | 394        | dramatic-text    | P4      |
+| victorian-women-writers  | 199        | dramatic-text    | P5      |
+| brevier-legislative      | 19         | dialogue-focused | P5      |
+| tei-texts                | 14         | mixed            | P5      |
+| **Total**                | **10,791** |                  |         |
 
 **Splits:** 7,551 train / 1,616 val / 1,624 test (70%/15%/15%)

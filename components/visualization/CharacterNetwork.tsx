@@ -1,14 +1,7 @@
 'use client';
 
 import React, { useMemo, useCallback } from 'react';
-import ReactFlow, {
-  Node,
-  Edge,
-  Background,
-  Controls,
-  MiniMap,
-  BackgroundVariant,
-} from 'reactflow';
+import ReactFlow, { Node, Edge, Background, Controls, MiniMap, BackgroundVariant } from 'reactflow';
 import 'reactflow/dist/style.css';
 import type { TEIDocument } from '@/lib/tei/types';
 import { computeNetworkLayout } from '@/lib/visualization/network-layout';
@@ -23,9 +16,7 @@ interface CharacterNetworkProps {
 // Custom node component to display character info
 function CharacterNode({ data }: { data: any }) {
   return (
-    <div
-      className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-200 min-w-[100px]"
-    >
+    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-200 min-w-[100px]">
       <div className="font-bold">{data.label}</div>
       {data.connections !== undefined && (
         <div className="text-xs text-gray-500">{data.connections} connections</div>
@@ -46,11 +37,11 @@ export function CharacterNetwork({
 }: CharacterNetworkProps) {
   // Compute network layout from document state
   const layout = useMemo(() => {
-    return computeNetworkLayout(
-      document.state.characters,
-      document.state.relationships,
-      { width, height, algorithm: 'circular' }
-    );
+    return computeNetworkLayout(document.state.characters, document.state.relationships, {
+      width,
+      height,
+      algorithm: 'circular',
+    });
   }, [document, width, height]);
 
   // Convert layout nodes to ReactFlow nodes
@@ -68,7 +59,12 @@ export function CharacterNetwork({
         position: position ? { x: position.x, y: position.y } : { x: 0, y: 0 },
         style: {
           background: node.sex === 'M' ? '#dbeafe' : node.sex === 'F' ? '#fce7f3' : '#f3f4f6',
-          border: node.sex === 'M' ? '3px solid #3b82f6' : node.sex === 'F' ? '3px solid #ec4899' : '3px solid #6b7280',
+          border:
+            node.sex === 'M'
+              ? '3px solid #3b82f6'
+              : node.sex === 'F'
+                ? '3px solid #ec4899'
+                : '3px solid #6b7280',
         },
       };
     });
@@ -137,8 +133,8 @@ export function CharacterNetwork({
       {/* Statistics */}
       <div className="mt-4 text-sm text-muted-foreground">
         <p>
-          <strong>Nodes:</strong> {nodes.length} characters |{' '}
-          <strong>Edges:</strong> {edges.length} connections
+          <strong>Nodes:</strong> {nodes.length} characters | <strong>Edges:</strong> {edges.length}{' '}
+          connections
         </p>
         <p className="mt-1">
           Drag nodes to rearrange. Scroll to zoom. Click on a character to see details.

@@ -7,12 +7,14 @@
 **File:** `tests/unit/TEIDocument.test.ts`
 
 **Tests Added:**
+
 1. `should extract <s> tags with @who attribute as dialogue` - Expects 2 dialogue items
 2. `should extract <said> tags for backward compatibility` - Ensures backward compatibility
 3. `should handle <s> tags without @who gracefully` - Handles anonymous speech
 4. `should return empty array when no dialogue tags present` - Edge case handling
 
 **Test Results (RED):**
+
 ```
 ✕ should extract <s> tags with @who attribute as dialogue
   Expected length: 2
@@ -30,6 +32,7 @@
 **File:** `lib/tei/TEIDocument.ts`
 
 **Change Made:**
+
 ```typescript
 getDialogue(): any[] {
   const dialogue: any[] = [];
@@ -69,6 +72,7 @@ getDialogue(): any[] {
 **Key Change:** Added `|| key === 's'` to the condition (line: `if (key === 'said' || key === 's')`)
 
 **Test Results (GREEN):**
+
 ```
 ✓ should extract <s> tags with @who attribute as dialogue (1 ms)
 ✓ should extract <said> tags for backward compatibility (1 ms)
@@ -84,6 +88,7 @@ All 6 tests passed
 **Command:** `npm test`
 
 **Results:**
+
 ```
 Test Suites: 43 passed, 43 total
 Tests:       473 passed, 473 total
@@ -104,22 +109,26 @@ Tests:       473 passed, 473 total
 **Only one line changed:** The condition in `getDialogue()` method
 
 **Before:**
+
 ```typescript
 if (key === 'said') {
 ```
 
 **After:**
+
 ```typescript
 if (key === 'said' || key === 's') {
 ```
 
 **Impact:** This single change enables the parser to recognize both:
+
 - `<said>` tags (legacy format)
 - `<s>` tags (TEI standard for speech/spoken text)
 
 ### Backward Compatibility
 
 ✅ **Fully backward compatible**
+
 - All existing tests still pass (473/473)
 - `<said>` tags continue to work
 - No breaking changes to API
@@ -137,6 +146,7 @@ if (key === 'said' || key === 's') {
 ## Test Coverage
 
 ### Unit Tests (Complete)
+
 - ✅ `<s>` tag with `@who` attribute
 - ✅ `<s>` tag without `@who` attribute
 - ✅ `<said>` tag (backward compatibility)
@@ -144,6 +154,7 @@ if (key === 'said' || key === 's') {
 - ✅ Documents with no dialogue
 
 ### E2E Tests (Running)
+
 - 🔄 Error scenarios (38 tests) - in progress
 - ⏳ Document upload (expected +15-20 tests)
 - ⏳ Export validation (expected +5-8 tests)

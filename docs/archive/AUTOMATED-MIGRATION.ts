@@ -154,8 +154,8 @@ export const Phase3SuccessMetrics = {
   // Component Complexity Reduction
   useStateReduction: {
     baseline: 30, // Current total useState count
-    target: 0,   // Pure Effect has no useState
-    current: 0,  // Updated as we migrate
+    target: 0, // Pure Effect has no useState
+    current: 0, // Updated as we migrate
   },
 
   // Component Line Count
@@ -168,7 +168,7 @@ export const Phase3SuccessMetrics = {
   // Test Reliability
   testReliability: {
     baseline: '70%', // Current (brittle DOM polling)
-    target: '99%',  // Effect enables deterministic tests
+    target: '99%', // Effect enables deterministic tests
     current: '70%',
   },
 

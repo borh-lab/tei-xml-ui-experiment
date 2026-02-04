@@ -11,8 +11,10 @@
 
 export * from './protocols/Document';
 export * from './protocols/Storage';
-export * from './protocols/Validation';
-export * from './protocols/AI';
+// TODO: ValidationService uses server-only SchemaLoader, needs server action wrapper
+// export * from './protocols/Validation';
+// TODO: Fix AIService provider implementation
+// export * from './protocols/AI';
 
 // ============================================================================
 // Services (Implementations)
@@ -20,8 +22,10 @@ export * from './protocols/AI';
 
 export * from './services/DocumentService';
 export * from './services/StorageService';
-export * from './services/ValidationService';
-export * from './services/AIService';
+// TODO: ValidationService uses server-only SchemaLoader, needs server action wrapper
+// export * from './services/ValidationService';
+// TODO: Fix AIService provider implementation
+// export * from './services/AIService';
 
 // ============================================================================
 // Layers (Dependency Injection)
@@ -50,7 +54,7 @@ export * from './utils/test-helpers';
 export {
   loadDocument,
   addSaidTag,
-  addQTag,
+  addTag,
   addPersNameTag,
   removeTag as removeTagOp,
   addCharacter as addCharacterOp,

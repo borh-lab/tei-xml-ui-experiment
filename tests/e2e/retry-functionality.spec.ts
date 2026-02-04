@@ -17,7 +17,7 @@ test.describe('Retry Functionality', () => {
   test.describe('Network Errors', () => {
     test('shows retry button on network errors', async ({ page }) => {
       // Intercept and abort sample loading to simulate network failure
-      await page.route('**/samples/*.xml', route => {
+      await page.route('**/samples/*.xml', (route) => {
         route.abort('failed');
       });
 
@@ -25,7 +25,7 @@ test.describe('Retry Functionality', () => {
       await page.waitForLoadState('networkidle');
 
       // Check if we're on the gallery page (no document auto-loaded)
-      const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+      const hasDocument = (await page.locator('[id^="passage-"]').count()) > 0;
 
       if (!hasDocument) {
         // We're on the gallery page, try to load a sample (will fail due to network error)
@@ -68,7 +68,7 @@ test.describe('Retry Functionality', () => {
       let requestCount = 0;
 
       // Intercept first request to fail, second to succeed
-      await page.route('**/samples/*.xml', route => {
+      await page.route('**/samples/*.xml', (route) => {
         requestCount++;
         if (requestCount === 1) {
           route.abort('failed');
@@ -81,7 +81,7 @@ test.describe('Retry Functionality', () => {
       await page.waitForLoadState('networkidle');
 
       // Check if we're on the gallery page (no document auto-loaded)
-      const hasDocument = await page.locator('[id^="passage-"]').count() > 0;
+      const hasDocument = (await page.locator('[id^="passage-"]').count()) > 0;
 
       if (!hasDocument) {
         // We're on the gallery page, try to load a sample (will fail first time)
@@ -113,7 +113,7 @@ test.describe('Retry Functionality', () => {
 
         // Should succeed on second attempt
         await expect(page.getByText('Rendered View')).toBeVisible({
-          timeout: TIMEOUTS.ELEMENT_VISIBLE
+          timeout: TIMEOUTS.ELEMENT_VISIBLE,
         });
       }
 
@@ -132,7 +132,7 @@ test.describe('Retry Functionality', () => {
 
       await uploadTestDocument(page, {
         name: 'invalid-parse-test.tei.xml',
-        content: invalidXML
+        content: invalidXML,
       });
 
       await page.waitForLoadState('networkidle');
@@ -163,13 +163,13 @@ test.describe('Retry Functionality', () => {
       const invalidFiles = [
         '<?xml version="1.0"?><invalid>',
         '<?xml version="1.0"?><TEI><unclosed>',
-        'not xml at all'
+        'not xml at all',
       ];
 
       for (const [index, content] of invalidFiles.entries()) {
         await uploadTestDocument(page, {
           name: `invalid-${index}.xml`,
-          content
+          content,
         });
 
         // Minimal wait replaced with condition
@@ -181,12 +181,12 @@ test.describe('Retry Functionality', () => {
       // FileUpload should still work
       const validTEI = generateTestDocument({
         speakers: ['speaker1'],
-        passages: 2
+        passages: 2,
       });
 
       await uploadTestDocument(page, {
         name: 'valid-after-errors.tei.xml',
-        content: validTEI
+        content: validTEI,
       });
 
       await page.waitForLoadState('networkidle');

@@ -9,7 +9,7 @@ import { Effect, Layer, Context, Ref, Option } from 'effect';
 import {
   loadDocument,
   addSaidTag,
-  addQTag,
+  addTag as addQTag,
   addPersNameTag,
   removeTag as removeTagOp,
   addCharacter as addCharacterOp,
@@ -336,7 +336,9 @@ const makeDocumentService = Effect.gen(function* (_) {
       }
     });
 
-  const removeCharacter = (characterId: CharacterID): Effect.Effect<TEIDocument, InvalidOperationError> =>
+  const removeCharacter = (
+    characterId: CharacterID
+  ): Effect.Effect<TEIDocument, InvalidOperationError> =>
     Effect.gen(function* (_) {
       const doc = yield* _(getDocument());
 
@@ -411,7 +413,9 @@ const makeDocumentService = Effect.gen(function* (_) {
       }
     });
 
-  const removeRelationship = (relationId: string): Effect.Effect<TEIDocument, InvalidOperationError> =>
+  const removeRelationship = (
+    relationId: string
+  ): Effect.Effect<TEIDocument, InvalidOperationError> =>
     Effect.gen(function* (_) {
       const doc = yield* _(getDocument());
 
@@ -453,7 +457,8 @@ const makeDocumentService = Effect.gen(function* (_) {
     Effect.gen(function* (_) {
       const doc = yield* _(getDocument());
 
-      const target = targetRevision !== undefined ? targetRevision : Math.max(0, doc.state.revision - 1);
+      const target =
+        targetRevision !== undefined ? targetRevision : Math.max(0, doc.state.revision - 1);
 
       if (target >= doc.state.revision) {
         return yield* _(

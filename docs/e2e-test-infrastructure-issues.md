@@ -37,6 +37,7 @@ Call log:
 ## Current App Flow
 
 From `app/page.tsx`:
+
 ```typescript
 if (!document) {
   return <SampleGallery onLoadSample={loadSample} onSelect={() => {}} />;
@@ -55,12 +56,14 @@ return (
 ## Fix Approach
 
 ### Phase 1: Document Actual UI
+
 1. Inspect SampleGallery component structure
 2. Document actual selector for sample cards
 3. Document actual file upload flow
 4. Document timing/latency patterns
 
 ### Phase 2: Rewrite test-helpers.ts
+
 1. **Simplify uploadTestDocument()**
    - Use direct file input bypassing UI
    - Or fix sample loading to use actual selectors
@@ -76,6 +79,7 @@ return (
    - State inspection helpers
 
 ### Phase 3: Update Tests
+
 1. Fix schema-validation-integration.spec.ts initialization
 2. Add retry logic for flaky selectors
 3. Use Playwright's test.step() for better debugging
@@ -83,6 +87,7 @@ return (
 ## Temporary Workaround
 
 Until E2E infrastructure is fixed, schema validation is verified by:
+
 - ✅ 722/722 unit tests passing
 - ✅ Integration tests (API level)
 - ✅ Manual testing in browser

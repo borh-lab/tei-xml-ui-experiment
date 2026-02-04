@@ -289,7 +289,7 @@ export class TEIDocument {
     if (!passage) return;
 
     // Get <said> elements from passage
-    let saidElements = passage['said'];
+    const saidElements = passage['said'];
     if (!saidElements) return;
 
     // Convert to array if single element

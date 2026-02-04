@@ -13,14 +13,14 @@ The corpus browser provides access to a comprehensive collection of TEI-encoded 
 
 ### Available Corpora
 
-| Corpus | Documents | Encoding Types | TEI Version | Description |
-|--------|-----------|----------------|-------------|-------------|
-| Wright American Fiction | 2,876 | dramatic-text | P5 | American fiction from 1851-1875 |
-| Victorian Women Writers Project | 199 | dramatic-text | P5 | Literature by British women writers |
-| Indiana Magazine of History | 7,289 | dialogue-focused | P4 | Scholarly articles on Indiana history |
-| Indiana Authors and Their Books | 394 | dramatic-text | P4 | Bibliographic database of Indiana authors |
-| Brevier Legislative Reports | 19 | dialogue-focused | P5 | Indiana legislative reports |
-| TEI Texts (French Novels) | 14 | mixed | P5 | Sample French novels in TEI format |
+| Corpus                          | Documents | Encoding Types   | TEI Version | Description                               |
+| ------------------------------- | --------- | ---------------- | ----------- | ----------------------------------------- |
+| Wright American Fiction         | 2,876     | dramatic-text    | P5          | American fiction from 1851-1875           |
+| Victorian Women Writers Project | 199       | dramatic-text    | P5          | Literature by British women writers       |
+| Indiana Magazine of History     | 7,289     | dialogue-focused | P4          | Scholarly articles on Indiana history     |
+| Indiana Authors and Their Books | 394       | dramatic-text    | P4          | Bibliographic database of Indiana authors |
+| Brevier Legislative Reports     | 19        | dialogue-focused | P5          | Indiana legislative reports               |
+| TEI Texts (French Novels)       | 14        | mixed            | P5          | Sample French novels in TEI format        |
 
 ## Using the Corpus Browser
 
@@ -83,7 +83,7 @@ interface CorpusDataSource {
   getCorpusMetadata(corpus: CorpusId): Effect<CorpusMetadata, DataSourceError>;
   getDocumentMetadata(docId: DocumentId): Effect<DocumentMetadata, DataSourceError>;
   getDocumentContent(docId: DocumentId): Effect<string, DataSourceError>;
-  listDocuments(corpus: CorpusId, options: { page, pageSize }): Effect<DocumentId[]>;
+  listDocuments(corpus: CorpusId, options: { page; pageSize }): Effect<DocumentId[]>;
   queryByEncoding(corpus, encoding, options): Effect<DocumentId[]>;
 }
 ```
@@ -125,11 +125,11 @@ All I/O operations return Effect, making time and failure explicit:
 
 ```typescript
 // State transitions are explicit
-yield* _(Ref.set(browserState, { _tag: 'loading', corpus }));
+yield * _(Ref.set(browserState, { _tag: 'loading', corpus }));
 
-const metadata = yield* _(dataSource.getCorpusMetadata(corpus));
+const metadata = yield * _(dataSource.getCorpusMetadata(corpus));
 
-yield* _(Ref.set(browserState, { _tag: 'loaded', metadata, page: 0 }));
+yield * _(Ref.set(browserState, { _tag: 'loaded', metadata, page: 0 }));
 ```
 
 ### 4. Composability
@@ -139,8 +139,9 @@ Services compose through dependency injection using Effect layers:
 ```typescript
 // Live implementation layers
 export const LocalCorpusDataSourceLive = Layer.effect(CorpusDataSource, implementation);
-export const CorpusBrowserLive = Layer.effect(CorpusBrowser, makeCorpusBrowser)
-  .pipe(Layer.provide(LocalCorpusDataSourceLive));
+export const CorpusBrowserLive = Layer.effect(CorpusBrowser, makeCorpusBrowser).pipe(
+  Layer.provide(LocalCorpusDataSourceLive)
+);
 
 // Testing: swap implementations
 const TestLayer = Layer.mergeAll(MockDataSource, CorpusBrowserLive);
@@ -183,6 +184,7 @@ npm test -- lib/effect/__tests__/CorpusVariation.test.ts
 ```
 
 This test suite verifies:
+
 - All 6 corpora load successfully
 - Different encoding types are handled (dialogue-focused, dramatic-text, minimal-markup, mixed)
 - TEI P4 and P5 documents both work correctly
@@ -212,6 +214,7 @@ npm run test:e2e:debug
 ```
 
 E2E test coverage:
+
 - Corpus selector displays all 6 corpora
 - Corpus loading and document listing
 - Pagination through documents
@@ -260,7 +263,7 @@ export const CorpusId = Schema.Union(
   Schema.Literal('wright-american-fiction'),
   Schema.Literal('victorian-women-writers'),
   // ... existing corpora
-  Schema.Literal('your-new-corpus')  // Add here
+  Schema.Literal('your-new-corpus') // Add here
 );
 ```
 
@@ -274,8 +277,8 @@ const CORPORA = [
   {
     id: 'your-new-corpus',
     name: 'Your Corpus Name',
-    description: 'Brief description of the corpus'
-  }
+    description: 'Brief description of the corpus',
+  },
 ] as const;
 ```
 
@@ -295,21 +298,19 @@ import { Cache } from 'effect';
 // Create cached data source decorator
 const makeCachedDataSource = Effect.gen(function* (_) {
   const underlying = yield* _(CorpusDataSource);
-  const cache = yield* _(Cache.make({
-    capacity: 100,
-    timeToLive: '5 minutes'
-  }));
+  const cache = yield* _(
+    Cache.make({
+      capacity: 100,
+      timeToLive: '5 minutes',
+    })
+  );
 
   return {
     getCorpusMetadata: (corpus: CorpusId) =>
-      Cache.getOrElse(cache, corpus, () =>
-        underlying.getCorpusMetadata(corpus)
-      ),
+      Cache.getOrElse(cache, corpus, () => underlying.getCorpusMetadata(corpus)),
 
     getDocumentContent: (docId: DocumentId) =>
-      Cache.getOrElse(cache, docId, () =>
-        underlying.getDocumentContent(docId)
-      ),
+      Cache.getOrElse(cache, docId, () => underlying.getDocumentContent(docId)),
 
     // Delegate other methods
     getDocumentMetadata: underlying.getDocumentMetadata,
@@ -343,18 +344,22 @@ Implementation would query document metadata and return matching IDs.
 **Symptoms**: Corpus selector shows, but clicking a corpus doesn't load documents
 
 **Solutions**:
+
 1. Check corpus submodules are initialized:
+
    ```bash
    git submodule update --init --recursive
    ```
 
 2. Verify metadata exists:
+
    ```bash
    ls tests/corpora/metadata/summary.json
    ls tests/corpora/metadata/documents/<corpus-id>.json
    ```
 
 3. Check file permissions:
+
    ```bash
    ls -la corpora/
    ```
@@ -369,7 +374,9 @@ Implementation would query document metadata and return matching IDs.
 **Symptoms**: Document list loads, but clicking a document shows error
 
 **Solutions**:
+
 1. Verify document paths in metadata match actual files:
+
    ```bash
    # Check path in metadata
    cat tests/corpora/metadata/documents/<corpus>.json | grep '"path"'
@@ -379,6 +386,7 @@ Implementation would query document metadata and return matching IDs.
    ```
 
 2. Check TEI XML is well-formed:
+
    ```bash
    xmllint --noout corpora/<corpus-id>/<document-path>
    ```
@@ -392,18 +400,22 @@ Implementation would query document metadata and return matching IDs.
 **Symptoms**: Unit or integration tests fail
 
 **Solutions**:
+
 1. Ensure all corpora are set up:
+
    ```bash
    bun run corpus:all
    ```
 
 2. Check Effect version in package.json matches installed version:
+
    ```bash
    grep '"effect"' package.json
    npm list effect
    ```
 
 3. Verify test configuration includes `@effect/jest`:
+
    ```bash
    grep -A5 '@effect/jest' package.json
    ```
@@ -419,6 +431,7 @@ Implementation would query document metadata and return matching IDs.
 **Symptoms**: Slow loading, high memory usage
 
 **Solutions**:
+
 1. **Pagination**: Already implemented - 20 documents per page
 2. **Lazy Loading**: Content only loaded when viewing
 3. **Add Caching**: See "Adding Caching" section above
@@ -435,6 +448,7 @@ Corpus metadata is stored in `/tests/corpora/metadata/`:
 - `documents/<corpus-id>.json`: Per-document metadata keyed by path
 
 Example structure:
+
 ```json
 {
   "wright-american-fiction": {
@@ -450,6 +464,7 @@ Example structure:
 ### Document Metadata
 
 Each document has metadata including:
+
 - `title`: Document title
 - `encodingType`: Type of TEI encoding used
 - `teiVersion`: P4 or P5
@@ -458,6 +473,7 @@ Each document has metadata including:
 ### TEI Document Structure
 
 Documents follow standard TEI structure:
+
 ```xml
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <teiHeader>
@@ -479,13 +495,13 @@ State managed using `Effect.Ref` for explicit time modeling:
 
 ```typescript
 // Create state
-const browserState = yield* _(Ref.make<BrowserState>({ _tag: 'initial' }));
+const browserState = yield * _(Ref.make<BrowserState>({ _tag: 'initial' }));
 
 // Get state
-const current = yield* _(Ref.get(browserState));
+const current = yield * _(Ref.get(browserState));
 
 // Set state
-yield* _(Ref.set(browserState, { _tag: 'loaded', metadata, page: 0 }));
+yield * _(Ref.set(browserState, { _tag: 'loaded', metadata, page: 0 }));
 ```
 
 ### Error Handling
@@ -518,15 +534,13 @@ Services compose through Effect's Layer system:
 ```typescript
 // Define layers
 const LocalCorpusDataSourceLive = Layer.effect(CorpusDataSource, impl);
-const CorpusBrowserLive = Layer.effect(CorpusBrowser, makeBrowser)
-  .pipe(Layer.provide(LocalCorpusDataSourceLive));
+const CorpusBrowserLive = Layer.effect(CorpusBrowser, makeBrowser).pipe(
+  Layer.provide(LocalCorpusDataSourceLive)
+);
 
 // Provide to runtime
 const runtime = Runtime.defaultRuntime.pipe(
-  Runtime.provideLayers(Layer.mergeAll(
-    LocalCorpusDataSourceLive,
-    CorpusBrowserLive
-  ))
+  Runtime.provideLayers(Layer.mergeAll(LocalCorpusDataSourceLive, CorpusBrowserLive))
 );
 ```
 
@@ -565,6 +579,7 @@ const loadCorpus = async (corpus: CorpusId) => {
 ### Code Files
 
 Key implementation files:
+
 - `/home/bor/Projects/tei-xml/lib/effect/protocols/CorpusDataSource.ts` - Data access protocol
 - `/home/bor/Projects/tei-xml/lib/effect/services/LocalCorpusDataSource.ts` - Filesystem implementation
 - `/home/bor/Projects/tei-xml/lib/effect/services/CorpusBrowser.ts` - Business logic service

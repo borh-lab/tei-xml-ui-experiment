@@ -257,7 +257,11 @@ export class ValidationService {
     const message = error.message.toLowerCase();
 
     // Unknown element error
-    if (message.includes('unknown') || message.includes('unexpected') || message.includes('element error')) {
+    if (
+      message.includes('unknown') ||
+      message.includes('unexpected') ||
+      message.includes('element error')
+    ) {
       return {
         type: 'rename-element',
         message: 'Check if this element name is correct or remove it',
@@ -268,7 +272,11 @@ export class ValidationService {
     }
 
     // Missing required elements
-    if (message.includes('required') || message.includes('missing') || message.includes('incomplete')) {
+    if (
+      message.includes('required') ||
+      message.includes('missing') ||
+      message.includes('incomplete')
+    ) {
       return {
         type: 'add-element',
         message: 'Add the required missing elements',

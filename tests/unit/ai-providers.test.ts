@@ -5,7 +5,7 @@ describe('AI Provider Interface', () => {
     const provider: AIProvider = {
       detectDialogue: async (text: string) => [],
       attributeSpeaker: async (context: string, characters) => '',
-      validateConsistency: async (document) => []
+      validateConsistency: async (document) => [],
     };
 
     expect(provider.detectDialogue).toBeDefined();

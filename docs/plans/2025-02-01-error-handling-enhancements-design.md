@@ -7,18 +7,21 @@
 ## Overview
 
 Enhances the existing error handling UI system with four key improvements:
+
 1. Refactor FileUpload to be always available (move to WelcomePage)
 2. Implement functional retry actions for recoverable errors
 3. Add error analytics/logging system
 4. Create comprehensive E2E test coverage
 
 **Current State:**
+
 - FileUpload component only accessible after document loads
 - Retry buttons exist but are non-functional (placeholder only)
 - No error analytics or logging
 - E2E tests blocked by FileUpload accessibility issue
 
 **Target State:**
+
 - FileUpload immediately accessible from WelcomePage
 - Working retry functionality for network errors
 - Complete error history and statistics
@@ -29,17 +32,22 @@ Enhances the existing error handling UI system with four key improvements:
 ## Problem Statement
 
 ### Issue 1: FileUpload Accessibility
+
 **Problem:** FileUpload component is rendered inside EditorLayout, which only appears when a document is already loaded. This creates a circular dependency:
+
 - Need a document to see the upload button
 - Need the upload button to load a document
 
 **Impact:**
+
 - Poor UX (users must navigate through samples first)
 - E2E tests cannot upload files from initial state
 - Confusing first-time user experience
 
 ### Issue 2: Non-Functional Retry Actions
+
 **Problem:** Error categorization includes a "Retry" action button, but it only logs to console:
+
 ```typescript
 action: {
   label: 'Retry',
@@ -50,26 +58,32 @@ action: {
 ```
 
 **Impact:**
+
 - Users see retry button but it doesn't work
 - Network errors (recoverable) can't be retried
 - Broken promise in UI
 
 ### Issue 3: No Error Analytics
+
 **Problem:** No systematic error tracking or logging. When errors occur:
+
 - Only shown in toast, then forgotten
 - No way to see error patterns
 - No debugging insights for developers
 - No understanding of user pain points
 
 **Impact:**
+
 - Hard to debug production issues
 - Can't identify most common errors
 - No data to prioritize improvements
 
 ### Issue 4: Limited E2E Test Coverage
+
 **Problem:** E2E tests for error handling are blocked because FileUpload isn't accessible from the initial page state.
 
 **Impact:**
+
 - Can't test upload from WelcomePage
 - Can't test retry functionality properly
 - Low confidence in error handling
@@ -83,17 +97,20 @@ action: {
 **Approach:** Move FileUpload from EditorLayout to WelcomePage
 
 **Rationale:**
+
 - Minimal code changes (FileUpload already works independently)
 - Solves E2E testing limitation
 - Better UX (primary action available immediately)
 - No breaking changes
 
 **Alternatives Considered:**
+
 1. **Global floating upload button** - More UI changes, header modifications
 2. **Duplication in both pages** - Code duplication, maintenance burden
 3. **Conditional rendering** - Adds complexity, not needed
 
 **Data Flow:**
+
 ```
 User lands on app → WelcomePage renders
     ↓
@@ -107,6 +124,7 @@ DocumentContext updates → App transitions to EditorLayout
 ```
 
 **File Changes:**
+
 - `app/page.tsx` (WelcomePage) - Add `<FileUpload />`
 - `components/editor/EditorLayout.tsx` - Remove `<FileUpload />` and import
 - `tests/e2e/file-upload-from-welcome.spec.ts` - New E2E tests
@@ -118,6 +136,7 @@ DocumentContext updates → App transitions to EditorLayout
 **Approach:** Configurable retry callbacks with selective retry strategy
 
 **Design Principles:**
+
 - Retry only recoverable errors (network, fetch)
 - No retry for unrecoverable errors (parse, validation)
 - Caller provides retry callback function
@@ -126,16 +145,15 @@ DocumentContext updates → App transitions to EditorLayout
 **API Changes:**
 
 **Before:**
+
 ```typescript
-export function categorizeError(error: Error): ErrorInfo
+export function categorizeError(error: Error): ErrorInfo;
 ```
 
 **After:**
+
 ```typescript
-export function categorizeError(
-  error: Error,
-  retryCallback?: () => void
-): ErrorInfo
+export function categorizeError(error: Error, retryCallback?: () => void): ErrorInfo;
 ```
 
 **Retry Strategy:**
@@ -148,6 +166,7 @@ export function categorizeError(
 | UNKNOWN_ERROR | ❌ No retry | Unsafe to retry unknown error |
 
 **Implementation - FileUpload:**
+
 ```typescript
 const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
@@ -171,6 +190,7 @@ const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
 ```
 
 **Implementation - DocumentContext:**
+
 ```typescript
 const loadSample = async (sampleId: string) => {
   try {
@@ -192,6 +212,7 @@ const loadSample = async (sampleId: string) => {
 ```
 
 **Rate Limiting (Optional Enhancement):**
+
 - Prevent retry spam (debounce 1 second between retries)
 - Track retry attempts (max 3 retries per error)
 - Show retry count in toast: "Retry (2/3)"
@@ -203,6 +224,7 @@ const loadSample = async (sampleId: string) => {
 **Approach:** Lightweight ErrorContext with local logging
 
 **Design Principles:**
+
 - Privacy-first (errors stored locally, no external services)
 - Non-blocking (doesn't affect error handling performance)
 - Queryable (components can access error history)
@@ -212,23 +234,23 @@ const loadSample = async (sampleId: string) => {
 
 ```typescript
 interface ErrorLog {
-  id: string              // Unique identifier
-  timestamp: Date         // When error occurred
-  type: ErrorType         // Categorized error type
-  message: string         // User-facing message
-  description: string     // Detailed description
-  component: string       // Where error occurred (e.g., "FileUpload")
-  action: string          // What user was doing (e.g., "upload")
-  context?: Record<string, any>  // Additional context
-  stack?: string          // Error stack trace
+  id: string; // Unique identifier
+  timestamp: Date; // When error occurred
+  type: ErrorType; // Categorized error type
+  message: string; // User-facing message
+  description: string; // Detailed description
+  component: string; // Where error occurred (e.g., "FileUpload")
+  action: string; // What user was doing (e.g., "upload")
+  context?: Record<string, any>; // Additional context
+  stack?: string; // Error stack trace
 }
 
 interface ErrorStats {
-  totalErrors: number
-  byType: Record<ErrorType, number>
-  recentErrors: ErrorLog[]  // Last 50 errors
-  firstErrorTime?: Date
-  lastErrorTime?: Date
+  totalErrors: number;
+  byType: Record<ErrorType, number>;
+  recentErrors: ErrorLog[]; // Last 50 errors
+  firstErrorTime?: Date;
+  lastErrorTime?: Date;
 }
 ```
 
@@ -267,7 +289,7 @@ export const useErrorContext = (): ErrorContextType
 
 ```typescript
 // In FileUpload.tsx
-const { logError } = useErrorContext()
+const { logError } = useErrorContext();
 
 try {
   const text = await file.text();
@@ -280,9 +302,9 @@ try {
     metadata: {
       fileName: file.name,
       fileSize: file.size,
-      fileType: file.type
-    }
-  })
+      fileType: file.type,
+    },
+  });
 
   // Show toast
   const errorInfo = categorizeError(error as Error);
@@ -293,16 +315,19 @@ try {
 ```
 
 **Storage:**
+
 - In-memory array (last 50 errors)
 - Optional: Persist to localStorage for session
 - Optional: Send to external service (Sentry, etc.) in production
 
 **Integration Points:**
+
 - `FileUpload.tsx` - Log file upload/read errors
 - `DocumentContext.tsx` - Log sample load/parse errors
 - Future: Any component can log errors
 
 **Benefits:**
+
 - Developers can see error patterns in console
 - Users can export error log for support
 - Data-driven improvements (know which errors are common)
@@ -319,36 +344,40 @@ try {
 **New Test Files:**
 
 **1. tests/e2e/file-upload-from-welcome.spec.ts** (4 tests)
+
 ```typescript
 test.describe('FileUpload from WelcomePage', () => {
-  test('uploads valid XML file')
-  test('shows error toast on invalid file')
-  test('navigates to editor after successful upload')
-  test('maintains document state after upload')
-})
+  test('uploads valid XML file');
+  test('shows error toast on invalid file');
+  test('navigates to editor after successful upload');
+  test('maintains document state after upload');
+});
 ```
 
 **2. tests/e2e/retry-functionality.spec.ts** (3 tests)
+
 ```typescript
 test.describe('Retry Functionality', () => {
-  test('shows retry button on network errors')
-  test('retries failed operation when clicked')
-  test('does not show retry on parse errors')
-})
+  test('shows retry button on network errors');
+  test('retries failed operation when clicked');
+  test('does not show retry on parse errors');
+});
 ```
 
 **3. tests/e2e/error-analytics.spec.ts** (5 tests)
+
 ```typescript
 test.describe('Error Analytics', () => {
-  test('logs errors to ErrorContext')
-  test('tracks error frequency by type')
-  test('maintains error history (last 50)')
-  test('provides error statistics')
-  test('exports error log')
-})
+  test('logs errors to ErrorContext');
+  test('tracks error frequency by type');
+  test('maintains error history (last 50)');
+  test('provides error statistics');
+  test('exports error log');
+});
 ```
 
 **Updated: tests/e2e/error-handling-ui.spec.ts**
+
 - Remove workarounds for FileUpload limitation
 - Simplify tests (can now upload immediately)
 
@@ -365,6 +394,7 @@ test.describe('Error Analytics', () => {
 **Value:** Unblocks E2E testing, improves UX
 
 **Tasks:**
+
 1. Add FileUpload to WelcomePage (`app/page.tsx`)
 2. Test uploads work from WelcomePage
 3. Remove FileUpload from EditorLayout
@@ -372,11 +402,13 @@ test.describe('Error Analytics', () => {
 5. Verify no regressions
 
 **Files Changed:**
+
 - `app/page.tsx` - Add `<FileUpload />`
 - `components/editor/EditorLayout.tsx` - Remove `<FileUpload />`
 - `tests/e2e/file-upload-from-welcome.spec.ts` - New file, 4 tests
 
 **Success Criteria:**
+
 - ✅ FileUpload visible on WelcomePage
 - ✅ Can upload without loading sample first
 - ✅ E2E tests can upload immediately
@@ -392,6 +424,7 @@ test.describe('Error Analytics', () => {
 **Value:** Better UX for recoverable errors
 
 **Tasks:**
+
 1. Update `categorizeError()` signature to accept `retryCallback`
 2. Modify FileUpload to provide retry callback
 3. Modify DocumentContext to provide retry callback
@@ -399,12 +432,14 @@ test.describe('Error Analytics', () => {
 5. Write E2E tests for retry functionality
 
 **Files Changed:**
+
 - `lib/utils/error-categorization.ts` - Add retryCallback parameter
 - `components/editor/FileUpload.tsx` - Provide retry callback
 - `lib/context/DocumentContext.tsx` - Provide retry callback
 - `tests/e2e/retry-functionality.spec.ts` - New file, 3 tests
 
 **Success Criteria:**
+
 - ✅ Retry button appears on network errors
 - ✅ Retry button replays failed operation
 - ✅ No retry button on parse/file/validation errors
@@ -420,6 +455,7 @@ test.describe('Error Analytics', () => {
 **Value:** Debugging insights, error tracking
 
 **Tasks:**
+
 1. Create ErrorContext provider
 2. Create error logger utility
 3. Integrate error logging in FileUpload
@@ -428,17 +464,20 @@ test.describe('Error Analytics', () => {
 6. Write E2E tests for error analytics
 
 **Files Created:**
+
 - `lib/context/ErrorContext.tsx` - Error context provider
 - `lib/utils/error-logger.ts` - Logging utility
 - `tests/unit/error-context.test.tsx` - Unit tests
 
 **Files Modified:**
+
 - `app/layout.tsx` - Add ErrorContext provider
 - `components/editor/FileUpload.tsx` - Log errors
 - `lib/context/DocumentContext.tsx` - Log errors
 - `tests/e2e/error-analytics.spec.ts` - New file, 5 tests
 
 **Success Criteria:**
+
 - ✅ All errors logged with context
 - ✅ Error history maintained (last 50)
 - ✅ Error statistics calculated correctly
@@ -456,6 +495,7 @@ test.describe('Error Analytics', () => {
 **Value:** Comprehensive coverage, confidence
 
 **Tasks:**
+
 1. Create file-upload-from-welcome.spec.ts
 2. Create retry-functionality.spec.ts
 3. Create error-analytics.spec.ts
@@ -464,14 +504,17 @@ test.describe('Error Analytics', () => {
 6. Verify >75% pass rate
 
 **Files Created:**
+
 - `tests/e2e/file-upload-from-welcome.spec.ts` - 4 tests
 - `tests/e2e/retry-functionality.spec.ts` - 3 tests
 - `tests/e2e/error-analytics.spec.ts` - 5 tests
 
 **Files Updated:**
+
 - `tests/e2e/error-handling-ui.spec.ts` - Simplify tests
 
 **Success Criteria:**
+
 - ✅ 12+ new E2E tests passing
 - ✅ Upload tests work from WelcomePage
 - ✅ Retry tests verify functionality
@@ -486,35 +529,38 @@ test.describe('Error Analytics', () => {
 ### Unit Tests
 
 **ErrorContext:**
+
 ```typescript
 describe('ErrorContext', () => {
-  test('logs error with context')
-  test('maintains error history (max 50)')
-  test('calculates error statistics')
-  test('clears error history')
-  test('exports errors as JSON')
-})
+  test('logs error with context');
+  test('maintains error history (max 50)');
+  test('calculates error statistics');
+  test('clears error history');
+  test('exports errors as JSON');
+});
 ```
 
 **categorizeError with retry:**
+
 ```typescript
 describe('categorizeError with retry', () => {
-  test('includes retry action for network errors')
-  test('excludes retry for parse errors')
-  test('excludes retry for file errors')
-  test('executes retry callback when action clicked')
-})
+  test('includes retry action for network errors');
+  test('excludes retry for parse errors');
+  test('excludes retry for file errors');
+  test('executes retry callback when action clicked');
+});
 ```
 
 ### Integration Tests
 
 **FileUpload + ErrorContext:**
+
 ```typescript
 test('FileUpload logs errors to ErrorContext', async () => {
   // Trigger error
   // Verify logged in ErrorContext
   // Verify toast shown
-})
+});
 ```
 
 ### E2E Tests
@@ -526,6 +572,7 @@ See Component 4 section for detailed test scenarios.
 ## Success Criteria
 
 ### Phase 1: FileUpload Refactor
+
 - ✅ FileUpload accessible from WelcomePage
 - ✅ Upload works without loading sample first
 - ✅ E2E tests can upload from initial state
@@ -533,6 +580,7 @@ See Component 4 section for detailed test scenarios.
 - ✅ Smooth transition to editor after upload
 
 ### Phase 2: Retry Functionality
+
 - ✅ Retry button appears on network errors only
 - ✅ Retry button successfully replays failed operation
 - ✅ No retry on unrecoverable errors (parse, file, validation)
@@ -540,6 +588,7 @@ See Component 4 section for detailed test scenarios.
 - ✅ No performance degradation
 
 ### Phase 3: Error Logging
+
 - ✅ 100% of errors logged with full context
 - ✅ Error history maintained (last 50 errors)
 - ✅ Statistics calculated accurately
@@ -549,6 +598,7 @@ See Component 4 section for detailed test scenarios.
 - ✅ E2E tests verify logging functionality
 
 ### Phase 4: Enhanced Testing
+
 - ✅ 12+ new E2E tests passing
 - ✅ Upload flow tested from WelcomePage
 - ✅ Retry functionality fully tested
@@ -557,6 +607,7 @@ See Component 4 section for detailed test scenarios.
 - ✅ No flaky or unreliable tests
 
 ### Overall Success Metrics
+
 - ✅ Test suite improves from 65% to 75%+ pass rate
 - ✅ User experience significantly improved
 - ✅ Developer debugging enhanced
@@ -568,25 +619,33 @@ See Component 4 section for detailed test scenarios.
 ## Risk Mitigation
 
 ### Risk 1: Breaking Existing Tests
+
 **Mitigation:**
+
 - Run full test suite after each phase
 - Fix regressions immediately
 - Maintain backward compatibility
 
 ### Risk 2: Performance Impact from Error Logging
+
 **Mitigation:**
+
 - Keep ErrorContext lightweight (in-memory only)
 - Profile error logging overhead
 - Add rate limiting if needed
 
 ### Risk 3: Retry Logic Creates Infinite Loops
+
 **Mitigation:**
+
 - Only retry on specific error types (network)
 - Add retry limit (max 3 retries)
 - Add debounce between retries (1 second)
 
 ### Risk 4: E2E Tests Become Flaky
+
 **Mitigation:**
+
 - Use proper waits and assertions
 - Avoid arbitrary timeouts where possible
 - Test in isolation (each test cleans up after itself)
@@ -606,11 +665,13 @@ See Component 4 section for detailed test scenarios.
 ## Dependencies
 
 **Required:**
+
 - Existing error handling system (Tasks 1-8 completed)
 - sonner library (already installed)
 - Existing components (FileUpload, DocumentContext, WelcomePage)
 
 **Optional:**
+
 - External error tracking service (Phase 3+)
 - Performance monitoring (Phase 3+)
 
@@ -620,14 +681,15 @@ See Component 4 section for detailed test scenarios.
 
 **Total Estimated Time:** 6-8 hours
 
-| Phase | Time | Priority | Dependencies |
-|-------|------|----------|--------------|
-| Phase 1: FileUpload Refactor | 1-2 hours | HIGH | None |
-| Phase 2: Retry Functionality | 1 hour | HIGH | None |
-| Phase 3: Error Logging | 2-3 hours | MEDIUM | None |
-| Phase 4: Enhanced Testing | 2 hours | MEDIUM | Phase 1 |
+| Phase                        | Time      | Priority | Dependencies |
+| ---------------------------- | --------- | -------- | ------------ |
+| Phase 1: FileUpload Refactor | 1-2 hours | HIGH     | None         |
+| Phase 2: Retry Functionality | 1 hour    | HIGH     | None         |
+| Phase 3: Error Logging       | 2-3 hours | MEDIUM   | None         |
+| Phase 4: Enhanced Testing    | 2 hours   | MEDIUM   | Phase 1      |
 
 **Recommended Order:**
+
 1. Phase 1 (unblocks testing)
 2. Phase 2 (improves UX immediately)
 3. Phase 3 (adds debugging capability)
@@ -638,6 +700,7 @@ See Component 4 section for detailed test scenarios.
 ## Conclusion
 
 This design enhances the error handling system with four strategic improvements that:
+
 - **Solve immediate limitations** (FileUpload accessibility)
 - **Improve user experience** (functional retry actions)
 - **Add developer value** (error analytics and logging)
@@ -646,6 +709,7 @@ This design enhances the error handling system with four strategic improvements 
 All changes are backward compatible, follow YAGNI principles, and can be implemented incrementally with clear success criteria.
 
 **Next Steps:**
+
 1. Create detailed implementation plan using `superpowers:writing-plans`
 2. Implement using `superpowers:subagent-driven-development`
 3. Verify improvements with `superpowers:verification-before-completion`

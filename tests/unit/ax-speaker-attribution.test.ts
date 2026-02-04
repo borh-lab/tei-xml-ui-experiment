@@ -3,11 +3,11 @@
 // Mock the Ax framework to avoid TransformStream polyfill issues
 jest.mock('@ax-llm/ax', () => ({
   ax: jest.fn(),
-  ai: jest.fn(() => ({ name: 'mocked-ai' }))
+  ai: jest.fn(() => ({ name: 'mocked-ai' })),
 }));
 
 jest.mock('@ax-llm/ax-ai-sdk-provider', () => ({
-  createOpenAI: jest.fn()
+  createOpenAI: jest.fn(),
 }));
 
 import { AxProvider } from '@/lib/ai/ax-provider';
@@ -22,7 +22,7 @@ describe('Ax Speaker Attribution', () => {
 
   test('should attribute speaker to simple dialogue', async () => {
     const characters: Character[] = [
-      { xmlId: 'jane', name: 'Jane Eyre', description: 'The narrator and protagonist' }
+      { xmlId: 'jane', name: 'Jane Eyre', description: 'The narrator and protagonist' },
     ];
 
     const result = await provider.attributeSpeaker('"Hello," she said.', characters);
@@ -35,7 +35,7 @@ describe('Ax Speaker Attribution', () => {
   test('should handle multiple characters', async () => {
     const characters: Character[] = [
       { xmlId: 'jane', name: 'Jane Eyre', description: 'The narrator and protagonist' },
-      { xmlId: 'rochester', name: 'Mr. Rochester', description: 'The master of Thornfield Hall' }
+      { xmlId: 'rochester', name: 'Mr. Rochester', description: 'The master of Thornfield Hall' },
     ];
 
     const result = await provider.attributeSpeaker(
@@ -50,13 +50,10 @@ describe('Ax Speaker Attribution', () => {
   test('should use character descriptions when available', async () => {
     const characters: Character[] = [
       { xmlId: 'narrator', name: 'The Narrator', description: 'Unnamed female protagonist' },
-      { xmlId: 'john', name: 'John', description: 'The husband and physician' }
+      { xmlId: 'john', name: 'John', description: 'The husband and physician' },
     ];
 
-    const result = await provider.attributeSpeaker(
-      '"John laughs at me," she said.',
-      characters
-    );
+    const result = await provider.attributeSpeaker('"John laughs at me," she said.', characters);
 
     expect(result).toBeDefined();
   });
@@ -72,13 +69,10 @@ describe('Ax Speaker Attribution', () => {
   test('should handle dialogue without clear speaker indicators', async () => {
     const characters: Character[] = [
       { xmlId: 'speaker1', name: 'Character One' },
-      { xmlId: 'speaker2', name: 'Character Two' }
+      { xmlId: 'speaker2', name: 'Character Two' },
     ];
 
-    const result = await provider.attributeSpeaker(
-      '"The weather is nice today."',
-      characters
-    );
+    const result = await provider.attributeSpeaker('"The weather is nice today."', characters);
 
     // Should still return a valid character ID
     expect(result).toBeDefined();
@@ -88,7 +82,7 @@ describe('Ax Speaker Attribution', () => {
   test('should be consistent with same context', async () => {
     const characters: Character[] = [
       { xmlId: 'alice', name: 'Alice' },
-      { xmlId: 'bob', name: 'Bob' }
+      { xmlId: 'bob', name: 'Bob' },
     ];
 
     const context = 'Alice said, "How are you?"';
@@ -102,7 +96,7 @@ describe('Ax Speaker Attribution', () => {
 
   test('should handle characters with special characters in names', async () => {
     const characters: Character[] = [
-      { xmlId: 'joaquin', name: 'Joaquin Murrieta', description: 'A Mexican outlaw' }
+      { xmlId: 'joaquin', name: 'Joaquin Murrieta', description: 'A Mexican outlaw' },
     ];
 
     const result = await provider.attributeSpeaker(
@@ -116,7 +110,7 @@ describe('Ax Speaker Attribution', () => {
   test('should prioritize recently mentioned characters', async () => {
     const characters: Character[] = [
       { xmlId: 'narrator', name: 'The Narrator' },
-      { xmlId: 'husband', name: 'John' }
+      { xmlId: 'husband', name: 'John' },
     ];
 
     const context = 'John looked at her. "You must rest," he insisted.';
@@ -129,7 +123,7 @@ describe('Ax Speaker Attribution', () => {
   test('should handle long contexts', async () => {
     const characters: Character[] = [
       { xmlId: 'character1', name: 'First Character', description: 'Protagonist' },
-      { xmlId: 'character2', name: 'Second Character', description: 'Antagonist' }
+      { xmlId: 'character2', name: 'Second Character', description: 'Antagonist' },
     ];
 
     const longContext = `

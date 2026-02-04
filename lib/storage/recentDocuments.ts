@@ -46,7 +46,7 @@ export function addRecentDocument(doc: RecentDocument) {
   // Add to front with current timestamp if not provided
   const newDoc = {
     ...doc,
-    timestamp: doc.timestamp || Date.now()
+    timestamp: doc.timestamp || Date.now(),
   };
 
   // Keep only MAX_RECENT documents
@@ -87,7 +87,7 @@ export function updateDocument(id: string, updates: Partial<RecentDocument>) {
     recent[index] = {
       ...recent[index],
       ...updates,
-      lastModified: Date.now()
+      lastModified: Date.now(),
     };
 
     try {
@@ -160,8 +160,6 @@ export function getRecentDocumentsStats() {
     inProgress: recent.filter((d) => d.progress > 0 && d.progress < 100).length,
     notStarted: recent.filter((d) => d.progress === 0).length,
     averageProgress:
-      recent.length > 0
-        ? recent.reduce((sum, d) => sum + d.progress, 0) / recent.length
-        : 0
+      recent.length > 0 ? recent.reduce((sum, d) => sum + d.progress, 0) / recent.length : 0,
   };
 }

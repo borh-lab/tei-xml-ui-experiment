@@ -4,19 +4,18 @@ import React, { useState, useEffect } from 'react';
 import { Effect, Layer, pipe } from 'effect';
 import { CorpusBrowser as CorpusBrowserService } from '@/lib/effect/services/CorpusBrowser';
 import { CorpusBrowserLive } from '@/lib/effect/services/CorpusBrowser';
-import { LocalCorpusDataSourceLive } from '@/lib/effect/services/LocalCorpusDataSource';
+import { FetchCorpusDataSourceLive } from '@/lib/effect/services/FetchCorpusDataSource';
 import type { CorpusMetadata, DocumentId } from '@/lib/effect/protocols/CorpusDataSource';
 import type { DocumentViewState } from '@/lib/effect/services/CorpusBrowser';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-const layers = Layer.mergeAll(LocalCorpusDataSourceLive, CorpusBrowserLive);
+// Use browser-compatible fetch data source
+const layers = Layer.mergeAll(FetchCorpusDataSourceLive, CorpusBrowserLive);
 
 const runEffect = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
-  return Effect.runPromise(
-    pipe(effect, Effect.provide(layers)) as any
-  );
+  return Effect.runPromise(pipe(effect, Effect.provide(layers)) as any);
 };
 
 interface LoadedCorpusViewProps {
@@ -84,9 +83,7 @@ export function LoadedCorpusView({
           </CardHeader>
           <CardContent>
             <div className="bg-muted p-4 rounded-lg max-h-[600px] overflow-y-auto">
-              <pre className="text-sm whitespace-pre-wrap font-mono">
-                {documentState.content}
-              </pre>
+              <pre className="text-sm whitespace-pre-wrap font-mono">{documentState.content}</pre>
             </div>
           </CardContent>
         </Card>
@@ -170,9 +167,7 @@ export function LoadedCorpusView({
                           <div className="text-sm font-medium truncate">
                             {docId.path.split('/').pop()}
                           </div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            {docId.path}
-                          </div>
+                          <div className="text-xs text-muted-foreground truncate">{docId.path}</div>
                         </div>
                         <Button
                           size="sm"

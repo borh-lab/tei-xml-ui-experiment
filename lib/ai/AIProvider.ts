@@ -8,11 +8,7 @@
  * - External APIs
  */
 
-import type {
-  DetectionResult,
-  SpeakerPattern,
-  SpeakerCorrection,
-} from './types';
+import type { DetectionResult, SpeakerPattern, SpeakerCorrection } from './types';
 import type { Character } from '@/lib/tei/types';
 
 /**
@@ -110,9 +106,7 @@ export class PatternBasedDetector implements AIDetector {
     characters: readonly Character[],
     patterns: readonly SpeakerPattern[]
   ): readonly DetectionResult[][] {
-    return dialogues.map(({ dialogue }) =>
-      this.detectSpeaker(dialogue, characters, patterns)
-    );
+    return dialogues.map(({ dialogue }) => this.detectSpeaker(dialogue, characters, patterns));
   }
 
   learnFromCorrections(

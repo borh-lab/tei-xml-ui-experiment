@@ -47,17 +47,19 @@ This plan implements **enhanced features** for the TEI Dialogue Editor. Key impr
 ### 1. Pattern Detection Engine
 
 **Files:**
+
 - Create: `lib/ai/pattern-detector.ts`
 - Create: `lib/ai/types.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/ai/types.ts
 
 export interface SpeakerPattern {
   readonly id: string;
   readonly name: string;
-  readonly patterns: readonly string[];  // Regex patterns
+  readonly patterns: readonly string[]; // Regex patterns
   readonly confidence: number;
 }
 
@@ -103,14 +105,12 @@ export function detectSpeaker(
     for (const regex of pattern.patterns) {
       const match = dialogue.match(new RegExp(regex, 'i'));
       if (match) {
-        const character = characters.find(c =>
-          c.name.toLowerCase() === match[1]?.toLowerCase()
-        );
+        const character = characters.find((c) => c.name.toLowerCase() === match[1]?.toLowerCase());
 
         results.push({
           speaker: character?.id || pattern.name,
           confidence: pattern.confidence,
-          reason: `Pattern match: "${regex}"`
+          reason: `Pattern match: "${regex}"`,
         });
       }
     }
@@ -134,21 +134,19 @@ export function detectDialogueInDocument(
 
   for (const passage of doc.state.passages) {
     // Find dialogue-like patterns: quotes, speech tags, etc.
-    const dialoguePatterns = passage.tags.filter(t =>
-      t.type === 'said' || t.type === 'q'
-    );
+    const dialoguePatterns = passage.tags.filter((t) => t.type === 'said' || t.type === 'q');
 
     // For each existing tag, detect speaker attribution
     for (const tag of dialoguePatterns) {
       const text = extractContent(passage, tag);
       const detections = detectSpeaker(text, doc.state.characters, patterns);
 
-      detections.forEach(detection => {
+      detections.forEach((detection) => {
         detections.push({
           passageId: passage.id,
           range: tag.range,
           text,
-          detectedSpeakers: [detection]
+          detectedSpeakers: [detection],
         });
       });
     }
@@ -162,7 +160,7 @@ export function detectDialogueInDocument(
         passageId: passage.id,
         range: quote.range,
         text: quote.text,
-        detectedSpeakers: detections
+        detectedSpeakers: detections,
       });
     }
   }
@@ -171,7 +169,10 @@ export function detectDialogueInDocument(
 }
 
 // Helper: Find untreated dialogue (text in quotes not yet tagged)
-interface Quote { range: TextRange; text: string }
+interface Quote {
+  range: TextRange;
+  text: string;
+}
 function findUntaggedDialogue(content: string): Quote[] {
   // Find text between quotation marks
   const quoteRegex = /"([^"]+)"/g;
@@ -181,7 +182,7 @@ function findUntaggedDialogue(content: string): Quote[] {
   while ((match = quoteRegex.exec(content)) !== null) {
     quotes.push({
       range: { start: match.index, end: match.index + match[0].length },
-      text: match[1]
+      text: match[1],
     });
   }
 
@@ -194,9 +195,11 @@ function findUntaggedDialogue(content: string): Quote[] {
 ### 2. Pattern Management
 
 **Files:**
+
 - Create: `lib/ai/PatternManager.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/ai/PatternManager.ts
 
@@ -215,48 +218,37 @@ const DEFAULT_PATTERNS: SpeakerPattern[] = [
   {
     id: 'said-she',
     name: 'Narrator (she)',
-    patterns: [
-      '"([^"]+)",\\s+she\\s+said', 'she\\s+said'
-    ],
-    confidence: 0.9
+    patterns: ['"([^"]+)",\\s+she\\s+said', 'she\\s+said'],
+    confidence: 0.9,
   },
   {
     id: 'said-he',
     name: 'Narrator (he)',
-    patterns: [
-      '"([^"]+)",\\s+he\\s+said', 'he\\s+said'
-    ],
-    confidence: 0.9
+    patterns: ['"([^"]+)",\\s+he\\s+said', 'he\\s+said'],
+    confidence: 0.9,
   },
   {
     id: 'said-then-verb',
     name: 'Speaker after quotation',
-    patterns: [
-      '"([^"]+)",\\s+(said|replied|asked|answered|called)\\s+([A-Z][a-z]+)'
-    ],
-    confidence: 0.85
-  }
+    patterns: ['"([^"]+)",\\s+(said|replied|asked|answered|called)\\s+([A-Z][a-z]+)'],
+    confidence: 0.85,
+  },
 ];
 
-export function createPatternDatabase(
-  patterns: readonly SpeakerPattern[] = []
-): PatternDatabase {
+export function createPatternDatabase(patterns: readonly SpeakerPattern[] = []): PatternDatabase {
   return {
     patterns: [...DEFAULT_PATTERNS, ...patterns],
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   };
 }
 
 /**
  * ✅ Pure function: Add pattern to database
  */
-export function addPattern(
-  db: PatternDatabase,
-  pattern: SpeakerPattern
-): PatternDatabase {
+export function addPattern(db: PatternDatabase, pattern: SpeakerPattern): PatternDatabase {
   return {
     patterns: [...db.patterns, pattern],
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   };
 }
 
@@ -269,23 +261,18 @@ export function updatePattern(
   updates: Partial<Omit<SpeakerPattern, 'id'>>
 ): PatternDatabase {
   return {
-    patterns: db.patterns.map(p =>
-      p.id === patternId ? { ...p, ...updates } : p
-    ),
-    lastUpdated: new Date()
+    patterns: db.patterns.map((p) => (p.id === patternId ? { ...p, ...updates } : p)),
+    lastUpdated: new Date(),
   };
 }
 
 /**
  * ✅ Pure function: Remove pattern
  */
-export function removePattern(
-  db: PatternDatabase,
-  patternId: string
-): PatternDatabase {
+export function removePattern(db: PatternDatabase, patternId: string): PatternDatabase {
   return {
-    patterns: db.patterns.filter(p => p.id !== patternId),
-    lastUpdated: new Date()
+    patterns: db.patterns.filter((p) => p.id !== patternId),
+    lastUpdated: new Date(),
   };
 }
 ```
@@ -295,9 +282,11 @@ export function removePattern(
 ### 3. AI Provider Interface (Protocol)
 
 **Files:**
+
 - Create: `lib/ai/AIProvider.ts`
 
 **Protocol Definition:**
+
 ```typescript
 // lib/ai/AIProvider.ts
 
@@ -388,9 +377,11 @@ export class PatternBasedDetector implements AIDetector {
 ### 4. Keyboard Shortcut Infrastructure
 
 **Files:**
+
 - Create: `lib/keyboard/shortcut-manager.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/keyboard/shortcut-manager.ts
 
@@ -411,34 +402,26 @@ export interface ShortcutRegistry {
 /**
  * ✅ Pure function: Create shortcut registry
  */
-export function createShortcutRegistry(
-  shortcuts: readonly Shortcut[] = []
-): ShortcutRegistry {
+export function createShortcutRegistry(shortcuts: readonly Shortcut[] = []): ShortcutRegistry {
   // Sort by key for predictable matching
   const sorted = [...shortcuts].sort((a, b) => a.key.localeCompare(b.key));
 
   return {
-    shortcuts: sorted
+    shortcuts: sorted,
   };
 }
 
 /**
  * ✅ Pure function: Add shortcut to registry
  */
-export function addShortcut(
-  registry: ShortcutRegistry,
-  shortcut: Shortcut
-): ShortcutRegistry {
+export function addShortcut(registry: ShortcutRegistry, shortcut: Shortcut): ShortcutRegistry {
   return createShortcutRegistry([...registry.shortcuts, shortcut]);
 }
 
 /**
  * ✅ Pure function: Match keyboard event to shortcut
  */
-export function matchShortcut(
-  registry: ShortcutRegistry,
-  event: KeyboardEvent
-): Shortcut | null {
+export function matchShortcut(registry: ShortcutRegistry, event: KeyboardEvent): Shortcut | null {
   const pressedKey = formatKeyEvent(event);
 
   for (const shortcut of registry.shortcuts) {
@@ -470,9 +453,11 @@ function formatKeyEvent(event: KeyboardEvent): string {
 ### 5. Default Shortcuts
 
 **Files:**
+
 - Create: `lib/keyboard/default-shortcuts.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/keyboard/default-shortcuts.ts
 
@@ -495,13 +480,38 @@ export function createDefaultShortcuts(
     { key: 'Escape', description: 'Close dialog/palette', action: () => {} },
 
     // Tag shortcuts (1-9 for speakers)
-    { key: '1', description: 'Tag as speaker1', action: onTagSpeaker1, condition: () => isTextSelected() },
-    { key: '2', description: 'Tag as speaker2', action: onTagSpeaker2, condition: () => isTextSelected() },
-    { key: '3', description: 'Tag as speaker3', action: onTagSpeaker3, condition: () => isTextSelected() },
+    {
+      key: '1',
+      description: 'Tag as speaker1',
+      action: onTagSpeaker1,
+      condition: () => isTextSelected(),
+    },
+    {
+      key: '2',
+      description: 'Tag as speaker2',
+      action: onTagSpeaker2,
+      condition: () => isTextSelected(),
+    },
+    {
+      key: '3',
+      description: 'Tag as speaker3',
+      action: onTagSpeaker3,
+      condition: () => isTextSelected(),
+    },
     // ... up to 9
 
-    { key: 'ctrl+q', description: 'Tag as q (quotation)', action: onTagQ, condition: () => isTextSelected() },
-    { key: 'ctrl+p', description: 'Tag as persName (person name)', action: onTagPersName, condition: () => isTextSelected() },
+    {
+      key: 'ctrl+q',
+      description: 'Tag as q (quotation)',
+      action: onTagQ,
+      condition: () => isTextSelected(),
+    },
+    {
+      key: 'ctrl+p',
+      description: 'Tag as persName (person name)',
+      action: onTagPersName,
+      condition: () => isTextSelected(),
+    },
   ];
 
   return createShortcutRegistry(shortcuts);
@@ -520,10 +530,12 @@ function isTextSelected(): boolean {
 ### 6. Sample Management
 
 **Files:**
+
 - Create: `lib/samples/SampleManager.ts`
 - Create: `lib/samples/samples.ts`
 
 **Implementation:**
+
 ```typescript
 // lib/samples/samples.ts
 
@@ -547,7 +559,7 @@ export const SAMPLES: readonly Sample[] = [
     wordCount: 6000,
     dialogueCount: 15,
     difficulty: 'intermediate',
-    tags: ['short-story', 'first-person', 'psychological']
+    tags: ['short-story', 'first-person', 'psychological'],
   },
   {
     id: 'gift-of-the-magi',
@@ -557,8 +569,8 @@ export const SAMPLES: readonly Sample[] = [
     wordCount: 4500,
     dialogueCount: 25,
     difficulty: 'beginner',
-    tags: ['short-story', 'third-person']
-  }
+    tags: ['short-story', 'third-person'],
+  },
   // ... more samples
 ];
 
@@ -566,7 +578,7 @@ export const SAMPLES: readonly Sample[] = [
  * ✅ Pure function: Load sample by ID
  */
 export function loadSample(sampleId: string): string {
-  const sample = SAMPLES.find(s => s.id === sampleId);
+  const sample = SAMPLES.find((s) => s.id === sampleId);
   if (!sample) {
     throw new Error(`Sample not found: ${sampleId}`);
   }
@@ -584,9 +596,11 @@ export function loadSample(sampleId: string): string {
 ### 7. Statistics Dashboard
 
 **Files:**
+
 - Create: `components/visualization/StatisticsDashboard.tsx`
 
 **Implementation:**
+
 ```typescript
 // components/visualization/StatisticsDashboard.tsx
 'use client';
@@ -690,73 +704,86 @@ export function StatisticsDashboard() {
 ## Implementation Tasks
 
 ### Task 1: Create AI Types and Interfaces
+
 - Create `lib/ai/types.ts` with detection types
 - Create `lib/ai/AIProvider.ts` with protocol interface
 - Define `PatternDatabase`, `SpeakerPattern`, `DetectionResult`
 
 ### Task 2: Implement Pattern Detector
+
 - Create `lib/ai/pattern-detector.ts`
 - Implement `detectSpeaker` with regex patterns
 - Implement `detectDialogueInDocument`
 - Add helper functions for finding untreated dialogue
 
 ### Task 3: Create Pattern Manager
+
 - Create `lib/ai/PatternManager.ts`
 - Implement pattern CRUD operations (pure functions)
 - Add default speaker patterns
 - Add pattern learning infrastructure (placeholder for now)
 
 ### Task 4: Update TEI Operations for Entities
+
 - Extend `lib/tei/operations.ts` with entity serialization
 - Ensure `serialize()` includes characters and relationships in TEI XML
 - Parse `listPerson` and `listRelation` on document load
 
 ### Task 5: Create Keyboard Shortcut System
+
 - Create `lib/keyboard/shortcut-manager.ts`
 - Implement `createShortcutRegistry`, `addShortcut`, `matchShortcut`
 - Add key formatting utilities
 
 ### Task 6: Create Default Shortcuts
+
 - Create `lib/keyboard/default-shortcuts.ts`
 - Implement tag application shortcuts (1-9, ctrl+q, ctrl+p)
 - Add document shortcuts (cmd+s, cmd+e)
 - Add validation (check text is selected before tag shortcuts)
 
 ### Task 7: Integrate Shortcuts with Editor
+
 - Modify `components/editor/EditorLayout.tsx` to use shortcut registry
 - Add keyboard event listener
 - Wire up actions to DocumentContext dispatch
 
 ### Task 8: Create Sample Manager
+
 - Create `lib/samples/SampleManager.ts`
 - Define `Sample` interface
 - Implement `loadSample` function
 - Add default samples (Yellow Wallpaper, etc.)
 
 ### Task 9: Create Sample Gallery Component
+
 - Create `components/samples/SampleGallery.tsx`
 - Display available samples with metadata
 - Add sample loading button
 - Integrate with DocumentContext
 
 ### Task 10: Create Statistics Dashboard
+
 - Create `components/visualization/StatisticsDashboard.tsx`
 - Display document statistics
 - Add bar chart for dialogue per passage
 - Show top characters by dialogue count
 
 ### Task 11: Create AI Assistant Component
+
 - Create `components/ai/AIAssistant.tsx`
 - Display AI suggestions for speaker attribution
 - Allow user to accept/reject suggestions
 - Auto-apply high-confidence suggestions
 
 ### Task 12: Update DocumentContext with AI
+
 - Integrate pattern database into DocumentContext
 - Add `detectSpeakers` method
 - Add `applySuggestion` method for applying AI results
 
 ### Task 13: Unit Tests
+
 - Test pattern detector with various dialogue patterns
 - Test shortcut registry matches key events correctly
 - Test sample loading
@@ -764,11 +791,13 @@ export function StatisticsDashboard() {
 - Test AI assistant suggestion application
 
 ### Task 14: Integration Tests
+
 - Test AI assistant with document context
 - Test shortcuts trigger correct actions
 - Test sample gallery loads documents
 
 ### Task 15: E2E Tests
+
 - Test AI detection suggests correct speakers
 - Test user accepts suggestion and tag is applied
 - Test keyboard shortcuts work correctly
@@ -779,28 +808,33 @@ export function StatisticsDashboard() {
 ## Success Criteria
 
 ✅ **AI Detection:**
+
 - Pattern-based detection works for common dialogue patterns
 - AI assistant shows suggestions for speaker attribution
 - User can accept/reject suggestions
 - High-confidence suggestions auto-applied
 
 ✅ **Keyboard Shortcuts:**
+
 - All shortcuts defined in one place
 - Shortcuts work consistently across application
 - Clear visual feedback for triggered shortcuts
 - Conditions checked (e.g., text selected before tag shortcuts)
 
 ✅ **Sample Gallery:**
+
 - Sample gallery displays available samples
 - Loading sample replaces current document
 - Samples show metadata (title, author, difficulty)
 
 ✅ **Visualizations:**
+
 - Statistics dashboard shows document statistics
 - Bar chart displays dialogue per passage
 - Character network visualization updates with document changes
 
 ✅ **Simplicity:**
+
 - No WASM complexity (pure TypeScript)
 - No Ax framework (plain fetch)
 - No IndexedDB (in-memory patterns)
@@ -811,12 +845,14 @@ export function StatisticsDashboard() {
 ## Dependencies
 
 **Requires:**
+
 - Foundation Plan (immutable TEIDocument)
 - Tag Application Plan (tag operations, SelectionManager)
 - Existing: React 19, shadcn/ui components
 - New: `recharts` (for statistics charts)
 
 **No changes to:**
+
 - XML parsing (keep existing)
 - Tag application (extend with AI suggestions)
 - Entity modeling (extend with AI-enhanced relationship detection)
@@ -852,17 +888,20 @@ export function StatisticsDashboard() {
 ## Notes
 
 **Why we removed WASM/Ax:**
+
 - **YAGNI principle:** Start simple, optimize only if needed
 - **Measuring first:** Profile before adding complexity
 - **TypeScript is fast enough:** Regex pattern matching is fast for document scales
 - **No clear benefit:** WASM doesn't solve a proven problem here
 
 **Why we removed IndexedDB:**
+
 - **Data is small:** ~100-500 patterns fit easily in memory
 - **Complexity not justified:** IndexedDB adds async complexity, persists what's ephemeral
 - **Session-based:** Patterns are session-specific, no need for persistence
 
 **Future optimization opportunities** (only if measured performance issues):
+
 - Add WASM for pattern matching if profiling shows it's a bottleneck
 - Add IndexedDB if patterns grow to thousands of entries
 - Add Ax if AI API integration becomes complex

@@ -40,6 +40,6 @@ describe('/api/validate with schema selection', () => {
     const schemas = resolver.list();
 
     expect(schemas).toHaveLength(3);
-    expect(schemas.map(s => s.id)).toEqual(['tei-minimal', 'tei-all', 'tei-novel']);
+    expect(schemas.map((s) => s.id)).toEqual(['tei-minimal', 'tei-all', 'tei-novel']);
   });
 });

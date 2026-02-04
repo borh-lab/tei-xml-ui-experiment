@@ -13,6 +13,7 @@
 ## Task 1: Effect Dependencies and Directory Structure
 
 **Files:**
+
 - Modify: `package.json` (add dependencies)
 - Create: `lib/effect/protocols/` (directory)
 - Create: `lib/effect/services/` (directory)
@@ -36,6 +37,7 @@ Expected: No output (directories created)
 Run: `ls -la lib/effect/`
 
 Expected output:
+
 ```
 protocols/
 services/
@@ -48,6 +50,7 @@ __tests__/
 Create file: `lib/effect/README.md`
 
 Content:
+
 ```markdown
 # Effect-Based Services
 
@@ -73,10 +76,12 @@ git commit -m "feat: add Effect dependencies and directory structure"
 ## Task 2: CorpusDataSource Protocol (Domain Types)
 
 **Files:**
+
 - Create: `lib/effect/protocols/CorpusDataSource.ts`
 - Test: `lib/effect/__tests__/CorpusDataSource.test.ts`
 
 **Context:**
+
 - Corpus data lives in `tests/corpora/metadata/` with files: `summary.json`, `corpus-*.json`, `documents/*.json`
 - Corpora are: 'wright-american-fiction', 'victorian-women-writers', 'indiana-magazine-history', 'indiana-authors-books', 'brevier-legislative', 'tei-texts'
 - Document IDs must be scoped to corpus (e.g., `{corpus: 'wright', path: 'novels/file1.xml'}`)
@@ -86,6 +91,7 @@ git commit -m "feat: add Effect dependencies and directory structure"
 Create: `lib/effect/protocols/CorpusDataSource.ts`
 
 Content:
+
 ```typescript
 import { Effect, Schema } from 'effect';
 
@@ -210,6 +216,7 @@ export const CorpusDataSource = Context.GenericTag<CorpusDataSource>('@app/Corpu
 Create: `lib/effect/__tests__/CorpusDataSource.test.ts`
 
 Content:
+
 ```typescript
 import { Effect } from 'effect';
 import { describe, it, expect } from '@effect/jest';
@@ -219,7 +226,7 @@ describe('CorpusDataSource Protocol', () => {
   it('should define DocumentId class', () => {
     const docId = new DocumentId({
       corpus: 'wright-american-fiction',
-      path: 'novels/test.xml'
+      path: 'novels/test.xml',
     });
 
     expect(docId.corpus).toBe('wright-american-fiction');
@@ -251,10 +258,12 @@ git commit -m "feat: add CorpusDataSource protocol with Schema types"
 ## Task 3: LocalCorpusDataSource Implementation
 
 **Files:**
+
 - Create: `lib/effect/services/LocalCorpusDataSource.ts`
 - Test: `lib/effect/__tests__/LocalCorpusDataSource.test.ts`
 
 **Context:**
+
 - Metadata files exist at `tests/corpora/metadata/`:
   - `summary.json`: Contains all corpus metadata
   - `documents/{corpus}.json`: Contains document metadata keyed by path
@@ -266,6 +275,7 @@ git commit -m "feat: add CorpusDataSource protocol with Schema types"
 Create: `lib/effect/services/LocalCorpusDataSource.ts`
 
 Content:
+
 ```typescript
 import { Effect, Layer, Context } from 'effect';
 import * as fs from 'node:fs/promises';
@@ -318,11 +328,12 @@ const makeLocalCorpusDataSource = Effect.succeed({
           encodingTypes: corpusData.encodingTypes || [],
         });
       },
-      catch: (error) => new DataSourceError({
-        _tag: 'CorpusNotFound',
-        corpus,
-        cause: error,
-      }),
+      catch: (error) =>
+        new DataSourceError({
+          _tag: 'CorpusNotFound',
+          corpus,
+          cause: error,
+        }),
     }),
 
   getDocumentMetadata: (docId: DocumentId) =>
@@ -350,29 +361,26 @@ const makeLocalCorpusDataSource = Effect.succeed({
           teiVersion: raw.teiVersion || 'P5',
         });
       },
-      catch: (error) => new DataSourceError({
-        _tag: 'DocumentNotFound',
-        docId,
-        cause: error,
-      }),
+      catch: (error) =>
+        new DataSourceError({
+          _tag: 'DocumentNotFound',
+          docId,
+          cause: error,
+        }),
     }),
 
   getDocumentContent: (docId: DocumentId) =>
     Effect.tryPromise({
       try: async () => {
-        const contentPath = path.join(
-          process.cwd(),
-          'corpora',
-          docId.corpus,
-          docId.path
-        );
+        const contentPath = path.join(process.cwd(), 'corpora', docId.corpus, docId.path);
         return await fs.readFile(contentPath, 'utf-8');
       },
-      catch: (error) => new DataSourceError({
-        _tag: 'DocumentNotFound',
-        docId,
-        cause: error,
-      }),
+      catch: (error) =>
+        new DataSourceError({
+          _tag: 'DocumentNotFound',
+          docId,
+          cause: error,
+        }),
     }),
 
   listDocuments: (corpus: CorpusId, options) =>
@@ -394,15 +402,14 @@ const makeLocalCorpusDataSource = Effect.succeed({
         const end = start + options.pageSize;
         const pageEntries = entries.slice(start, end);
 
-        return pageEntries.map(([docPath]) =>
-          new DocumentId({ corpus, path: docPath })
-        );
+        return pageEntries.map(([docPath]) => new DocumentId({ corpus, path: docPath }));
       },
-      catch: (error) => new DataSourceError({
-        _tag: 'CorpusNotFound',
-        corpus,
-        cause: error,
-      }),
+      catch: (error) =>
+        new DataSourceError({
+          _tag: 'CorpusNotFound',
+          corpus,
+          cause: error,
+        }),
     }),
 
   queryByEncoding: (corpus: CorpusId, encoding, options) =>
@@ -428,15 +435,14 @@ const makeLocalCorpusDataSource = Effect.succeed({
         const end = start + options.pageSize;
         const pageEntries = filtered.slice(start, end);
 
-        return pageEntries.map(([docPath]) =>
-          new DocumentId({ corpus, path: docPath })
-        );
+        return pageEntries.map(([docPath]) => new DocumentId({ corpus, path: docPath }));
       },
-      catch: (error) => new DataSourceError({
-        _tag: 'CorpusNotFound',
-        corpus,
-        cause: error,
-      }),
+      catch: (error) =>
+        new DataSourceError({
+          _tag: 'CorpusNotFound',
+          corpus,
+          cause: error,
+        }),
     }),
 });
 
@@ -444,10 +450,7 @@ const makeLocalCorpusDataSource = Effect.succeed({
 // Layer
 // ============================================================================
 
-export const LocalCorpusDataSourceLive = Layer.effect(
-  CorpusDataSource,
-  makeLocalCorpusDataSource
-);
+export const LocalCorpusDataSourceLive = Layer.effect(CorpusDataSource, makeLocalCorpusDataSource);
 ```
 
 **Step 2: Write test for real corpus data**
@@ -455,6 +458,7 @@ export const LocalCorpusDataSourceLive = Layer.effect(
 Create: `lib/effect/__tests__/LocalCorpusDataSource.test.ts`
 
 Content:
+
 ```typescript
 import { Effect, Layer } from 'effect';
 import { describe, it, expect } from '@effect/jest';
@@ -469,9 +473,7 @@ describe('LocalCorpusDataSource', () => {
     const program = Effect.gen(function* (_) {
       const dataSource = yield* _(CorpusDataSource);
 
-      const metadata = yield* _(
-        dataSource.getCorpusMetadata('wright-american-fiction')
-      );
+      const metadata = yield* _(dataSource.getCorpusMetadata('wright-american-fiction'));
 
       expect(metadata.id).toBe('wright-american-fiction');
       expect(metadata.name).toBeDefined();
@@ -479,9 +481,7 @@ describe('LocalCorpusDataSource', () => {
       expect(metadata.encodingTypes.length).toBeGreaterThan(0);
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should list documents with pagination', async () => {
@@ -516,9 +516,7 @@ describe('LocalCorpusDataSource', () => {
       expect(intersection.length).toBe(0);
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should get document metadata', async () => {
@@ -540,9 +538,7 @@ describe('LocalCorpusDataSource', () => {
       expect(metadata.teiVersion).toMatch(/P[45]/);
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should get document content', async () => {
@@ -562,20 +558,14 @@ describe('LocalCorpusDataSource', () => {
       expect(content.length).toBeGreaterThan(0);
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should return error for non-existent corpus', async () => {
     const program = Effect.gen(function* (_) {
       const dataSource = yield* _(CorpusDataSource);
 
-      const result = yield* _(
-        Effect.either(
-          dataSource.getCorpusMetadata('non-existent' as any)
-        )
-      );
+      const result = yield* _(Effect.either(dataSource.getCorpusMetadata('non-existent' as any)));
 
       expect(result._tag).toBe('Left');
       if (result._tag === 'Left') {
@@ -583,9 +573,7 @@ describe('LocalCorpusDataSource', () => {
       }
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 });
 ```
@@ -608,10 +596,12 @@ git commit -m "feat: implement LocalCorpusDataSource with real corpus data"
 ## Task 4: CorpusBrowser Service (Business Logic)
 
 **Files:**
+
 - Create: `lib/effect/services/CorpusBrowser.ts`
 - Test: `lib/effect/__tests__/CorpusBrowser.test.ts`
 
 **Context:**
+
 - This service manages UI state (loaded corpus, selected document)
 - Uses Effect.Ref for explicit state management
 - State transitions are: initial → loading → loaded/error
@@ -622,6 +612,7 @@ git commit -m "feat: implement LocalCorpusDataSource with real corpus data"
 Create: `lib/effect/services/CorpusBrowser.ts`
 
 Content:
+
 ```typescript
 import { Effect, Layer, Ref, Context, Schema } from 'effect';
 import {
@@ -716,12 +707,8 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
   const dataSource = yield* _(CorpusDataSource);
 
   // State as Ref (explicit time)
-  const browserState = yield* _(
-    Ref.make<BrowserState>({ _tag: 'initial' })
-  );
-  const documentState = yield* _(
-    Ref.make<DocumentViewState>({ _tag: 'no-selection' })
-  );
+  const browserState = yield* _(Ref.make<BrowserState>({ _tag: 'initial' }));
+  const documentState = yield* _(Ref.make<DocumentViewState>({ _tag: 'no-selection' }));
 
   const service: CorpusBrowser = {
     getState: Ref.get(browserState),
@@ -731,13 +718,13 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
         yield* _(Ref.set(browserState, { _tag: 'loading', corpus }));
 
         const metadata = yield* _(
-          dataSource.getCorpusMetadata(corpus).pipe(
-            Effect.catchAll((error) =>
-              Ref.set(browserState, { _tag: 'error', error }).pipe(
-                Effect.as(null)
+          dataSource
+            .getCorpusMetadata(corpus)
+            .pipe(
+              Effect.catchAll((error) =>
+                Ref.set(browserState, { _tag: 'error', error }).pipe(Effect.as(null))
               )
             )
-          )
         );
 
         if (metadata === null) {
@@ -750,14 +737,13 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
     listDocuments: Ref.get(browserState).pipe(
       Effect.flatMap((state) =>
         state._tag === 'loaded'
-          ? dataSource.listDocuments(
-              state.metadata.id,
-              { page: state.page, pageSize: 20 }
+          ? dataSource.listDocuments(state.metadata.id, { page: state.page, pageSize: 20 })
+          : Effect.fail(
+              new DataSourceError({
+                _tag: 'IOError',
+                cause: 'No corpus loaded',
+              })
             )
-          : Effect.fail(new DataSourceError({
-              _tag: 'IOError',
-              cause: 'No corpus loaded',
-            }))
       )
     ),
 
@@ -770,14 +756,10 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
         const metadata = yield* _(dataSource.getDocumentMetadata(docId));
         const content = yield* _(dataSource.getDocumentContent(docId));
 
-        yield* _(
-          Ref.set(documentState, { _tag: 'loaded', metadata, content })
-        );
+        yield* _(Ref.set(documentState, { _tag: 'loaded', metadata, content }));
       }).pipe(
         Effect.catchAll((error) =>
-          Ref.set(documentState, { _tag: 'error', error }).pipe(
-            Effect.as(null)
-          )
+          Ref.set(documentState, { _tag: 'error', error }).pipe(Effect.as(null))
         )
       ),
   };
@@ -787,9 +769,7 @@ const makeCorpusBrowser = Effect.gen(function* (_) {
 
 export const CorpusBrowserLive = Layer.effect(
   CorpusBrowser,
-  makeCorpusBrowser.pipe(
-    Layer.provide(LocalCorpusDataSourceLive)
-  )
+  makeCorpusBrowser.pipe(Layer.provide(LocalCorpusDataSourceLive))
 );
 ```
 
@@ -798,6 +778,7 @@ export const CorpusBrowserLive = Layer.effect(
 Create: `lib/effect/__tests__/CorpusBrowser.test.ts`
 
 Content:
+
 ```typescript
 import { Effect, Layer } from 'effect';
 import { describe, it, expect } from '@effect/jest';
@@ -828,9 +809,7 @@ describe('CorpusBrowser', () => {
       }
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should transition to error on non-existent corpus', async () => {
@@ -846,9 +825,7 @@ describe('CorpusBrowser', () => {
       }
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should list documents after corpus loaded', async () => {
@@ -861,9 +838,7 @@ describe('CorpusBrowser', () => {
       expect(docs.length).toBeLessThanOrEqual(20);
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should load document and transition state', async () => {
@@ -885,9 +860,7 @@ describe('CorpusBrowser', () => {
       }
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 });
 ```
@@ -910,12 +883,14 @@ git commit -m "feat: add CorpusBrowser service with explicit state transitions"
 ## Task 5: React Bridge Component
 
 **Files:**
+
 - Create: `components/corpus/CorpusBrowser.tsx`
 - Create: `components/corpus/CorpusSelector.tsx`
 - Create: `components/corpus/LoadedCorpusView.tsx`
 - Test: `components/corpus/__tests__/CorpusBrowser.test.tsx`
 
 **Context:**
+
 - React is ONLY for rendering - all logic in Effect services
 - Component watches Effect state via `useEffect` + `Effect.runPromise`
 - State renders explicitly based on `_tag` discrimination
@@ -926,6 +901,7 @@ git commit -m "feat: add CorpusBrowser service with explicit state transitions"
 Create: `components/corpus/CorpusBrowser.tsx`
 
 Content:
+
 ```typescript
 'use client';
 
@@ -1017,6 +993,7 @@ export function CorpusBrowserComponent() {
 Create: `components/corpus/CorpusSelector.tsx`
 
 Content:
+
 ```typescript
 'use client';
 
@@ -1082,6 +1059,7 @@ export function CorpusSelector({ onSelect }: CorpusSelectorProps) {
 Create: `components/corpus/LoadedCorpusView.tsx`
 
 Content:
+
 ```typescript
 'use client';
 
@@ -1206,6 +1184,7 @@ export function LoadedCorpusView({
 Create: `components/corpus/__tests__/CorpusBrowser.test.tsx`
 
 Content:
+
 ```typescript
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -1254,9 +1233,11 @@ git commit -m "feat: add React bridge components for corpus browsing"
 ## Task 6: Add Route for Corpus Browser
 
 **Files:**
+
 - Create: `app/corpus/page.tsx`
 
 **Context:**
+
 - App uses Next.js App Router
 - Add new route at `/corpus` for the browser UI
 
@@ -1265,6 +1246,7 @@ git commit -m "feat: add React bridge components for corpus browsing"
 Create: `app/corpus/page.tsx`
 
 Content:
+
 ```typescript
 import { CorpusBrowserComponent } from '@/components/corpus/CorpusBrowser';
 
@@ -1312,9 +1294,11 @@ git commit -m "feat: add /corpus route for browsing TEI corpora"
 ## Task 7: E2E Tests for Corpus Browsing
 
 **Files:**
+
 - Create: `tests/e2e/corpus-browsing.spec.ts`
 
 **Context:**
+
 - Use Playwright for E2E testing
 - Tests should use real corpus data
 - Test full user flows: select corpus, list docs, view document
@@ -1324,6 +1308,7 @@ git commit -m "feat: add /corpus route for browsing TEI corpora"
 Create: `tests/e2e/corpus-browsing.spec.ts`
 
 Content:
+
 ```typescript
 import { test, expect } from '@playwright/test';
 
@@ -1347,7 +1332,12 @@ test.describe('Corpus Browsing', () => {
     await expect(page.getByText(/documents/)).toBeVisible({ timeout: 10000 });
 
     // Verify document list appears
-    await expect(page.locator('button').filter({ hasText: /\.xml$/ }).first()).toBeVisible();
+    await expect(
+      page
+        .locator('button')
+        .filter({ hasText: /\.xml$/ })
+        .first()
+    ).toBeVisible();
   });
 
   test('should paginate through documents', async ({ page }) => {
@@ -1357,7 +1347,10 @@ test.describe('Corpus Browsing', () => {
     await expect(page.getByText(/documents/)).toBeVisible({ timeout: 10000 });
 
     // Get first page documents
-    const firstPageDocs = await page.locator('button').filter({ hasText: /\.xml$/ }).allTextContents();
+    const firstPageDocs = await page
+      .locator('button')
+      .filter({ hasText: /\.xml$/ })
+      .allTextContents();
 
     await page.click('text=Next');
 
@@ -1365,7 +1358,10 @@ test.describe('Corpus Browsing', () => {
     await page.waitForTimeout(500);
 
     // Get second page documents
-    const secondPageDocs = await page.locator('button').filter({ hasText: /\.xml$/ }).allTextContents();
+    const secondPageDocs = await page
+      .locator('button')
+      .filter({ hasText: /\.xml$/ })
+      .allTextContents();
 
     // Pages should be different
     expect(firstPageDocs).not.toEqual(secondPageDocs);
@@ -1378,7 +1374,11 @@ test.describe('Corpus Browsing', () => {
     await expect(page.getByText(/documents/)).toBeVisible({ timeout: 10000 });
 
     // Click first document
-    await page.locator('button').filter({ hasText: /\.xml$/ }).first().click();
+    await page
+      .locator('button')
+      .filter({ hasText: /\.xml$/ })
+      .first()
+      .click();
 
     // Wait for document to load
     await expect(page.getByText('Loading document')).toBeVisible();
@@ -1417,9 +1417,11 @@ git commit -m "test: add E2E tests for corpus browsing flows"
 ## Task 8: Integration Tests Using Varied Corpus Data
 
 **Files:**
+
 - Create: `lib/effect/__tests__/CorpusVariation.test.ts`
 
 **Context:**
+
 - Test that all 6 corpora work correctly
 - Test different encoding types (dialogue-focused, dramatic-text, minimal-markup, mixed)
 - Test TEI P4 vs P5 documents
@@ -1430,6 +1432,7 @@ git commit -m "test: add E2E tests for corpus browsing flows"
 Create: `lib/effect/__tests__/CorpusVariation.test.ts`
 
 Content:
+
 ```typescript
 import { Effect, Layer } from 'effect';
 import { describe, it, expect } from '@effect/jest';
@@ -1455,9 +1458,7 @@ describe('Corpus Data Variation Tests', () => {
       const dataSource = yield* _(CorpusDataSource);
 
       for (const corpus of ALL_CORPORA) {
-        const metadata = yield* _(
-          dataSource.getCorpusMetadata(corpus)
-        );
+        const metadata = yield* _(dataSource.getCorpusMetadata(corpus));
 
         expect(metadata.id).toBe(corpus);
         expect(metadata.totalDocuments).toBeGreaterThan(0);
@@ -1465,9 +1466,7 @@ describe('Corpus Data Variation Tests', () => {
       }
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should handle documents from all encoding types', async () => {
@@ -1502,9 +1501,7 @@ describe('Corpus Data Variation Tests', () => {
       expect(teiDocs.length).toBeGreaterThanOrEqual(0);
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should handle both TEI P4 and P5 documents', async () => {
@@ -1513,9 +1510,7 @@ describe('Corpus Data Variation Tests', () => {
 
       // Load some documents from each corpus and check TEI versions
       for (const corpus of ALL_CORPORA) {
-        const docs = yield* _(
-          dataSource.listDocuments(corpus, { page: 0, pageSize: 5 })
-        );
+        const docs = yield* _(dataSource.listDocuments(corpus, { page: 0, pageSize: 5 }));
 
         // Get metadata for first 2 documents
         for (const doc of docs.slice(0, 2)) {
@@ -1527,9 +1522,7 @@ describe('Corpus Data Variation Tests', () => {
       }
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should load actual document content from all corpora', async () => {
@@ -1537,9 +1530,7 @@ describe('Corpus Data Variation Tests', () => {
       const dataSource = yield* _(CorpusDataSource);
 
       for (const corpus of ALL_CORPORA) {
-        const docs = yield* _(
-          dataSource.listDocuments(corpus, { page: 0, pageSize: 2 })
-        );
+        const docs = yield* _(dataSource.listDocuments(corpus, { page: 0, pageSize: 2 }));
 
         // Load content for first document
         const content = yield* _(dataSource.getDocumentContent(docs[0]));
@@ -1550,9 +1541,7 @@ describe('Corpus Data Variation Tests', () => {
       }
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 
   it('should handleIndianaAuthorsBooks XXE fixes', async () => {
@@ -1568,17 +1557,13 @@ describe('Corpus Data Variation Tests', () => {
       expect(docs.length).toBeGreaterThan(100);
 
       // Load a document
-      const content = yield* _(
-        CorpusDataSource.getDocumentContent(docs[0])
-      );
+      const content = yield* _(CorpusDataSource.getDocumentContent(docs[0]));
 
       // Content should be valid XML
       expect(content).toMatch(/<TEI[^>]*>/i);
     });
 
-    await Effect.runPromise(program.pipe(
-      Effect.provideLayer(TestLayer)
-    ));
+    await Effect.runPromise(program.pipe(Effect.provideLayer(TestLayer)));
   });
 });
 ```
@@ -1601,10 +1586,12 @@ git commit -m "test: add variation tests using all corpus data"
 ## Task 9: Documentation for Corpus Browsing
 
 **Files:**
+
 - Create: `docs/corpus-browsing.md`
 - Modify: `README.md` (add link)
 
 **Context:**
+
 - Document how to use the corpus browsing UI
 - Document Effect architecture patterns used
 - Document how to extend with new features
@@ -1614,7 +1601,8 @@ git commit -m "test: add variation tests using all corpus data"
 Create: `docs/corpus-browsing.md`
 
 Content:
-```markdown
+
+````markdown
 # TEI Corpus Browsing
 
 This document describes the TEI corpus browsing feature, which allows users to explore and view TEI documents from 6 integrated corpora.
@@ -1622,6 +1610,7 @@ This document describes the TEI corpus browsing feature, which allows users to e
 ## Overview
 
 The corpus browser provides:
+
 - **6 TEI Corpora**: Wright American Fiction, Victorian Women Writers, Indiana Magazine of History, Indiana Authors and Books, Brevier Legislative Reports, and TEI Texts
 - **10,793 Documents**: Full corpus integration with metadata and content
 - **Train/Val/Test Splits**: 70/15/15 split with seeded randomness for reproducibility
@@ -1638,14 +1627,14 @@ The corpus browser provides:
 
 ### Corpus Details
 
-| Corpus | Documents | Encoding Types | TEI Version |
-|--------|-----------|----------------|-------------|
-| Wright American Fiction | ~1,900 | dialogue-focused | P5 |
-| Victorian Women Writers | ~250 | mixed | P5 |
-| Indiana Magazine of History | ~500 | dramatic-text | P5 |
-| Indiana Authors and Books | ~3,400 | mixed | P4/P5 |
-| Brevier Legislative Reports | ~800 | minimal-markup | P5 |
-| TEI Texts | ~3,900 | minimal-markup | P5 |
+| Corpus                      | Documents | Encoding Types   | TEI Version |
+| --------------------------- | --------- | ---------------- | ----------- |
+| Wright American Fiction     | ~1,900    | dialogue-focused | P5          |
+| Victorian Women Writers     | ~250      | mixed            | P5          |
+| Indiana Magazine of History | ~500      | dramatic-text    | P5          |
+| Indiana Authors and Books   | ~3,400    | mixed            | P4/P5       |
+| Brevier Legislative Reports | ~800      | minimal-markup   | P5          |
+| TEI Texts                   | ~3,900    | minimal-markup   | P5          |
 
 ## Architecture
 
@@ -1654,6 +1643,7 @@ The corpus browser follows Rich Hickey's design principles:
 ### 1. Protocol-First Design
 
 **CorpusDataSource Protocol**: Low-level data access
+
 ```typescript
 interface CorpusDataSource {
   getCorpusMetadata(corpus: CorpusId): Effect<CorpusMetadata, DataSourceError>;
@@ -1661,8 +1651,10 @@ interface CorpusDataSource {
   // ...
 }
 ```
+````
 
 **CorpusBrowser Service**: Business logic and state management
+
 ```typescript
 interface CorpusBrowser {
   loadCorpus: (corpus: CorpusId) => Effect<void>;
@@ -1674,6 +1666,7 @@ interface CorpusBrowser {
 ### 2. Values Over Places
 
 All state is immutable:
+
 ```typescript
 type BrowserState =
   | { _tag: 'initial' }
@@ -1685,39 +1678,45 @@ type BrowserState =
 ### 3. Explicit Time Modeling
 
 All I/O returns Effect:
+
 ```typescript
-const metadata = yield* _(dataSource.getCorpusMetadata(corpus));
-yield* _(Ref.set(browserState, { _tag: 'loaded', metadata, page: 0 }));
+const metadata = yield * _(dataSource.getCorpusMetadata(corpus));
+yield * _(Ref.set(browserState, { _tag: 'loaded', metadata, page: 0 }));
 ```
 
 ### 4. Composability
 
 Services compose through dependency injection:
+
 ```typescript
 const TestLayer = Layer.mergeAll(
-  LocalCorpusDataSourceLive,  // Data access
-  CorpusBrowserLive           // Business logic
+  LocalCorpusDataSourceLive, // Data access
+  CorpusBrowserLive // Business logic
 );
 ```
 
 ## Running Tests
 
 ### Unit Tests (Effect services)
+
 ```bash
 npm test -- lib/effect/__tests__/
 ```
 
 ### Component Tests (React)
+
 ```bash
 npm test -- components/corpus/__tests__/
 ```
 
 ### E2E Tests (Playwright)
+
 ```bash
 npm run test:e2e tests/e2e/corpus-browsing.spec.ts
 ```
 
 ### Variation Tests (All corpora)
+
 ```bash
 npm test -- lib/effect/__tests__/CorpusVariation.test.ts
 ```
@@ -1727,30 +1726,34 @@ npm test -- lib/effect/__tests__/CorpusVariation.test.ts
 ### Adding a New Corpus
 
 1. Add the corpus as a git submodule:
+
 ```bash
 git submodule add <repo-url> corpora/<corpus-id>
 ```
 
 2. Generate metadata:
+
 ```bash
 npm run corpus:analyze
 ```
 
 3. Update the `CorpusId` schema to include the new corpus:
+
 ```typescript
 export const CorpusId = Schema.Union(
   Schema.Literal('wright-american-fiction'),
   Schema.Literal('victorian-women-writers'),
   // ...
-  Schema.Literal('your-new-corpus')  // Add here
+  Schema.Literal('your-new-corpus') // Add here
 );
 ```
 
 4. Add to corpus selector:
+
 ```typescript
 const CORPORA = [
   // ...
-  { id: 'your-new-corpus', name: 'Your Corpus', description: '...' }
+  { id: 'your-new-corpus', name: 'Your Corpus', description: '...' },
 ];
 ```
 
@@ -1766,9 +1769,7 @@ const makeCachedDataSource = Effect.gen(function* (_) {
 
   return {
     getCorpusMetadata: (corpus) =>
-      Cache.getOrElse(cache, corpus, () =>
-        underlying.getCorpusMetadata(corpus)
-      ),
+      Cache.getOrElse(cache, corpus, () => underlying.getCorpusMetadata(corpus)),
     // ...
   };
 });
@@ -1777,16 +1778,19 @@ const makeCachedDataSource = Effect.gen(function* (_) {
 ## Troubleshooting
 
 ### Corpus Not Loading
+
 - Check that corpus submodules are initialized: `git submodule update --recursive`
 - Verify metadata exists: `ls tests/corpora/metadata/`
 - Check file permissions on `corpora/` directory
 
 ### Documents Not Displaying
+
 - Verify document paths in metadata match actual files
 - Check TEI XML is well-formed
 - Review browser console for errors
 
 ### Tests Failing
+
 - Ensure all corpora are set up: `npm run corpus:all`
 - Check Effect version in package.json
 - Verify test configuration includes `@effect/jest`
@@ -1796,7 +1800,8 @@ const makeCachedDataSource = Effect.gen(function* (_) {
 - [Effect Documentation](https://effect.website)
 - [TEI Guidelines](https://tei-c.org/guidelines/)
 - [Rich Hickey: Design, Composition, and Performance](https://www.infoq.com/presentations/Simple-Made-Easy/)
-```
+
+````
 
 **Step 2: Add link to main README**
 
@@ -1808,7 +1813,7 @@ Add to `README.md` in appropriate section:
 - **TEI Corpus Browser**: Browse and explore 6 TEI corpora with 10,793 documents ([docs](docs/corpus-browsing.md))
 - **Dialogue Annotation**: AI-powered dialogue detection and speaker attribution
 - ...
-```
+````
 
 **Step 3: Commit**
 
@@ -1822,11 +1827,13 @@ git commit -m "docs: add corpus browsing documentation"
 ## Task 10: Final Integration and Verification
 
 **Files:**
+
 - Verify all tests pass
 - Build production bundle
 - Manual smoke test
 
 **Context:**
+
 - Final verification that everything works together
 - All tests should pass
 - Production build should succeed
@@ -1878,6 +1885,7 @@ Press: `Ctrl+C`
 Create file: `docs/corpus-browsing-summary.md`
 
 Content:
+
 ```markdown
 # Corpus Browsing Implementation Summary
 
@@ -1896,17 +1904,20 @@ Content:
 ## Files Created
 
 ### Protocol Layer
+
 - `lib/effect/protocols/CorpusDataSource.ts` - Data access protocol
 - `lib/effect/services/LocalCorpusDataSource.ts` - Filesystem implementation
 - `lib/effect/services/CorpusBrowser.ts` - Business logic service
 
 ### UI Layer
+
 - `components/corpus/CorpusBrowser.tsx` - Main browser component
 - `components/corpus/CorpusSelector.tsx` - Corpus selection
 - `components/corpus/LoadedCorpusView.tsx` - Document viewer
 - `app/corpus/page.tsx` - Route page
 
 ### Tests
+
 - `lib/effect/__tests__/CorpusDataSource.test.ts`
 - `lib/effect/__tests__/LocalCorpusDataSource.test.ts`
 - `lib/effect/__tests__/CorpusBrowser.test.ts`
@@ -1915,6 +1926,7 @@ Content:
 - `tests/e2e/corpus-browsing.spec.ts`
 
 ### Documentation
+
 - `docs/corpus-browsing.md` - Usage and architecture
 - `lib/effect/README.md` - Effect services overview
 
@@ -1938,6 +1950,7 @@ Content:
 ## Next Steps
 
 Potential enhancements:
+
 - Add document search/filtering
 - Add document comparison view
 - Export corpus statistics

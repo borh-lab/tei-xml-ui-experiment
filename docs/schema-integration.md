@@ -63,6 +63,7 @@ Schema IDs are constrained to an allow-list to prevent path traversal attacks:
 **Purpose:** Fast validation for dialogue-heavy documents
 
 **Supported Elements:**
+
 - `sp` - Speech
 - `speaker` - Speaker name
 - `stage` - Stage directions
@@ -70,6 +71,7 @@ Schema IDs are constrained to an allow-list to prevent path traversal attacks:
 - `emph` - Emphasis
 
 **Use Cases:**
+
 - Screenplays
 - Dialogue scripts
 - Dramatic works
@@ -82,12 +84,14 @@ Schema IDs are constrained to an allow-list to prevent path traversal attacks:
 **Purpose:** Full TEI P5 validation
 
 **Supported Elements:**
+
 - All standard TEI elements
 - Complete TEI P5 vocabulary
 - Header elements
 - Text structure elements
 
 **Use Cases:**
+
 - Complex TEI documents
 - Scholarly editions
 - Archival documents
@@ -100,6 +104,7 @@ Schema IDs are constrained to an allow-list to prevent path traversal attacks:
 **Purpose:** Optimized for prose fiction
 
 **Supported Elements:**
+
 - `div` - Divisions
 - `p` - Paragraphs
 - `quote` - Quotations
@@ -107,6 +112,7 @@ Schema IDs are constrained to an allow-list to prevent path traversal attacks:
 - `emph` - Emphasis
 
 **Use Cases:**
+
 - Novels
 - Short stories
 - Prose fiction
@@ -154,6 +160,7 @@ interface SchemaSelectionHistory {
 Returns list of available schemas.
 
 **Response:**
+
 ```json
 {
   "schemas": [
@@ -184,13 +191,16 @@ Returns list of available schemas.
 Get schema file content.
 
 **Parameters:**
+
 - `schemaId` - Schema identifier (must be in allow-list)
 
 **Response:**
+
 - Content-Type: `application/xml`
 - Body: RelaxNG schema file
 
 **Errors:**
+
 - `400 Bad Request` - Unknown schema ID
 - `404 Not Found` - Schema file not found
 
@@ -207,6 +217,7 @@ public/schemas/tei-custom.rng
 ```
 
 Example schema structure:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <grammar xmlns="http://relaxng.org/ns/structure/1.0">
@@ -225,8 +236,8 @@ const SCHEMA_REGISTRY: ReadonlyArray<SchemaInfo> = [
     id: 'tei-custom',
     name: 'TEI Custom Schema',
     description: 'My custom validation rules',
-    tags: ['custom', 'specialized']
-  }
+    tags: ['custom', 'specialized'],
+  },
 ];
 ```
 
@@ -237,7 +248,7 @@ Add the schema ID to `ALLOWED_SCHEMA_IDS`:
 ```typescript
 const ALLOWED_SCHEMA_IDS: ReadonlySet<string> = new Set([
   // ... existing IDs
-  'tei-custom'
+  'tei-custom',
 ]);
 ```
 
@@ -259,11 +270,11 @@ const resolver = createDefaultResolver();
 const selectionManager = new SchemaSelectionManager(resolver);
 
 // Load schemas from API
-const schemas = await fetch('/api/schemas').then(r => r.json());
+const schemas = await fetch('/api/schemas').then((r) => r.json());
 
 // Handle schema changes
 const handleSchemaChange = (newSchemaId: string) => {
-  setSelectionHistory(prev => selectionManager.transition(prev, newSchemaId));
+  setSelectionHistory((prev) => selectionManager.transition(prev, newSchemaId));
 };
 ```
 

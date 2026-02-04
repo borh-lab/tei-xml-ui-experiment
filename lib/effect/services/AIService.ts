@@ -6,12 +6,7 @@
 
 import { Effect, Layer } from 'effect';
 import { openaiProvider } from '@/lib/ai/providers';
-import {
-  AIService,
-  AIError,
-  AIRateLimitError,
-  AIAuthenticationError,
-} from '../protocols/AI';
+import { AIService, AIError, AIRateLimitError, AIAuthenticationError } from '../protocols/AI';
 import type { DialogueSpan, Issue } from '@/lib/ai/types';
 
 // ============================================================================
@@ -40,7 +35,9 @@ export const OpenAIService: AIService = {
       catch: (error) => toAIError(error, 'validateConsistency'),
     }),
 
-  bulkDetectDialogue: (passages: readonly string[]): Effect.Effect<readonly readonly DialogueSpan[], AIError> =>
+  bulkDetectDialogue: (
+    passages: readonly string[]
+  ): Effect.Effect<readonly (readonly DialogueSpan[]), AIError> =>
     Effect.tryPromise({
       try: () => Promise.all(passages.map((p) => openaiProvider.detectDialogue(p))),
       catch: (error) => toAIError(error, 'bulkDetectDialogue'),
@@ -87,7 +84,9 @@ export class TestAIService {
     return Effect.sync(() => this.issues);
   }
 
-  bulkDetectDialogue(passages: readonly string[]): Effect.Effect<readonly readonly DialogueSpan[], never> {
+  bulkDetectDialogue(
+    passages: readonly string[]
+  ): Effect.Effect<readonly (readonly DialogueSpan[]), never> {
     return Effect.sync(() => passages.map(() => this.dialogueSpans));
   }
 }

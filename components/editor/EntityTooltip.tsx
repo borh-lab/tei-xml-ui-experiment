@@ -18,22 +18,30 @@ export function EntityTooltip({ entity, position, visible }: EntityTooltipProps)
       style={{
         left: position.x,
         top: position.y,
-        transform: 'translate(8px, 8px)'
+        transform: 'translate(8px, 8px)',
       }}
     >
       <h4 className="font-semibold text-sm">{entity.persName}</h4>
       <div className="mt-2 space-y-1 text-xs">
         {entity.sex && (
-          <p><span className="font-medium">Sex:</span> {entity.sex}</p>
+          <p>
+            <span className="font-medium">Sex:</span> {entity.sex}
+          </p>
         )}
         {entity.age && (
-          <p><span className="font-medium">Age:</span> {entity.age}</p>
+          <p>
+            <span className="font-medium">Age:</span> {entity.age}
+          </p>
         )}
         {entity.occupation && (
-          <p><span className="font-medium">Occupation:</span> {entity.occupation}</p>
+          <p>
+            <span className="font-medium">Occupation:</span> {entity.occupation}
+          </p>
         )}
         {entity.role && (
-          <p><span className="font-medium">Role:</span> {entity.role}</p>
+          <p>
+            <span className="font-medium">Role:</span> {entity.role}
+          </p>
         )}
       </div>
     </Card>

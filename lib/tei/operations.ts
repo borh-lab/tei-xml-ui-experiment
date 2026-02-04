@@ -736,3 +736,15 @@ export {
   addRelation as addRelationship,
   removeRelation as removeRelationship,
 } from './entity-operations';
+
+/**
+ * Add a persName tag to a passage at the specified range
+ * This is a convenience wrapper around addTag for the persName tag type
+ */
+export function addPersNameTag(
+  doc: TEIDocument,
+  passageId: PassageID,
+  range: TextRange
+): TEIDocument {
+  return addTag(doc, passageId, range, 'persName');
+}

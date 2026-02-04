@@ -16,6 +16,7 @@ This document describes the migration from a monolithic test structure to a modu
 ### The Problem
 
 The original test structure had several issues:
+
 - **Monolithic tests** - All test logic in one large file
 - **Code duplication** - Repeated patterns across tests
 - **Hard to maintain** - Changes required updating multiple places
@@ -25,6 +26,7 @@ The original test structure had several issues:
 ### The Solution
 
 We've restructured the tests into a modular architecture:
+
 - **Page Objects** - Encapsulate page-specific logic
 - **Test Helpers** - Reusable utility functions
 - **Test Constants** - Centralized configuration
@@ -72,14 +74,16 @@ tests/e2e/
 Uploads a test document to the editor.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 - `doc: { name: string; content: string }` - Document to upload
 
 **Example:**
+
 ```typescript
 await uploadTestDocument(page, {
   name: 'test-document.tei.xml',
-  content: '<?xml version="1.0"?><TEI>...</TEI>'
+  content: '<?xml version="1.0"?><TEI>...</TEI>',
 });
 ```
 
@@ -88,10 +92,12 @@ await uploadTestDocument(page, {
 Loads a sample document from the gallery.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 - `sampleName: string` - Name of the sample to load
 
 **Example:**
+
 ```typescript
 await loadSample(page, 'yellow-wallpaper');
 ```
@@ -101,20 +107,22 @@ await loadSample(page, 'yellow-wallpaper');
 Generates a test TEI document with specified parameters.
 
 **Parameters:**
+
 - `options: {
-    speakers: string[];
-    passages: number;
-    namespaces?: boolean;
-    declarations?: boolean;
-  }`
+  speakers: string[];
+  passages: number;
+  namespaces?: boolean;
+  declarations?: boolean;
+}`
 
 **Example:**
+
 ```typescript
 const xml = generateTestDocument({
   speakers: ['narrator', 'della', 'jim'],
   passages: 10,
   namespaces: true,
-  declarations: true
+  declarations: true,
 });
 ```
 
@@ -123,12 +131,14 @@ const xml = generateTestDocument({
 Creates a minimal TEI document for edge case testing.
 
 **Parameters:**
+
 - `options: { passages?: number[] }`
 
 **Example:**
+
 ```typescript
 const xml = createMinimalTEI({
-  passages: [1, 2, 3]
+  passages: [1, 2, 3],
 });
 ```
 
@@ -137,12 +147,14 @@ const xml = createMinimalTEI({
 Creates malformed TEI for error testing.
 
 **Parameters:**
+
 - `options: { error: 'unclosed-tag' | 'invalid-xml' | 'missing-root' }`
 
 **Example:**
+
 ```typescript
 const badXML = createMalformedTEI({
-  error: 'unclosed-tag'
+  error: 'unclosed-tag',
 });
 ```
 
@@ -153,9 +165,11 @@ const badXML = createMalformedTEI({
 Waits for the editor to be ready.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 
 **Example:**
+
 ```typescript
 await waitForEditorReady(page);
 ```
@@ -165,11 +179,13 @@ await waitForEditorReady(page);
 Annotates a passage with a speaker.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 - `index: number` - Passage index
 - `speaker: string` - Speaker name
 
 **Example:**
+
 ```typescript
 await annotatePassage(page, 0, 'narrator');
 ```
@@ -179,12 +195,15 @@ await annotatePassage(page, 0, 'narrator');
 Triggers export and returns download promise.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 
 **Returns:**
+
 - `Promise<Download>` - Playwright download object
 
 **Example:**
+
 ```typescript
 const download = await exportDocument(page);
 ```
@@ -194,16 +213,14 @@ const download = await exportDocument(page);
 Downloads and verifies TEI export.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 - `expectedContent: string[]` - Expected content in the XML
 
 **Example:**
+
 ```typescript
-await verifyTEIExport(page, [
-  '<TEI',
-  '<castList',
-  'narrator'
-]);
+await verifyTEIExport(page, ['<TEI', '<castList', 'narrator']);
 ```
 
 ### Utilities
@@ -213,12 +230,15 @@ await verifyTEIExport(page, [
 Captures console errors for testing.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 
 **Returns:**
+
 - `Promise<string[]>` - Array of error messages
 
 **Example:**
+
 ```typescript
 const errors = await mockConsoleErrors(page);
 // Run test actions
@@ -231,56 +251,56 @@ expect(errors).toHaveLength(0);
 ### URLs
 
 ```typescript
-URLS.HOME         // '/'
-URLS.EDITOR       // '/editor'
-URLS.SAMPLES      // '/samples'
+URLS.HOME; // '/'
+URLS.EDITOR; // '/editor'
+URLS.SAMPLES; // '/samples'
 ```
 
 ### Selectors
 
 ```typescript
-SELECTORS.PASSAGE           // '.passage'
-SELECTORS.SAMPLE_GALLERY    // '[data-testid="sample-gallery"]'
-SELECTORS.COMMAND_PALETTE   // '[data-testid="command-palette"]'
-SELECTORS.BULK_PANEL        // '[data-testid="bulk-operations"]'
-SELECTORS.VIZ_PANEL         // '[data-testid="visualizations"]'
+SELECTORS.PASSAGE; // '.passage'
+SELECTORS.SAMPLE_GALLERY; // '[data-testid="sample-gallery"]'
+SELECTORS.COMMAND_PALETTE; // '[data-testid="command-palette"]'
+SELECTORS.BULK_PANEL; // '[data-testid="bulk-operations"]'
+SELECTORS.VIZ_PANEL; // '[data-testid="visualizations"]'
 ```
 
 ### Timeouts
 
 ```typescript
-TIMEOUTS.PAGE_LOAD         // 30000ms
-TIMEOUTS.NETWORK_IDLE      // 10000ms
-TIMEOUTS.ELEMENT_VISIBLE   // 5000ms
-TIMEOUTS.AI_SUGGESTION     // 10000ms
+TIMEOUTS.PAGE_LOAD; // 30000ms
+TIMEOUTS.NETWORK_IDLE; // 10000ms
+TIMEOUTS.ELEMENT_VISIBLE; // 5000ms
+TIMEOUTS.AI_SUGGESTION; // 10000ms
 ```
 
 ### Viewport Presets
 
 ```typescript
-VIEWPORTS.IPHONE_SE    // { width: 375, height: 667, name: 'iPhone SE' }
-VIEWPORTS.IPHONE_12    // { width: 390, height: 844, name: 'iPhone 12 Pro' }
-VIEWPORTS.ANDROID      // { width: 360, height: 640, name: 'Android' }
-VIEWPORTS.IPAD         // { width: 768, height: 1024, name: 'iPad' }
-VIEWPORTS.IPAD_PRO     // { width: 1024, height: 1366, name: 'iPad Pro' }
-VIEWPORTS.DESKTOP      // { width: 1280, height: 720, name: 'Desktop' }
+VIEWPORTS.IPHONE_SE; // { width: 375, height: 667, name: 'iPhone SE' }
+VIEWPORTS.IPHONE_12; // { width: 390, height: 844, name: 'iPhone 12 Pro' }
+VIEWPORTS.ANDROID; // { width: 360, height: 640, name: 'Android' }
+VIEWPORTS.IPAD; // { width: 768, height: 1024, name: 'iPad' }
+VIEWPORTS.IPAD_PRO; // { width: 1024, height: 1366, name: 'iPad Pro' }
+VIEWPORTS.DESKTOP; // { width: 1280, height: 720, name: 'Desktop' }
 ```
 
 ### Sample Documents
 
 ```typescript
-SAMPLES.YELLOW_WALLPAPER        // 'yellow-wallpaper'
-SAMPLES.GIFT_OF_THE_MAGI        // 'gift-of-magi'
-SAMPLES.PRIDE_AND_PREJUDICE     // 'pride-and-prejudice'
+SAMPLES.YELLOW_WALLPAPER; // 'yellow-wallpaper'
+SAMPLES.GIFT_OF_THE_MAGI; // 'gift-of-magi'
+SAMPLES.PRIDE_AND_PREJUDICE; // 'pride-and-prejudice'
 ```
 
 ### Speaker Names
 
 ```typescript
-SPEAKERS.NARRATOR      // 'narrator'
-SPEAKERS.DELLA         // 'della'
-SPEAKERS.JIM           // 'jim'
-SPEAKERS.PROTAGONIST   // 'protagonist'
+SPEAKERS.NARRATOR; // 'narrator'
+SPEAKERS.DELLA; // 'della'
+SPEAKERS.JIM; // 'jim'
+SPEAKERS.PROTAGONIST; // 'protagonist'
 ```
 
 ## Migration Guide
@@ -288,6 +308,7 @@ SPEAKERS.PROTAGONIST   // 'protagonist'
 ### Step 1: Identify Reusable Patterns
 
 Look for repeated code in your tests:
+
 - Document loading
 - Annotation workflows
 - Export operations
@@ -298,6 +319,7 @@ Look for repeated code in your tests:
 Move repeated code to `test-helpers.ts`:
 
 **Before:**
+
 ```typescript
 // In test file
 const tempPath = join(process.cwd(), 'temp-test.tei.xml');
@@ -308,12 +330,16 @@ unlinkSync(tempPath);
 ```
 
 **After:**
+
 ```typescript
 // In test file
 await uploadTestDocument(page, doc);
 
 // In test-helpers.ts
-export async function uploadTestDocument(page: Page, doc: { name: string; content: string }): Promise<void> {
+export async function uploadTestDocument(
+  page: Page,
+  doc: { name: string; content: string }
+): Promise<void> {
   const tempPath = join(process.cwd(), 'temp-test.tei.xml');
   writeFileSync(tempPath, doc.content);
   const fileInput = page.locator('input[type="file"]');
@@ -327,6 +353,7 @@ export async function uploadTestDocument(page: Page, doc: { name: string; conten
 Identify pages and create page objects:
 
 **Before:**
+
 ```typescript
 // In test file
 await page.goto('/editor');
@@ -337,6 +364,7 @@ await page.keyboard.press('1');
 ```
 
 **After:**
+
 ```typescript
 // In test file
 const editorPage = new EditorPage(page);
@@ -367,6 +395,7 @@ export class EditorPage {
 Replace magic values with constants:
 
 **Before:**
+
 ```typescript
 await page.goto('/');
 await page.waitForTimeout(10000);
@@ -374,6 +403,7 @@ const viewport = { width: 375, height: 667 };
 ```
 
 **After:**
+
 ```typescript
 await page.goto(URLS.HOME);
 await page.waitForTimeout(TIMEOUTS.NETWORK_IDLE);
@@ -405,6 +435,7 @@ test.describe('Document Export', () => {
 ### Example 1: Loading a Document
 
 **Before:**
+
 ```typescript
 test('should load document', async ({ page }) => {
   await page.goto('/');
@@ -425,6 +456,7 @@ test('should load document', async ({ page }) => {
 ```
 
 **After:**
+
 ```typescript
 test('should load document', async ({ page }) => {
   const welcomePage = new WelcomePage(page);
@@ -438,6 +470,7 @@ test('should load document', async ({ page }) => {
 ### Example 2: Annotating Passages
 
 **Before:**
+
 ```typescript
 test('should annotate passage', async ({ page }) => {
   await page.goto('/editor');
@@ -454,6 +487,7 @@ test('should annotate passage', async ({ page }) => {
 ```
 
 **After:**
+
 ```typescript
 test('should annotate passage', async ({ page }) => {
   const editorPage = new EditorPage(page);
@@ -468,6 +502,7 @@ test('should annotate passage', async ({ page }) => {
 ### Example 3: Exporting Documents
 
 **Before:**
+
 ```typescript
 test('should export document', async ({ page }) => {
   await page.goto('/editor');
@@ -489,6 +524,7 @@ test('should export document', async ({ page }) => {
 ```
 
 **After:**
+
 ```typescript
 test('should export document', async ({ page }) => {
   const editorPage = new EditorPage(page);
@@ -501,6 +537,7 @@ test('should export document', async ({ page }) => {
 ### Example 4: Testing Edge Cases
 
 **Before:**
+
 ```typescript
 test('should handle malformed XML', async ({ page }) => {
   await page.goto('/');
@@ -519,6 +556,7 @@ test('should handle malformed XML', async ({ page }) => {
 ```
 
 **After:**
+
 ```typescript
 test('should handle malformed XML', async ({ page }) => {
   await page.goto('/');
@@ -526,7 +564,7 @@ test('should handle malformed XML', async ({ page }) => {
   const badXML = createMalformedTEI({ error: 'unclosed-tag' });
   await uploadTestDocument(page, {
     name: 'bad-xml.tei.xml',
-    content: badXML
+    content: badXML,
   });
 
   await expect(page.getByText(/error/i)).toBeVisible();
@@ -536,6 +574,7 @@ test('should handle malformed XML', async ({ page }) => {
 ### Example 5: Mobile Testing
 
 **Before:**
+
 ```typescript
 test('should work on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
@@ -550,6 +589,7 @@ test('should work on mobile', async ({ page }) => {
 ```
 
 **After:**
+
 ```typescript
 test.describe('Mobile', () => {
   test.use({ ...VIEWPORTS.IPHONE_SE, hasTouch: true });
@@ -570,6 +610,7 @@ test.describe('Mobile', () => {
 ### Complete Test Example
 
 **Before (Monolithic):**
+
 ```typescript
 import { test, expect } from '@playwright/test';
 import { writeFileSync, unlinkSync } from 'fs';
@@ -615,6 +656,7 @@ test('complete workflow', async ({ page }) => {
 ```
 
 **After (Modular):**
+
 ```typescript
 import { test, expect } from '@playwright/test';
 import { WelcomePage } from './pages/WelcomePage';
@@ -633,18 +675,14 @@ test('complete workflow', async ({ page }) => {
   await editorPage.annotatePassage(1, 'speaker2');
 
   // Verify export
-  await verifyTEIExport(page, [
-    '<?xml',
-    '<TEI',
-    'speaker1',
-    'speaker2'
-  ]);
+  await verifyTEIExport(page, ['<?xml', '<TEI', 'speaker1', 'speaker2']);
 });
 ```
 
 ### Benefits Summary
 
 **Before:**
+
 - 45 lines of code
 - Mixed concerns
 - Hard to reuse
@@ -652,6 +690,7 @@ test('complete workflow', async ({ page }) => {
 - Duplication likely in other tests
 
 **After:**
+
 - 18 lines of code
 - Clear separation of concerns
 - Reusable components

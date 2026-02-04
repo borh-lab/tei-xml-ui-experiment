@@ -19,9 +19,18 @@ interface EntityEditorPanelProps {
 }
 
 export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
-  const { document, addCharacter, updateCharacter, removeCharacter, addRelationship, removeRelationship } = useDocumentService();
+  const {
+    document,
+    addCharacter,
+    updateCharacter,
+    removeCharacter,
+    addRelationship,
+    removeRelationship,
+  } = useDocumentService();
   const [showAddCharacter, setShowAddCharacter] = useState(false);
-  const [activeTab, setActiveTab] = useState<'characters' | 'relationships' | 'network'>('characters');
+  const [activeTab, setActiveTab] = useState<'characters' | 'relationships' | 'network'>(
+    'characters'
+  );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Create repository from document
@@ -126,12 +135,8 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
           className="mt-4"
         >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="characters">
-              Characters ({characters.length})
-            </TabsTrigger>
-            <TabsTrigger value="relationships">
-              Relationships ({relationships.length})
-            </TabsTrigger>
+            <TabsTrigger value="characters">Characters ({characters.length})</TabsTrigger>
+            <TabsTrigger value="relationships">Relationships ({relationships.length})</TabsTrigger>
             <TabsTrigger value="network">Network</TabsTrigger>
           </TabsList>
 
@@ -211,9 +216,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
               characters={characters}
               onAddRelation={handleAddRelation}
               validation={
-                validationErrors.length > 0
-                  ? { valid: false, errors: validationErrors }
-                  : undefined
+                validationErrors.length > 0 ? { valid: false, errors: validationErrors } : undefined
               }
             />
 
@@ -239,9 +242,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
                         {rel.subtype && (
                           <p className="text-xs text-muted-foreground">{rel.subtype}</p>
                         )}
-                        {rel.mutual && (
-                          <p className="text-xs text-primary">Mutual</p>
-                        )}
+                        {rel.mutual && <p className="text-xs text-primary">Mutual</p>}
                       </div>
                       <Button
                         size="sm"

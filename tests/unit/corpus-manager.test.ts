@@ -38,10 +38,7 @@ describe('CorpusManager', () => {
       },
     };
 
-    writeFileSync(
-      join(MOCK_METADATA_DIR, 'splits.json'),
-      JSON.stringify(mockSplits, null, 2)
-    );
+    writeFileSync(join(MOCK_METADATA_DIR, 'splits.json'), JSON.stringify(mockSplits, null, 2));
 
     // Create mock metadata
     const mockMetadata = {

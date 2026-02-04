@@ -26,7 +26,7 @@ export interface SpeakerPatternData {
     middle: number;
     end: number; // frequency at section end
   };
-  contextualPatterns: Map<string, string[]> // surrounding text -> phrases
+  contextualPatterns: Map<string, string[]>; // surrounding text -> phrases
 }
 
 export interface LearningContext {
@@ -62,13 +62,13 @@ export function extract(
 
   // Extract context words (excluding common stop words)
   const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for']);
-  const contextWords = words.filter(w => !stopWords.has(w));
+  const contextWords = words.filter((w) => !stopWords.has(w));
 
   return {
     phrases,
     dialogueLength: words.length,
     position,
-    contextWords
+    contextWords,
   };
 }
 
@@ -81,21 +81,19 @@ export function extractAcceptedPattern(context: LearningContext): SpeakerPattern
 
   return {
     xmlId: context.speaker,
-    commonPhrases: new Map(
-      phrases.map(phrase => [phrase, 1])
-    ),
+    commonPhrases: new Map(phrases.map((phrase) => [phrase, 1])),
     dialogueLengthPatterns: {
       average: dialogueLength,
       min: dialogueLength,
       max: dialogueLength,
-      stdDev: 0
+      stdDev: 0,
     },
     positionPatterns: {
       beginning: context.position === 'beginning' ? 1 : 0,
       middle: context.position === 'middle' ? 1 : 0,
-      end: context.position === 'end' ? 1 : 0
+      end: context.position === 'end' ? 1 : 0,
     },
-    contextualPatterns: new Map()
+    contextualPatterns: new Map(),
   };
 }
 
@@ -115,7 +113,7 @@ export function mergePatterns(
   // Update dialogue length statistics
   const oldLength = existing.dialogueLengthPatterns;
   const newLength = newPattern.dialogueLengthPatterns;
-  const count = (oldLength.average / oldLength.stdDev) || 1;
+  const count = oldLength.average / oldLength.stdDev || 1;
   const newAverage = (oldLength.average * count + newLength.average) / (count + 1);
   const newMin = Math.min(oldLength.min, newLength.min);
   const newMax = Math.max(oldLength.max, newLength.max);
@@ -127,14 +125,14 @@ export function mergePatterns(
       average: newAverage,
       min: newMin,
       max: newMax,
-      stdDev: calculateStdDev(newAverage, newMin, newMax)
+      stdDev: calculateStdDev(newAverage, newMin, newMax),
     },
     positionPatterns: {
       beginning: existing.positionPatterns.beginning + newPattern.positionPatterns.beginning,
       middle: existing.positionPatterns.middle + newPattern.positionPatterns.middle,
-      end: existing.positionPatterns.end + newPattern.positionPatterns.end
+      end: existing.positionPatterns.end + newPattern.positionPatterns.end,
     },
-    contextualPatterns: existing.contextualPatterns
+    contextualPatterns: existing.contextualPatterns,
   };
 }
 
@@ -143,7 +141,7 @@ export function mergePatterns(
  */
 function extractPhrases(text: string): string[] {
   const phrases: string[] = [];
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
 
   for (const sentence of sentences) {
     const trimmed = sentence.trim();
@@ -173,10 +171,7 @@ function calculateStdDev(average: number, min: number, max: number): number {
 /**
  * Determine position in section based on index and total
  */
-export function determinePosition(
-  index: number,
-  total: number
-): 'beginning' | 'middle' | 'end' {
+export function determinePosition(index: number, total: number): 'beginning' | 'middle' | 'end' {
   const third = Math.floor(total / 3);
   if (index < third) return 'beginning';
   if (index >= total - third) return 'end';
@@ -186,10 +181,7 @@ export function determinePosition(
 /**
  * Score how well a passage matches a speaker's patterns
  */
-export function scorePatternMatch(
-  passage: string,
-  speakerPattern: SpeakerPatternData
-): number {
+export function scorePatternMatch(passage: string, speakerPattern: SpeakerPatternData): number {
   let score = 0;
   const phrases = extractPhrases(passage);
 
@@ -208,12 +200,12 @@ export function scorePatternMatch(
   }
 
   // Check dialogue length similarity
-  const lengthDiff = Math.abs(
-    passage.length - speakerPattern.dialogueLengthPatterns.average
-  );
+  const lengthDiff = Math.abs(passage.length - speakerPattern.dialogueLengthPatterns.average);
   // Only add length score if we have valid data (average > 0)
-  if (speakerPattern.dialogueLengthPatterns.average > 0 &&
-      lengthDiff < speakerPattern.dialogueLengthPatterns.stdDev) {
+  if (
+    speakerPattern.dialogueLengthPatterns.average > 0 &&
+    lengthDiff < speakerPattern.dialogueLengthPatterns.stdDev
+  ) {
     score += 5;
   }
 

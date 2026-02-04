@@ -63,7 +63,7 @@ export async function loadSampleWithMetadata(sampleId: string): Promise<Sample> 
   return {
     ...metadata,
     content,
-    document
+    document,
   };
 }
 
@@ -82,7 +82,7 @@ export function getSamples(): SampleMetadata[] {
       dialogueCount: 15,
       characters: 3,
       patterns: ['first-person', 'indirect-speech', 'internal-monologue'],
-      difficulty: 'intermediate'
+      difficulty: 'intermediate',
     },
     {
       id: 'gift-of-the-magi',
@@ -93,7 +93,7 @@ export function getSamples(): SampleMetadata[] {
       dialogueCount: 12,
       characters: 4,
       patterns: ['third-person', 'direct-speech', 'dialogue-heavy'],
-      difficulty: 'intermediate'
+      difficulty: 'intermediate',
     },
     {
       id: 'tell-tale-heart',
@@ -104,7 +104,7 @@ export function getSamples(): SampleMetadata[] {
       dialogueCount: 8,
       characters: 3,
       patterns: ['first-person', 'unreliable-narrator', 'internal-monologue'],
-      difficulty: 'advanced'
+      difficulty: 'advanced',
     },
     {
       id: 'owl-creek-bridge',
@@ -115,7 +115,7 @@ export function getSamples(): SampleMetadata[] {
       dialogueCount: 10,
       characters: 5,
       patterns: ['third-person', 'direct-speech', 'narrative-shift'],
-      difficulty: 'intermediate'
+      difficulty: 'intermediate',
     },
     {
       id: 'pride-prejudice-ch1',
@@ -126,8 +126,8 @@ export function getSamples(): SampleMetadata[] {
       dialogueCount: 20,
       characters: 3,
       patterns: ['third-person', 'direct-speech', 'dialogue-heavy', 'wit'],
-      difficulty: 'intermediate'
-    }
+      difficulty: 'intermediate',
+    },
   ];
 }
 
@@ -137,7 +137,7 @@ export function getSamples(): SampleMetadata[] {
  * @returns Sample metadata or undefined if not found
  */
 export function getSampleMetadata(sampleId: string): SampleMetadata | undefined {
-  return getSamples().find(sample => sample.id === sampleId);
+  return getSamples().find((sample) => sample.id === sampleId);
 }
 
 /**
@@ -146,5 +146,5 @@ export function getSampleMetadata(sampleId: string): SampleMetadata | undefined 
  * @returns true if the sample exists, false otherwise
  */
 export function sampleExists(sampleId: string): boolean {
-  return getSamples().some(sample => sample.id === sampleId);
+  return getSamples().some((sample) => sample.id === sampleId);
 }

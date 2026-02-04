@@ -1,5 +1,5 @@
 // lib/ai/ax-provider.ts
-import { ax, ai } from "@ax-llm/ax";
+import { ax, ai } from '@ax-llm/ax';
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 import { nlpDetectDialogue } from './nlp-provider';
 import { logger } from '@/lib/utils/logger';
@@ -18,7 +18,9 @@ export class AxProvider implements AIProvider {
     const key = apiKey || this.getEnvApiKey(providerName);
 
     if (!key || key.trim() === '') {
-      throw new Error(`API key not provided for ${providerName}. Set ${this.getEnvVarName(providerName)} environment variable or pass apiKey parameter.`);
+      throw new Error(
+        `API key not provided for ${providerName}. Set ${this.getEnvVarName(providerName)} environment variable or pass apiKey parameter.`
+      );
     }
 
     this.apiKey = key;
@@ -41,8 +43,8 @@ export class AxProvider implements AIProvider {
 
   private getEnvVarName(providerName: string): string {
     const envVars: Record<string, string> = {
-      'openai': 'OPENAI_API_KEY',
-      'anthropic': 'ANTHROPIC_API_KEY'
+      openai: 'OPENAI_API_KEY',
+      anthropic: 'ANTHROPIC_API_KEY',
     };
     return envVars[providerName] || `${providerName.toUpperCase()}_API_KEY`;
   }
@@ -67,7 +69,7 @@ export class AxProvider implements AIProvider {
       `);
 
       const analysisResult = await dialogueDetectionSignature.forward(this.llm, {
-        novelText: textToAnalyze
+        novelText: textToAnalyze,
       });
 
       // Map result to DialogueSpan format with clear variable names
@@ -77,13 +79,15 @@ export class AxProvider implements AIProvider {
           start: passage.passageStartIndex,
           end: passage.passageEndIndex,
           text: passage.extractedText,
-          confidence: passage.detectionConfidence || 0.8
+          confidence: passage.detectionConfidence || 0.8,
         }));
 
       return dialogueSpans;
     } catch (error) {
       // Fallback to NLP-based detection on error
-      this.log.warn('Ax detection failed, using NLP fallback', { error: error instanceof Error ? error.message : String(error) });
+      this.log.warn('Ax detection failed, using NLP fallback', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return nlpDetectDialogue(textToAnalyze);
     }
   }
@@ -99,7 +103,7 @@ export class AxProvider implements AIProvider {
         start: match.index,
         end: match.index + match[0].length,
         text: match[1],
-        confidence: 0.7
+        confidence: 0.7,
       });
     }
 
@@ -110,7 +114,7 @@ export class AxProvider implements AIProvider {
         start: match.index,
         end: match.index + match[0].length,
         text: match[1].trim(),
-        confidence: 0.6
+        confidence: 0.6,
       });
     }
 
@@ -122,14 +126,19 @@ export class AxProvider implements AIProvider {
       const contextEnd = Math.min(text.length, match.index + 50);
       const context = text.substring(contextStart, contextEnd).toLowerCase();
 
-      if (context.includes('said') || context.includes('asked') ||
-          context.includes('replied') || context.includes('whispered') ||
-          context.includes('shouted') || context.includes('murmured')) {
+      if (
+        context.includes('said') ||
+        context.includes('asked') ||
+        context.includes('replied') ||
+        context.includes('whispered') ||
+        context.includes('shouted') ||
+        context.includes('murmured')
+      ) {
         spans.push({
           start: match.index,
           end: match.index + match[0].length,
           text: match[1],
-          confidence: 0.5
+          confidence: 0.5,
         });
       }
     }
@@ -137,7 +146,10 @@ export class AxProvider implements AIProvider {
     return spans;
   }
 
-  async attributeSpeaker(dialoguePassage: string, availableCharacters: Character[]): Promise<string> {
+  async attributeSpeaker(
+    dialoguePassage: string,
+    availableCharacters: Character[]
+  ): Promise<string> {
     // Handle edge cases
     if (!availableCharacters || availableCharacters.length === 0) {
       return '';
@@ -161,17 +173,19 @@ export class AxProvider implements AIProvider {
       const attributionResult = await speakerAttributionSignature.forward(this.llm, {
         dialogueContent: dialoguePassage,
         narrativeContext: dialoguePassage,
-        candidateSpeakers: availableCharacters.map(character => ({
+        candidateSpeakers: availableCharacters.map((character) => ({
           speakerIdentifier: character.xmlId,
           speakerName: character.name,
-          speakerDescription: character.description || ''
-        }))
+          speakerDescription: character.description || '',
+        })),
       });
 
       return attributionResult.attributedSpeakerId;
     } catch (error) {
       // Fallback to heuristic-based attribution
-      this.log.warn('Ax attribution failed, using heuristic fallback', { error: error instanceof Error ? error.message : String(error) });
+      this.log.warn('Ax attribution failed, using heuristic fallback', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return this.heuristicAttributeSpeaker(dialoguePassage, availableCharacters);
     }
   }
@@ -185,10 +199,7 @@ export class AxProvider implements AIProvider {
 
     // Strategy 1: Look for character names mentioned near dialogue
     for (const character of characters) {
-      const nameVariants = [
-        character.name.toLowerCase(),
-        character.xmlId.toLowerCase()
-      ];
+      const nameVariants = [character.name.toLowerCase(), character.xmlId.toLowerCase()];
 
       for (const name of nameVariants) {
         // Check if name appears within 100 characters before dialogue quotes
@@ -203,7 +214,16 @@ export class AxProvider implements AIProvider {
     }
 
     // Strategy 2: Check for pronouns and speech verbs
-    const speechVerbs = ['said', 'replied', 'asked', 'answered', 'whispered', 'shouted', 'murmured', 'exclaimed'];
+    const speechVerbs = [
+      'said',
+      'replied',
+      'asked',
+      'answered',
+      'whispered',
+      'shouted',
+      'murmured',
+      'exclaimed',
+    ];
 
     for (const character of characters) {
       const name = character.name.toLowerCase();
@@ -222,30 +242,32 @@ export class AxProvider implements AIProvider {
     // Strategy 3: Pronoun-based attribution
     // If context has "she said", look for nearest female character
     if (contextLower.includes(' she said') || contextLower.includes(' she replied')) {
-      const femaleChar = characters.find(c =>
-        c.description?.toLowerCase().includes('woman') ||
-        c.description?.toLowerCase().includes('female') ||
-        c.name.toLowerCase().includes('jane') ||
-        c.name.toLowerCase().includes('mary') ||
-        c.name.toLowerCase().includes('elizabeth')
+      const femaleChar = characters.find(
+        (c) =>
+          c.description?.toLowerCase().includes('woman') ||
+          c.description?.toLowerCase().includes('female') ||
+          c.name.toLowerCase().includes('jane') ||
+          c.name.toLowerCase().includes('mary') ||
+          c.name.toLowerCase().includes('elizabeth')
       );
       if (femaleChar) return femaleChar.xmlId;
     }
 
     // If context has "he said", look for nearest male character
     if (contextLower.includes(' he said') || contextLower.includes(' he replied')) {
-      const maleChar = characters.find(c =>
-        c.description?.toLowerCase().includes('man') ||
-        c.description?.toLowerCase().includes('male') ||
-        c.name.toLowerCase().includes('john') ||
-        c.name.toLowerCase().includes('mr.') ||
-        c.name.toLowerCase().includes('rochester')
+      const maleChar = characters.find(
+        (c) =>
+          c.description?.toLowerCase().includes('man') ||
+          c.description?.toLowerCase().includes('male') ||
+          c.name.toLowerCase().includes('john') ||
+          c.name.toLowerCase().includes('mr.') ||
+          c.name.toLowerCase().includes('rochester')
       );
       if (maleChar) return maleChar.xmlId;
     }
 
     // Strategy 4: Return most recently mentioned character
-    const lastMentioned = characters.find(character => {
+    const lastMentioned = characters.find((character) => {
       const name = character.name.toLowerCase();
       const lastIndex = contextLower.lastIndexOf(name);
       return lastIndex > contextLower.length / 2; // In second half of context

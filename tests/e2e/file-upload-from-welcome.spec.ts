@@ -24,13 +24,13 @@ test.describe('FileUpload', () => {
     // Generate a valid TEI document
     const validTEI = generateTestDocument({
       speakers: ['narrator', 'della'],
-      passages: 3
+      passages: 3,
     });
 
     // Upload the document
     await uploadTestDocument(page, {
       name: 'valid-test.tei.xml',
-      content: validTEI
+      content: validTEI,
     });
 
     // Wait for processing
@@ -39,12 +39,12 @@ test.describe('FileUpload', () => {
 
     // Verify success toast appears
     await expect(page.getByText(/document uploaded successfully/i)).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify transition to editor - should see rendered view
     await expect(page.getByText('Rendered View')).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify "No document loaded" message is gone
@@ -64,7 +64,7 @@ test.describe('FileUpload', () => {
     // Upload the invalid file
     await uploadTestDocument(page, {
       name: 'invalid-test.tei.xml',
-      content: invalidXML
+      content: invalidXML,
     });
 
     // Wait for processing
@@ -74,7 +74,7 @@ test.describe('FileUpload', () => {
     // Verify error toast appears
     const errorToast = page.getByText(/failed to upload|invalid|error/i);
     await expect(errorToast).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify editor toolbar is not visible (document didn't load successfully)
@@ -89,7 +89,7 @@ test.describe('FileUpload', () => {
     const uploadButton = page.getByRole('button', { name: /upload tei file/i });
 
     await expect(uploadButton).toBeVisible({
-      timeout: TIMEOUTS.ELEMENT_VISIBLE
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
     });
 
     // Verify button is clickable
@@ -115,12 +115,12 @@ test.describe('FileUpload', () => {
     // Generate and upload valid document
     const validTEI = generateTestDocument({
       speakers: ['protagonist', 'antagonist'],
-      passages: 5
+      passages: 5,
     });
 
     await uploadTestDocument(page, {
       name: 'state-transition-test.tei.xml',
-      content: validTEI
+      content: validTEI,
     });
 
     // Wait for state transition
@@ -139,12 +139,12 @@ test.describe('FileUpload', () => {
     // Upload a document
     const firstTEI = generateTestDocument({
       speakers: ['speaker1'],
-      passages: 2
+      passages: 2,
     });
 
     await uploadTestDocument(page, {
       name: 'first-upload.tei.xml',
-      content: firstTEI
+      content: firstTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -162,12 +162,12 @@ test.describe('FileUpload', () => {
     // Upload another document
     const secondTEI = generateTestDocument({
       speakers: ['speaker2'],
-      passages: 3
+      passages: 3,
     });
 
     await uploadTestDocument(page, {
       name: 'second-upload.tei.xml',
-      content: secondTEI
+      content: secondTEI,
     });
 
     await page.waitForLoadState('networkidle');

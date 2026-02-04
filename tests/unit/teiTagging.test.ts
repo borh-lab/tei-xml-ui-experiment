@@ -10,18 +10,14 @@ describe('TEI Tagging Utilities', () => {
     it('should extract text from an object paragraph with #text', () => {
       const para = {
         '#text': 'This is an object paragraph',
-        '@id': 'p1'
+        '@id': 'p1',
       };
       expect(getParagraphText(para)).toBe('This is an object paragraph');
     });
 
     it('should extract text from an object paragraph with nested elements', () => {
       const para = {
-        'p': [
-          'Before ',
-          { '#text': 'middle', '@tag': 'tagged' },
-          ' after'
-        ]
+        p: ['Before ', { '#text': 'middle', '@tag': 'tagged' }, ' after'],
       };
       expect(getParagraphText(para)).toBe('Before middle after');
     });
@@ -47,7 +43,7 @@ describe('TEI Tagging Utilities', () => {
       const para = 'Hello world this is a test';
       const selectedText = 'world';
       const tag = 'persName';
-      const attrs = { 'ref': '#john' };
+      const attrs = { ref: '#john' };
 
       const result = applyTagToParagraph(para, selectedText, tag, attrs);
 
@@ -93,7 +89,7 @@ describe('TEI Tagging Utilities', () => {
     it('should handle object paragraphs with #text property', () => {
       const para = {
         '#text': 'Hello world this is a test',
-        '@id': 'p1'
+        '@id': 'p1',
       };
       const selectedText = 'world';
       const tag = 'said';
@@ -109,11 +105,7 @@ describe('TEI Tagging Utilities', () => {
 
     it('should handle mixed content paragraphs', () => {
       const para = {
-        'p': [
-          'Hello ',
-          { '#text': 'world', '@_tag': 'existing' },
-          ' this is a test'
-        ]
+        p: ['Hello ', { '#text': 'world', '@_tag': 'existing' }, ' this is a test'],
       };
       const selectedText = 'world';
       const tag = 'said';

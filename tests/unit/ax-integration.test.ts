@@ -7,12 +7,12 @@ jest.mock('@ax-llm/ax', () => {
 
   return {
     ax: mockAx,
-    ai: mockAi
+    ai: mockAi,
   };
 });
 
 jest.mock('@ax-llm/ax-ai-sdk-provider', () => ({
-  createOpenAI: jest.fn()
+  createOpenAI: jest.fn(),
 }));
 
 import { AxProvider } from '@/lib/ai/ax-provider';
@@ -53,7 +53,7 @@ describe('Ax Integration with Descriptive Names', () => {
       const spans = await provider.detectDialogue(text);
 
       if (spans.length > 0) {
-        spans.forEach(span => {
+        spans.forEach((span) => {
           expect(span.confidence).toBeDefined();
           expect(span.confidence).toBeGreaterThanOrEqual(0);
           expect(span.confidence).toBeLessThanOrEqual(1);
@@ -68,7 +68,7 @@ describe('Ax Integration with Descriptive Names', () => {
       const spans = await provider.detectDialogue(text);
 
       if (spans.length > 0) {
-        spans.forEach(span => {
+        spans.forEach((span) => {
           expect(span.start).toBeDefined();
           expect(span.end).toBeDefined();
           expect(span.start).toBeGreaterThanOrEqual(0);
@@ -81,7 +81,7 @@ describe('Ax Integration with Descriptive Names', () => {
   describe('Speaker Attribution Signature', () => {
     const mockCharacters: Character[] = [
       { xmlId: 'jane', name: 'Jane Eyre', description: 'Protagonist, governess' },
-      { xmlId: 'rochester', name: 'Mr. Rochester', description: 'Byronic hero' }
+      { xmlId: 'rochester', name: 'Mr. Rochester', description: 'Byronic hero' },
     ];
 
     test('should use descriptive parameter names for speaker attribution', async () => {
@@ -121,7 +121,7 @@ describe('Ax Integration with Descriptive Names', () => {
       const speakerId = await provider.attributeSpeaker(passage, mockCharacters);
 
       // Should return one of the provided character IDs
-      const validIds = mockCharacters.map(c => c.xmlId);
+      const validIds = mockCharacters.map((c) => c.xmlId);
       if (speakerId) {
         expect(validIds).toContain(speakerId);
       }
@@ -218,7 +218,7 @@ describe('Ax Integration with Descriptive Names', () => {
     test('should use heuristic fallback when Ax attribution fails', async () => {
       const provider = new AxProvider('openai', 'test-api-key');
       const characters: Character[] = [
-        { xmlId: 'speaker1', name: 'John', description: 'Male character' }
+        { xmlId: 'speaker1', name: 'John', description: 'Male character' },
       ];
       const context = 'John said "Hello world"';
 

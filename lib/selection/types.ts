@@ -13,7 +13,7 @@ import type { TEIDocument } from '@/lib/tei/types';
  */
 export interface TextRange {
   readonly start: number; /** Character offset within passage */
-  readonly end: number;   /** Character offset within passage */
+  readonly end: number; /** Character offset within passage */
 }
 
 /**

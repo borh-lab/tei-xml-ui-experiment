@@ -119,7 +119,7 @@ test.describe('Corpus Browsing', () => {
 
       // Should show encoding badges
       const badges = page.locator('.badge').or(page.locator('[class*="badge"]'));
-      const hasBadges = await badges.count() > 0;
+      const hasBadges = (await badges.count()) > 0;
       if (hasBadges) {
         await expect(badges.first()).toBeVisible();
       }

@@ -37,36 +37,34 @@ function hasDocument(): boolean {
  * @param callbacks - Action callbacks for each shortcut
  * @returns Shortcut registry with default shortcuts
  */
-export function createDefaultShortcuts(
-  callbacks: {
-    // Document operations
-    onSave?: () => void;
-    onToggleEntities?: () => void;
-    onCommandPalette?: () => void;
-    onClose?: () => void;
+export function createDefaultShortcuts(callbacks: {
+  // Document operations
+  onSave?: () => void;
+  onToggleEntities?: () => void;
+  onCommandPalette?: () => void;
+  onClose?: () => void;
 
-    // Tag operations (1-9 for speakers)
-    onTagSpeaker1?: () => void;
-    onTagSpeaker2?: () => void;
-    onTagSpeaker3?: () => void;
-    onTagSpeaker4?: () => void;
-    onTagSpeaker5?: () => void;
-    onTagSpeaker6?: () => void;
-    onTagSpeaker7?: () => void;
-    onTagSpeaker8?: () => void;
-    onTagSpeaker9?: () => void;
+  // Tag operations (1-9 for speakers)
+  onTagSpeaker1?: () => void;
+  onTagSpeaker2?: () => void;
+  onTagSpeaker3?: () => void;
+  onTagSpeaker4?: () => void;
+  onTagSpeaker5?: () => void;
+  onTagSpeaker6?: () => void;
+  onTagSpeaker7?: () => void;
+  onTagSpeaker8?: () => void;
+  onTagSpeaker9?: () => void;
 
-    // Generic tag operations
-    onTagQ?: () => void;
-    onTagPersName?: () => void;
-    onTagPlaceName?: () => void;
-    onTagOrgName?: () => void;
+  // Generic tag operations
+  onTagQ?: () => void;
+  onTagPersName?: () => void;
+  onTagPlaceName?: () => void;
+  onTagOrgName?: () => void;
 
-    // Undo/Redo
-    onUndo?: () => void;
-    onRedo?: () => void;
-  }
-): ReturnType<typeof createShortcutRegistry> {
+  // Undo/Redo
+  onUndo?: () => void;
+  onRedo?: () => void;
+}): ReturnType<typeof createShortcutRegistry> {
   const shortcuts: Shortcut[] = [];
 
   // Document operations

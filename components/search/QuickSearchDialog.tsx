@@ -15,11 +15,7 @@ interface QuickSearchDialogProps {
   onResultClick?: (result: SearchResult) => void;
 }
 
-export function QuickSearchDialog({
-  open,
-  onOpenChange,
-  onResultClick
-}: QuickSearchDialogProps) {
+export function QuickSearchDialog({ open, onOpenChange, onResultClick }: QuickSearchDialogProps) {
   const { document } = useDocumentService();
   const [search] = useState(() => new QuickSearch());
   const [query, setQuery] = useState('');
@@ -27,7 +23,7 @@ export function QuickSearchDialog({
     query: '',
     results: [],
     currentIndex: -1,
-    totalResults: 0
+    totalResults: 0,
   });
 
   // Update search instance when document changes
@@ -58,11 +54,7 @@ export function QuickSearchDialog({
         if (next) {
           setSearchState(search.getState());
         }
-      } else if (
-        e.key === 'F3' &&
-        e.shiftKey &&
-        (e.ctrlKey || e.metaKey)
-      ) {
+      } else if (e.key === 'F3' && e.shiftKey && (e.ctrlKey || e.metaKey)) {
         // Shift + F3: Find previous
         e.preventDefault();
         const prev = search.previousResult();
@@ -188,26 +180,20 @@ export function QuickSearchDialog({
                   <div
                     key={result.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      isCurrent
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-muted'
+                      isCurrent ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                     }`}
                     onClick={() => handleResultClick(result)}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium">
-                        {result.speaker}
-                      </span>
+                      <span className="text-xs font-medium">{result.speaker}</span>
                       {result.chapter && (
-                        <span className="text-xs opacity-70">
-                          Section {result.chapter}
-                        </span>
+                        <span className="text-xs opacity-70">Section {result.chapter}</span>
                       )}
                     </div>
                     <div
                       className="text-sm"
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeHTML(QuickSearch.highlightMatches(context, query))
+                        __html: sanitizeHTML(QuickSearch.highlightMatches(context, query)),
                       }}
                     />
                   </div>
@@ -220,21 +206,15 @@ export function QuickSearchDialog({
           <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
             <div className="flex justify-between">
               <span>Next result:</span>
-              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">
-                F3 or Cmd/Ctrl + G
-              </kbd>
+              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">F3 or Cmd/Ctrl + G</kbd>
             </div>
             <div className="flex justify-between">
               <span>Previous result:</span>
-              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">
-                Shift + F3
-              </kbd>
+              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">Shift + F3</kbd>
             </div>
             <div className="flex justify-between">
               <span>Jump to result:</span>
-              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">
-                Cmd/Ctrl + Enter
-              </kbd>
+              <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">Cmd/Ctrl + Enter</kbd>
             </div>
             <div className="flex justify-between">
               <span>Close:</span>

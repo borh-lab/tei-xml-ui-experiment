@@ -27,10 +27,7 @@ export function EffectDocumentProvider({ children }: { children: React.ReactNode
   useEffect(() => {
     const loadSavedDocument = async () => {
       try {
-        const storage = effectRuntime.provideService(
-          StorageService,
-          BrowserStorageService
-        );
+        const storage = effectRuntime.provideService(StorageService, BrowserStorageService);
 
         const savedXml = await Effect.runPromise(
           Effect.gen(function* (_) {
@@ -67,10 +64,7 @@ export function EffectDocumentProvider({ children }: { children: React.ReactNode
       await Effect.runPromise(
         Effect.gen(function* (_) {
           const storage = yield* _(
-            effectRuntime.provideService(
-              StorageService,
-              BrowserStorageService
-            )
+            effectRuntime.provideService(StorageService, BrowserStorageService)
           );
           return yield* _(storage.set('tei-editor-document', xml));
         })
@@ -113,25 +107,28 @@ export function EffectDocumentProvider({ children }: { children: React.ReactNode
     [document]
   );
 
-  const removeTag = useCallback(async (tagId: string) => {
-    if (!document) return;
+  const removeTag = useCallback(
+    async (tagId: string) => {
+      if (!document) return;
 
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(DocumentService);
-      return yield* _(service.removeTag(tagId));
-    });
-
-    try {
-      const updated = await Effect.runPromise(program, {
-        runtime: effectRuntime,
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(DocumentService);
+        return yield* _(service.removeTag(tagId));
       });
 
-      setDocument(updated);
-    } catch (error) {
-      console.error('Failed to remove tag:', error);
-      throw error;
-    }
-  }, [document]);
+      try {
+        const updated = await Effect.runPromise(program, {
+          runtime: effectRuntime,
+        });
+
+        setDocument(updated);
+      } catch (error) {
+        console.error('Failed to remove tag:', error);
+        throw error;
+      }
+    },
+    [document]
+  );
 
   const undo = useCallback(async () => {
     if (!document) return;
@@ -183,11 +180,7 @@ export function EffectDocumentProvider({ children }: { children: React.ReactNode
     redo,
   };
 
-  return (
-    <DocumentContext.Provider value={contextValue}>
-      {children}
-    </DocumentContext.Provider>
-  );
+  return <DocumentContext.Provider value={contextValue}>{children}</DocumentContext.Provider>;
 }
 
 // Import DocumentContext for compatibility

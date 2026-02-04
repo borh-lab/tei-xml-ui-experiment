@@ -15,22 +15,22 @@ describe('QuickSearch', () => {
       {
         who: 'speaker1',
         content: 'Hello world',
-        element: { closest: { getAttribute: jest.fn(() => '1') } }
+        element: { closest: { getAttribute: jest.fn(() => '1') } },
       },
       {
         who: 'speaker2',
         content: 'Goodbye world',
-        element: { closest: { getAttribute: jest.fn(() => '1') } }
+        element: { closest: { getAttribute: jest.fn(() => '1') } },
       },
       {
         who: 'speaker1',
         content: 'Hello again',
-        element: { closest: { getAttribute: jest.fn(() => '2') } }
-      }
+        element: { closest: { getAttribute: jest.fn(() => '2') } },
+      },
     ];
 
     mockDocument = {
-      getDialogue: jest.fn(() => mockDialogue)
+      getDialogue: jest.fn(() => mockDialogue),
     } as unknown as TEIDocument;
   });
 
@@ -174,7 +174,7 @@ describe('QuickSearch', () => {
     it('should update document', () => {
       const search = new QuickSearch(mockDocument);
       const newDocument = {
-        getDialogue: jest.fn(() => [])
+        getDialogue: jest.fn(() => []),
       } as unknown as TEIDocument;
 
       search.setDocument(newDocument);
@@ -218,7 +218,8 @@ describe('QuickSearch', () => {
     });
 
     it('should add ellipsis for truncated content', () => {
-      const content = 'This is a very long passage with some text in the middle that matches and continues';
+      const content =
+        'This is a very long passage with some text in the middle that matches and continues';
       const context = QuickSearch.getContext(content, 'middle', 20);
 
       expect(context).toMatch(/^\.\.\./);

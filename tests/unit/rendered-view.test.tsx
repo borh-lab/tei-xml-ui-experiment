@@ -40,8 +40,8 @@ const mockDocument: any = {
 
 jest.mock('@/lib/context/DocumentContext', () => ({
   useDocumentContext: () => ({
-    document: mockDocument
-  })
+    document: mockDocument,
+  }),
 }));
 
 describe('RenderedView', () => {
@@ -49,7 +49,7 @@ describe('RenderedView', () => {
     isBulkMode: false,
     selectedPassages: [],
     onSelectionChange: jest.fn(),
-    onPassageClick: jest.fn()
+    onPassageClick: jest.fn(),
   };
 
   beforeEach(() => {
@@ -82,20 +82,10 @@ describe('RenderedView', () => {
 
   describe('Performance Optimization', () => {
     test('should not re-render when props unchanged', () => {
-      const { rerender } = render(
-        <RenderedView
-          {...mockProps}
-          selectedPassages={[]}
-        />
-      );
+      const { rerender } = render(<RenderedView {...mockProps} selectedPassages={[]} />);
 
       // Re-render with same props - should not cause issues
-      rerender(
-        <RenderedView
-          {...mockProps}
-          selectedPassages={[]}
-        />
-      );
+      rerender(<RenderedView {...mockProps} selectedPassages={[]} />);
 
       // Component should still render correctly - check for a specific passage ID
       expect(screen.getByText(`ID: ${mockPassageId1}`)).toBeInTheDocument();
@@ -103,11 +93,7 @@ describe('RenderedView', () => {
 
     test('should re-render when selected passages change', () => {
       const { rerender } = render(
-        <RenderedView
-          {...mockProps}
-          isBulkMode={true}
-          selectedPassages={[]}
-        />
+        <RenderedView {...mockProps} isBulkMode={true} selectedPassages={[]} />
       );
 
       expect(screen.getByText('0 selected')).toBeInTheDocument();
@@ -210,7 +196,7 @@ describe('RenderedView', () => {
       };
 
       jest.spyOn(require('@/lib/context/DocumentContext'), 'useDocumentContext').mockReturnValue({
-        document: mockDocumentWithSaid
+        document: mockDocumentWithSaid,
       });
 
       const { container } = render(<RenderedView {...mockProps} isBulkMode={false} />);

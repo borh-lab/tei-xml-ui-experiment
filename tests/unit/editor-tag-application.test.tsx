@@ -17,9 +17,7 @@ describe('EditorLayout Tag Application', () => {
   </text>
 </TEI>`;
 
-  const wrapper = ({ children }: any) => (
-    <DocumentProvider>{children}</DocumentProvider>
-  );
+  const wrapper = ({ children }: any) => <DocumentProvider>{children}</DocumentProvider>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -29,7 +27,7 @@ describe('EditorLayout Tag Application', () => {
     const doc = new TEIDocument(mockXML);
 
     // Simulate wrapTextInTag call (this is what handleApplyTag uses)
-    doc.wrapTextInTag(0, 0, 5, 'said', { 'who': '#speaker1' });
+    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
 
     const updated = doc.serialize();
     expect(updated).toContain('<said who="#speaker1">Hello</said>');
@@ -50,7 +48,7 @@ describe('EditorLayout Tag Application', () => {
   it('should apply persName tag with ref attribute', () => {
     const doc = new TEIDocument(mockXML);
 
-    doc.wrapTextInTag(0, 0, 5, 'persName', { 'ref': '#john' });
+    doc.wrapTextInTag(0, 0, 5, 'persName', { ref: '#john' });
 
     const updated = doc.serialize();
     expect(updated).toContain('<persName ref="#john">Hello</persName>');
@@ -59,7 +57,7 @@ describe('EditorLayout Tag Application', () => {
   it('should apply tag with multiple attributes', () => {
     const doc = new TEIDocument(mockXML);
 
-    doc.wrapTextInTag(0, 0, 5, 'said', { 'who': '#speaker1', 'aloud': 'true' });
+    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1', aloud: 'true' });
 
     const updated = doc.serialize();
     // Check that both attributes are present (order may vary)
@@ -73,7 +71,7 @@ describe('EditorLayout Tag Application', () => {
     const mockCaptureSelection = jest.fn().mockReturnValue(null);
     (SelectionManager as jest.Mock).mockImplementation(() => ({
       captureSelection: mockCaptureSelection,
-      restoreSelection: jest.fn()
+      restoreSelection: jest.fn(),
     }));
 
     const selectionManager = new SelectionManager();
@@ -89,13 +87,13 @@ describe('EditorLayout Tag Application', () => {
       startOffset: 0,
       endOffset: 5,
       passageId: 'passage-0',
-      container: null
+      container: null,
     };
 
     const mockCaptureSelection = jest.fn().mockReturnValue(mockRange);
     (SelectionManager as jest.Mock).mockImplementation(() => ({
       captureSelection: mockCaptureSelection,
-      restoreSelection: jest.fn()
+      restoreSelection: jest.fn(),
     }));
 
     const selectionManager = new SelectionManager();
@@ -117,7 +115,7 @@ describe('EditorLayout Tag Application', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 6, 12, 'said', { 'who': '#speaker1' });
+    doc.wrapTextInTag(0, 6, 12, 'said', { who: '#speaker1' });
 
     const updated = doc.serialize();
     expect(updated).toContain('Start');
@@ -129,7 +127,7 @@ describe('EditorLayout Tag Application', () => {
     const doc = new TEIDocument(mockXML);
 
     // Apply first tag
-    doc.wrapTextInTag(0, 0, 5, 'said', { 'who': '#speaker1' });
+    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
 
     // Apply second tag
     doc.wrapTextInTag(0, 6, 11, 'q');

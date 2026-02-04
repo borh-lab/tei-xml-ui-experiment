@@ -7,18 +7,16 @@ describe('CommandPalette', () => {
   test('should render command palette with all command groups', () => {
     render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <CommandPalette
-          open={true}
-          onClose={() => {}}
-          onToggleBulkMode={() => {}}
-          onToggleVisualizations={() => {}}
-          isBulkMode={false}
-          isVizPanelOpen={false}
-        />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <CommandPalette
+            open={true}
+            onClose={() => {}}
+            onToggleBulkMode={() => {}}
+            onToggleVisualizations={() => {}}
+            isBulkMode={false}
+            isVizPanelOpen={false}
+          />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -46,18 +44,16 @@ describe('CommandPalette', () => {
   test('should show keyboard shortcuts for commands', () => {
     render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <CommandPalette
-          open={true}
-          onClose={() => {}}
-          onToggleBulkMode={() => {}}
-          onToggleVisualizations={() => {}}
-          isBulkMode={false}
-          isVizPanelOpen={false}
-        />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <CommandPalette
+            open={true}
+            onClose={() => {}}
+            onToggleBulkMode={() => {}}
+            onToggleVisualizations={() => {}}
+            isBulkMode={false}
+            isVizPanelOpen={false}
+          />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -69,18 +65,16 @@ describe('CommandPalette', () => {
   test('should show status indicators for active features', () => {
     render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <CommandPalette
-          open={true}
-          onClose={() => {}}
-          onToggleBulkMode={() => {}}
-          onToggleVisualizations={() => {}}
-          isBulkMode={true}
-          isVizPanelOpen={true}
-        />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <CommandPalette
+            open={true}
+            onClose={() => {}}
+            onToggleBulkMode={() => {}}
+            onToggleVisualizations={() => {}}
+            isBulkMode={true}
+            isVizPanelOpen={true}
+          />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -96,18 +90,16 @@ describe('CommandPalette', () => {
   test('should disable commands when no document is loaded', () => {
     render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <CommandPalette
-          open={true}
-          onClose={() => {}}
-          onToggleBulkMode={() => {}}
-          onToggleVisualizations={() => {}}
-          isBulkMode={false}
-          isVizPanelOpen={false}
-        />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <CommandPalette
+            open={true}
+            onClose={() => {}}
+            onToggleBulkMode={() => {}}
+            onToggleVisualizations={() => {}}
+            isBulkMode={false}
+            isVizPanelOpen={false}
+          />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -119,18 +111,16 @@ describe('CommandPalette', () => {
   test('should show sample metadata', () => {
     render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <CommandPalette
-          open={true}
-          onClose={() => {}}
-          onToggleBulkMode={() => {}}
-          onToggleVisualizations={() => {}}
-          isBulkMode={false}
-          isVizPanelOpen={false}
-        />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <CommandPalette
+            open={true}
+            onClose={() => {}}
+            onToggleBulkMode={() => {}}
+            onToggleVisualizations={() => {}}
+            isBulkMode={false}
+            isVizPanelOpen={false}
+          />
+        </DocumentProvider>
       </ErrorProvider>
     );
 

@@ -24,7 +24,7 @@ test.describe('TEI Dialogue Editor', () => {
     // Wait for the page to load and auto-load a sample
     await page.waitForLoadState('networkidle');
     // Wait a bit for the auto-load to complete
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
   });
 
   test('should auto-load sample document on first visit', async ({ page }) => {
@@ -278,7 +278,7 @@ test.describe('TEI Dialogue Editor', () => {
 
       await page.screenshot({
         path: 'docs/screenshots/welcome-screen.png',
-        fullPage: true
+        fullPage: true,
       });
     });
 
@@ -292,7 +292,7 @@ test.describe('TEI Dialogue Editor', () => {
 
       await page.screenshot({
         path: 'docs/screenshots/sample-gallery.png',
-        fullPage: true
+        fullPage: true,
       });
     });
 
@@ -301,7 +301,7 @@ test.describe('TEI Dialogue Editor', () => {
       // Take screenshot
       await page.screenshot({
         path: 'docs/screenshots/editor-annotated.png',
-        fullPage: true
+        fullPage: true,
       });
     });
 
@@ -314,7 +314,7 @@ test.describe('TEI Dialogue Editor', () => {
       // Take screenshot
       await page.screenshot({
         path: 'docs/screenshots/ai-suggestions.png',
-        fullPage: false
+        fullPage: false,
       });
     });
 
@@ -327,7 +327,7 @@ test.describe('TEI Dialogue Editor', () => {
       // Take screenshot
       await page.screenshot({
         path: 'docs/screenshots/character-network.png',
-        fullPage: false
+        fullPage: false,
       });
     });
 
@@ -339,7 +339,7 @@ test.describe('TEI Dialogue Editor', () => {
       // Take screenshot
       await page.screenshot({
         path: 'docs/screenshots/command-palette.png',
-        fullPage: false
+        fullPage: false,
       });
 
       // Close
@@ -355,7 +355,7 @@ test.describe('TEI Dialogue Editor', () => {
       // Take screenshot
       await page.screenshot({
         path: 'docs/screenshots/bulk-operations.png',
-        fullPage: false
+        fullPage: false,
       });
     });
 
@@ -367,7 +367,7 @@ test.describe('TEI Dialogue Editor', () => {
       // Take screenshot
       await page.screenshot({
         path: 'docs/screenshots/keyboard-shortcuts.png',
-        fullPage: false
+        fullPage: false,
       });
 
       // Close

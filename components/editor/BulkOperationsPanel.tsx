@@ -27,7 +27,7 @@ export function BulkOperationsPanel({
   onExportSelection,
   onValidate,
   onConvert,
-  speakers = []
+  speakers = [],
 }: BulkOperationsPanelProps) {
   const [speakerId, setSpeakerId] = useState('');
   const [operationInProgress, setOperationInProgress] = useState<string | null>(null);
@@ -72,9 +72,7 @@ export function BulkOperationsPanel({
             <Badge variant="secondary" className="mb-2">
               {selectedPassages.length} passages selected
             </Badge>
-            <p className="text-sm text-muted-foreground">
-              Perform operations on selected passages
-            </p>
+            <p className="text-sm text-muted-foreground">Perform operations on selected passages</p>
           </div>
 
           {/* Tag all as */}
@@ -182,7 +180,8 @@ export function BulkOperationsPanel({
         {/* Footer with shortcuts help */}
         <div className="p-4 border-t bg-muted/30">
           <p className="text-xs text-muted-foreground">
-            <strong>Tip:</strong> Use <kbd className="bg-background px-1 rounded">Shift</kbd> + click to select multiple passages
+            <strong>Tip:</strong> Use <kbd className="bg-background px-1 rounded">Shift</kbd> +
+            click to select multiple passages
           </p>
         </div>
       </div>

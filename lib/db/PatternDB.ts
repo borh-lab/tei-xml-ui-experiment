@@ -56,26 +56,21 @@ export class PatternDB extends Dexie {
     await this.version(1).stores({
       speakers: '++xmlId, name',
       corrections: '++id, timestamp',
-      learnedPatterns: '++id, speaker, pattern, [speaker+pattern], lastSeen'
+      learnedPatterns: '++id, speaker, pattern, [speaker+pattern], lastSeen',
     });
     await this.open();
   }
 
   async getSpeakers(): Promise<Record<string, SpeakerPattern>> {
     const allSpeakers = await this.speakers.toArray();
-    return Object.fromEntries(
-      allSpeakers.map(speaker => [speaker.xmlId, speaker])
-    );
+    return Object.fromEntries(allSpeakers.map((speaker) => [speaker.xmlId, speaker]));
   }
 
   async getSpeaker(xmlId: string): Promise<SpeakerPattern | undefined> {
     return await this.speakers.where('xmlId').equals(xmlId).first();
   }
 
-  async updateSpeakerPattern(
-    xmlId: string,
-    updates: Partial<SpeakerPattern>
-  ): Promise<void> {
+  async updateSpeakerPattern(xmlId: string, updates: Partial<SpeakerPattern>): Promise<void> {
     const existing = await this.getSpeaker(xmlId);
     if (existing) {
       await this.speakers.update(existing.id!, updates);
@@ -85,7 +80,7 @@ export class PatternDB extends Dexie {
         name: xmlId,
         lastUsed: Date.now(),
         chapterAffinity: {},
-        ...updates
+        ...updates,
       });
     }
   }
@@ -108,7 +103,7 @@ export class PatternDB extends Dexie {
       rejected,
       confidence,
       position,
-      surroundingText
+      surroundingText,
     });
   }
 
@@ -138,14 +133,14 @@ export class PatternDB extends Dexie {
     if (existing) {
       await this.learnedPatterns.update(existing.id!, {
         frequency: existing.frequency + frequency,
-        lastSeen: Date.now()
+        lastSeen: Date.now(),
       });
     } else {
       await this.learnedPatterns.add({
         speaker,
         pattern,
         frequency,
-        lastSeen: Date.now()
+        lastSeen: Date.now(),
       });
     }
   }
@@ -154,10 +149,7 @@ export class PatternDB extends Dexie {
    * Get learned patterns for a specific speaker
    */
   async getLearnedPatterns(speaker: string): Promise<LearnedPattern[]> {
-    return await this.learnedPatterns
-      .where('speaker')
-      .equals(speaker)
-      .toArray();
+    return await this.learnedPatterns.where('speaker').equals(speaker).toArray();
   }
 
   /**
@@ -171,11 +163,7 @@ export class PatternDB extends Dexie {
    * Get recent corrections for learning
    */
   async getRecentCorrections(limit: number = 100): Promise<PatternCorrection[]> {
-    return await this.corrections
-      .orderBy('timestamp')
-      .reverse()
-      .limit(limit)
-      .toArray();
+    return await this.corrections.orderBy('timestamp').reverse().limit(limit).toArray();
   }
 }
 

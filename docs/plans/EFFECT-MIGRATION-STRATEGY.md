@@ -12,6 +12,7 @@
 This document outlines a phased, incremental migration strategy from the current React-based architecture to Effect, following the architectural recommendations from the Hickey Review. The migration is designed to be **fully incremental**, allowing the application to remain functional at every phase with the ability to rollback at any point.
 
 **Key Principles:**
+
 - **No Big Bang Rewrite**: Migrate incrementally, module by module
 - **Maintain Functionality**: App remains fully functional throughout migration
 - **Tests Guide Refactoring**: Existing tests must pass at each phase
@@ -42,11 +43,13 @@ This document outlines a phased, incremental migration strategy from the current
 ### Current Architecture
 
 **React State Management:**
+
 - **EditorLayout**: 22 `useState` hooks (extreme coupling)
 - **DocumentContext**: 8 additional state variables
 - **Total State Complexity**: 30+ independent mutable state locations
 
 **Key Components:**
+
 ```
 components/
 ├── editor/
@@ -66,6 +69,7 @@ components/
 ```
 
 **Core Libraries:**
+
 ```
 lib/
 ├── tei/
@@ -108,6 +112,7 @@ Based on the Hickey Review, we're targeting:
 ### 1. Simplicity Over Ease (Unentangled Design)
 
 **Current (Complex):**
+
 ```tsx
 // 22 useState hooks in one component
 const [bulkPanelOpen, setBulkPanelOpen] = useState(false);
@@ -116,6 +121,7 @@ const [vizPanelOpen, setVizPanelOpen] = useState(false);
 ```
 
 **Target (Simple):**
+
 ```typescript
 // Single immutable state value
 interface EditorState {
@@ -132,6 +138,7 @@ interface EditorState {
 ### 2. Values Over Places (Immutability)
 
 **Current (Place-Oriented):**
+
 ```typescript
 // Mutable place - hidden state changes
 class SelectionManager {
@@ -143,20 +150,18 @@ class SelectionManager {
 ```
 
 **Target (Value-Oriented):**
+
 ```typescript
 // Immutable value - explicit state transitions
 type Selection = { readonly start: number; readonly end: number } | null;
 
-const selectText = (
-  current: Selection,
-  start: number,
-  end: number
-): Selection => ({ start, end });
+const selectText = (current: Selection, start: number, end: number): Selection => ({ start, end });
 ```
 
 ### 3. Protocol-First Design
 
 **Current (Implicit Protocols):**
+
 ```tsx
 // Protocol hidden in component - tight coupling to localStorage
 useEffect(() => {
@@ -166,6 +171,7 @@ useEffect(() => {
 ```
 
 **Target (Explicit Protocols):**
+
 ```typescript
 // Protocol defined - can swap implementations
 interface ViewModeStorage {
@@ -187,12 +193,14 @@ class TestViewModeStorage implements ViewModeStorage {
 ### 4. Explicit Time Modeling
 
 **Current (Implicit Time):**
+
 ```typescript
 // History derived from document - implicit
 const canUndo = document.revision > 0;
 ```
 
 **Target (Explicit Time):**
+
 ```typescript
 // Event sourcing - explicit succession of states
 type DocumentEvent =
@@ -286,6 +294,7 @@ npm install --save-dev @effect-jest/*  # Testing utilities
 ```
 
 **Verification:**
+
 ```bash
 npm run build  # Must succeed
 npm run test   # All existing tests pass
@@ -306,6 +315,7 @@ lib/
 ```
 
 **Action:**
+
 ```bash
 mkdir -p lib/effect/{services,protocols,layers,utils}
 mkdir -p lib/effect/__tests__
@@ -335,6 +345,7 @@ export function isFeatureEnabled(flag: FeatureFlag): boolean {
 ```
 
 **Usage in Components:**
+
 ```tsx
 // EditorLayout.tsx
 import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
@@ -366,12 +377,8 @@ export function createTestLayer() {
   });
 }
 
-export async function runEffectTest<E, A>(
-  effect: Effect.Effect<A, E, TestContext>
-): Promise<A> {
-  return Effect.runPromise(effect.pipe(
-    Effect.provideSomeLayer(createTestLayer())
-  ));
+export async function runEffectTest<E, A>(effect: Effect.Effect<A, E, TestContext>): Promise<A> {
+  return Effect.runPromise(effect.pipe(Effect.provideSomeLayer(createTestLayer())));
 }
 ```
 
@@ -391,15 +398,18 @@ npm run test:e2e
 ### Testing Strategy for Phase 1
 
 **Unit Tests:**
+
 - Test feature flag system
 - Test Effect installation (simple Effect program)
 - Verify directory structure
 
 **Integration Tests:**
+
 - Run full test suite (must pass)
 - Run E2E tests (must pass)
 
 **Manual Testing:**
+
 - Open app in browser
 - Verify no visual changes
 - Verify all features work
@@ -407,6 +417,7 @@ npm run test:e2e
 ### Rollback Plan for Phase 1
 
 **If Phase 1 fails:**
+
 ```bash
 # Remove Effect dependencies
 npm uninstall effect effect-ts-typeclass effect-plugin-ts @effect/schema
@@ -419,6 +430,7 @@ git checkout lib/effect/utils/featureFlags.ts
 ```
 
 **Success Criteria:**
+
 - [ ] Effect dependencies installed
 - [ ] Parallel structure created
 - [ ] Feature flags working
@@ -597,13 +609,12 @@ const makeDocumentService = Effect.gen(function* (_) {
         return updated;
       }),
 
-    getDocument: () => Ref.get(documentRef).pipe(
-      Effect.flatMap((doc) =>
-        doc
-          ? Effect.succeed(doc)
-          : Effect.fail(new DocumentNotFoundError())
-      )
-    ),
+    getDocument: () =>
+      Ref.get(documentRef).pipe(
+        Effect.flatMap((doc) =>
+          doc ? Effect.succeed(doc) : Effect.fail(new DocumentNotFoundError())
+        )
+      ),
   };
 
   return service;
@@ -634,11 +645,7 @@ describe('DocumentService', () => {
       expect(doc.state.metadata.title).toBeDefined();
     });
 
-    await Effect.runPromise(
-      program.pipe(
-        Effect.provideSomeLayer(TestDocumentService)
-      )
-    );
+    await Effect.runPromise(program.pipe(Effect.provideSomeLayer(TestDocumentService)));
   });
 
   it('should add tag', async () => {
@@ -648,18 +655,14 @@ describe('DocumentService', () => {
       yield* _(service.load(testXML));
       const updated = yield* _(
         service.addTag('passage-1', { start: 0, end: 10 }, 'said', {
-          who: '#speaker1'
+          who: '#speaker1',
         })
       );
 
       expect(updated.state.passages[0].tags).toHaveLength(1);
     });
 
-    await Effect.runPromise(
-      program.pipe(
-        Effect.provideSomeLayer(TestDocumentService)
-      )
-    );
+    await Effect.runPromise(program.pipe(Effect.provideSomeLayer(TestDocumentService)));
   });
 });
 ```
@@ -722,21 +725,25 @@ export function EffectDocumentProvider({ children }: { children: React.ReactNode
 ### Testing Strategy for Document Protocol
 
 **Unit Tests:**
+
 - Test each DocumentService method
 - Test error handling
 - Test undo/redo
 - Test concurrent operations
 
 **Integration Tests:**
+
 - Test React bridge
 - Test feature flag switching between React/Effect
 
 **Migration Tests:**
+
 - Verify React and Effect implementations produce same results
 
 ### Rollback Plan for Document Protocol
 
 **If issues arise:**
+
 1. Disable feature flag: `localStorage.setItem('feature-useEffectEditor', 'false')`
 2. Revert to React DocumentContext
 3. Keep Effect code (no breaking changes)
@@ -779,37 +786,26 @@ export const StorageService = Context.GenericTag<StorageService>('@app/StorageSe
 #### Implementations
 
 **Browser Implementation:**
+
 ```typescript
 // lib/effect/services/BrowserStorageService.ts
 const makeBrowserStorage = Effect.succeed({
   get: <T>(key: string) =>
-    Effect.tryPromise(() =>
-      Promise.resolve(localStorage.getItem(key) as T | null)
-    ),
+    Effect.tryPromise(() => Promise.resolve(localStorage.getItem(key) as T | null)),
 
   set: <T>(key: string, value: T) =>
-    Effect.tryPromise(() =>
-      Promise.resolve(localStorage.setItem(key, JSON.stringify(value)))
-    ),
+    Effect.tryPromise(() => Promise.resolve(localStorage.setItem(key, JSON.stringify(value)))),
 
-  remove: (key: string) =>
-    Effect.tryPromise(() =>
-      Promise.resolve(localStorage.removeItem(key))
-    ),
+  remove: (key: string) => Effect.tryPromise(() => Promise.resolve(localStorage.removeItem(key))),
 
-  clear: () =>
-    Effect.tryPromise(() =>
-      Promise.resolve(localStorage.clear())
-    ),
+  clear: () => Effect.tryPromise(() => Promise.resolve(localStorage.clear())),
 });
 
-export const BrowserStorageLive = Layer.effect(
-  StorageService,
-  makeBrowserStorage
-);
+export const BrowserStorageLive = Layer.effect(StorageService, makeBrowserStorage);
 ```
 
 **Test Implementation:**
+
 ```typescript
 // lib/effect/services/TestStorageService.ts
 class InMemoryStorage {
@@ -833,15 +829,13 @@ class InMemoryStorage {
   }
 }
 
-export const TestStorageLive = Layer.effect(
-  StorageService,
-  Effect.succeed(new InMemoryStorage())
-);
+export const TestStorageLive = Layer.effect(StorageService, Effect.succeed(new InMemoryStorage()));
 ```
 
 #### Usage Migration
 
 **Before (React):**
+
 ```tsx
 useEffect(() => {
   const savedMode = localStorage.getItem('tei-editor-view-mode');
@@ -850,6 +844,7 @@ useEffect(() => {
 ```
 
 **After (Effect):**
+
 ```typescript
 const loadViewMode = Effect.gen(function* (_) {
   const storage = yield* _(StorageService);
@@ -866,15 +861,18 @@ const loadViewMode = Effect.gen(function* (_) {
 ### Testing Strategy for Storage Protocol
 
 **Unit Tests:**
+
 - Test get/set/remove/clear
 - Test JSON serialization
 - Test error handling (quota exceeded)
 
 **Integration Tests:**
+
 - Test localStorage persistence
 - Test concurrent access
 
 **Migration Tests:**
+
 - Verify React and Effect implementations compatible
 
 ---
@@ -945,15 +943,13 @@ const makeValidationService = Effect.succeed({
   clearCache: () => Effect.succeed(undefined),
 });
 
-export const ValidationServiceLive = Layer.effect(
-  ValidationService,
-  makeValidationService
-);
+export const ValidationServiceLive = Layer.effect(ValidationService, makeValidationService);
 ```
 
 #### Composable Enhancements
 
 **With Caching:**
+
 ```typescript
 const validateWithCache = (xml: string) =>
   Effect.gen(function* (_) {
@@ -972,6 +968,7 @@ const validateWithCache = (xml: string) =>
 ```
 
 **With Retry:**
+
 ```typescript
 const validateWithRetry = (xml: string) =>
   ValidationService.validate(xml).pipe(
@@ -983,15 +980,12 @@ const validateWithRetry = (xml: string) =>
 ```
 
 **With Logging:**
+
 ```typescript
 const validateWithLogging = (xml: string) =>
   ValidationService.validate(xml).pipe(
-    Effect.tap((result) =>
-      Effect.log(`Validation result: ${result.valid ? 'PASS' : 'FAIL'}`)
-    ),
-    Effect.tapError((err) =>
-      Effect.logError(`Validation failed: ${err.message}`)
-    )
+    Effect.tap((result) => Effect.log(`Validation result: ${result.valid ? 'PASS' : 'FAIL'}`)),
+    Effect.tapError((err) => Effect.logError(`Validation failed: ${err.message}`))
   );
 ```
 
@@ -1021,10 +1015,7 @@ import type { DialogueSpan, SpeakerAttribution } from '@/lib/ai/types';
 
 export interface AIService {
   detectDialogue(text: string): Effect<DialogueSpan[], AIError>;
-  attributeSpeakers(
-    text: string,
-    dialogue: DialogueSpan[]
-  ): Effect<SpeakerAttribution, AIError>;
+  attributeSpeakers(text: string, dialogue: DialogueSpan[]): Effect<SpeakerAttribution, AIError>;
 }
 
 export class AIError extends Error {
@@ -1062,32 +1053,37 @@ export const AIServiceLive = Layer.effect(AIService, makeAIService);
 ### Testing Strategy for Phase 2
 
 **Protocol Tests:**
+
 - Test each protocol implementation
 - Test error handling
 - Test timeout scenarios
 
 **Integration Tests:**
+
 - Test protocols together
 - Test React bridge
 - Test feature flag switching
 
 **E2E Tests:**
+
 - Run full E2E suite (must pass)
 - No visual changes to app
 
 ### Rollback Plan for Phase 2
 
 **If any protocol fails:**
+
 1. Disable specific feature flag
 2. Keep React implementation active
 3. Fix Effect implementation
 4. Re-enable when fixed
 
 **Example:**
+
 ```typescript
 // If DocumentService fails
 localStorage.setItem('feature-useEffectDocument', 'false'); // Use React
-localStorage.setItem('feature-useEffectStorage', 'true');   // Use Effect
+localStorage.setItem('feature-useEffectStorage', 'true'); // Use Effect
 ```
 
 ### Success Criteria for Phase 2
@@ -1250,12 +1246,14 @@ export function ExportButton() {
 #### ExportButton Migration
 
 **Tasks:**
+
 1. Create `ExportButton.effect.tsx`
 2. Update `ExportButton.tsx` with feature flag
 3. Write tests for Effect version
 4. Verify both versions work identically
 
 **Tests:**
+
 ```typescript
 // components/editor/__tests__/ExportButton.test.tsx
 describe('ExportButton', () => {
@@ -1277,6 +1275,7 @@ describe('ExportButton', () => {
 #### TagBreadcrumb Migration
 
 **Pattern:**
+
 ```tsx
 // components/editor/TagBreadcrumb.effect.tsx
 export function EffectTagBreadcrumb() {
@@ -1296,40 +1295,29 @@ export function EffectTagBreadcrumb() {
     });
   }, []);
 
-  return (
-    <div className="flex items-center gap-2">
-      {/* Breadcrumb UI */}
-    </div>
-  );
+  return <div className="flex items-center gap-2">{/* Breadcrumb UI */}</div>;
 }
 ```
 
 #### FileUpload Migration
 
 **Effect Program:**
+
 ```typescript
 const uploadDocument = (file: File) =>
   Effect.gen(function* (_) {
     // Read file
-    const content = yield* _(
-      Effect.tryPromise(() => file.text())
-    );
+    const content = yield* _(Effect.tryPromise(() => file.text()));
 
     // Validate
-    const validation = yield* _(
-      ValidationService.validate(content)
-    );
+    const validation = yield* _(ValidationService.validate(content));
 
     if (!validation.valid) {
-      return yield* _(
-        Effect.fail(new ValidationError('Invalid XML'))
-      );
+      return yield* _(Effect.fail(new ValidationError('Invalid XML')));
     }
 
     // Load document
-    const doc = yield* _(
-      DocumentService.load(content)
-    );
+    const doc = yield* _(DocumentService.load(content));
 
     return doc;
   });
@@ -1340,11 +1328,13 @@ const uploadDocument = (file: File) =>
 #### BulkOperationsPanel Migration
 
 **Complexity: Medium**
+
 - Multiple state variables
 - Selection management
 - Bulk operations
 
 **Effect Approach:**
+
 ```tsx
 export function EffectBulkOperationsPanel() {
   const [selectedPassages, setSelectedPassages] = useState<Set<string>>(new Set());
@@ -1369,11 +1359,7 @@ export function EffectBulkOperationsPanel() {
     await Effect.runPromise(program);
   };
 
-  return (
-    <div className="panel">
-      {/* Panel UI */}
-    </div>
-  );
+  return <div className="panel">{/* Panel UI */}</div>;
 }
 ```
 
@@ -1382,11 +1368,13 @@ export function EffectBulkOperationsPanel() {
 #### EditorLayout Migration (The Big One)
 
 **Current State:**
+
 - 22 useState hooks
 - 995 lines of code
 - Multiple concerns mixed
 
 **Migration Strategy:**
+
 1. **Break into smaller components**
 2. **Extract state to services**
 3. **Use Effect for async operations**
@@ -1404,16 +1392,20 @@ export interface EditorStateService {
 }
 
 const makeEditorStateService = Effect.gen(function* (_) {
-  const panelStateRef = yield* _(Ref.make<PanelState>({
-    bulk: false,
-    viz: false,
-    validation: false,
-  }));
+  const panelStateRef = yield* _(
+    Ref.make<PanelState>({
+      bulk: false,
+      viz: false,
+      validation: false,
+    })
+  );
 
-  const selectionStateRef = yield* _(Ref.make<SelectionState>({
-    passages: [],
-    currentId: null,
-  }));
+  const selectionStateRef = yield* _(
+    Ref.make<SelectionState>({
+      passages: [],
+      currentId: null,
+    })
+  );
 
   return {
     getPanelState: () => Ref.get(panelStateRef),
@@ -1424,8 +1416,7 @@ const makeEditorStateService = Effect.gen(function* (_) {
       })),
 
     getSelectionState: () => Ref.get(selectionStateRef),
-    setSelection: (selection) =>
-      Ref.set(selectionStateRef, selection),
+    setSelection: (selection) => Ref.set(selectionStateRef, selection),
   };
 });
 ```
@@ -1459,9 +1450,7 @@ export function EffectEditorLayout() {
     setPanelState(newState);
 
     // Persist to storage
-    await Effect.runPromise(
-      StorageService.set('panel-state', newState)
-    );
+    await Effect.runPromise(StorageService.set('panel-state', newState));
   };
 
   return (
@@ -1470,9 +1459,7 @@ export function EffectEditorLayout() {
       <TagToolbar onApplyTag={handleApplyTag} />
 
       {/* Panels */}
-      {panelState.bulk && (
-        <BulkOperationsPanel onClose={() => handlePanelToggle('bulk')} />
-      )}
+      {panelState.bulk && <BulkOperationsPanel onClose={() => handlePanelToggle('bulk')} />}
 
       {/* Main content */}
       <RenderedView document={document} />
@@ -1484,21 +1471,25 @@ export function EffectEditorLayout() {
 ### Testing Strategy for Phase 3
 
 **Unit Tests:**
+
 - Test each migrated component
 - Test Effect programs
 - Test error handling
 
 **Integration Tests:**
+
 - Test component interactions
 - Test state persistence
 - Test feature flag switching
 
 **E2E Tests:**
+
 - Run full E2E suite
 - Test with both React and Effect versions
 - Verify no visual differences
 
 **Visual Regression:**
+
 - Take screenshots of React version
 - Take screenshots of Effect version
 - Compare for differences
@@ -1506,12 +1497,14 @@ export function EffectEditorLayout() {
 ### Rollback Plan for Phase 3
 
 **If component migration fails:**
+
 1. Disable specific component feature flag
 2. Keep React version active
 3. Fix Effect version
 4. Re-enable when fixed
 
 **Example:**
+
 ```typescript
 // If ExportButton effect version has bugs
 localStorage.setItem('feature-useEffectExport', 'false'); // Use React
@@ -1535,6 +1528,7 @@ localStorage.setItem('feature-useEffectTagToolbar', 'true'); // Use Effect
 ### Objectives
 
 Complete migration to pure Effect architecture:
+
 1. Remove React Context
 2. Remove all useState
 3. Pure Effect architecture
@@ -1545,6 +1539,7 @@ Complete migration to pure Effect architecture:
 ### Week 13: Remove React Context
 
 **Current:**
+
 ```tsx
 // lib/context/DocumentContext.tsx (React Context)
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
@@ -1556,6 +1551,7 @@ export function DocumentProvider({ children }) {
 ```
 
 **Target:**
+
 ```typescript
 // lib/effect/services/DocumentService.ts (Effect Layer)
 // Already implemented in Phase 2
@@ -1566,19 +1562,18 @@ export const MainLayer = Layer.mergeAll(
   StorageServiceLive,
   ValidationServiceLive,
   AIServiceLive,
-  EditorStateServiceLive,
+  EditorStateServiceLive
 );
 ```
 
 **Migration:**
+
 ```tsx
 // app/page.tsx
 import { Layer, Runtime } from 'effect';
 import { MainLayer } from '@/lib/effect/layers/Main';
 
-const runtime = Runtime.defaultRuntime.pipe(
-  Runtime.provideLayers(MainLayer)
-);
+const runtime = Runtime.defaultRuntime.pipe(Runtime.provideLayers(MainLayer));
 
 export default function HomePage() {
   return (
@@ -1594,12 +1589,14 @@ export default function HomePage() {
 ### Week 14: Remove All useState
 
 **Identify remaining useState:**
+
 ```bash
 # Find all useState usage
 grep -r "useState" components/ --include="*.tsx"
 ```
 
 **Replace with Effect Ref:**
+
 ```tsx
 // Before
 const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -1607,16 +1604,14 @@ const [isPanelOpen, setIsPanelOpen] = useState(false);
 // After
 const isPanelOpenRef = useRef(Ref.make(false));
 const isPanelOpen = Ref.get(isPanelOpenRef);
-const setIsPanelOpen = (value: boolean) =>
-  Effect.runPromise(Ref.set(isPanelOpenRef, value));
+const setIsPanelOpen = (value: boolean) => Effect.runPromise(Ref.set(isPanelOpenRef, value));
 ```
 
 **Or use Effect services:**
+
 ```tsx
 // Better: Use service
-const panelState = await Effect.runPromise(
-  EditorStateService.getPanelState()
-);
+const panelState = await Effect.runPromise(EditorStateService.getPanelState());
 ```
 
 ---
@@ -1626,6 +1621,7 @@ const panelState = await Effect.runPromise(
 **Goal:** Remove React hooks entirely from business logic
 
 **Before (React + Effect mixed):**
+
 ```tsx
 export function EditorLayout() {
   const [document, setDocument] = useState(null);
@@ -1643,6 +1639,7 @@ export function EditorLayout() {
 ```
 
 **After (Pure Effect):**
+
 ```tsx
 export const EditorLayoutProgram = Effect.gen(function* (_) {
   // All logic in Effect
@@ -1682,11 +1679,13 @@ export function EditorLayout() {
 ### Week 16: Optional - React-Free UI
 
 **Investigate Effect-based UI:**
+
 - **Effect UI Libraries** (research needed)
 - **Teleport** (Effect-based UI framework)
 - **Build custom** (using Effect streams)
 
 **If staying with React:**
+
 - Keep React for rendering only
 - All state in Effect services
 - React as "view layer" only
@@ -1696,16 +1695,19 @@ export function EditorLayout() {
 ### Testing Strategy for Phase 4
 
 **Architecture Tests:**
+
 - Verify no React Context
 - Verify no useState in business logic
 - Verify all state in Effect services
 
 **Integration Tests:**
+
 - Test entire app with Effect
 - Test error recovery
 - Test persistence
 
 **E2E Tests:**
+
 - Full E2E suite
 - Performance tests
 - Memory leak tests
@@ -1715,12 +1717,14 @@ export function EditorLayout() {
 **Critical: At this point, rollback is difficult**
 
 **If major issues arise:**
+
 1. Revert to Phase 3 (component-level feature flags)
 2. Keep React Context for critical paths
 3. Fix Effect architecture
 4. Retry migration
 
 **Recommendation:**
+
 - Keep feature flags until 2 weeks of production use
 - Monitor for bugs, performance issues
 - Only remove flags after confidence
@@ -1746,12 +1750,14 @@ export function EditorLayout() {
 **Risk:** Team unfamiliar with Effect concepts
 
 **Mitigation:**
+
 - **Week 1:** Effect training workshop
 - **Ongoing:** Pair programming for Effect code
 - **Documentation:** Internal Effect patterns guide
 - **Code Review:** Effect experts review all PRs
 
 **Resources:**
+
 - Effect documentation: https://effect.website
 - Effect Discord: Community support
 - Internal patterns guide: Create during migration
@@ -1761,18 +1767,21 @@ export function EditorLayout() {
 **Risk:** Effect runtime overhead
 
 **Mitigation:**
+
 - **Baseline:** Measure current performance
 - **Each Phase:** Performance tests
 - **Optimization:** Lazy evaluation, batching
 - **Monitoring:** Performance metrics in production
 
 **Metrics to Track:**
+
 - Page load time
 - Time to interactive
 - Memory usage
 - FPS (frames per second)
 
 **Acceptable Degradation:**
+
 - < 10% slower: Acceptable
 - 10-20% slower: Investigate optimization
 - > 20% slower: Critical issue
@@ -1782,12 +1791,14 @@ export function EditorLayout() {
 **Risk:** Effect services incompatible with React components
 
 **Mitigation:**
+
 - **Bridge Pattern:** React wrappers for Effect services
 - **Feature Flags:** Component-level switching
 - **Gradual Migration:** Not all-or-nothing
 - **Testing:** Integration tests for bridges
 
 **Example Bridge:**
+
 ```tsx
 // Bridge between Effect service and React component
 export function useDocumentService() {
@@ -1807,12 +1818,14 @@ export function useDocumentService() {
 **Risk:** Bugs introduced during migration
 
 **Mitigation:**
+
 - **Feature Flags:** Instant rollback
 - **Comprehensive Tests:** Unit + Integration + E2E
 - **Canary Releases:** Test with subset of users
 - **Monitoring:** Error tracking, user feedback
 
 **Rollback Process:**
+
 1. Disable feature flag
 2. Verify React version works
 3. Fix Effect version
@@ -1828,6 +1841,7 @@ export function useDocumentService() {
 **Risk:** Tests become outdated during migration
 
 **Mitigation:**
+
 - Update tests alongside code
 - Keep tests implementation-agnostic
 - Test protocols, not implementations
@@ -1837,6 +1851,7 @@ export function useDocumentService() {
 **Risk:** Outdated documentation
 
 **Mitigation:**
+
 - Update docs with each phase
 - Effect patterns guide
 - Migration checklist
@@ -1846,6 +1861,7 @@ export function useDocumentService() {
 **Risk:** Incompatibility with Effect
 
 **Mitigation:**
+
 - Research compatibility early
 - Build adapters if needed
 - Consider alternatives
@@ -1859,6 +1875,7 @@ export function useDocumentService() {
 **Risk:** Effect harder to use than React
 
 **Mitigation:**
+
 - TypeScript support (strong types help)
 - Patterns guide (copy-paste examples)
 - Tooling (Effect CLI)
@@ -1870,17 +1887,20 @@ export function useDocumentService() {
 ### Skill Requirements
 
 **Essential Skills:**
+
 - TypeScript (advanced)
 - Functional programming concepts
 - Effect basics (Effect, Layer, Context)
 
 **Nice-to-Have:**
+
 - Category theory basics
 - Previous Effect experience
 
 ### Training Plan
 
 **Week 1: Effect Basics**
+
 - Day 1: What is Effect? Why use it?
 - Day 2: Effect programs (Effect.gen)
 - Day 3: Error handling (Effect.either)
@@ -1888,6 +1908,7 @@ export function useDocumentService() {
 - Day 5: Hands-on workshop
 
 **Week 2: Effect Patterns**
+
 - Day 1: Services and protocols
 - Day 2: Refs and state management
 - Day 3: Streams and async
@@ -1895,6 +1916,7 @@ export function useDocumentService() {
 - Day 5: Migration patterns workshop
 
 **Ongoing:**
+
 - Weekly Effect office hours
 - Code review guidelines
 - Patterns guide updates
@@ -1902,22 +1924,26 @@ export function useDocumentService() {
 ### Roles and Responsibilities
 
 **Effect Lead:**
+
 - Own Effect architecture decisions
 - Review all Effect code
 - Mentor team members
 - Write patterns guide
 
 **React Maintainer:**
+
 - Keep React code working
 - Write/maintain bridges
 - Test compatibility
 
 **QA Engineer:**
+
 - Write Effect tests
 - Update E2E tests
 - Verify feature flags
 
 **DevOps Engineer:**
+
 - Update CI/CD pipelines
 - Add performance monitoring
 - Set up canary deployments
@@ -1929,16 +1955,19 @@ export function useDocumentService() {
 ### Technical Metrics
 
 **Code Quality:**
+
 - [ ] Reduction in useState count (target: 0)
 - [ ] Increase in test coverage (target: 90%+)
 - [ ] Decrease in component complexity (target: < 200 lines)
 
 **Performance:**
+
 - [ ] Page load time within 10% of baseline
 - [ ] Time to interactive within 10% of baseline
 - [ ] Memory usage within 10% of baseline
 
 **Reliability:**
+
 - [ ] All existing tests pass
 - [ ] New tests added for Effect code
 - [ ] E2E tests pass 100%
@@ -1946,11 +1975,13 @@ export function useDocumentService() {
 ### Business Metrics
 
 **User Experience:**
+
 - [ ] No visual changes to app
 - [ ] No feature regressions
 - [ ] Same or better performance
 
 **Development Velocity:**
+
 - [ ] Time to add new features (measure before/after)
 - [ ] Bug fix time (measure before/after)
 - [ ] Onboarding time for new devs (measure before/after)
@@ -1960,6 +1991,7 @@ export function useDocumentService() {
 ## Migration Checklist
 
 ### Phase 1: Foundation Setup
+
 - [ ] Install Effect dependencies
 - [ ] Create parallel directory structure
 - [ ] Create feature flag system
@@ -1968,6 +2000,7 @@ export function useDocumentService() {
 - [ ] No visual changes to app
 
 ### Phase 2: Core Protocols
+
 - [ ] Document protocol implemented
 - [ ] Storage protocol implemented
 - [ ] Validation protocol implemented
@@ -1977,6 +2010,7 @@ export function useDocumentService() {
 - [ ] Feature flags allow switching between React/Effect
 
 ### Phase 3: Component Migration
+
 - [ ] Leaf components migrated (ExportButton, TagBreadcrumb, FileUpload, EntityTooltip)
 - [ ] Panel components migrated (BulkOperationsPanel, ValidationResultsDialog, EntityEditorPanel, StructuralTagPalette)
 - [ ] Complex components migrated (TagToolbar, RenderedView, XMLCodeEditor)
@@ -1987,6 +2021,7 @@ export function useDocumentService() {
 - [ ] All E2E tests pass
 
 ### Phase 4: Full Effect Migration
+
 - [ ] React Context removed
 - [ ] No useState in business logic
 - [ ] Pure Effect architecture

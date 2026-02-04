@@ -15,6 +15,7 @@
 ### Task 1: Annotate Dataset - "The Yellow Wallpaper"
 
 **Files:**
+
 - Create: `tests/dataset/manually-annotated/yellow-wallpaper.xml`
 - Create: `tests/dataset/metadata.json`
 
@@ -97,6 +98,7 @@ git commit --no-gpg-sign -m "dataset: add annotated 'The Yellow Wallpaper'"
 **Follow same pattern as Task 1**
 
 **Files:**
+
 - Create: `tests/dataset/manually-annotated/gift-of-the-magi.xml`
 - Modify: `tests/dataset/metadata.json` (add entry)
 
@@ -116,6 +118,7 @@ git commit --no-gpg-sign -m "dataset: add annotated 'The Gift of the Magi'"
 **Follow same pattern**
 
 **Files:**
+
 - Create: `tests/dataset/manually-annotated/tell-tale-heart.xml`
 
 **Content:** Edgar Allan Poe, ~2,000 words, ~8 passages, 2 characters.
@@ -134,6 +137,7 @@ git commit --no-gpg-sign -m "dataset: add annotated 'The Tell-Tale Heart'"
 **Follow same pattern**
 
 **Files:**
+
 - Create: `tests/dataset/manually-annotated/owl-creek-bridge.xml`
 
 **Content:** Ambrose Bierce, ~3,000 words, ~10 passages, 3 characters.
@@ -152,6 +156,7 @@ git commit --no-gpg-sign -m "dataset: add annotated 'An Occurrence at Owl Creek 
 **Follow same pattern**
 
 **Files:**
+
 - Create: `tests/dataset/manually-annotated/pride-prejudice-ch1.xml`
 
 **Content:** Jane Austen (Chapter 1 only), ~5,000 words, ~20 passages, 3 characters.
@@ -168,6 +173,7 @@ git commit --no-gpg-sign -m "dataset: add annotated 'Pride and Prejudice' Chapte
 ### Task 6: Install Ax Framework Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `package-lock.json`
 
@@ -185,6 +191,7 @@ Expected: Both packages listed with versions
 **Step 3: Update package.json scripts**
 
 Add to scripts section:
+
 ```json
 "scripts": {
   "ax:test": "tsx -e \"import { ax, ai } from '@ax-llm/ax'; const llm = ai({ name: 'openai', apiKey: process.env.OPENAI_API_KEY }); const test = ax('text:string -> sentiment:class'); console.log('Ax installed');\""
@@ -208,6 +215,7 @@ git commit --no-gpg-sign -m "feat: install Ax framework for structured AI genera
 ### Task 7: Implement Ax Provider Interface
 
 **Files:**
+
 - Create: `lib/ai/ax-provider.ts`
 - Modify: `lib/ai/index.ts`
 
@@ -239,8 +247,8 @@ Expected: FAIL with "Cannot find module '@/lib/ai/ax-provider'"
 
 ```typescript
 // lib/ai/ax-provider.ts
-import { ax, ai } from "@ax-llm/ax";
-import { createOpenAI } from "@ax-llm/ax-ai-sdk-provider";
+import { ax, ai } from '@ax-llm/ax';
+import { createOpenAI } from '@ax-llm/ax-ai-sdk-provider';
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 
 export class AxProvider implements AIProvider {
@@ -274,7 +282,7 @@ export class AxProvider implements AIProvider {
         start: match.index,
         end: match.index + match[0].length,
         text: match[1],
-        confidence: 0.8
+        confidence: 0.8,
       });
     }
 
@@ -317,6 +325,7 @@ git commit --no-gpg-sign -m "feat: implement Ax provider interface"
 ### Task 8: Add Command Palette Component
 
 **Files:**
+
 - Create: `components/keyboard/CommandPalette.tsx`
 - Modify: `components/editor/EditorLayout.tsx`
 
@@ -446,6 +455,7 @@ git commit --no-gpg-sign -m "feat: add command palette with Cmd+K shortcut"
 ### Task 9: Implement Basic Keyboard Shortcuts
 
 **Files:**
+
 - Create: `lib/hooks/useKeyboardShortcuts.ts`
 - Create: `components/keyboard/KeyboardShortcutHelp.tsx`
 
@@ -552,6 +562,7 @@ git commit --no-gpg-sign -m "feat: add keyboard shortcuts system"
 ### Task 10: Set Up IndexedDB Pattern Database
 
 **Files:**
+
 - Create: `lib/db/PatternDB.ts`
 - Create: `tests/unit/pattern-db.test.ts`
 
@@ -625,7 +636,7 @@ export const db = new PatternDB();
 export async function initDB() {
   await db.version(1).stores({
     speakers: '++xmlId, name',
-    corrections: '++id, timestamp'
+    corrections: '++id, timestamp',
   });
 }
 ```
@@ -649,6 +660,7 @@ git commit --no-gpg-sign -m "feat: add IndexedDB pattern database with Dexie"
 ### Task 11: Create Rust Project for Pattern Engine
 
 **Files:**
+
 - Create: `pattern-engine/Cargo.toml`
 - Create: `pattern-engine/src/lib.rs`
 
@@ -713,6 +725,7 @@ git commit --no-gpg-sign -m "feat: initialize Rust pattern engine project"
 ### Task 12: Compile WASM and Create JavaScript Wrapper
 
 **Files:**
+
 - Create: `lib/pattern/wasm-loader.ts`
 
 **Step 1: Write test for WASM loader**
@@ -766,6 +779,7 @@ git commit --no-gpg-sign -m "feat: add WASM pattern engine loader"
 ### Task 13: Implement Confidence Scoring Algorithm
 
 **Files:**
+
 - Create: `lib/pattern/confidence.ts`
 - Test: `tests/unit/confidence.test.ts`
 
@@ -781,7 +795,7 @@ describe('Confidence Scoring', () => {
       recent: true,
       chapterFrequency: 0.8,
       turnTaking: false,
-      nameMention: false
+      nameMention: false,
     };
 
     const confidence = calculateConfidence(pattern, {});
@@ -806,10 +820,7 @@ export interface Context {
   uniqueSpeakers: number;
 }
 
-export function calculateConfidence(
-  pattern: PatternMatch,
-  context: Context
-): number {
+export function calculateConfidence(pattern: PatternMatch, context: Context): number {
   let score = 0.0;
 
   // Recency boost
@@ -846,6 +857,7 @@ git commit --no-gpg-sign -m "feat: implement pattern confidence scoring"
 ### Task 14: Implement Pattern Database Operations
 
 **Files:**
+
 - Modify: `lib/db/PatternDB.ts`
 - Test: `tests/unit/pattern-db-ops.test.ts`
 
@@ -867,7 +879,7 @@ describe('PatternDB Operations', () => {
   test('should update speaker pattern', async () => {
     await updateSpeakerPattern('speaker1', {
       lastUsed: Date.now(),
-      positionFrequency: new Map([['ch1', 5]])
+      positionFrequency: new Map([['ch1', 5]]),
     });
 
     const speaker = await db.speakers.get('speaker1');
@@ -891,7 +903,7 @@ export async function updateSpeakerPattern(
     xmlId,
     name: xmlId,
     lastUsed: pattern.lastUsed,
-    chapterAffinity: Object.fromEntries(pattern.positionFrequency)
+    chapterAffinity: Object.fromEntries(pattern.positionFrequency),
   });
 }
 
@@ -906,7 +918,7 @@ export async function logCorrection(
     passage,
     accepted,
     rejected,
-    confidence
+    confidence,
   });
 }
 ```
@@ -928,6 +940,7 @@ git commit --no-gpg-sign -m "feat: add pattern database operations"
 ### Task 15: Implement AI Mode Switcher Component
 
 **Files:**
+
 - Create: `components/ai/AIModeSwitcher.tsx`
 - Modify: `components/editor/EditorLayout.tsx`
 
@@ -1023,6 +1036,7 @@ git commit --no-gpg-sign -m "feat: add AI mode switcher"
 ### Task 16: Implement Ax Dialogue Detection Signature
 
 **Files:**
+
 - Modify: `lib/ai/ax-provider.ts`
 
 **Step 1: Write test for dialogue detection**
@@ -1114,6 +1128,7 @@ git commit --no-gpg-sign -m "feat: implement Ax dialogue detection signature"
 ### Task 17: Implement Ax Speaker Attribution Signature
 
 **Files:**
+
 - Modify: `lib/ai/ax-provider.ts`
 
 **Step 1: Write test for speaker attribution**
@@ -1125,9 +1140,7 @@ import { AxProvider } from '@/lib/ai/ax-provider';
 describe('Ax Speaker Attribution', () => {
   test('should attribute speaker to dialogue', async () => {
     const provider = new AxProvider('openai', 'test-key');
-    const characters = [
-      { xmlId: 'jane', name: 'Jane Eyre' }
-    ];
+    const characters = [{ xmlId: 'jane', name: 'Jane Eyre' }];
 
     // Mock API for testing
     const result = await provider.attributeSpeaker(
@@ -1200,6 +1213,7 @@ git commit --no-gpg-sign -m "feat: implement Ax speaker attribution signature"
 ### Task 18: Implement Inline AI Suggestions Display
 
 **Files:**
+
 - Create: `components/ai/AISuggestion.tsx`
 - Modify: `components/editor/RenderedView.tsx`
 
@@ -1262,6 +1276,7 @@ git commit --no-gpg-sign -m "feat: add inline AI suggestion display"
 ### Task 19: Implement Pattern Learning from User Corrections
 
 **Files:**
+
 - Modify: `lib/pattern/learner.ts`
 - Modify: `lib/db/PatternDB.ts`
 
@@ -1273,9 +1288,9 @@ import { learnFromCorrection } from '@/lib/pattern/learner';
 
 describe('Pattern Learning', () => {
   test('should update patterns from user correction', async () => {
-    const passage = "Hello world";
-    const accepted = "speaker1";
-    const rejected = ["speaker2"];
+    const passage = 'Hello world';
+    const accepted = 'speaker1';
+    const rejected = ['speaker2'];
 
     await learnFromCorrection(passage, accepted, rejected);
 
@@ -1307,7 +1322,7 @@ export async function learnFromCorrection(
     xmlId: acceptedSpeaker,
     name: acceptedSpeaker,
     lastUsed: Date.now(),
-    chapterAffinity: {}
+    chapterAffinity: {},
   });
 
   // Update turn-taking patterns
@@ -1335,6 +1350,7 @@ git commit --no-gpg-sign -m "feat: implement pattern learning from corrections"
 ### Task 20: Test and Validate Pattern Engine Accuracy
 
 **Files:**
+
 - Create: `tests/integration/pattern-engine-accuracy.test.ts`
 
 **Step 1: Write accuracy test**
@@ -1355,7 +1371,7 @@ describe('Pattern Engine Accuracy', () => {
       results.push(correct);
     }
 
-    const accuracy = results.filter(r => r).length / results.length;
+    const accuracy = results.filter((r) => r).length / results.length;
     expect(accuracy).toBeGreaterThan(0.7);
   });
 });
@@ -1380,6 +1396,7 @@ git commit --no-gpg-sign -m "test: add pattern engine accuracy validation"
 ### Task 21: Create Sample Gallery Welcome Screen
 
 **Files:**
+
 - Create: `components/samples/SampleGallery.tsx`
 - Modify: `app/page.tsx`
 
@@ -1478,6 +1495,7 @@ git commit --no-gpg-sign -m "feat: add sample gallery welcome screen"
 ### Task 22: Implement Sample Loader
 
 **Files:**
+
 - Create: `lib/samples/sampleLoader.ts`
 
 **Step 1: Write test**
@@ -1513,7 +1531,7 @@ export function getSamples() {
     { id: 'gift-of-the-magi', title: 'The Gift of the Magi' },
     { id: 'tell-tale-heart', title: 'The Tell-Tale Heart' },
     { id: 'owl-creek-bridge', title: 'An Occurrence at Owl Creek Bridge' },
-    { id: 'pride-prejudice-ch1', title: 'Pride and Prejudice Ch. 1' }
+    { id: 'pride-prejudice-ch1', title: 'Pride and Prejudice Ch. 1' },
   ];
 }
 ```
@@ -1542,6 +1560,7 @@ git commit --no-gpg-sign -m "feat: add sample loader with dataset"
 ### Task 23: Add Corpus Browser UI
 
 **Files:**
+
 - Create: `components/samples/CorpusBrowser.tsx`
 
 **Step 1: Implement corpus browser**
@@ -1648,6 +1667,7 @@ git commit --no-gpg-sign -m "feat: add corpus browser for Wright American Fictio
 ### Task 24: Implement Bulk Operations Panel
 
 **Files:**
+
 - Create: `components/editor/BulkOperationsPanel.tsx`
 - Modify: `components/editor/EditorLayout.tsx`
 
@@ -1800,6 +1820,7 @@ git commit --no-gpg-sign -m "feat: add bulk operations panel"
 ### Task 25: Implement Multi-Select for Bulk Operations
 
 **Files:**
+
 - Modify: `components/editor/RenderedView.tsx`
 
 **Step 1: Add multi-select logic**
@@ -1810,9 +1831,9 @@ const handlePassageClick = (passageId: string, event: React.MouseEvent) => {
   if (isBulkMode) {
     // Toggle selection
     if (selectedPassages.includes(passageId)) {
-      setSelectedPassages(prev => prev.filter(id => id !== passageId));
+      setSelectedPassages((prev) => prev.filter((id) => id !== passageId));
     } else {
-      setSelectedPassages(prev => [...prev, passageId]);
+      setSelectedPassages((prev) => [...prev, passageId]);
     }
   } else {
     // Single selection
@@ -1833,6 +1854,7 @@ git commit --no-gpg-sign -m "feat: add multi-select support for bulk operations"
 ### Task 26: Create Navigation Outline Panel
 
 **Files:**
+
 - Create: `components/navigation/DialogueOutline.tsx`
 
 **Step 1: Implement outline component**
@@ -1909,6 +1931,7 @@ git commit --no-gpg-sign -m "feat: add dialogue navigation outline panel"
 ### Task 27: Implement Quick Search Functionality
 
 **Files:**
+
 - Create: `components/navigation/QuickSearch.tsx`
 
 **Step 1: Implement search**
@@ -1976,6 +1999,7 @@ git commit --no-gpg-sign -m "feat: add quick search for passages"
 ### Task 28: Implement Recent Documents Feature
 
 **Files:**
+
 - Create: `lib/storage/recentDocuments.ts`
 
 **Step 1: Implement recent documents storage**
@@ -2004,7 +2028,7 @@ export function addRecentDocument(doc: RecentDocument) {
   const recent = getRecentDocuments();
 
   // Remove if already exists
-  const filtered = recent.filter(d => d.id !== doc.id);
+  const filtered = recent.filter((d) => d.id !== doc.id);
 
   // Add to front
   const updated = [doc, ...filtered].slice(0, 10); // Keep 10
@@ -2014,7 +2038,7 @@ export function addRecentDocument(doc: RecentDocument) {
 
 export function updateProgress(id: string, progress: number) {
   const recent = getRecentDocuments();
-  const doc = recent.find(d => d.id === id);
+  const doc = recent.find((d) => d.id === id);
   if (doc) {
     doc.progress = progress;
     localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
@@ -2036,6 +2060,7 @@ git commit --no-gpg-sign -m "feat: add recent documents storage"
 ### Task 29: Install Visualization Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `package-lock.json`
 
@@ -2063,6 +2088,7 @@ git commit --no-gpg-sign -m "feat: install visualization dependencies"
 ### Task 30: Create Character Network Graph Component
 
 **Files:**
+
 - Create: `components/visualization/CharacterNetwork.tsx`
 
 **Step 1: Write test**
@@ -2191,6 +2217,7 @@ git commit --no-gpg-sign -m "feat: add character network graph visualization"
 ### Task 31: Implement Dialogue Timeline Component
 
 **Files:**
+
 - Create: `components/visualization/DialogueTimeline.tsx`
 
 **Step 1: Implement timeline with D3**
@@ -2262,6 +2289,7 @@ git commit --no-gpg-sign -m "feat: add dialogue timeline visualization"
 ### Task 32: Implement Statistics Dashboard
 
 **Files:**
+
 - Create: `components/visualization/StatisticsDashboard.tsx`
 
 **Step 1: Implement dashboard with Recharts**
@@ -2362,6 +2390,7 @@ git commit --no-gpg-sign -m "feat: add statistics dashboard with Recharts"
 ### Task 33: Add Export Visualization Feature
 
 **Files:**
+
 - Create: `lib/visualization/export.ts`
 
 **Step 1: Implement export functions**
@@ -2416,6 +2445,7 @@ git commit --no-gpg-sign -m "feat: add PDF export for visualizations"
 ### Task 34: Install Playwright and Configure Nix Flake
 
 **Files:**
+
 - Modify: `flake.nix`
 - Create: `playwright.config.ts`
 - Modify: `package.json`
@@ -2523,6 +2553,7 @@ git commit --no-gpg-sign -m "feat: add Playwright with Nix flake integration"
 ### Task 35: Write E2E Test for Keyboard Shortcuts
 
 **Files:**
+
 - Create: `tests/e2e/keyboard-shortcuts.spec.ts`
 
 **Step 1: Write E2E test**
@@ -2574,6 +2605,7 @@ git commit --no-gpg-sign -m "test: add E2E test for keyboard shortcuts"
 ### Task 36: Write E2E Test for AI Mode Switching
 
 **Files:**
+
 - Create: `tests/e2e/ai-modes.spec.ts`
 
 **Step 1: Test mode switching**
@@ -2591,7 +2623,9 @@ test.describe('AI Mode Switching', () => {
   test('mode switcher shows three options', async ({ page }) => {
     const switcher = page.locator('[data-testid="ai-mode-switcher"]');
 
-    await expect(switcher.locator('button').filter({ hasText: /Manual|Suggest|Auto/ })).toHaveCount(3);
+    await expect(switcher.locator('button').filter({ hasText: /Manual|Suggest|Auto/ })).toHaveCount(
+      3
+    );
   });
 
   test('switching to suggest mode shows suggestions', async ({ page }) => {
@@ -2628,6 +2662,7 @@ git commit --no-gpg-sign -m "test: add E2E test for AI mode switching"
 ### Task 37: Write E2E Test for Sample Gallery
 
 **Files:**
+
 - Create: `tests/e2e/sample-gallery.spec.ts`
 
 **Step 1: Test sample gallery and loading**
@@ -2673,6 +2708,7 @@ git commit --no-gpg-sign -m "test: add E2E test for sample gallery"
 ### Task 38: Write E2E Test for Visualizations
 
 **Files:**
+
 - Create: `tests/e2e/visualizations.spec.ts`
 
 **Step 1: Test visualization components**
@@ -2733,6 +2769,7 @@ git commit --no-gpg-sign -m "test: add E2E tests for visualizations"
 ### Task 39: Add Performance Optimization (Web Workers)
 
 **Files:**
+
 - Create: `lib/workers/visualization.worker.ts`
 
 **Step 1: Create Web Worker for graph layout**
@@ -2765,6 +2802,7 @@ git commit --no-gpg-sign -m "feat: add Web Worker for visualization calculations
 ### Task 40: Add Lazy Loading for Visualization Components
 
 **Files:**
+
 - Modify: `app/visualizations/page.tsx` (or create it)
 
 **Step 1: Implement dynamic import**
@@ -2808,6 +2846,7 @@ git commit --no-gpg-sign -m "feat: add lazy loading for visualization components
 ### Task 41: Update Documentation with Screenshots
 
 **Files:**
+
 - Create: `docs/screenshots/README.md`
 
 **Step 1: Create screenshots directory structure**
@@ -2818,7 +2857,7 @@ mkdir -p docs/screenshots/{annotation,ai-settings,samples,visualizations,workflo
 
 **Step 2: Create README for screenshots**
 
-```markdown
+````markdown
 # TEI Dialogue Editor Screenshots
 
 This directory contains screenshots for documentation purposes.
@@ -2834,11 +2873,14 @@ This directory contains screenshots for documentation purposes.
 ## Capturing Screenshots
 
 Use Playwright for automated captures:
+
 ```bash
 npx playwright test --config=screenshot.config.ts
 ```
+````
 
 Or capture manually:
+
 - macOS: Cmd+Shift+4 (selection) or Cmd+Shift+6 (full screen)
 - Windows: Win+Shift+S
 - Save as PNG in appropriate subdirectory
@@ -2855,20 +2897,22 @@ Example: `annotation-02-command-palette.png`
 3. Capture the screenshot
 4. Save with descriptive name
 5. Update this README with the new file
-```
+
+````
 
 **Step 3: Commit**
 
 ```bash
 git add docs/screenshots/
 git commit --no-gpg-sign -m "docs: add screenshot documentation structure"
-```
+````
 
 ---
 
 ### Task 42: Update README with Enhanced Features
 
 **Files:**
+
 - Modify: `README.md`
 
 **Step 1: Update README with new features**
@@ -2922,6 +2966,7 @@ Visit http://localhost:3000
 ## Dataset
 
 The tool includes a manually annotated dataset of 5 public domain works:
+
 - The Yellow Wallpaper (1892)
 - The Gift of the Magi (1905)
 - The Tell-Tale Heart (1843)
@@ -2933,8 +2978,8 @@ Total: ~200-500 tagged dialogue passages
 ## Testing
 
 \`\`\`bash
-npm test                      # Unit/integration tests
-npx playwright test            # E2E tests
+npm test # Unit/integration tests
+npx playwright test # E2E tests
 \`\`\`
 
 ## Documentation
@@ -2955,6 +3000,7 @@ git commit --no-gpg-sign -m "docs: update README with enhanced features"
 ### Task 43: Create Keyboard Shortcuts Reference Guide
 
 **Files:**
+
 - Create: `docs/KEYBOARD_SHORTCUTS.md`
 
 **Step 1: Write shortcuts guide**
@@ -2964,62 +3010,62 @@ git commit --no-gpg-sign -m "docs: update README with enhanced features"
 
 ## Global Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Cmd+K` | Open command palette |
-| `Cmd+S` | Save document |
-| `Cmd+Z` | Undo |
-| `Cmd+Shift+Z` | Redo |
-| `?` | Show keyboard shortcuts help |
-| `Esc` | Close dialog/modal |
+| Shortcut      | Action                       |
+| ------------- | ---------------------------- |
+| `Cmd+K`       | Open command palette         |
+| `Cmd+S`       | Save document                |
+| `Cmd+Z`       | Undo                         |
+| `Cmd+Shift+Z` | Redo                         |
+| `?`           | Show keyboard shortcuts help |
+| `Esc`         | Close dialog/modal           |
 
 ## Navigation
 
-| Shortcut | Action |
-|----------|--------|
-| `J` | Next dialogue passage |
-| `K` | Previous dialogue passage |
-| `Shift+J/K` | Extend selection (bulk mode) |
-| `G+G` | Jump to chapter |
-| `Cmd/Ctrl+G` | Go to passage number |
+| Shortcut           | Action                        |
+| ------------------ | ----------------------------- |
+| `J`                | Next dialogue passage         |
+| `K`                | Previous dialogue passage     |
+| `Shift+J/K`        | Extend selection (bulk mode)  |
+| `G+G`              | Jump to chapter               |
+| `Cmd/Ctrl+G`       | Go to passage number          |
 | `Cmd/Ctrl+Shift+A` | Select all in current chapter |
-| `Cmd/Ctrl+Shift+N` | Select all by character |
+| `Cmd/Ctrl+Shift+N` | Select all by character       |
 
 ## Tagging
 
-| Shortcut | Action |
-|----------|--------|
-| `1-9` | Quick-assign to speakers 1-9 |
-| `T` | Open tag menu |
-| `R` | Remove tag |
-| `A` | Accept AI suggestion |
-| `X` | Reject AI suggestion |
+| Shortcut  | Action                            |
+| --------- | --------------------------------- |
+| `1-9`     | Quick-assign to speakers 1-9      |
+| `T`       | Open tag menu                     |
+| `R`       | Remove tag                        |
+| `A`       | Accept AI suggestion              |
+| `X`       | Reject AI suggestion              |
 | `Shift+A` | Accept all visible AI suggestions |
 | `Shift+X` | Reject all visible AI suggestions |
 
 ## Bulk Mode
 
-| Shortcut | Action |
-|----------|--------|
-| `Cmd/Ctrl+B` | Toggle bulk operations panel |
-| `Shift+Click` | Add to selection (bulk mode) |
-| `Cmd/Ctrl+Shift+A` | Select all untagged |
-| `Cmd/Ctrl+Shift+N` | Select all by character |
+| Shortcut           | Action                       |
+| ------------------ | ---------------------------- |
+| `Cmd/Ctrl+B`       | Toggle bulk operations panel |
+| `Shift+Click`      | Add to selection (bulk mode) |
+| `Cmd/Ctrl+Shift+A` | Select all untagged          |
+| `Cmd/Ctrl+Shift+N` | Select all by character      |
 
 ## AI Modes
 
-| Shortcut | Action |
-|----------|--------|
-| `Tab` | Cycle AI mode (Manual → Suggest → Auto) |
-| `Shift+Tab` | Cycle AI mode in reverse |
-| `L` | Toggle learning on/off |
+| Shortcut    | Action                                  |
+| ----------- | --------------------------------------- |
+| `Tab`       | Cycle AI mode (Manual → Suggest → Auto) |
+| `Shift+Tab` | Cycle AI mode in reverse                |
+| `L`         | Toggle learning on/off                  |
 
 ## Search
 
-| Shortcut | Action |
-|----------|--------|
-| `Cmd/Ctrl+F` | Find passages by text |
-| `Cmd/Ctrl+Shift+F` | Find by speaker |
+| Shortcut           | Action                |
+| ------------------ | --------------------- |
+| `Cmd/Ctrl+F`       | Find passages by text |
+| `Cmd/Ctrl+Shift+F` | Find by speaker       |
 
 ## Documentation
 
@@ -3038,6 +3084,7 @@ git commit --no-gpg-sign -m "docs: add keyboard shortcuts reference guide"
 ### Task 44: Create AI Setup Guide
 
 **Files:**
+
 - Create: `docs/AI_SETUP.md`
 
 **Step 1: Write AI setup guide**
@@ -3065,13 +3112,17 @@ The TEI Dialogue Editor supports multiple AI providers through the Ax framework.
 3. Add to `.env.local`:
 
 \`\`\`bash
+
 # For OpenAI
+
 OPENAI_API_KEY=sk-...
 
 # For Anthropic
+
 ANTHROPIC_API_KEY=sk-ant-...
 
 # For Google
+
 GOOGLE_API_KEY=...
 \`\`\`
 
@@ -3084,11 +3135,11 @@ GOOGLE_API_KEY=...
 
 ### 3. Cost Estimation
 
-| Provider | Cost per 1K passages (approx) |
-|----------|----------------------------------|
-| OpenAI GPT-4 | $0.01-0.02 |
-| Anthropic Claude 3 | $0.008-0.015 |
-| Google Gemini | $0.001-0.005 |
+| Provider           | Cost per 1K passages (approx) |
+| ------------------ | ----------------------------- |
+| OpenAI GPT-4       | $0.01-0.02                    |
+| Anthropic Claude 3 | $0.008-0.015                  |
+| Google Gemini      | $0.001-0.005                  |
 
 ## Features
 
@@ -3216,6 +3267,7 @@ This implementation plan breaks down the enhanced features into **bite-sized TDD
 **Phase 1:** 10 tasks covering dataset creation (5 works), Ax integration, command palette, keyboard shortcuts, and pattern database setup.
 
 **Key Principles:**
+
 - Every task follows TDD: test → implement → verify → commit
 - Exact file paths and code provided
 - All changes committed immediately

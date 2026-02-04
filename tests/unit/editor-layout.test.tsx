@@ -9,8 +9,8 @@ import { QuickSearchDialog } from '@/components/search/QuickSearchDialog';
 // Mock the PatternDB
 jest.mock('@/lib/db/PatternDB', () => ({
   db: {
-    logCorrection: jest.fn().mockResolvedValue(undefined)
-  }
+    logCorrection: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 
 // Mock document.addEventListener for selectionchange
@@ -44,11 +44,9 @@ describe('React Hooks Dependencies', () => {
   test('should render without errors when no document is loaded', async () => {
     const { rerender } = render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -61,11 +59,9 @@ describe('React Hooks Dependencies', () => {
     // Re-render with same props (should not cause errors)
     rerender(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -84,7 +80,7 @@ describe('Bulk Operations Integration', () => {
     onExportSelection: jest.fn(),
     onValidate: jest.fn(),
     onConvert: jest.fn(),
-    onClose: jest.fn()
+    onClose: jest.fn(),
   };
 
   beforeEach(() => {
@@ -93,13 +89,7 @@ describe('Bulk Operations Integration', () => {
 
   test('should call onTagAll when tagging selected passages', async () => {
     const user = userEvent.setup();
-    render(
-      <BulkOperationsPanel
-        isOpen={true}
-        selectedPassages={['p1', 'p2']}
-        {...mockHandlers}
-      />
-    );
+    render(<BulkOperationsPanel isOpen={true} selectedPassages={['p1', 'p2']} {...mockHandlers} />);
 
     // Select speaker
     const select = screen.getByRole('combobox');
@@ -114,13 +104,7 @@ describe('Bulk Operations Integration', () => {
 
   test('should call onSelectAllUntagged when button clicked', async () => {
     const user = userEvent.setup();
-    render(
-      <BulkOperationsPanel
-        isOpen={true}
-        selectedPassages={['p1', 'p2']}
-        {...mockHandlers}
-      />
-    );
+    render(<BulkOperationsPanel isOpen={true} selectedPassages={['p1', 'p2']} {...mockHandlers} />);
 
     await user.click(screen.getByText('Select All Untagged'));
 
@@ -129,13 +113,7 @@ describe('Bulk Operations Integration', () => {
 
   test('should call onExportSelection when button clicked', async () => {
     const user = userEvent.setup();
-    render(
-      <BulkOperationsPanel
-        isOpen={true}
-        selectedPassages={['p1', 'p2']}
-        {...mockHandlers}
-      />
-    );
+    render(<BulkOperationsPanel isOpen={true} selectedPassages={['p1', 'p2']} {...mockHandlers} />);
 
     await user.click(screen.getByText('Export Selection'));
 
@@ -144,13 +122,7 @@ describe('Bulk Operations Integration', () => {
 
   test('should call onValidate when button clicked', async () => {
     const user = userEvent.setup();
-    render(
-      <BulkOperationsPanel
-        isOpen={true}
-        selectedPassages={['p1', 'p2']}
-        {...mockHandlers}
-      />
-    );
+    render(<BulkOperationsPanel isOpen={true} selectedPassages={['p1', 'p2']} {...mockHandlers} />);
 
     await user.click(screen.getByText('Validate Selection'));
 
@@ -167,15 +139,13 @@ describe('QuickSearchDialog Integration', () => {
     expect(() => {
       render(
         <ErrorProvider>
-
-        <DocumentProvider>
-          <QuickSearchDialog
-            open={false}
-            onOpenChange={onOpenChange}
-            onResultClick={onResultClick}
-          />
-        </DocumentProvider>
-
+          <DocumentProvider>
+            <QuickSearchDialog
+              open={false}
+              onOpenChange={onOpenChange}
+              onResultClick={onResultClick}
+            />
+          </DocumentProvider>
         </ErrorProvider>
       );
     }).not.toThrow();
@@ -184,11 +154,9 @@ describe('QuickSearchDialog Integration', () => {
   test('should have search dialog state in EditorLayout', async () => {
     render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -204,11 +172,9 @@ describe('QuickSearchDialog Integration', () => {
   test('should have keyboard shortcut handler', async () => {
     render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -230,11 +196,9 @@ describe('AI Auto Mode', () => {
   test('should render auto-application progress when in auto mode', async () => {
     const { container } = render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -253,11 +217,9 @@ describe('AI Auto Mode', () => {
   test('should show undo toast after auto-applying suggestions', async () => {
     const { container } = render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -275,11 +237,9 @@ describe('Split Pane Resizing', () => {
   test('should render without split pane errors', async () => {
     const { container } = render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -295,11 +255,9 @@ describe('Split Pane Resizing', () => {
   test('should have split position state defined', async () => {
     const { container } = render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 
@@ -314,11 +272,9 @@ describe('Split Pane Resizing', () => {
   test('should not throw errors with drag state management', async () => {
     const { container } = render(
       <ErrorProvider>
-
-      <DocumentProvider>
-        <EditorLayout />
-      </DocumentProvider>
-
+        <DocumentProvider>
+          <EditorLayout />
+        </DocumentProvider>
       </ErrorProvider>
     );
 

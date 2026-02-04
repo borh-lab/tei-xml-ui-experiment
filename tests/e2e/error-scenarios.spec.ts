@@ -7,7 +7,7 @@ import {
   createMalformedTEI,
   createMinimalTEI,
   mockConsoleErrors,
-  waitForEditorReady
+  waitForEditorReady,
 } from './fixtures/test-helpers';
 import { TIMEOUTS, URLS } from './fixtures/test-constants';
 
@@ -77,7 +77,7 @@ test.describe('Invalid File Upload Errors', () => {
     const file = {
       name: 'test-image.jpg',
       mimeType: 'image/jpeg',
-      buffer: Buffer.from([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46]),
+      buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]),
     };
 
     const fileInput = page.locator('input[type="file"]');
@@ -158,7 +158,7 @@ test.describe('Invalid File Upload Errors', () => {
 
     await uploadTestDocument(page, {
       name: 'malformed-unclosed.tei.xml',
-      content: malformedTEI
+      content: malformedTEI,
     });
 
     // Should not crash or show content
@@ -175,7 +175,7 @@ test.describe('Invalid File Upload Errors', () => {
 
     await uploadTestDocument(page, {
       name: 'malformed-entity.tei.xml',
-      content: malformedTEI
+      content: malformedTEI,
     });
 
     // Should not crash
@@ -191,7 +191,7 @@ test.describe('Invalid File Upload Errors', () => {
 
     await uploadTestDocument(page, {
       name: 'malformed-root.tei.xml',
-      content: malformedTEI
+      content: malformedTEI,
     });
 
     // Should handle gracefully
@@ -221,17 +221,19 @@ test.describe('Invalid File Upload Errors', () => {
     // Now upload valid file
     const validTEI = generateTestDocument({
       speakers: ['narrator', 'della'],
-      passages: 3
+      passages: 3,
     });
 
     await uploadTestDocument(page, {
       name: 'valid-retry.tei.xml',
-      content: validTEI
+      content: validTEI,
     });
 
     // Should successfully load
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
   });
 
   test('should show user-friendly error message for invalid files', async ({ page }) => {
@@ -263,7 +265,7 @@ test.describe('Network Error Scenarios', () => {
     await page.waitForLoadState('networkidle');
 
     // Intercept and fail sample load requests
-    await page.route('**/samples/*.xml', route => {
+    await page.route('**/samples/*.xml', (route) => {
       route.abort('failed');
     });
 
@@ -311,7 +313,7 @@ test.describe('Network Error Scenarios', () => {
 
     // First request times out
     let requestCount = 0;
-    await page.route('**/samples/*.xml', route => {
+    await page.route('**/samples/*.xml', (route) => {
       requestCount++;
       if (requestCount === 1) {
         // Never respond - simulate timeout
@@ -327,7 +329,9 @@ test.describe('Network Error Scenarios', () => {
     await page.getByRole('button', { name: 'Load Sample' }).click();
 
     // Wait for timeout or load
-    await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 }).catch(() => {});
+    await page
+      .waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 })
+      .catch(() => {});
 
     // Should not crash
     await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
@@ -348,7 +352,9 @@ test.describe('Network Error Scenarios', () => {
     await page.waitForSelector('button:has-text("Load Sample")', { timeout: 5000 });
     await page.getByRole('button', { name: 'Load Sample' }).click();
     await page.waitForLoadState('networkidle');
-    await page.waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 }).catch(() => {});
+    await page
+      .waitForSelector('[id^="passage-"]', { state: 'attached', timeout: 5000 })
+      .catch(() => {});
 
     // Verify editor loaded
     await expect(page.getByText('Rendered View')).toBeVisible();
@@ -453,7 +459,7 @@ test.describe('Invalid TEI Structure', () => {
 
     await uploadTestDocument(page, {
       name: 'incomplete.tei.xml',
-      content: incompleteTEI
+      content: incompleteTEI,
     });
 
     // Parser may be lenient and accept it
@@ -481,7 +487,7 @@ test.describe('Invalid TEI Structure', () => {
 
     await uploadTestDocument(page, {
       name: 'empty-body.tei.xml',
-      content: emptyTEI
+      content: emptyTEI,
     });
 
     await page.waitForLoadState('networkidle');
@@ -498,7 +504,8 @@ test.describe('Invalid TEI Structure', () => {
   test('should handle TEI with speakers but no dialogue', async ({ page }) => {
     let speakersOnly = '<?xml version="1.0" encoding="UTF-8"?>\n';
     speakersOnly += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
-    speakersOnly += '  <teiHeader><fileDesc><titleStmt><title>Speakers Only</title></titleStmt></fileDesc></teiHeader>\n';
+    speakersOnly +=
+      '  <teiHeader><fileDesc><titleStmt><title>Speakers Only</title></titleStmt></fileDesc></teiHeader>\n';
     speakersOnly += '  <text><body>\n';
     speakersOnly += '    <castList>\n';
     speakersOnly += '      <castItem><role xml:id="speaker1">Speaker 1</role></castItem>\n';
@@ -509,7 +516,7 @@ test.describe('Invalid TEI Structure', () => {
 
     await uploadTestDocument(page, {
       name: 'speakers-only.tei.xml',
-      content: speakersOnly
+      content: speakersOnly,
     });
 
     await page.waitForLoadState('networkidle');
@@ -526,7 +533,8 @@ test.describe('Invalid TEI Structure', () => {
   test('should handle TEI with malformed speaker references', async ({ page }) => {
     let malformedRefs = '<?xml version="1.0" encoding="UTF-8"?>\n';
     malformedRefs += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
-    malformedRefs += '  <teiHeader><fileDesc><titleStmt><title>Bad Refs</title></titleStmt></fileDesc></teiHeader>\n';
+    malformedRefs +=
+      '  <teiHeader><fileDesc><titleStmt><title>Bad Refs</title></titleStmt></fileDesc></teiHeader>\n';
     malformedRefs += '  <text><body>\n';
     malformedRefs += '    <p><s who="#nonexistent-speaker">Text</s></p>\n';
     malformedRefs += '    <p><s who="">No speaker</s></p>\n';
@@ -535,7 +543,7 @@ test.describe('Invalid TEI Structure', () => {
 
     await uploadTestDocument(page, {
       name: 'bad-refs.tei.xml',
-      content: malformedRefs
+      content: malformedRefs,
     });
 
     await page.waitForLoadState('networkidle');
@@ -563,18 +571,18 @@ test.describe('Large File Performance', () => {
 
     const largeTEI = generateTestDocument({
       speakers: ['narrator', 'della', 'jim'],
-      passages: 200
+      passages: 200,
     });
 
     const startTime = Date.now();
 
     await uploadTestDocument(page, {
       name: 'large-200.tei.xml',
-      content: largeTEI
+      content: largeTEI,
     });
 
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
 
     const loadTime = Date.now() - startTime;
 
@@ -582,7 +590,9 @@ test.describe('Large File Performance', () => {
     expect(loadTime).toBeLessThan(30000);
 
     // Should render at least first passage
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
 
     // Should remain responsive - check editor loaded
     await expect(page.getByText('Rendered View')).toBeVisible();
@@ -594,18 +604,18 @@ test.describe('Large File Performance', () => {
 
     const veryLargeTEI = generateTestDocument({
       speakers: ['narrator', 'della'],
-      passages: 600
+      passages: 600,
     });
 
     const startTime = Date.now();
 
     await uploadTestDocument(page, {
       name: 'very-large-600.tei.xml',
-      content: veryLargeTEI
+      content: veryLargeTEI,
     });
 
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
 
     const loadTime = Date.now() - startTime;
 
@@ -613,7 +623,9 @@ test.describe('Large File Performance', () => {
     expect(loadTime).toBeLessThan(60000);
 
     // At minimum, should show first passage
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
 
     // UI should remain responsive
     await expect(page.getByText('Rendered View')).toBeVisible();
@@ -625,7 +637,7 @@ test.describe('Large File Performance', () => {
 
     const largeTEI = generateTestDocument({
       speakers: ['narrator', 'della', 'jim', 'protagonist'],
-      passages: 300
+      passages: 300,
     });
 
     const tempPath = join(process.cwd(), 'tests/fixtures', 'large-test.tei.xml');
@@ -647,10 +659,12 @@ test.describe('Large File Performance', () => {
 
     // Wait for load
     await page.waitForLoadState('networkidle', { timeout: TIMEOUTS.PAGE_LOAD });
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState('networkidle');
 
     // Should handle large file
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
 
     unlinkSync(tempPath);
   });
@@ -662,7 +676,7 @@ test.describe('Large File Performance', () => {
     // Generate a very large document
     const massiveTEI = generateTestDocument({
       speakers: ['narrator', 'della', 'jim'],
-      passages: 1000
+      passages: 1000,
     });
 
     const tempPath = join(process.cwd(), 'tests/fixtures', 'massive-test.tei.xml');
@@ -684,7 +698,7 @@ test.describe('Large File Performance', () => {
       const startTime = Date.now();
 
       await page.waitForLoadState('networkidle', { timeout: 60000 });
-      await page.waitForLoadState("networkidle")
+      await page.waitForLoadState('networkidle');
 
       const loadTime = Date.now() - startTime;
 
@@ -692,7 +706,9 @@ test.describe('Large File Performance', () => {
       expect(loadTime).toBeLessThan(60000);
 
       // Should at least render first passage
-      await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+      await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({
+        timeout: TIMEOUTS.ELEMENT_VISIBLE,
+      });
 
       // Should not freeze or crash
       await expect(page.getByText('Rendered View')).toBeVisible();
@@ -738,7 +754,9 @@ test.describe('Large File Performance', () => {
     // Small wait replaced with condition
 
     // Should handle without memory issues
-    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
+    await expect(page.locator('div.p-3.rounded-lg').first()).toBeVisible({
+      timeout: TIMEOUTS.ELEMENT_VISIBLE,
+    });
 
     // Cleanup
     unlinkSync(tempPath1);
@@ -785,7 +803,7 @@ test.describe('Browser Limits and Memory', () => {
     // Generate very large document (5MB+)
     const hugeTEI = generateTestDocument({
       speakers: ['narrator', 'della'],
-      passages: 3000
+      passages: 3000,
     });
 
     const tempPath = join(process.cwd(), 'tests/fixtures', 'huge-test.tei.xml');
@@ -806,13 +824,18 @@ test.describe('Browser Limits and Memory', () => {
         });
 
         // Wait and check if it loads or is rejected
-        await page.waitForSelector('div.p-3.rounded-lg', { state: 'attached', timeout: 5000 }).catch(() => {});
+        await page
+          .waitForSelector('div.p-3.rounded-lg', { state: 'attached', timeout: 5000 })
+          .catch(() => {});
 
         // Should not crash either way
         await expect(page.locator('body')).not.toHaveText(/Internal Server Error/);
 
         // Either loads successfully or shows error
-        const hasContent = await page.locator('div.p-3.rounded-lg').first().isVisible({ timeout: 1000 });
+        const hasContent = await page
+          .locator('div.p-3.rounded-lg')
+          .first()
+          .isVisible({ timeout: 1000 });
         const hasError = await page.getByText(/too large|limit|size/i).isVisible({ timeout: 1000 });
 
         expect(hasContent || hasError).toBeTruthy();
@@ -865,7 +888,7 @@ test.describe('Browser Limits and Memory', () => {
     await page.addInitScript(() => {
       Object.defineProperty(window, 'localStorage', {
         get: () => null,
-        configurable: true
+        configurable: true,
       });
     });
 
@@ -919,7 +942,9 @@ test.describe('Concurrent Operations and Race Conditions', () => {
     await expect(page.getByText('Rendered View')).toBeVisible();
 
     // Should not have critical errors
-    expect(consoleErrors.filter(err => err.includes('crash') || err.includes('fatal')).length).toBe(0);
+    expect(
+      consoleErrors.filter((err) => err.includes('crash') || err.includes('fatal')).length
+    ).toBe(0);
   });
 
   test('should handle rapid sample loading', async ({ page }) => {

@@ -5,12 +5,14 @@
 **Goal:** Integrate 6 external TEI repositories with metadata extraction, train/validation/test splitting, and a CorpusManager API for ML development and parser testing.
 
 **Architecture:**
+
 1. Git submodules for external TEI corpora in `corpora/` directory
 2. Analysis scripts that parse XML to extract tag frequencies and structural patterns
 3. Deterministic document-level splitting (70/15/15) with seeded randomness
 4. CorpusManager API providing typed access to split data
 
 **Tech Stack:**
+
 - Git submodules for repository management
 - fast-xml-parser (already in dependencies) for TEI parsing
 - TypeScript/Node.js scripts
@@ -21,6 +23,7 @@
 ## Task 1: Create Directory Structure and Git Configuration
 
 **Files:**
+
 - Create: `.gitignore` (modify)
 - Create: `corpora/.gitkeep`
 
@@ -51,6 +54,7 @@ git commit -m "feat: setup corpora directory structure"
 ## Task 2: Create Git Submodules Setup Script
 
 **Files:**
+
 - Create: `scripts/setup-corpora.sh`
 
 **Step 1: Write the setup script**
@@ -122,6 +126,7 @@ git commit -m "feat: add corpus submodule setup script"
 ## Task 3: Create Corpus Utilities
 
 **Files:**
+
 - Create: `scripts/corpus-utils.ts`
 - Create: `scripts/types.ts`
 
@@ -158,12 +163,15 @@ export interface SplitDefinition {
     test: number;
     seed: number;
   };
-  corpora: Record<string, {
-    train: string[];
-    validation: string[];
-    test: string[];
-    excluded: string[];
-  }>;
+  corpora: Record<
+    string,
+    {
+      train: string[];
+      validation: string[];
+      test: string[];
+      excluded: string[];
+    }
+  >;
   summary: {
     totalDocuments: number;
     trainCount: number;
@@ -337,9 +345,7 @@ export function analyzeTags(content: string): TagAnalysis[] {
 /**
  * Determine encoding type based on tag usage
  */
-export function determineEncodingType(
-  tags: TagAnalysis[]
-): CorpusMetadata['encodingType'] {
+export function determineEncodingType(tags: TagAnalysis[]): CorpusMetadata['encodingType'] {
   const tagNames = new Set(tags.map((t) => t.tagName));
 
   const hasSaid = tagNames.has('said');
@@ -366,6 +372,7 @@ git commit -m "feat: add corpus utility types and functions"
 ## Task 4: Implement Corpus Analysis Script
 
 **Files:**
+
 - Create: `scripts/analyze-corpora.ts`
 
 **Step 1: Write the analysis script**
@@ -577,6 +584,7 @@ git commit -m "feat: add corpus analysis script"
 ## Task 5: Implement Split Generation Script
 
 **Files:**
+
 - Create: `scripts/generate-splits.ts`
 
 **Step 1: Write the split generator**
@@ -593,7 +601,7 @@ const METADATA_DIR = 'tests/corpora/metadata';
 const OUTPUT_FILE = 'tests/corpora/splits.json';
 
 const SPLIT_CONFIG = {
-  train: 0.70,
+  train: 0.7,
   validation: 0.15,
   test: 0.15,
   seed: 42,
@@ -652,7 +660,10 @@ function getValidFiles(corpusPath: string): string[] {
 /**
  * Split files into train/val/test
  */
-function splitFiles(files: string[], rng: SeededRandom): {
+function splitFiles(
+  files: string[],
+  rng: SeededRandom
+): {
   train: string[];
   validation: string[];
   test: string[];
@@ -676,7 +687,9 @@ function splitFiles(files: string[], rng: SeededRandom): {
 async function main() {
   console.log('Generating TEI Corpus Splits');
   console.log('===========================\n');
-  console.log(`Config: ${SPLIT_CONFIG.train * 100}% train, ${SPLIT_CONFIG.validation * 100}% val, ${SPLIT_CONFIG.test * 100}% test`);
+  console.log(
+    `Config: ${SPLIT_CONFIG.train * 100}% train, ${SPLIT_CONFIG.validation * 100}% val, ${SPLIT_CONFIG.test * 100}% test`
+  );
   console.log(`Seed: ${SPLIT_CONFIG.seed}\n`);
 
   // Read metadata
@@ -794,6 +807,7 @@ git commit -m "feat: add corpus split generation script"
 ## Task 6: Create CorpusManager API
 
 **Files:**
+
 - Create: `lib/corpora/index.ts`
 - Create: `lib/corpora/types.ts`
 
@@ -1035,6 +1049,7 @@ git commit -m "feat: add CorpusManager API"
 ## Task 7: Write Tests for CorpusManager
 
 **Files:**
+
 - Create: `tests/unit/corpus-manager.test.ts`
 
 **Step 1: Write failing tests**
@@ -1080,10 +1095,7 @@ describe('CorpusManager', () => {
       },
     };
 
-    writeFileSync(
-      join(MOCK_METADATA_DIR, 'splits.json'),
-      JSON.stringify(mockSplits, null, 2)
-    );
+    writeFileSync(join(MOCK_METADATA_DIR, 'splits.json'), JSON.stringify(mockSplits, null, 2));
 
     // Create mock metadata
     const mockMetadata = {
@@ -1170,6 +1182,7 @@ git commit -m "test: add CorpusManager tests"
 ## Task 8: Update package.json Scripts
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Add corpus scripts to package.json**
@@ -1197,11 +1210,12 @@ git commit -m "feat: add corpus management scripts to package.json"
 ## Task 9: Create README for Corpus Usage
 
 **Files:**
+
 - Create: `tests/corpora/README.md`
 
 **Step 1: Write documentation**
 
-```markdown
+````markdown
 # TEI Corpora
 
 This directory contains train/validation/test splits for TEI corpus integration.
@@ -1213,6 +1227,7 @@ To download and setup all TEI corpus repositories:
 ```bash
 npm run corpus:all
 ```
+````
 
 Or step by step:
 
@@ -1224,14 +1239,14 @@ npm run corpus:split     # Create train/val/test splits
 
 ## Corpus Sources
 
-| Corpus | Documents | Encoding Type | Description |
-|--------|-----------|---------------|-------------|
-| Wright American Fiction | ~3,000 | Mixed | American novels 1851-1875 |
-| Victorian Women Writers | ~100s | dialogue-focused | British women writers |
-| Indiana Magazine History | Varied | Mixed | Historical journal |
-| Indiana Authors Books | Varied | Mixed | Indiana authors |
-| Brevier Legislative | Varied | Mixed | Legislative reports |
-| TEI Texts | ~20 | dialogue-focused | French novels |
+| Corpus                   | Documents | Encoding Type    | Description               |
+| ------------------------ | --------- | ---------------- | ------------------------- |
+| Wright American Fiction  | ~3,000    | Mixed            | American novels 1851-1875 |
+| Victorian Women Writers  | ~100s     | dialogue-focused | British women writers     |
+| Indiana Magazine History | Varied    | Mixed            | Historical journal        |
+| Indiana Authors Books    | Varied    | Mixed            | Indiana authors           |
+| Brevier Legislative      | Varied    | Mixed            | Legislative reports       |
+| TEI Texts                | ~20       | dialogue-focused | French novels             |
 
 ## Split Configuration
 
@@ -1283,20 +1298,22 @@ npm run corpus:split
 ```
 
 This will update `splits.json` while maintaining the same seed for reproducibility.
-```
+
+````
 
 **Step 2: Commit README**
 
 ```bash
 git add tests/corpora/README.md
 git commit -m "docs: add corpus usage documentation"
-```
+````
 
 ---
 
 ## Task 10: Integration with Existing Tests
 
 **Files:**
+
 - Create: `tests/integration/corpus-validation.test.ts`
 
 **Step 1: Create integration test for corpus validation**
@@ -1326,7 +1343,8 @@ describe('Corpus Validation Integration', () => {
 
     const trainDocs = corpus.getSplit('train');
 
-    for (const doc of trainDocs.slice(0, 10)) { // Test first 10
+    for (const doc of trainDocs.slice(0, 10)) {
+      // Test first 10
       expect(() => {
         TEIDocument.parse(doc.content);
       }).not.toThrow();
@@ -1340,7 +1358,8 @@ describe('Corpus Validation Integration', () => {
 
     expect(saidDocs.length).toBeGreaterThan(0);
 
-    for (const doc of saidDocs.slice(0, 5)) { // Test first 5
+    for (const doc of saidDocs.slice(0, 5)) {
+      // Test first 5
       const tei = TEIDocument.parse(doc.content);
       const saidElements = tei.querySelectorAll('said');
       expect(saidElements.length).toBeGreaterThan(0);

@@ -13,6 +13,7 @@
 ## Task 1: Add FileUpload to WelcomePage
 
 **Files:**
+
 - Modify: `app/page.tsx`
 
 **Step 1: Read current WelcomePage implementation**
@@ -47,8 +48,9 @@ Expected: FAIL with "Unable to find text: 'Upload TEI File'"
 Modify `app/page.tsx`:
 
 Add import at top:
+
 ```typescript
-import { FileUpload } from '@/components/editor/FileUpload'
+import { FileUpload } from '@/components/editor/FileUpload';
 ```
 
 Find where Sample Gallery is rendered and add FileUpload nearby. Look for pattern like:
@@ -85,6 +87,7 @@ git commit -m "feat: add FileUpload to WelcomePage"
 ## Task 2: Remove FileUpload from EditorLayout
 
 **Files:**
+
 - Modify: `components/editor/EditorLayout.tsx`
 
 **Step 1: Read current EditorLayout implementation**
@@ -129,6 +132,7 @@ git commit -m "refactor: remove FileUpload from EditorLayout"
 ## Task 3: Update categorizeError to accept retry callback
 
 **Files:**
+
 - Modify: `lib/utils/error-categorization.ts`
 - Test: `tests/unit/error-categorization.test.ts`
 
@@ -138,23 +142,23 @@ Add to `tests/unit/error-categorization.test.ts`:
 
 ```typescript
 test('includes retry action for network errors when callback provided', () => {
-  const retryCallback = vi.fn()
-  const error = new Error('Network request failed')
-  const result = categorizeError(error, retryCallback)
+  const retryCallback = vi.fn();
+  const error = new Error('Network request failed');
+  const result = categorizeError(error, retryCallback);
 
-  expect(result.type).toBe(ErrorType.NETWORK_ERROR)
-  expect(result.action).toBeDefined()
-  expect(result.action?.onClick).toBe(retryCallback)
-})
+  expect(result.type).toBe(ErrorType.NETWORK_ERROR);
+  expect(result.action).toBeDefined();
+  expect(result.action?.onClick).toBe(retryCallback);
+});
 
 test('does not include retry for parse errors even with callback', () => {
-  const retryCallback = vi.fn()
-  const error = new Error('XML parse error')
-  const result = categorizeError(error, retryCallback)
+  const retryCallback = vi.fn();
+  const error = new Error('XML parse error');
+  const result = categorizeError(error, retryCallback);
 
-  expect(result.type).toBe(ErrorType.PARSE_ERROR)
-  expect(result.action).toBeUndefined()
-})
+  expect(result.type).toBe(ErrorType.PARSE_ERROR);
+  expect(result.action).toBeUndefined();
+});
 ```
 
 Run: `npm test -- tests/unit/error-categorization.test.ts`
@@ -166,21 +170,21 @@ Expected: FAIL with "categorizeError() accepts 1 argument, but 2 were provided"
 Modify `lib/utils/error-categorization.ts`:
 
 Change:
+
 ```typescript
-export function categorizeError(error: Error): ErrorInfo
+export function categorizeError(error: Error): ErrorInfo;
 ```
 
 To:
+
 ```typescript
-export function categorizeError(
-  error: Error,
-  retryCallback?: () => void
-): ErrorInfo
+export function categorizeError(error: Error, retryCallback?: () => void): ErrorInfo;
 ```
 
 **Step 3: Update network error handling to use callback**
 
 Find the NETWORK_ERROR section. Change:
+
 ```typescript
 action: {
   label: 'Retry',
@@ -191,11 +195,14 @@ action: {
 ```
 
 To:
+
 ```typescript
-action: retryCallback ? {
-  label: 'Retry',
-  onClick: retryCallback,
-} : undefined
+action: retryCallback
+  ? {
+      label: 'Retry',
+      onClick: retryCallback,
+    }
+  : undefined;
 ```
 
 **Step 4: Run test to verify it passes**
@@ -222,6 +229,7 @@ git commit -m "feat: add retry callback support to categorizeError"
 ## Task 4: Update FileUpload to provide retry callback
 
 **Files:**
+
 - Modify: `components/editor/FileUpload.tsx`
 
 **Step 1: Read current FileUpload implementation**
@@ -231,11 +239,13 @@ Run: `cat components/editor/FileUpload.tsx`
 **Step 2: Update categorizeError call to include retry**
 
 Find the catch block in handleFileUpload. Change:
+
 ```typescript
 const errorInfo = categorizeError(error as Error);
 ```
 
 To:
+
 ```typescript
 const errorInfo = categorizeError(error as Error, () => {
   // Retry: re-trigger the upload
@@ -261,6 +271,7 @@ git commit -m "feat: add retry functionality to FileUpload"
 ## Task 5: Update DocumentContext to provide retry callback
 
 **Files:**
+
 - Modify: `lib/context/DocumentContext.tsx`
 
 **Step 1: Read current DocumentContext implementation**
@@ -270,6 +281,7 @@ Run: `cat lib/context/DocumentContext.tsx | grep -A 20 "loadSample"`
 **Step 2: Update loadSample to include retry callback**
 
 Find the catch block in loadSample. Change:
+
 ```typescript
 const errorInfo = categorizeError(error as Error);
 toast.error('Failed to load sample', {
@@ -278,6 +290,7 @@ toast.error('Failed to load sample', {
 ```
 
 To:
+
 ```typescript
 const errorInfo = categorizeError(error as Error, () => {
   // Retry: reload the sample
@@ -311,6 +324,7 @@ git commit -m "feat: add retry functionality to DocumentContext"
 ## Task 6: Create ErrorContext provider
 
 **Files:**
+
 - Create: `lib/context/ErrorContext.tsx`
 - Test: `tests/unit/error-context.test.tsx`
 
@@ -543,6 +557,7 @@ git commit -m "feat: add ErrorContext for error logging and analytics"
 ## Task 7: Add ErrorProvider to app layout
 
 **Files:**
+
 - Modify: `app/layout.tsx`
 
 **Step 1: Add ErrorProvider to layout**
@@ -550,11 +565,13 @@ git commit -m "feat: add ErrorContext for error logging and analytics"
 Modify `app/layout.tsx`:
 
 Add import:
+
 ```typescript
-import { ErrorProvider } from "@/lib/context/ErrorContext";
+import { ErrorProvider } from '@/lib/context/ErrorContext';
 ```
 
 Wrap the children in ErrorProvider:
+
 ```typescript
 <ErrorProvider>
   {children}
@@ -585,6 +602,7 @@ git commit -m "feat: add ErrorProvider to root layout"
 ## Task 8: Integrate error logging in FileUpload
 
 **Files:**
+
 - Modify: `components/editor/FileUpload.tsx`
 
 **Step 1: Add error logging to handleFileUpload**
@@ -592,18 +610,21 @@ git commit -m "feat: add ErrorProvider to root layout"
 Modify `components/editor/FileUpload.tsx`:
 
 Add import:
+
 ```typescript
-import { useErrorContext } from '@/lib/context/ErrorContext'
+import { useErrorContext } from '@/lib/context/ErrorContext';
 ```
 
 Add hook call in component:
+
 ```typescript
-const { loadDocument } = useDocumentContext()
-const { logError } = useErrorContext()
-const fileInputRef = useRef<HTMLInputElement>(null)
+const { loadDocument } = useDocumentContext();
+const { logError } = useErrorContext();
+const fileInputRef = useRef<HTMLInputElement>(null);
 ```
 
 Update catch block:
+
 ```typescript
 } catch (error) {
   // Log error with context
@@ -645,6 +666,7 @@ git commit -m "feat: integrate error logging in FileUpload"
 ## Task 9: Integrate error logging in DocumentContext
 
 **Files:**
+
 - Modify: `lib/context/DocumentContext.tsx`
 
 **Step 1: Add error logging to loadSample**
@@ -652,16 +674,19 @@ git commit -m "feat: integrate error logging in FileUpload"
 Modify `lib/context/DocumentContext.tsx`:
 
 Add import if not present:
+
 ```typescript
-import { useErrorContext } from '@/lib/context/ErrorContext'
+import { useErrorContext } from '@/lib/context/ErrorContext';
 ```
 
 Add hook call:
+
 ```typescript
-const { logError } = useErrorContext()
+const { logError } = useErrorContext();
 ```
 
 Update catch block in loadSample:
+
 ```typescript
 } catch (error) {
   console.error('Failed to load sample:', error);
@@ -702,6 +727,7 @@ git commit -m "feat: integrate error logging in DocumentContext"
 ## Task 10: Create E2E tests for FileUpload from WelcomePage
 
 **Files:**
+
 - Create: `tests/e2e/file-upload-from-welcome.spec.ts`
 
 **Step 1: Create E2E test file**
@@ -709,12 +735,12 @@ git commit -m "feat: integrate error logging in DocumentContext"
 Create `tests/e2e/file-upload-from-welcome.spec.ts`:
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test.describe('FileUpload from WelcomePage', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-  })
+    await page.goto('/');
+  });
 
   test('uploads valid XML file', async ({ page }) => {
     const validXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -724,44 +750,44 @@ test.describe('FileUpload from WelcomePage', () => {
       <p>Test content</p>
     </body>
   </text>
-</TEI>`
+</TEI>`;
 
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'valid.tei.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from(validXml),
-    })
+    });
 
     // Verify success toast
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible({ timeout: 5000 })
-    await expect(toast).toContainText('uploaded successfully')
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast).toContainText('uploaded successfully');
 
     // Verify navigation to editor
-    await expect(page.locator('[id^="passage-"]')).toBeVisible({ timeout: 5000 })
-  })
+    await expect(page.locator('[id^="passage-"]')).toBeVisible({ timeout: 5000 });
+  });
 
   test('shows error toast on invalid file', async ({ page }) => {
-    const invalidXml = 'invalid {{{ xml'
+    const invalidXml = 'invalid {{{ xml';
 
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'invalid.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from(invalidXml),
-    })
+    });
 
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible({ timeout: 5000 })
-    await expect(toast).toContainText('Invalid TEI format')
-  })
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast).toContainText('Invalid TEI format');
+  });
 
   test('FileUpload button is visible on WelcomePage', async ({ page }) => {
-    const uploadButton = page.getByText('Upload TEI File')
-    await expect(uploadButton).toBeVisible()
-  })
-})
+    const uploadButton = page.getByText('Upload TEI File');
+    await expect(uploadButton).toBeVisible();
+  });
+});
 ```
 
 **Step 2: Run E2E tests**
@@ -782,6 +808,7 @@ git commit -m "test: add E2E tests for FileUpload from WelcomePage"
 ## Task 11: Create E2E tests for retry functionality
 
 **Files:**
+
 - Create: `tests/e2e/retry-functionality.spec.ts`
 
 **Step 1: Create E2E test file**
@@ -789,46 +816,46 @@ git commit -m "test: add E2E tests for FileUpload from WelcomePage"
 Create `tests/e2e/retry-functionality.spec.ts`:
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test.describe('Retry Functionality', () => {
   test('shows retry button on network errors', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/');
 
     // Intercept and fail network requests
-    await page.route('**/*.xml', route => route.abort())
+    await page.route('**/*.xml', (route) => route.abort());
 
     // Try to load sample
-    await page.getByText('The Yellow Wallpaper').click()
+    await page.getByText('The Yellow Wallpaper').click();
 
     // Verify error toast with retry button
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible({ timeout: 5000 })
-    await expect(toast).toContainText('Connection failed')
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast).toContainText('Connection failed');
 
-    const retryButton = toast.getByRole('button', { name: 'Retry' })
-    await expect(retryButton).toBeVisible()
-  })
+    const retryButton = toast.getByRole('button', { name: 'Retry' });
+    await expect(retryButton).toBeVisible();
+  });
 
   test('does not show retry on parse errors', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/');
 
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'invalid.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from('invalid {{{ xml'),
-    })
+    });
 
-    const toast = page.locator('[data-sonner-toast]').first()
-    await expect(toast).toBeVisible()
+    const toast = page.locator('[data-sonner-toast]').first();
+    await expect(toast).toBeVisible();
 
     // Should NOT have retry button
-    const retryButton = toast.getByRole('button', { name: 'Retry' }).orElse(page.locator('button'))
-    const buttonCount = await toast.locator('button').count()
-    expect(buttonCount).toBe(1) // Only close button, no retry
-  })
-})
+    const retryButton = toast.getByRole('button', { name: 'Retry' }).orElse(page.locator('button'));
+    const buttonCount = await toast.locator('button').count();
+    expect(buttonCount).toBe(1); // Only close button, no retry
+  });
+});
 ```
 
 **Step 2: Run E2E tests**
@@ -849,6 +876,7 @@ git commit -m "test: add E2E tests for retry functionality"
 ## Task 12: Create E2E tests for error analytics
 
 **Files:**
+
 - Create: `tests/e2e/error-analytics.spec.ts`
 
 **Step 1: Create E2E test file**
@@ -856,58 +884,58 @@ git commit -m "test: add E2E tests for retry functionality"
 Create `tests/e2e/error-analytics.spec.ts`:
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test.describe('Error Analytics', () => {
   test('tracks error frequency by type', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/');
 
     // Trigger multiple parse errors
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
 
     for (let i = 0; i < 3; i++) {
       await fileInput.setInputFiles({
         name: `invalid${i}.xml`,
         mimeType: 'text/xml',
         buffer: Buffer.from('invalid {{{ xml'),
-      })
-      await page.waitForTimeout(500)
+      });
+      await page.waitForTimeout(500);
     }
 
     // Check error stats (via exposed debug endpoint or console)
     const stats = await page.evaluate(() => {
       // @ts-ignore - debug property
-      return window.__getErrorStats?.()
-    })
+      return window.__getErrorStats?.();
+    });
 
     if (stats) {
-      expect(stats.byType.PARSE_ERROR).toBeGreaterThanOrEqual(3)
+      expect(stats.byType.PARSE_ERROR).toBeGreaterThanOrEqual(3);
     }
-  })
+  });
 
   test('maintains error history', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/');
 
     // Trigger errors
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles({
       name: 'invalid.xml',
       mimeType: 'text/xml',
       buffer: Buffer.from('invalid'),
-    })
+    });
 
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1000);
 
     // Check error history exists
     const hasErrors = await page.evaluate(() => {
       // @ts-ignore
-      const stats = window.__getErrorStats?.()
-      return stats && stats.recentErrors.length > 0
-    })
+      const stats = window.__getErrorStats?.();
+      return stats && stats.recentErrors.length > 0;
+    });
 
-    expect(hasErrors).toBe(true)
-  })
-})
+    expect(hasErrors).toBe(true);
+  });
+});
 ```
 
 **Step 2: Add debug endpoint to ErrorContext (temporary for testing)**
@@ -915,14 +943,15 @@ test.describe('Error Analytics', () => {
 Modify `lib/context/ErrorContext.tsx`:
 
 Add to ErrorProvider:
+
 ```typescript
 useEffect(() => {
   // Expose for E2E testing
   if (typeof window !== 'undefined') {
     // @ts-ignore
-    window.__getErrorStats = getStats
+    window.__getErrorStats = getStats;
   }
-}, [getStats])
+}, [getStats]);
 ```
 
 **Step 3: Run E2E tests**
@@ -943,6 +972,7 @@ git commit -m "test: add E2E tests for error analytics"
 ## Task 13: Run full test suite and verify improvements
 
 **Files:**
+
 - No file changes (verification only)
 
 **Step 1: Run all unit tests**
@@ -960,6 +990,7 @@ Expected: Significant improvement in pass rate
 **Step 3: Compare results**
 
 Document before/after:
+
 - Baseline: 476/480 unit tests (99.2%)
 - Target: 490+/500 unit tests
 - E2E: Should add ~12 new passing tests
@@ -967,6 +998,7 @@ Document before/after:
 **Step 4: Create summary document**
 
 Create `docs/test-improvements-summary.md` with:
+
 - Before/after statistics
 - New features added
 - Test coverage improvements
@@ -986,18 +1018,21 @@ git commit -m "docs: document error handling enhancements and test improvements"
 After completing all tasks:
 
 ✅ **FileUpload Refactor:**
+
 - FileUpload visible and functional on WelcomePage
 - Can upload files without loading samples first
 - E2E tests can upload immediately
 - No regressions in EditorLayout
 
 ✅ **Retry Functionality:**
+
 - Retry button appears on network errors
 - Retry successfully replays failed operation
 - No retry button on parse/file/validation errors
 - E2E tests verify retry behavior
 
 ✅ **Error Analytics:**
+
 - All errors logged with full context
 - Error history maintained (last 50)
 - Error statistics calculated correctly
@@ -1006,6 +1041,7 @@ After completing all tasks:
 - E2E tests verify logging
 
 ✅ **Enhanced Testing:**
+
 - 12+ new E2E tests passing
 - Upload tests work from WelcomePage
 - Retry functionality tested
@@ -1013,6 +1049,7 @@ After completing all tasks:
 - Overall E2E pass rate >75%
 
 ✅ **Code Quality:**
+
 - All unit tests pass (490+/500)
 - No regressions
 - Clean git history
@@ -1044,11 +1081,13 @@ npm run test:e2e:ui
 ## Dependencies
 
 **Required:**
+
 - Existing error handling system (completed)
 - Existing components (FileUpload, DocumentContext, WelcomePage)
 - sonner library (already installed)
 
 **Files Created:**
+
 - `lib/context/ErrorContext.tsx`
 - `tests/unit/error-context.test.tsx`
 - `tests/unit/welcomepage-has-upload.test.tsx`
@@ -1057,6 +1096,7 @@ npm run test:e2e:ui
 - `tests/e2e/error-analytics.spec.ts`
 
 **Files Modified:**
+
 - `app/page.tsx` (add FileUpload)
 - `app/layout.tsx` (add ErrorProvider)
 - `components/editor/EditorLayout.tsx` (remove FileUpload)

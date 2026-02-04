@@ -233,7 +233,10 @@ export class ProximityAnalyzer {
   /**
    * Build ReactFlow graph from proximity data
    */
-  private buildGraph(proximityData: CharacterProximity[], config: ProximityConfig): {
+  private buildGraph(
+    proximityData: CharacterProximity[],
+    config: ProximityConfig
+  ): {
     nodes: Node[];
     edges: Edge[];
   } {

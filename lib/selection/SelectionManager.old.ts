@@ -45,7 +45,7 @@ export class SelectionManager {
       startOffset: offsets.start,
       endOffset: offsets.end,
       passageId,
-      container: range.commonAncestorContainer
+      container: range.commonAncestorContainer,
     };
 
     return this.cachedSelection;
@@ -54,7 +54,10 @@ export class SelectionManager {
   /**
    * Calculate character offsets within a passage element
    */
-  private calculateOffsets(passageElement: HTMLElement, range: Range): { start: number; end: number } {
+  private calculateOffsets(
+    passageElement: HTMLElement,
+    range: Range
+  ): { start: number; end: number } {
     const textRange = document.createRange();
     textRange.selectNodeContents(passageElement);
     textRange.setEnd(range.startContainer, range.startOffset);
@@ -86,7 +89,9 @@ export class SelectionManager {
    * Restore selection at given offsets
    */
   restoreSelection(offsets: { start: number; end: number; passageId: string }): void {
-    const passageElement = document.querySelector(`[data-passage-id="${offsets.passageId}"]`) as HTMLElement;
+    const passageElement = document.querySelector(
+      `[data-passage-id="${offsets.passageId}"]`
+    ) as HTMLElement;
     if (!passageElement) {
       return;
     }
@@ -172,9 +177,11 @@ export class SelectionManager {
         for (let i = 0; i < container.attributes.length; i++) {
           const attr = container.attributes[i];
           // Extract all data-* attributes except data-tag and data-passage-id
-          if (attr.name.startsWith('data-') &&
-              attr.name !== 'data-tag' &&
-              attr.name !== 'data-passage-id') {
+          if (
+            attr.name.startsWith('data-') &&
+            attr.name !== 'data-tag' &&
+            attr.name !== 'data-passage-id'
+          ) {
             const attrName = attr.name.replace('data-', '');
             attributes[attrName] = attr.value;
           }
@@ -229,9 +236,11 @@ export class SelectionManager {
         for (let i = 0; i < container.attributes.length; i++) {
           const attr = container.attributes[i];
           // Extract all data-* attributes except data-tag and data-passage-id
-          if (attr.name.startsWith('data-') &&
-              attr.name !== 'data-tag' &&
-              attr.name !== 'data-passage-id') {
+          if (
+            attr.name.startsWith('data-') &&
+            attr.name !== 'data-tag' &&
+            attr.name !== 'data-passage-id'
+          ) {
             const attrName = attr.name.replace('data-', '');
             attributes[attrName] = attr.value;
           }

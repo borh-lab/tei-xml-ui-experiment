@@ -29,7 +29,11 @@ export function getTagHierarchyFromElement(element: HTMLElement): DOMTagInfo[] {
         // Extract data-* attributes (excluding data-tag and data-tag-id)
         for (let i = 0; i < current.attributes.length; i++) {
           const attr = current.attributes[i];
-          if (attr.name.startsWith('data-') && attr.name !== 'data-tag' && attr.name !== 'data-tag-id') {
+          if (
+            attr.name.startsWith('data-') &&
+            attr.name !== 'data-tag' &&
+            attr.name !== 'data-tag-id'
+          ) {
             const attrName = attr.name.replace('data-', '');
             attributes[attrName] = attr.value;
           }

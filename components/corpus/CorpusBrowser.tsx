@@ -3,18 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { Effect, Layer, pipe } from 'effect';
 import { CorpusBrowser as CorpusBrowserService } from '@/lib/effect/services/CorpusBrowser';
-import { LocalCorpusDataSourceLive } from '@/lib/effect/services/LocalCorpusDataSource';
+import { FetchCorpusDataSourceLive } from '@/lib/effect/services/FetchCorpusDataSource';
 import { CorpusBrowserLive } from '@/lib/effect/services/CorpusBrowser';
 import type { BrowserState, DocumentViewState } from '@/lib/effect/services/CorpusBrowser';
 import { CorpusSelector } from './CorpusSelector';
 import { LoadedCorpusView } from './LoadedCorpusView';
 
-const layers = Layer.mergeAll(LocalCorpusDataSourceLive, CorpusBrowserLive);
+// Use browser-compatible fetch data source
+const layers = Layer.mergeAll(FetchCorpusDataSourceLive, CorpusBrowserLive);
 
 const runEffect = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
-  return Effect.runPromise(
-    pipe(effect, Effect.provide(layers)) as any
-  );
+  return Effect.runPromise(pipe(effect, Effect.provide(layers)) as any);
 };
 
 export function CorpusBrowser() {
@@ -31,7 +30,10 @@ export function CorpusBrowser() {
 
     const promise = runEffect(program);
     promise.then(setBrowserState).catch(() => {
-      setBrowserState({ _tag: 'error', error: { _tag: 'IOError', cause: new Error('Failed to initialize') } });
+      setBrowserState({
+        _tag: 'error',
+        error: { _tag: 'IOError', cause: new Error('Failed to initialize') },
+      });
     });
   }, []);
 
@@ -100,9 +102,7 @@ export function CorpusBrowser() {
 
   return (
     <div className="container mx-auto p-6">
-      {browserState._tag === 'initial' && (
-        <CorpusSelector onSelectCorpus={loadCorpus} />
-      )}
+      {browserState._tag === 'initial' && <CorpusSelector onSelectCorpus={loadCorpus} />}
 
       {browserState._tag === 'loading' && (
         <div className="flex items-center justify-center py-12">
@@ -127,8 +127,10 @@ export function CorpusBrowser() {
           <div className="bg-destructive/10 border border-destructive rounded-lg p-6">
             <h3 className="text-lg font-semibold text-destructive mb-2">Error Loading Corpus</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {browserState.error._tag === 'CorpusNotFound' && `Corpus not found: ${browserState.error.corpus}`}
-              {browserState.error._tag === 'IOError' && 'An error occurred while loading the corpus'}
+              {browserState.error._tag === 'CorpusNotFound' &&
+                `Corpus not found: ${browserState.error.corpus}`}
+              {browserState.error._tag === 'IOError' &&
+                'An error occurred while loading the corpus'}
             </p>
             <button
               onClick={() => setBrowserState({ _tag: 'initial' })}

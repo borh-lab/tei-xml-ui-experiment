@@ -31,8 +31,7 @@ describe('SchemaLoader', () => {
     });
 
     it('should throw error for non-existent schema file', async () => {
-      await expect(loader.loadSchema('/nonexistent/schema.rng'))
-        .rejects.toThrow();
+      await expect(loader.loadSchema('/nonexistent/schema.rng')).rejects.toThrow();
     });
 
     it('should cache parsed schemas', async () => {

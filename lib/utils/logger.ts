@@ -13,7 +13,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   info: 1,
   warn: 2,
   error: 3,
-  silent: 4
+  silent: 4,
 };
 
 /**
@@ -55,11 +55,7 @@ function formatTimestamp(): string {
  * @param context - Optional context object
  * @returns Formatted log string
  */
-function formatLogEntry(
-  level: string,
-  message: string,
-  context?: Record<string, any>
-): string {
+function formatLogEntry(level: string, message: string, context?: Record<string, any>): string {
   const timestamp = formatTimestamp();
   const levelStr = level.toUpperCase().padEnd(5);
   return `[${timestamp}] [${levelStr}] ${message}`;
@@ -101,7 +97,7 @@ export class Logger {
   withContext(additionalContext: Record<string, any>): Logger {
     return new Logger({
       ...this.context,
-      ...additionalContext
+      ...additionalContext,
     });
   }
 

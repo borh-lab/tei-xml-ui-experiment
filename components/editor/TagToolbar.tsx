@@ -41,35 +41,38 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
     }
   }, [selectionManager]);
 
-  const handleApplyTag = useCallback((type: string, attributes?: Record<string, string>) => {
-    if (!document || !currentSelection) return;
+  const handleApplyTag = useCallback(
+    (type: string, attributes?: Record<string, string>) => {
+      if (!document || !currentSelection) return;
 
-    switch (type) {
-      case 'said':
-        // For said tag, use the first character as default speaker
-        const speaker = document.state.characters[0];
-        if (speaker) {
-          addSaidTag(currentSelection.passageId, currentSelection.range, speaker.id);
-        }
-        break;
+      switch (type) {
+        case 'said':
+          // For said tag, use the first character as default speaker
+          const speaker = document.state.characters[0];
+          if (speaker) {
+            addSaidTag(currentSelection.passageId, currentSelection.range, speaker.id);
+          }
+          break;
 
-      case 'q':
-      case 'persName':
-      case 'placeName':
-      case 'orgName':
-        addTag(currentSelection.passageId, currentSelection.range, type, attributes);
-        break;
+        case 'q':
+        case 'persName':
+        case 'placeName':
+        case 'orgName':
+          addTag(currentSelection.passageId, currentSelection.range, type, attributes);
+          break;
 
-      default:
-        console.warn('Unknown tag type:', type);
-    }
+        default:
+          console.warn('Unknown tag type:', type);
+      }
 
-    // Clear selection and hide toolbar
-    window.getSelection()?.removeAllRanges();
-    setVisible(false);
-    setCurrentSelection(null);
-    onClose?.();
-  }, [document, currentSelection, addSaidTag, addGenericTag, onClose]);
+      // Clear selection and hide toolbar
+      window.getSelection()?.removeAllRanges();
+      setVisible(false);
+      setCurrentSelection(null);
+      onClose?.();
+    },
+    [document, currentSelection, addSaidTag, addGenericTag, onClose]
+  );
 
   useEffect(() => {
     // Listen for mouseup and keyup events to detect text selection

@@ -17,6 +17,7 @@ This phase fixes the immediate issue where clicking tag buttons does nothing. We
 ## Task 1.1: Create SelectionManager for Accurate Range Tracking
 
 **Files:**
+
 - Create: `lib/selection/SelectionManager.ts`
 - Create: `tests/unit/selection-manager.test.ts`
 
@@ -135,7 +136,7 @@ describe('SelectionManager', () => {
       const result = selectionManager.getContainingTag();
       expect(result).not.toBeNull();
       expect(result!.tagName).toBe('said');
-      expect(result!.attributes).toEqual({ 'who': '#speaker1' });
+      expect(result!.attributes).toEqual({ who: '#speaker1' });
     });
   });
 });
@@ -199,7 +200,7 @@ export class SelectionManager {
       startOffset: offsets.start,
       endOffset: offsets.end,
       passageId,
-      container: range.commonAncestorContainer
+      container: range.commonAncestorContainer,
     };
 
     return this.cachedSelection;
@@ -208,7 +209,10 @@ export class SelectionManager {
   /**
    * Calculate character offsets within a passage element
    */
-  private calculateOffsets(passageElement: HTMLElement, range: Range): { start: number; end: number } {
+  private calculateOffsets(
+    passageElement: HTMLElement,
+    range: Range
+  ): { start: number; end: number } {
     const rangeClone = range.cloneRange();
     const textRange = document.createRange();
     textRange.selectNodeContents(passageElement);
@@ -241,7 +245,9 @@ export class SelectionManager {
    * Restore selection at given offsets
    */
   restoreSelection(offsets: { start: number; end: number; passageId: string }): void {
-    const passageElement = document.querySelector(`[data-passage-id="${offsets.passageId}"]`) as HTMLElement;
+    const passageElement = document.querySelector(
+      `[data-passage-id="${offsets.passageId}"]`
+    ) as HTMLElement;
     if (!passageElement) {
       return;
     }
@@ -379,6 +385,7 @@ Tests: selection capture, offset calculation, tag detection
 ## Task 1.2: Add Generic wrapTextInTag Method to TEIDocument
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts`
 - Modify: `tests/unit/TEIDocument.test.ts`
 
@@ -399,7 +406,7 @@ describe('wrapTextInTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said', { 'who': '#speaker1' });
+    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
 
     const updated = doc.serialize();
     expect(updated).toContain('<said who="#speaker1">Hello</said>');
@@ -435,7 +442,7 @@ describe('wrapTextInTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 6, 10, 'persName', { 'ref': '#john' });
+    doc.wrapTextInTag(0, 6, 10, 'persName', { ref: '#john' });
 
     const updated = doc.serialize();
     expect(updated).toContain('<persName ref="#john">John</persName>');
@@ -471,7 +478,7 @@ describe('wrapTextInTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said', { 'who': '#speaker1' });
+    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
     doc.wrapTextInTag(0, 6, 11, 'q');
 
     const updated = doc.serialize();
@@ -662,6 +669,7 @@ Tests: wrap text in said, q, persName tags; multiple tags; mixed content
 ## Task 1.3: Fix handleApplyTag to Support All Tag Types
 
 **Files:**
+
 - Modify: `components/editor/EditorLayout.tsx`
 - Create: `tests/unit/editor-tag-application.test.tsx`
 
@@ -742,52 +750,58 @@ Expected: Some tests may pass (TEIDocument tests) but integration test needs moc
 Modify `components/editor/EditorLayout.tsx`, replace the existing `handleApplyTag` function (around line 326):
 
 ```typescript
-const handleApplyTag = useCallback((tag: string, attrs?: Record<string, string>) => {
-  if (!document) return;
+const handleApplyTag = useCallback(
+  (tag: string, attrs?: Record<string, string>) => {
+    if (!document) return;
 
-  const selectionManager = new SelectionManager();
-  const selectionRange = selectionManager.captureSelection();
+    const selectionManager = new SelectionManager();
+    const selectionRange = selectionManager.captureSelection();
 
-  if (!selectionRange) {
-    showToast('No text selected - Select text first, then click tag button', 'error');
-    return;
-  }
+    if (!selectionRange) {
+      showToast('No text selected - Select text first, then click tag button', 'error');
+      return;
+    }
 
-  // Extract passage index from passageId
-  const passageIndex = parseInt(selectionRange.passageId.split('-')[1], 10);
+    // Extract passage index from passageId
+    const passageIndex = parseInt(selectionRange.passageId.split('-')[1], 10);
 
-  try {
-    // Use the generic wrapTextInTag method
-    document.wrapTextInTag(
-      passageIndex,
-      selectionRange.startOffset,
-      selectionRange.endOffset,
-      tag,
-      attrs
-    );
+    try {
+      // Use the generic wrapTextInTag method
+      document.wrapTextInTag(
+        passageIndex,
+        selectionRange.startOffset,
+        selectionRange.endOffset,
+        tag,
+        attrs
+      );
 
-    // Update document in context
-    const updatedXML = document.serialize();
-    updateDocument(updatedXML);
+      // Update document in context
+      const updatedXML = document.serialize();
+      updateDocument(updatedXML);
 
-    // Success message
-    const tagDisplay = attrs ? `<${tag} ${Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ')}>` : `<${tag}>`;
-    showToast(`Applied ${tagDisplay}`, 'success');
+      // Success message
+      const tagDisplay = attrs
+        ? `<${tag} ${Object.entries(attrs)
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(' ')}>`
+        : `<${tag}>`;
+      showToast(`Applied ${tagDisplay}`, 'success');
 
-    // Restore selection after update
-    setTimeout(() => {
-      selectionManager.restoreSelection({
-        start: selectionRange.startOffset,
-        end: selectionRange.endOffset,
-        passageId: selectionRange.passageId
-      });
-    }, 50);
-
-  } catch (error) {
-    console.error('Failed to apply tag:', error);
-    showToast('Failed to apply tag - See console for details', 'error');
-  }
-}, [document, updateDocument]);
+      // Restore selection after update
+      setTimeout(() => {
+        selectionManager.restoreSelection({
+          start: selectionRange.startOffset,
+          end: selectionRange.endOffset,
+          passageId: selectionRange.passageId,
+        });
+      }, 50);
+    } catch (error) {
+      console.error('Failed to apply tag:', error);
+      showToast('Failed to apply tag - See console for details', 'error');
+    }
+  },
+  [document, updateDocument]
+);
 ```
 
 **Add import at top of file:**
@@ -823,6 +837,7 @@ Tests: tag application integration with SelectionManager
 ## Task 1.4: Update TagToolbar to Use Enhanced Selection Tracking
 
 **Files:**
+
 - Modify: `components/editor/TagToolbar.tsx`
 - Modify: `tests/unit/tag-toolbar.test.tsx` (create if doesn't exist)
 
@@ -1023,6 +1038,7 @@ Tests: TagToolbar rendering and button interactions
 ## Task 1.5: Add E2E Test for Tag Application Workflow
 
 **Files:**
+
 - Create: `tests/e2e/tag-application.spec.ts`
 
 **Step 1: Write E2E test**
@@ -1151,6 +1167,7 @@ These tests will drive the implementation and serve as regression tests
 5. ✅ Added E2E tests for tag application workflow
 
 **User can now:**
+
 - Select text and click `<said>`, `<q>`, `<persName>` buttons
 - Tags are properly wrapped around selected text
 - XML is well-formed after tag application
@@ -1159,6 +1176,7 @@ These tests will drive the implementation and serve as regression tests
 **Next Steps:**
 
 Continue with:
+
 - **Phase 2:** Schema Validation
 - **Phase 3:** Tag Selection & Editing
 - **Phase 4:** Character Network Enhancements

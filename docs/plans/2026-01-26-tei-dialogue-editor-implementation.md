@@ -15,6 +15,7 @@
 ### Task 1: Initialize Next.js Project
 
 **Files:**
+
 - Create: `package.json`, `tsconfig.json`, `next.config.js`, `tailwind.config.ts`
 - Create: `.worktrees/tei-dialogue-editor/` (project root)
 
@@ -49,6 +50,7 @@ git commit --no-gpg-sign -m "feat: initialize Next.js project with TypeScript an
 ### Task 2: Set up shadcn/ui Components
 
 **Files:**
+
 - Create: `components.json`
 - Modify: `app/globals.css`, `tailwind.config.ts`
 
@@ -80,6 +82,7 @@ git commit --no-gpg-sign -m "feat: add shadcn/ui component library"
 ### Task 3: Create Project Structure
 
 **Files:**
+
 - Create: Directory structure per design
 
 **Step 1: Create directory structure**
@@ -121,6 +124,7 @@ git commit --no-gpg-sign -m "feat: create project directory structure"
 ### Task 4: Implement TEIDocument Class
 
 **Files:**
+
 - Create: `lib/tei/TEIDocument.ts`
 - Test: `tests/unit/TEIDocument.test.ts`
 
@@ -184,7 +188,7 @@ export class TEIDocument {
   constructor(xmlContent: string) {
     this.parser = new XMLParser.XMLParser({
       ignoreAttributes: false,
-      attributeNamePrefix: '@_'
+      attributeNamePrefix: '@_',
     });
     this.rawXML = xmlContent;
     this.parsed = this.parser.parse(xmlContent);
@@ -196,9 +200,15 @@ export class TEIDocument {
   }
 
   // Placeholder methods for later
-  getDivisions() { return []; }
-  getDialogue() { return []; }
-  getCharacters() { return []; }
+  getDivisions() {
+    return [];
+  }
+  getDialogue() {
+    return [];
+  }
+  getCharacters() {
+    return [];
+  }
 }
 ```
 
@@ -219,6 +229,7 @@ git commit --no-gpg-sign -m "feat: implement TEIDocument class with basic parsin
 ### Task 5: Implement TEI Query Methods
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts`
 - Test: `tests/unit/TEIDocument-queries.test.ts`
 
@@ -352,6 +363,7 @@ git commit --no-gpg-sign -m "feat: implement TEI query methods for divisions and
 ### Task 6: Implement TEI Serialization with XMLBuilder
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts`
 - Test: `tests/unit/TEIDocument-serialization.test.ts`
 
@@ -419,6 +431,7 @@ git commit --no-gpg-sign -m "feat: implement proper TEI serialization with XMLBu
 ### Task 7: Create Global Document Context
 
 **Files:**
+
 - Create: `lib/context/DocumentContext.tsx`
 - Test: `tests/unit/DocumentContext.test.tsx`
 
@@ -520,6 +533,7 @@ git commit --no-gpg-sign -m "feat: implement global document context"
 ### Task 8: Create Split-Pane Editor Layout
 
 **Files:**
+
 - Create: `components/editor/EditorLayout.tsx`
 - Modify: `app/page.tsx`
 
@@ -616,6 +630,7 @@ git commit --no-gpg-sign -m "feat: create split-pane editor layout"
 ### Task 9: Add File Upload Handler
 
 **Files:**
+
 - Create: `components/editor/FileUpload.tsx`
 - Modify: `components/editor/EditorLayout.tsx`
 
@@ -695,6 +710,7 @@ git commit --no-gpg-sign -m "feat: add file upload functionality"
 ### Task 10: Implement Text Selection and Tag Toolbar
 
 **Files:**
+
 - Create: `components/editor/TagToolbar.tsx`
 - Create: `lib/utils/selection.ts`
 - Modify: `components/editor/EditorLayout.tsx`
@@ -748,7 +764,7 @@ export function getSelectionRange(): SelectionRange | null {
     text,
     startOffset: range.startOffset,
     endOffset: range.endOffset,
-    container: range.commonAncestorContainer
+    container: range.commonAncestorContainer,
   };
 }
 ```
@@ -852,6 +868,7 @@ git commit --no-gpg-sign -m "feat: add text selection and tag toolbar"
 ### Task 11: Create AI Provider Interface
 
 **Files:**
+
 - Create: `lib/ai/providers.ts`
 - Test: `tests/unit/ai-providers.test.ts`
 
@@ -866,7 +883,7 @@ describe('AI Provider Interface', () => {
     const provider: AIProvider = {
       detectDialogue: async (text: string) => [],
       attributeSpeaker: async (context: string, characters) => '',
-      validateConsistency: async (document) => []
+      validateConsistency: async (document) => [],
     };
 
     expect(provider.detectDialogue).toBeDefined();
@@ -922,6 +939,7 @@ git commit --no-gpg-sign -m "feat: define AI provider interface"
 ### Task 12: Implement OpenAI Provider
 
 **Files:**
+
 - Create: `lib/ai/openai.ts`
 - Test: `tests/unit/ai-openai.test.ts`
 
@@ -968,7 +986,7 @@ export class OpenAIProvider implements AIProvider {
         start: match.index,
         end: match.index + match[0].length,
         text: match[1],
-        confidence: 0.8
+        confidence: 0.8,
       });
     }
 
@@ -1007,6 +1025,7 @@ git commit --no-gpg-sign -m "feat: implement OpenAI provider with basic dialogue
 ### Task 13: Download and Test Wright American Fiction Samples
 
 **Files:**
+
 - Create: `tests/fixtures/wright-american-fiction/`
 - Test: `tests/integration/wright-samples.test.ts`
 
@@ -1030,7 +1049,7 @@ describe('Wright American Fiction Integration', () => {
   const samplesDir = join(__dirname, '../fixtures/Wright-American-Fiction');
 
   test('should parse sample TEI files', () => {
-    const files = readdirSync(samplesDir).filter(f => f.endsWith('.xml'));
+    const files = readdirSync(samplesDir).filter((f) => f.endsWith('.xml'));
     if (files.length === 0) {
       console.log('No sample files found');
       return;
@@ -1066,6 +1085,7 @@ git commit --no-gpg-sign -m "test: add integration tests with Wright American Fi
 ### Task 14: Create Dialogue Statistics Component
 
 **Files:**
+
 - Create: `components/visualization/DialogueStats.tsx`
 
 **Step 1: Create statistics component**
@@ -1143,6 +1163,7 @@ git commit --no-gpg-sign -m "feat: add dialogue statistics component"
 ### Task 15: Implement HTML Export
 
 **Files:**
+
 - Create: `lib/tei/export.ts`
 - Create: `components/editor/ExportButton.tsx`
 
@@ -1244,6 +1265,7 @@ git commit --no-gpg-sign -m "feat: add TEI and HTML export functionality"
 ### Task 16: Create README and Documentation
 
 **Files:**
+
 - Create: `README.md`
 - Create: `CONTRIBUTING.md`
 

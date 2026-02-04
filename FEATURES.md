@@ -1,6 +1,7 @@
 # TEI Dialogue Editor - Feature Guide
 
 ## Table of Contents
+
 1. [Getting Started](#getting-started)
 2. [Document Upload](#document-upload)
 3. [Manual Annotation](#manual-annotation)
@@ -19,6 +20,7 @@
 <img src="docs/screenshots/welcome-screen.png" alt="Welcome Screen" width="800">
 
 The welcome screen provides quick access to:
+
 - **Sample Gallery** - Load pre-annotated literary works
 - **File Upload** - Upload your own TEI XML files
 - **Recent Documents** - Quick access to your recent work (up to 10 documents)
@@ -32,9 +34,10 @@ The welcome screen provides quick access to:
 3. The document loads with existing annotations visible
 
 Available samples include:
-- *The Gift of the Magi* by O. Henry
-- *The Yellow Wallpaper* by Charlotte Perkins Gilman
-- *The Tell-Tale Heart* by Edgar Allan Poe
+
+- _The Gift of the Magi_ by O. Henry
+- _The Yellow Wallpaper_ by Charlotte Perkins Gilman
+- _The Tell-Tale Heart_ by Edgar Allan Poe
 - And more classic short stories
 
 ---
@@ -50,15 +53,18 @@ Available samples include:
 ### Upload Methods
 
 **1. Drag & Drop**
+
 - Simply drag your file anywhere on the welcome screen
 - The editor validates and processes automatically
 
 **2. Click to Browse**
+
 - Click the file upload button
 - Navigate to your file in the file picker
 - Select and open
 
 **3. Paste Content**
+
 - Copy TEI XML content to clipboard (Ctrl/Cmd+C)
 - Paste on the welcome screen (Ctrl/Cmd+V)
 - Content is automatically converted to a TEI document
@@ -66,6 +72,7 @@ Available samples include:
 ### Upload Validation
 
 The editor validates TEI structure and shows:
+
 - ✅ Success message for valid TEI
 - ❌ Error toast for malformed XML with specific error details
 - Loading indicator during processing for large files
@@ -79,6 +86,7 @@ The editor validates TEI structure and shows:
 <img src="docs/screenshots/editor-annotated.png" alt="Editor with Annotations" width="800">
 
 **Passage Display:**
+
 - Each passage shows as a numbered block
 - Current passage highlighted with blue border
 - Speaker assigned shown in badge (if annotated)
@@ -105,17 +113,17 @@ The editor validates TEI structure and shows:
 
 <img src="docs/screenshots/keyboard-shortcuts.png" alt="Keyboard Shortcuts" width="800">
 
-| Key | Action |
-|-----|--------|
-| `1-9` | Assign speaker to current passage |
-| `0` | Clear speaker assignment |
-| `Space` | Toggle dialogue annotation |
-| `↑` / `↓` | Navigate to previous/next passage |
-| `←` / `→` | Move within passage text |
-| `Ctrl/Cmd+K` | Open command palette |
-| `Ctrl/Cmd+S` | Export document |
-| `Ctrl/Cmd+F` | Quick search |
-| `Escape` | Clear selection / close modals |
+| Key          | Action                            |
+| ------------ | --------------------------------- |
+| `1-9`        | Assign speaker to current passage |
+| `0`          | Clear speaker assignment          |
+| `Space`      | Toggle dialogue annotation        |
+| `↑` / `↓`    | Navigate to previous/next passage |
+| `←` / `→`    | Move within passage text          |
+| `Ctrl/Cmd+K` | Open command palette              |
+| `Ctrl/Cmd+S` | Export document                   |
+| `Ctrl/Cmd+F` | Quick search                      |
+| `Escape`     | Clear selection / close modals    |
 
 ### Navigation Tips
 
@@ -134,16 +142,19 @@ The editor validates TEI structure and shows:
 The AI analyzes your document and provides:
 
 **Dialogue Detection:**
+
 - Identifies likely dialogue passages
 - Highlights speech excerpts
 - Shows confidence score for each suggestion
 
 **Speaker Attribution:**
+
 - Suggests probable speakers for each passage
 - Uses context clues and dialogue patterns
 - Learns from your corrections over time
 
 **Confidence Scores:**
+
 - 🟢 High confidence (>70%) - Usually correct
 - 🟡 Medium confidence (40-70%) - Needs review
 - 🔴 Low confidence (<40%) - Verify carefully
@@ -163,11 +174,13 @@ The AI analyzes your document and provides:
    - Review before applying bulk changes
 
 **Rejecting Suggestions:**
+
 - Click ✗ (x-mark) to reject
 - This teaches the pattern learning system
 - Future suggestions improve based on corrections
 
 **Manual Override:**
+
 - Always can manually annotate even with suggestions
 - Your manual annotation is used for learning
 - System adapts to your annotation style
@@ -181,17 +194,20 @@ The system learns from your interactions:
 3. **Manual Annotations** - Shows your preferred style
 
 **What It Learns:**
+
 - Dialogue markers (quotes, speech verbs)
 - Character speech patterns
 - Narrative structure cues
 - Your annotation preferences
 
 **Storage:**
+
 - Patterns stored locally in browser (IndexedDB)
 - Private to your browser/session
 - Grows more accurate with consistent use
 
 **Accuracy Timeline:**
+
 - Initial: ~11.9% F1 score
 - After 100 corrections: ~20-30% improvement
 - After 500+ corrections: 40-50%+ accuracy
@@ -239,16 +255,19 @@ The system learns from your interactions:
 The editor maintains a cast list from your TEI document:
 
 **Viewing Cast:**
+
 - Characters from `<castList>` element
 - Shown with `xml:id` and role names
 - Stats include dialogue frequency
 
 **Adding Characters:**
+
 - Edit TEI source directly
 - Or use annotation to auto-create
 - System assigns `xml:id` automatically
 
 **Character Metadata:**
+
 - Store role information
 - Track dialogue patterns
 - Link to passages using `who` attributes
@@ -291,21 +310,25 @@ When multiple similar passages need annotation, use bulk operations:
 ### Use Cases for Bulk Operations
 
 **1. Minor Characters**
+
 - Assign all minor character speeches at once
 - Filter: "Passages mentioning character X"
 - Bulk assign: speaker X
 
 **2. Dialogue-Heavy Sections**
+
 - Find all passages with quotes
 - Mark all as dialogue
 - Then assign speakers individually
 
 **3. Cleanup**
+
 - Select all passages
 - Clear incorrect annotations
 - Start fresh with AI assistance
 
 **4. Pattern Application**
+
 - Annotate one representative passage
 - Find similar passages
 - Apply same annotation style
@@ -317,6 +340,7 @@ When multiple similar passages need annotation, use bulk operations:
 ### Export Options
 
 Access export via:
+
 - Command palette: `Ctrl/Cmd+K` → "Export document"
 - Keyboard shortcut: `Ctrl/Cmd+S`
 - Export button in toolbar
@@ -343,6 +367,7 @@ Access export via:
 ### Export Format Details
 
 **Header:**
+
 ```xml
 <teiHeader>
   <fileDesc>
@@ -355,6 +380,7 @@ Access export via:
 ```
 
 **Annotated Passage:**
+
 ```xml
 <p>
   <said who="#speaker1" rend="high-confidence">
@@ -364,6 +390,7 @@ Access export via:
 ```
 
 **Speaker Reference:**
+
 ```xml
 <castList>
   <castItem>
@@ -375,6 +402,7 @@ Access export via:
 ### File Naming
 
 Exports include timestamp:
+
 - `tei-document-20250202-143522.xml`
 - Format: `tei-document-YYYYMMDD-HHMMSS.xml`
 
@@ -389,14 +417,17 @@ The ValidationPanel supports multiple TEI schemas for different document types:
 #### Available Schemas
 
 **TEI Minimal (Dialogue)** - Fast validation for dialogue documents
+
 - Elements: `sp`, `speaker`, `stage`, `p`, `emph`
 - Best for: Dialogue-heavy documents, screenplays
 
 **TEI P5 Complete** - Full TEI schema
+
 - All standard TEI elements
 - Best for: Comprehensive validation, complex documents
 
 **TEI for Novels** - Optimized for prose fiction
+
 - Elements: `div`, `p`, `quote`, `name`, `emph`
 - Best for: Novels, short stories, prose
 
@@ -410,6 +441,7 @@ The ValidationPanel supports multiple TEI schemas for different document types:
 #### Schema Descriptions
 
 Each schema includes:
+
 - **Description** - What the schema is optimized for
 - **Tags** - Quick indicators of schema type (e.g., "dialogue", "minimal")
 - **Validation Rules** - Customized constraints for that document type
@@ -421,24 +453,28 @@ Each schema includes:
 Press `Ctrl/Cmd+K` (or `Cmd+K` on Mac) to access:
 
 **Navigation Commands:**
+
 - "Go to passage #..."
 - "Go to next unannotated passage"
 - "Find passages by speaker..."
 - "Jump to character in network..."
 
 **Annotation Commands:**
+
 - "Apply AI suggestions to all"
 - "Mark selected as dialogue"
 - "Assign speaker X to selection"
 - "Clear annotations on selection"
 
 **Document Commands:**
+
 - "Export document"
 - "Upload new document"
 - "Load sample..."
 - "Show document info"
 
 **View Commands:**
+
 - "Toggle character network"
 - "Toggle statistics panel"
 - "Focus mode" (hide UI elements)
@@ -470,12 +506,14 @@ Press `Ctrl/Cmd+K` (or `Cmd+K` on Mac) to access:
 The editor tracks your recent work:
 
 **Features:**
+
 - Last 10 documents accessible
 - Shown on welcome screen
 - Auto-saves as you work
 - Restore previous sessions instantly
 
 **Auto-Save:**
+
 - Saves every annotation change
 - Stored in browser (IndexedDB)
 - Survives page refresh
@@ -484,6 +522,7 @@ The editor tracks your recent work:
 ### Statistics Panel
 
 View document statistics:
+
 - Total passages
 - Annotated passages (%)
 - Dialogue passages (%)
@@ -515,12 +554,14 @@ View document statistics:
 ### Improving AI Accuracy
 
 **Do:**
+
 - ✅ Accept/reject suggestions consistently
 - ✅ Annotate similar passages the same way
 - ✅ Use bulk operations after AI suggestions
 - ✅ Keep speaker assignments consistent
 
 **Don't:**
+
 - ❌ Randomly accept/reject (confuses learning)
 - ❌ Ignore confidence scores
 - ❌ Skip the review step
@@ -543,24 +584,28 @@ Learn these for maximum efficiency:
 ### Common Issues
 
 **Issue: AI suggestions not appearing**
+
 - Check API key in `.env.local`
 - Verify API key has credits
 - Check browser console for errors
 - System falls back to NLP detection
 
 **Issue: Pattern learning not working**
+
 - Ensure IndexedDB is enabled
 - Not available in private browsing
 - Check browser storage permissions
 - Clear browser cache if stuck
 
 **Issue: Export file won't open**
+
 - Verify TEI structure is valid
 - Check for encoding issues
 - Try plain text editor (not Word)
 - Use XML/TEI validator
 
 **Issue: Character network not loading**
+
 - Check document has cast list
 - Verify speaker assignments exist
 - Try refreshing the page

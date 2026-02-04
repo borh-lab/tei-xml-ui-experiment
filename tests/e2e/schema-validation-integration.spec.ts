@@ -18,7 +18,7 @@ test.describe('Schema Validation - Complete Integration', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // Check if we have passages (document loaded)
-    const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+    const hasPassage = (await page.locator('[id^="passage-"]').count()) > 0;
 
     if (!hasPassage) {
       // Look for file input - if it exists, upload directly
@@ -102,9 +102,11 @@ test.describe('Schema Validation - Complete Integration', () => {
     await page.getByRole('button', { name: 'Validation' }).click();
 
     // Wait for "Validating..." to disappear
-    await page.waitForSelector('text=Validating...', { state: 'hidden', timeout: 5000 }).catch(() => {
-      // "Validating..." might not be present, continue
-    });
+    await page
+      .waitForSelector('text=Validating...', { state: 'hidden', timeout: 5000 })
+      .catch(() => {
+        // "Validating..." might not be present, continue
+      });
 
     // Wait a bit for the panel to update
     await page.waitForTimeout(500);
@@ -389,9 +391,9 @@ test.describe('Schema Validation - Complete Integration', () => {
     );
 
     // Should contain our three schemas
-    expect(optionTexts.some(text => text?.includes('Minimal'))).toBeTruthy();
-    expect(optionTexts.some(text => text?.includes('Complete'))).toBeTruthy();
-    expect(optionTexts.some(text => text?.includes('Novel'))).toBeTruthy();
+    expect(optionTexts.some((text) => text?.includes('Minimal'))).toBeTruthy();
+    expect(optionTexts.some((text) => text?.includes('Complete'))).toBeTruthy();
+    expect(optionTexts.some((text) => text?.includes('Novel'))).toBeTruthy();
   });
 
   test('should handle validation timeout gracefully', async ({ page }) => {
@@ -499,7 +501,7 @@ test.describe('Schema Validation - Error Cases', () => {
     await page.waitForLoadState('networkidle');
 
     // Check if we need to load a document
-    const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+    const hasPassage = (await page.locator('[id^="passage-"]').count()) > 0;
 
     if (!hasPassage) {
       // Load initial document
@@ -525,8 +527,7 @@ test.describe('Schema Validation - Error Cases', () => {
     }
   });
 
-  test('should handle schema that doesn\'t match document type', async ({ page }) => {
-
+  test("should handle schema that doesn't match document type", async ({ page }) => {
     // Create document with dialogue elements
     const dialogueXml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
@@ -649,7 +650,7 @@ test.describe('Schema Selection - User Experience', () => {
     await page.waitForLoadState('networkidle');
 
     // Check if we need to load a document
-    const hasPassage = await page.locator('[id^="passage-"]').count() > 0;
+    const hasPassage = (await page.locator('[id^="passage-"]').count()) > 0;
 
     if (!hasPassage) {
       // Load initial document
@@ -676,7 +677,6 @@ test.describe('Schema Selection - User Experience', () => {
   });
 
   test('should have intuitive default schema selection', async ({ page }) => {
-
     // Open validation panel
     await page.getByRole('button', { name: 'Validation' }).click();
     await page.waitForTimeout(300);
@@ -706,7 +706,9 @@ test.describe('Schema Selection - User Experience', () => {
       await page.waitForTimeout(300);
 
       // Should have description
-      const description = await page.locator('.schema-description, [class*="schema-info"]').textContent();
+      const description = await page
+        .locator('.schema-description, [class*="schema-info"]')
+        .textContent();
       expect(description?.length).toBeGreaterThan(10); // Has meaningful text
 
       // Should have tags

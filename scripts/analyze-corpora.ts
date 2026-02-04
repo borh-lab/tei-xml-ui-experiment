@@ -64,7 +64,7 @@ function analyzeCorpus(corpusId: string, corpusPath: string): CorpusMetadata {
   let usesQ = false;
   let usesSp = false;
   let usesWhoAttributes = false;
-  let maxNesting = 0;
+  const maxNesting = 0;
 
   for (const filePath of xmlFiles) {
     const info = validateTEIFile(filePath);

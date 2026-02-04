@@ -7,12 +7,7 @@
  * This is a protocol-based design that decouples UI from TEIDocument implementation.
  */
 
-import type {
-  TEIDocument,
-  CharacterID,
-  Character,
-  Relationship,
-} from '@/lib/tei/types';
+import type { TEIDocument, CharacterID, Character, Relationship } from '@/lib/tei/types';
 import {
   addCharacter as addCharacterOp,
   updateCharacter as updateCharacterOp,
@@ -48,7 +43,10 @@ export interface EntityRepository {
 
   // Command operations (return new repository state)
   addCharacter(character: Character): EntityRepository;
-  updateCharacter(id: CharacterID, updates: Partial<Omit<Character, 'id' | 'xmlId'>>): EntityRepository;
+  updateCharacter(
+    id: CharacterID,
+    updates: Partial<Omit<Character, 'id' | 'xmlId'>>
+  ): EntityRepository;
   removeCharacter(id: CharacterID): EntityRepository;
 
   addRelation(relation: Omit<Relationship, 'id'>): EntityRepository;

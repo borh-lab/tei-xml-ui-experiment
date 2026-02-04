@@ -33,11 +33,11 @@ export function ValidationResultsDialog({
   open,
   onOpenChange,
   issues,
-  passageCount
+  passageCount,
 }: ValidationResultsDialogProps) {
-  const errorCount = issues.filter(i => i.type === 'error').length;
-  const warningCount = issues.filter(i => i.type === 'warning').length;
-  const infoCount = issues.filter(i => i.type === 'info').length;
+  const errorCount = issues.filter((i) => i.type === 'error').length;
+  const warningCount = issues.filter((i) => i.type === 'warning').length;
+  const infoCount = issues.filter((i) => i.type === 'info').length;
 
   const getIcon = (type: ValidationIssue['type']) => {
     switch (type) {
@@ -50,7 +50,7 @@ export function ValidationResultsDialog({
     }
   };
 
-  const getVariant = (type: ValidationIssue['type']): "default" | "destructive" => {
+  const getVariant = (type: ValidationIssue['type']): 'default' | 'destructive' => {
     return type === 'error' ? 'destructive' : 'default';
   };
 
@@ -74,8 +74,7 @@ export function ValidationResultsDialog({
           <DialogDescription>
             {issues.length === 0
               ? `All ${passageCount} selected passages passed validation!`
-              : `Found ${errorCount} error${errorCount !== 1 ? 's' : ''}, ${warningCount} warning${warningCount !== 1 ? 's' : ''}, and ${infoCount} info message${infoCount !== 1 ? 's' : ''} in ${passageCount} passage${passageCount !== 1 ? 's' : ''}.`
-            }
+              : `Found ${errorCount} error${errorCount !== 1 ? 's' : ''}, ${warningCount} warning${warningCount !== 1 ? 's' : ''}, and ${infoCount} info message${infoCount !== 1 ? 's' : ''} in ${passageCount} passage${passageCount !== 1 ? 's' : ''}.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -94,8 +93,7 @@ export function ValidationResultsDialog({
                         <Badge variant="outline" className="ml-auto text-xs">
                           Para #{issue.location.index + 1}
                           {issue.location.dialogueIndex !== undefined &&
-                            ` · Dialogue ${issue.location.dialogueIndex + 1}`
-                          }
+                            ` · Dialogue ${issue.location.dialogueIndex + 1}`}
                         </Badge>
                       </AlertTitle>
                       <AlertDescription>
@@ -117,7 +115,8 @@ export function ValidationResultsDialog({
           <div className="flex flex-col items-center justify-center py-8 space-y-3">
             <CheckCircle2 className="h-16 w-16 text-green-600 dark:text-green-500" />
             <p className="text-sm text-muted-foreground text-center">
-              No issues detected in the selected passages. All dialogues are properly tagged and validated.
+              No issues detected in the selected passages. All dialogues are properly tagged and
+              validated.
             </p>
           </div>
         )}

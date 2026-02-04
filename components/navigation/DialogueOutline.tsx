@@ -15,7 +15,7 @@ interface DialogueOutlineProps {
 export function DialogueOutline({
   document,
   onPassageClick,
-  currentPassageId
+  currentPassageId,
 }: DialogueOutlineProps) {
   const dialogue = document.getDialogue();
   const divisions = document.getDivisions();
@@ -69,9 +69,7 @@ export function DialogueOutline({
 
         {divisions.length > 0 && (
           <div className="mb-4">
-            <h4 className="text-xs font-medium text-muted-foreground mb-2">
-              Document Structure
-            </h4>
+            <h4 className="text-xs font-medium text-muted-foreground mb-2">Document Structure</h4>
             <div className="space-y-1">
               {divisions.map((div, idx) => (
                 <div
@@ -122,17 +120,13 @@ export function DialogueOutline({
                       {passages.map((p) => {
                         const isActive = p.id === currentPassageId;
                         const preview =
-                          typeof p.content === 'string'
-                            ? p.content.substring(0, 50)
-                            : ' passages';
+                          typeof p.content === 'string' ? p.content.substring(0, 50) : ' passages';
 
                         return (
                           <div
                             key={p.id}
                             className={`text-xs p-2 rounded cursor-pointer transition-colors ${
-                              isActive
-                                ? 'bg-primary text-primary-foreground'
-                                : 'hover:bg-muted'
+                              isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                             }`}
                             onClick={() => onPassageClick(p.id)}
                           >

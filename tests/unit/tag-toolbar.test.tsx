@@ -32,7 +32,12 @@ const mockLogError = jest.fn();
 const mockCaptureSelection = jest.fn();
 
 // Create a proper mock selection snapshot
-const createMockSelectionSnapshot = (passageId: string, text: string, start: number, end: number) => {
+const createMockSelectionSnapshot = (
+  passageId: string,
+  text: string,
+  start: number,
+  end: number
+) => {
   const container = document.createElement('div');
   container.textContent = text;
   return {
@@ -124,7 +129,7 @@ describe('TagToolbar', () => {
     mockLogError.mockClear();
     mockCaptureSelection.mockReset();
     // Clean up any passage elements left in the DOM
-    document.body.querySelectorAll('[data-passage-id]').forEach(el => el.remove());
+    document.body.querySelectorAll('[data-passage-id]').forEach((el) => el.remove());
   });
 
   const setupSelection = (text: string = 'Hello World') => {
@@ -159,7 +164,7 @@ describe('TagToolbar', () => {
       x: 100,
       y: 100,
       height: 50,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     });
 
     const mockSelection = {
@@ -316,7 +321,12 @@ describe('TagToolbar', () => {
     const qButton = screen.getByText('<q>');
     fireEvent.click(qButton);
 
-    expect(mockAddGenericTag).toHaveBeenCalledWith(expect.any(String), expect.anything(), 'q', undefined);
+    expect(mockAddGenericTag).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.anything(),
+      'q',
+      undefined
+    );
 
     // Clean up
     const passageElement = document.body.querySelector('[data-passage-id]');
@@ -337,7 +347,12 @@ describe('TagToolbar', () => {
     const persNameButton = screen.getByText('<persName>');
     fireEvent.click(persNameButton);
 
-    expect(mockAddGenericTag).toHaveBeenCalledWith(expect.any(String), expect.anything(), 'persName', undefined);
+    expect(mockAddGenericTag).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.anything(),
+      'persName',
+      undefined
+    );
 
     // Clean up
     const passageElement = document.body.querySelector('[data-passage-id]');

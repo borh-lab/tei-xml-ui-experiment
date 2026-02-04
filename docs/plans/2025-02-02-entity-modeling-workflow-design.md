@@ -7,10 +7,12 @@
 ## Overview
 
 Enhances the TEI Dialogue Editor with two critical capabilities:
+
 1. **Functional Workflows** - Make tag application, AI suggestions, and dialogue detection actually modify TEI documents
 2. **Comprehensive Entity Modeling** - Character relationships, attributes, NER integration, network visualization with real data
 
 **Current State:**
+
 - Tag application logs to console but doesn't modify TEI
 - AI suggestion acceptance filters from array but doesn't persist changes
 - Character detection returns empty array
@@ -18,6 +20,7 @@ Enhances the TEI Dialogue Editor with two critical capabilities:
 - No character relationships, limited attributes, no NER
 
 **Target State:**
+
 - All editing operations persist to TEI XML
 - Full character inventory with CRUD operations
 - Relationship modeling for social network analysis
@@ -33,11 +36,13 @@ Enhances the TEI Dialogue Editor with two critical capabilities:
 Incrementally enhance `TEIDocument` class while maintaining backward compatibility.
 
 **Alternatives Considered:**
+
 1. **Complete Rewrite** - Too risky, 2-3 weeks, breaking changes
 2. **Layered Enhancement** (CHOSEN) - Lower risk, incremental value, 1-2 weeks
 3. **Minimal Fixes** - Fast but incomplete, no entity modeling
 
 **Rationale:**
+
 - Delivers value every 2-3 days
 - Maintains existing functionality
 - Can ship phases incrementally
@@ -50,42 +55,50 @@ Incrementally enhance `TEIDocument` class while maintaining backward compatibili
 ### TEIDocument API Enhancements
 
 **Current (Non-Functional):**
+
 ```typescript
 class TEIDocument {
-  serialize(): string
-  getDialogue(): any[]
-  getDivisions(): any[]
-  getCharacters() { return [] }  // Empty!
+  serialize(): string;
+  getDialogue(): any[];
+  getDivisions(): any[];
+  getCharacters() {
+    return [];
+  } // Empty!
 }
 ```
 
 **Enhanced API:**
+
 ```typescript
 class TEIDocument {
   // Existing (working)
-  serialize(): string
-  getDialogue(): any[]
-  getDivisions(): any[]
+  serialize(): string;
+  getDialogue(): any[];
+  getDivisions(): any[];
 
   // NEW: Mutation methods
-  addSaidTag(passageIndex: number, textRange: {start, end}, speakerId: string): void
-  updateSpeaker(passageIndex: number, dialogueIndex: number, speakerId: string): void
-  removeSaidTag(passageIndex: number, dialogueIndex: number): void
+  addSaidTag(passageIndex: number, textRange: { start; end }, speakerId: string): void;
+  updateSpeaker(passageIndex: number, dialogueIndex: number, speakerId: string): void;
+  removeSaidTag(passageIndex: number, dialogueIndex: number): void;
 
   // NEW: Entity methods
-  getCharacters(): Character[]
-  addCharacter(character: Character): void
-  updateCharacter(id: string, updates: Partial<Character>): void
-  removeCharacter(id: string): void
+  getCharacters(): Character[];
+  addCharacter(character: Character): void;
+  updateCharacter(id: string, updates: Partial<Character>): void;
+  removeCharacter(id: string): void;
 
   // NEW: Relationship methods
-  getRelationships(): Relationship[]
-  addRelation(relation: Relationship): void
-  removeRelation(fromId: string, toId: string, type: string): void
+  getRelationships(): Relationship[];
+  addRelation(relation: Relationship): void;
+  removeRelation(fromId: string, toId: string, type: string): void;
 
   // NEW: NER methods
-  getNamedEntities(): NamedEntity[]
-  addNERTag(span: {start, end}, type: 'persName'|'placeName'|'orgName'|'date', ref?: string): void
+  getNamedEntities(): NamedEntity[];
+  addNERTag(
+    span: { start; end },
+    type: 'persName' | 'placeName' | 'orgName' | 'date',
+    ref?: string
+  ): void;
 }
 ```
 
@@ -119,13 +132,13 @@ interface Character {
 
 ```typescript
 interface Relationship {
-  id: string;                        // Unique relation ID
-  from: string;                      // Character xml:id
-  to: string;                        // Character xml:id
+  id: string; // Unique relation ID
+  from: string; // Character xml:id
+  to: string; // Character xml:id
   type: 'family' | 'romantic' | 'social' | 'professional' | 'antagonistic';
-  subtype?: string;                  // "spouse", "sibling", "parent-child"
-  mutual?: boolean;                  // Default true
-  strength?: number;                 // 0-1, calculated from dialogue frequency
+  subtype?: string; // "spouse", "sibling", "parent-child"
+  mutual?: boolean; // Default true
+  strength?: number; // 0-1, calculated from dialogue frequency
 }
 ```
 
@@ -135,11 +148,11 @@ interface Relationship {
 interface NamedEntity {
   id: string;
   type: 'persName' | 'placeName' | 'orgName' | 'date' | 'time';
-  text: string;                      // The actual text span
-  ref?: string;                      // Reference to character ID (if person)
+  text: string; // The actual text span
+  ref?: string; // Reference to character ID (if person)
   passageIndex: number;
   span: { start: number; end: number };
-  confidence?: number;               // For AI-detected entities
+  confidence?: number; // For AI-detected entities
 }
 ```
 
@@ -176,6 +189,7 @@ interface NamedEntity {
 ```
 
 **TEI P5 Elements Used:**
+
 - `<person>` with standard attributes (`@xml:id`, `<sex>`, `<age>`, `<occupation>`)
 - `<listPerson>` container for character inventory
 - `<listRelation>` with `<relation>` elements for character networks
@@ -190,6 +204,7 @@ interface NamedEntity {
 ### 1. EntityEditorPanel (New Slide-out Sidebar)
 
 **Features:**
+
 - Tabbed interface: Characters | Relationships | NER Tags
 - Character list with CRUD operations
 - Form for adding/editing character metadata
@@ -201,6 +216,7 @@ interface NamedEntity {
 ### 2. RelationshipEditor (New Component)
 
 **Features:**
+
 - Visual relationship picker (from character → to character)
 - Relationship type dropdown (family/romantic/social/professional/antagonistic)
 - Subtype selection (spouse, sibling, parent-child, courtship, etc.)
@@ -212,6 +228,7 @@ interface NamedEntity {
 ### 3. InlineTaggingMenu (New Contextual Popup)
 
 **Features:**
+
 - Appears on text selection
 - Quick tag buttons: `<said>` speaker1-9, `<persName>`, `<placeName>`, `<orgName>`
 - Speaker assignment dropdown (populated from `<listPerson>`)
@@ -223,6 +240,7 @@ interface NamedEntity {
 ### 4. Enhanced RenderedView (Modify Existing)
 
 **Changes:**
+
 - Render TEI tags as styled spans (not just text extraction)
 - Click on entity to open editor panel with that entity selected
 - Hover shows entity tooltip (character, relationship, metadata)
@@ -233,6 +251,7 @@ interface NamedEntity {
 ### 5. NERAutoTagger (New Background Process)
 
 **Features:**
+
 - Runs when document loads
 - Detects: personal names, locations, dates
 - Creates suggested annotations with confidence scores
@@ -481,21 +500,21 @@ test.describe('Entity Modeling End-to-End', () => {
 ```typescript
 describe('EntityDetector', () => {
   test('detects personal names', () => {
-    const input = "Mr. Darcy looked at Elizabeth";
+    const input = 'Mr. Darcy looked at Elizabeth';
     const result = detector.detectPersonalNames(input);
 
     expect(result).toEqual([
       { start: 0, end: 9, text: 'Mr. Darcy', type: 'persName', confidence: 0.95 },
-      { start: 20, end: 28, text: 'Elizabeth', type: 'persName', confidence: 0.85 }
+      { start: 20, end: 28, text: 'Elizabeth', type: 'persName', confidence: 0.85 },
     ]);
   });
 
   test('uses pattern database for corrections', () => {
     // Load golden file with known corrections
     const corrections = loadGoldenFile('ner-corrections.json');
-    corrections.forEach(c => db.logCorrection(c));
+    corrections.forEach((c) => db.logCorrection(c));
 
-    const text = "Miss Bingley";
+    const text = 'Miss Bingley';
     const result = detector.detectPersonalNames(text);
 
     expect(result[0].confidence).toBeGreaterThan(0.9); // Learned from corrections
@@ -504,6 +523,7 @@ describe('EntityDetector', () => {
 ```
 
 **Golden Files:**
+
 - `tests/fixtures/entity-detections/golden-ners.json`
 - `tests/fixtures/entity-detections/speaker-attributions.json`
 - `tests/fixtures/entity-detections/relationship-extraction.json`
@@ -515,6 +535,7 @@ describe('EntityDetector', () => {
 ### Phase 1: Core TEI Mutations (2-3 days)
 
 **Tasks:**
+
 - Fix `TEIDocument.addSaidTag()` to actually modify parsed object
 - Implement `updateSpeaker()` and `removeSaidTag()`
 - Wire up `handleApplyTag()` in EditorLayout to call mutations
@@ -524,11 +545,13 @@ describe('EntityDetector', () => {
 Tag application becomes functional (currently broken)
 
 **Files Changed:**
+
 - `lib/tei/TEIDocument.ts` - Add mutation methods
 - `components/editor/EditorLayout.tsx` - Wire handleApplyTag
 - `tests/unit/tei-document-entities.test.ts` - New tests
 
 **Success Criteria:**
+
 - ✅ Selecting text and clicking tag button updates TEI source
 - ✅ `<said>` element appears with correct `@who` attribute
 - ✅ Unit tests pass for all mutation methods
@@ -538,6 +561,7 @@ Tag application becomes functional (currently broken)
 ### Phase 2: Character CRUD (2-3 days)
 
 **Tasks:**
+
 - Implement `getCharacters()` to parse `<listPerson><person>`
 - Add `addCharacter()`, `updateCharacter()`, `removeCharacter()`
 - Create EntityEditorPanel component with character form
@@ -548,15 +572,18 @@ Tag application becomes functional (currently broken)
 Users can manage character inventory
 
 **Files Created:**
+
 - `components/editor/EntityEditorPanel.tsx` - New component
 - `components/editor/CharacterForm.tsx` - Form component
 
 **Files Modified:**
+
 - `lib/tei/TEIDocument.ts` - Character methods
 - `components/editor/RenderedView.tsx` - Click to edit
 - `components/editor/EditorLayout.tsx` - Add entity panel toggle
 
 **Success Criteria:**
+
 - ✅ Can add character with metadata
 - ✅ Can edit character attributes
 - ✅ Can delete character
@@ -568,6 +595,7 @@ Users can manage character inventory
 ### Phase 3: Relationship Modeling (2 days)
 
 **Tasks:**
+
 - Implement `addRelation()`, `getRelationships()` in TEIDocument
 - Create RelationshipEditor component
 - Update CharacterNetwork to use real relationship data
@@ -577,15 +605,18 @@ Users can manage character inventory
 Social network analysis becomes possible
 
 **Files Created:**
+
 - `components/editor/RelationshipEditor.tsx` - New component
 - `lib/tei/RelationshipUtils.ts` - Helper functions
 
 **Files Modified:**
+
 - `lib/tei/TEIDocument.ts` - Relationship methods
 - `components/visualization/CharacterNetwork.tsx` - Use real data
 - `components/editor/EntityEditorPanel.tsx` - Add relationships tab
 
 **Success Criteria:**
+
 - ✅ Can define relationship between two characters
 - ✅ Can specify relationship type and subtype
 - ✅ Network visualization displays relationships
@@ -597,6 +628,7 @@ Social network analysis becomes possible
 ### Phase 4: NER/AI Detection (2-3 days)
 
 **Tasks:**
+
 - Implement EntityDetector with pattern matching
 - Create InlineTaggingMenu component
 - Add NERAutoTagger background process
@@ -607,17 +639,20 @@ Social network analysis becomes possible
 Massive time savings - auto-detect entities instead of manual tagging
 
 **Files Created:**
+
 - `lib/ai/entities/EntityDetector.ts` - Detection engine
 - `components/editor/InlineTaggingMenu.tsx` - Tagging UI
 - `lib/ai/entities/NERAutoTagger.ts` - Auto-tagging process
 - `components/editor/SuggestionReview.tsx` - Review interface
 
 **Files Modified:**
+
 - `components/editor/EditorLayout.tsx` - Integrate tagging menu
 - `lib/db/PatternDB.ts` - Add correction learning
 - `components/editor/EntityEditorPanel.tsx` - NER tab
 
 **Success Criteria:**
+
 - ✅ Entities detected on document load
 - ✅ Suggestions shown with confidence scores
 - ✅ Can accept/reject individually or in bulk
@@ -629,6 +664,7 @@ Massive time savings - auto-detect entities instead of manual tagging
 ### Phase 5: Enhanced Rendering (1-2 days)
 
 **Tasks:**
+
 - Fix RenderedView to render <said> tags as styled spans
 - Add hover tooltips for entities
 - Highlight by entity type
@@ -639,10 +675,12 @@ Massive time savings - auto-detect entities instead of manual tagging
 Visual feedback makes editing intuitive
 
 **Files Modified:**
+
 - `components/editor/RenderedView.tsx` - Render tags, tooltips, clicks
 - `components/editor/EntityTooltip.tsx` - New tooltip component
 
 **Success Criteria:**
+
 - ✅ <said> tags rendered as styled spans
 - ✅ Hover shows entity tooltip
 - ✅ Different colors for different entity types
@@ -654,6 +692,7 @@ Visual feedback makes editing intuitive
 ### Phase 6: Polish & E2E Tests (1-2 days)
 
 **Tasks:**
+
 - Complete test coverage for all mutations
 - Add E2E tests for complete workflows
 - Performance optimization for large documents
@@ -664,14 +703,17 @@ Visual feedback makes editing intuitive
 Confidence in system reliability
 
 **Files Created:**
+
 - `tests/e2e/entity-modeling.spec.ts` - E2E tests
 - `docs/entity-modeling-guide.md` - User documentation
 
 **Files Modified:**
+
 - All test files - Complete coverage
 - README.md - Update feature list
 
 **Success Criteria:**
+
 - ✅ 100% unit test coverage for new code
 - ✅ E2E tests cover all major workflows
 - ✅ Performance acceptable on 100+ passage documents
@@ -685,6 +727,7 @@ Confidence in system reliability
 **Estimated Time:** 10-15 days
 
 **Phase Breakdown:**
+
 - Phase 1: 2-3 days (Core mutations)
 - Phase 2: 2-3 days (Character CRUD)
 - Phase 3: 2 days (Relationships)
@@ -693,6 +736,7 @@ Confidence in system reliability
 - Phase 6: 1-2 days (Polish & tests)
 
 **Dependencies:**
+
 - Phase 1 → Phase 2 (need working mutations before character management)
 - Phase 2 → Phase 3 (need characters before relationships)
 - Phase 2 → Phase 5 (need entities before enhanced rendering)
@@ -718,12 +762,14 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 **Choice:** Modify parsed object graph, then serialize
 
 **Rationale:**
+
 - Simpler than direct XML manipulation
 - Maintains referential integrity
 - Can validate before serializing
 - Easier to test
 
 **Alternative Rejected:** Direct string manipulation with regex
+
 - Too error-prone
 - Breaks XML structure easily
 - Can't validate until parse
@@ -733,12 +779,14 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 **Choice:** Pattern matching + confidence scoring + learning
 
 **Rationale:**
+
 - No external dependencies (spaCy, etc.)
 - Deterministic (testable)
 - Improves with use
 - Transparent to users
 
 **Alternative Rejected:** Heavy ML models
+
 - Overkill for this use case
 - Hard to test
 - Slower
@@ -749,42 +797,49 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 ## Success Criteria
 
 ### Phase 1: Core Mutations
+
 - ✅ Tag application updates TEI
 - ✅ Speaker attribution works
 - ✅ Tag removal works
 - ✅ Unit tests pass
 
 ### Phase 2: Character CRUD
+
 - ✅ Can add/edit/delete characters
 - ✅ Character metadata persists
 - ✅ Entity panel functional
 - ✅ Click-to-edit works
 
 ### Phase 3: Relationships
+
 - ✅ Can define relationships
 - ✅ Network visualizes correctly
 - ✅ Relationships persist
 - ✅ Bidirectional relationships work
 
 ### Phase 4: NER/AI
+
 - ✅ Auto-detection works
 - ✅ Confidence scoring accurate
 - ✅ Suggestions reviewable
 - ✅ Learning from corrections
 
 ### Phase 5: Enhanced Rendering
+
 - ✅ Tags render visibly
 - ✅ Tooltips informative
 - ✅ Click-to-edit smooth
 - ✅ Performance acceptable
 
 ### Phase 6: Polish
+
 - ✅ Test coverage >90%
 - ✅ E2E tests pass
 - ✅ Documentation complete
 - ✅ No regressions
 
 ### Overall Success Metrics
+
 - ✅ All workflows functional (no more console-only operations)
 - ✅ Entity modeling enables novel analysis
 - ✅ User can complete character workflow end-to-end
@@ -799,6 +854,7 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 ### Risk 1: Breaking Existing Functionality
 
 **Mitigation:**
+
 - Comprehensive test suite before changes
 - Run E2E tests after each phase
 - Maintain backward compatibility
@@ -807,6 +863,7 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 ### Risk 2: Performance Degradation
 
 **Mitigation:**
+
 - Profile entity operations
 - Lazy load large entity lists
 - Debounce AI detection
@@ -815,6 +872,7 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 ### Risk 3: AI Detection False Positives
 
 **Mitigation:**
+
 - Conservative confidence thresholds
 - Human in the loop (review required)
 - Easy correction workflow
@@ -823,6 +881,7 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 ### Risk 4: TEI Schema Violations
 
 **Mitigation:**
+
 - Validate against TEI RNG schema
 - Unit tests check structure
 - Preview mode before save
@@ -846,6 +905,7 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 ## Dependencies
 
 **Required:**
+
 - Existing TEIDocument class
 - Existing editor UI components
 - Existing PatternDB for learning
@@ -853,6 +913,7 @@ All TEI structures follow [TEI P5 Guidelines](https://tei-c.org/release/doc/tei-
 - TEI P5 schema (already in repo)
 
 **Optional:**
+
 - External NER APIs (Phase 4+)
 - External visualization libraries (Phase 6+)
 

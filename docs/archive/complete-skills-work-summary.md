@@ -13,29 +13,34 @@
 ✅ **Design Document Created:** `docs/plans/2025-02-01-tei-parser-enhancement-design.md`
 
 **Decisions Made:**
+
 - Primary approach: Enhance `getDialogue()` method
 - Support both `<said>` (legacy) and `<s>` (TEI standard)
 - Maintain backward compatibility
 - Minimal one-line change
 
 **Trade-offs Analyzed:**
+
 - Option 1: Enhanced getDialogue() ✅ **CHOSEN**
 - Option 2: Tag normalization (rejected as over-engineered)
 
 ### Phase 2: Implementation (TDD Skill)
 
 ✅ **RED Phase** - Failing tests written
+
 - File: `tests/unit/TEIDocument.test.ts`
 - 4 new tests added
 - Tests fail correctly (feature missing, not typos)
 
 ✅ **GREEN Phase** - Minimal implementation
+
 - File: `lib/tei/TEIDocument.ts`
 - One line changed: `if (key === 'said' || key === 's')`
 - All 6 tests pass
 - 473/473 existing tests still pass (no regressions)
 
 ✅ **REFACTOR Phase** - Not needed
+
 - Code was already minimal
 - No duplication to remove
 - Clean implementation
@@ -43,11 +48,13 @@
 ### Phase 3: Verification (In Progress)
 
 ✅ **Unit Tests Verified**
+
 - 6/6 new tests pass (100%)
 - 473/473 total tests pass
 - No regressions
 
 🔄 **E2E Tests Running**
+
 - Test suite: `tests/e2e/error-scenarios.spec.ts`
 - Expected: +9 tests improvement
 - Status: Awaiting completion
@@ -61,11 +68,13 @@
 **Complexity:** Minimal
 
 **Before:**
+
 ```typescript
 if (key === 'said') {
 ```
 
 **After:**
+
 ```typescript
 if (key === 'said' || key === 's') {
 ```
@@ -77,6 +86,7 @@ if (key === 'said' || key === 's') {
 **Lines Added:** ~60
 
 **Test Coverage:**
+
 - `<s>` tags with `@who` attribute
 - `<s>` tags without `@who` (anonymous)
 - `<said>` tags (backward compatibility)
@@ -86,21 +96,21 @@ if (key === 'said' || key === 's') {
 
 ### Unit Tests (Verified ✅)
 
-| Metric | Value |
-|--------|-------|
-| New Tests | 4 |
-| All Tests Passing | 6/6 (100%) |
-| Regressions | 0 (473/473 still pass) |
-| Code Coverage | getDialogue() now fully covered |
+| Metric            | Value                           |
+| ----------------- | ------------------------------- |
+| New Tests         | 4                               |
+| All Tests Passing | 6/6 (100%)                      |
+| Regressions       | 0 (473/473 still pass)          |
+| Code Coverage     | getDialogue() now fully covered |
 
 ### E2E Tests (Expected)
 
-| Suite | Before | After (Est.) | Improvement |
-|-------|--------|-------------|-------------|
-| Error Scenarios | 23/38 | 26/38 | +3 tests |
-| Document Upload | 6/31 | 12/31 | +6 tests |
-| Export Validation | 14/29 | 17/29 | +3 tests |
-| **Total E2E (Est.)** | 120/234 | **133/234** | **+13 tests** |
+| Suite                | Before  | After (Est.) | Improvement   |
+| -------------------- | ------- | ------------ | ------------- |
+| Error Scenarios      | 23/38   | 26/38        | +3 tests      |
+| Document Upload      | 6/31    | 12/31        | +6 tests      |
+| Export Validation    | 14/29   | 17/29        | +3 tests      |
+| **Total E2E (Est.)** | 120/234 | **133/234**  | **+13 tests** |
 
 **Conservative Estimate:** 120 → 133 passing (51.3% → 56.8%)
 **Optimistic Estimate:** 120 → 146 passing (51.3% → 62.4%)
@@ -128,6 +138,7 @@ if (key === 'said' || key === 's') {
 ### TDD Violations: None
 
 **Red Flags Avoided:**
+
 - ❌ No code before test
 - ❌ No "tests after" rationalization
 - ❌ No "just this once" exceptions
@@ -164,6 +175,7 @@ if (key === 'said' || key === 's') {
 ### TEI Parser Enhancement Status
 
 **Current Implementation:**
+
 - ✅ `<s>` tag recognition
 - ✅ `@who` attribute extraction
 - ✅ Content extraction
@@ -171,6 +183,7 @@ if (key === 'said' || key === 's') {
 - ✅ Edge case handling
 
 **Potential Future Enhancements:**
+
 - `<sp>` tag support (if needed)
 - `<p>` tag speaker attribution
 - Nested dialogue structures
@@ -202,6 +215,7 @@ if (key === 'said' || key === 's') {
 ## Status
 
 **Completed Work:**
+
 - ✅ Design documented
 - ✅ Unit tests written and passing
 - ✅ Implementation complete
@@ -209,12 +223,14 @@ if (key === 'said' || key === 's') {
 - ✅ E2E tests running (verification in progress)
 
 **Test Suite Progress:**
+
 - **Starting:** 72/234 (30.8%)
 - **After Agents:** 120/234 (51.3%)
 - **After TEI Fix (Est.):** 133-146/234 (56.8% - 62.4%)
 - **Target:** 211/234 (90.0%)
 
 **Progress to Target:**
+
 - **Completed:** 133-146 tests (63% of target)
 - **Remaining:** 65-78 tests (37% of target)
 

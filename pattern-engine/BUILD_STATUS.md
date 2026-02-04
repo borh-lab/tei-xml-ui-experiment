@@ -7,6 +7,7 @@
 **Status:** COMPLETED
 
 **Created Files:**
+
 - `/home/bor/Projects/tei-xml/.worktrees/tei-enhanced/pattern-engine/Cargo.toml` - Rust project configuration with WASM dependencies
 - `/home/bor/Projects/tei-xml/.worktrees/tei-enhanced/pattern-engine/src/lib.rs` - WASM exports for pattern matching
 - `/home/bor/Projects/tei-xml/.worktrees/tei-enhanced/pattern-engine/.gitignore` - Ignore build artifacts
@@ -14,6 +15,7 @@
 - `/home/bor/Projects/tei-xml/.worktrees/tei-enhanced/pattern-engine/.cargo/config.toml` - Cargo linker configuration
 
 **Dependencies Added:**
+
 ```toml
 [dependencies]
 wasm-bindgen = "0.2"
@@ -23,6 +25,7 @@ js-sys = "0.3"
 ```
 
 **WASM Functions Implemented:**
+
 - `detect_speaker(text, patterns) -> string` - Analyze text and suggest speaker
 - `update_from_feedback(db, passage, speaker) -> Result<()>` - Learn from corrections
 - `calculate_confidence(text, speaker, patterns) -> f64` - Confidence scoring
@@ -34,10 +37,12 @@ js-sys = "0.3"
 **Status:** COMPLETED (with fallback implementation)
 
 **Created Files:**
+
 - `/home/bor/Projects/tei-xml/.worktrees/tei-enhanced/lib/pattern/wasm-loader.ts` - WASM loader with fallback
 - `/home/bor/Projects/tei-xml/.worktrees/tei-enhanced/tests/unit/wasm-loader.test.ts` - Comprehensive tests
 
 **Features Implemented:**
+
 - `loadPatternEngine()` - Load WASM module or fallback to mock
 - `detectSpeaker(text, patterns)` - JavaScript wrapper for Rust function
 - `updateFromFeedback(db, passage, speaker)` - Update patterns from corrections
@@ -45,6 +50,7 @@ js-sys = "0.3"
 - `isWasmAvailable()` - Check if WASM module is loaded
 
 **Test Results:** ✅ All 4 tests passing
+
 - ✓ should load WASM module or fallback to mock
 - ✓ should detect speaker using pattern engine
 - ✓ should return mock engine when WASM not available
@@ -59,6 +65,7 @@ js-sys = "0.3"
 The Rust project structure is complete and tested, but the WASM binary compilation requires additional tooling:
 
 **To Build WASM (when ready):**
+
 ```bash
 cd /home/bor/Projects/tei-xml/.worktrees/tei-enhanced/pattern-engine
 
@@ -71,6 +78,7 @@ wasm-pack build --target web --out-dir ../public/wasm
 ```
 
 **Required Tools:**
+
 - ✅ Rust toolchain (installed)
 - ✅ wasm32-unknown-unknown target (available)
 - ✅ wasm-pack (installed at `/home/bor/.cargo/bin/wasm-pack`)
@@ -78,6 +86,7 @@ wasm-pack build --target web --out-dir ../public/wasm
 
 **Why WASM Build Not Completed:**
 The environment lacks the `lld` linker required for WASM compilation. The linker is typically provided by:
+
 - Ubuntu/Debian: `sudo apt install lld`
 - macOS: `brew install llvm`
 - NixOS/nix: Add `llvm` to buildInputs
@@ -87,6 +96,7 @@ The environment lacks the `lld` linker required for WASM compilation. The linker
 Since the WASM module cannot be built without the linker, a robust fallback is implemented:
 
 **Features:**
+
 - Automatic fallback to mock implementation when WASM not available
 - Console warnings guide developers to build WASM
 - Mock implementation provides same API as WASM
@@ -94,6 +104,7 @@ Since the WASM module cannot be built without the linker, a robust fallback is i
 - Development can continue without WASM built
 
 **Mock Functions:**
+
 ```typescript
 getMockPatternEngine() {
   detect_speaker: () => 'speaker1',
@@ -105,12 +116,14 @@ getMockPatternEngine() {
 ## Next Steps
 
 ### To Complete WASM Build:
+
 1. Install lld linker (see README.md for system-specific instructions)
 2. Run: `cd pattern-engine && wasm-pack build --target web --out-dir ../public/wasm`
 3. Verify WASM loads in browser
 4. Remove mock fallback if desired (or keep for development)
 
 ### Development (Current):
+
 - All TypeScript interfaces working with mock implementation
 - Tests passing
 - Integration with IndexedDB pattern database ready
@@ -144,6 +157,7 @@ tests/unit/
 Both tasks are fully completed with working code, tests, and documentation. The only remaining item is building the actual WASM binary, which requires installing the lld linker - a straightforward system package installation.
 
 The implementation includes:
+
 - ✅ Rust project structure with all dependencies
 - ✅ WASM-exported functions for speaker detection
 - ✅ JavaScript wrapper with automatic fallback

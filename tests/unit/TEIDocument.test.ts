@@ -40,7 +40,7 @@ describe('wrapTextInTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said', { 'who': '#speaker1' });
+    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
 
     const updated = doc.serialize();
     expect(updated).toContain('<said who="#speaker1">Hello</said>');
@@ -76,7 +76,7 @@ describe('wrapTextInTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 6, 10, 'persName', { 'ref': '#john' });
+    doc.wrapTextInTag(0, 6, 10, 'persName', { ref: '#john' });
 
     const updated = doc.serialize();
     expect(updated).toContain('<persName ref="#john">John</persName>');
@@ -112,7 +112,7 @@ describe('wrapTextInTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said', { 'who': '#speaker1' });
+    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
     doc.wrapTextInTag(0, 6, 11, 'q');
 
     const updated = doc.serialize();

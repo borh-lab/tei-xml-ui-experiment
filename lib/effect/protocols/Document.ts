@@ -35,7 +35,10 @@ import type {
  */
 export class DocumentError extends Error {
   readonly _tag = 'DocumentError';
-  constructor(message: string, public readonly cause?: unknown) {
+  constructor(
+    message: string,
+    public readonly cause?: unknown
+  ) {
     super(message);
     this.name = 'DocumentError';
   }
@@ -57,7 +60,10 @@ export class DocumentNotFoundError extends DocumentError {
  */
 export class DocumentParseError extends DocumentError {
   readonly _tag = 'DocumentParseError';
-  constructor(message: string, public readonly xml: string) {
+  constructor(
+    message: string,
+    public readonly xml: string
+  ) {
     super(message);
     this.name = 'DocumentParseError';
   }
@@ -68,7 +74,10 @@ export class DocumentParseError extends DocumentError {
  */
 export class InvalidOperationError extends DocumentError {
   readonly _tag = 'InvalidOperationError';
-  constructor(message: string, public readonly reason: string) {
+  constructor(
+    message: string,
+    public readonly reason: string
+  ) {
     super(message);
     this.name = 'InvalidOperationError';
   }
@@ -193,9 +202,7 @@ export interface DocumentService {
    *
    * @returns Effect that produces TEIDocument
    */
-  readonly loadDocument: (
-    xml: string
-  ) => Effect.Effect<TEIDocument, DocumentParseError>;
+  readonly loadDocument: (xml: string) => Effect.Effect<TEIDocument, DocumentParseError>;
 
   /**
    * Get current document
@@ -254,9 +261,7 @@ export interface DocumentService {
    * @param tagId - Tag to remove
    * @returns Effect that produces updated document
    */
-  readonly removeTag: (
-    tagId: string
-  ) => Effect.Effect<TEIDocument, InvalidOperationError>;
+  readonly removeTag: (tagId: string) => Effect.Effect<TEIDocument, InvalidOperationError>;
 
   // ========================================================================
   // Character Operations
@@ -328,9 +333,7 @@ export interface DocumentService {
    * @param targetRevision - Revision to undo to (optional, defaults to current-1)
    * @returns Effect that produces document at target revision
    */
-  readonly undo: (
-    targetRevision?: number
-  ) => Effect.Effect<TEIDocument, InvalidOperationError>;
+  readonly undo: (targetRevision?: number) => Effect.Effect<TEIDocument, InvalidOperationError>;
 
   /**
    * Redo to next revision
@@ -338,9 +341,7 @@ export interface DocumentService {
    * @param fromRevision - Revision to redo from (optional, defaults to current+1)
    * @returns Effect that produces document at target revision
    */
-  readonly redo: (
-    fromRevision?: number
-  ) => Effect.Effect<TEIDocument, InvalidOperationError>;
+  readonly redo: (fromRevision?: number) => Effect.Effect<TEIDocument, InvalidOperationError>;
 
   /**
    * Get history state

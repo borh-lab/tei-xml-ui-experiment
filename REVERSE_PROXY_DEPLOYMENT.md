@@ -5,6 +5,7 @@ This guide explains how to deploy the TEI XML Editor under a reverse proxy with 
 ## Overview
 
 When deploying under a reverse proxy with a subpath, Next.js needs to be configured to:
+
 - Serve all assets from the base path (e.g., `/dhlab-experiment-ui/`)
 - Handle routing correctly with the base path prefix
 - Ensure API routes and static assets work properly
@@ -111,11 +112,13 @@ ProxyPass /dhlab-experiment-ui/_next/next/ws ws://localhost:3000/_next/next/ws
 ### Development Mode (for testing)
 
 1. Start the Next.js dev server:
+
    ```bash
    npm run dev
    ```
 
 2. Test through the reverse proxy:
+
    ```bash
    curl https://nlp.lang.osaka-u.ac.jp/dhlab-experiment-ui/
    ```
@@ -125,11 +128,13 @@ ProxyPass /dhlab-experiment-ui/_next/next/ws ws://localhost:3000/_next/next/ws
 ### Production Mode
 
 1. Build the application for your reverse proxy path:
+
    ```bash
    npm run build:proxy
    ```
 
 2. Start the production server:
+
    ```bash
    npm start
    ```
@@ -141,11 +146,13 @@ ProxyPass /dhlab-experiment-ui/_next/next/ws ws://localhost:3000/_next/next/ws
 ### Using PM2 (Recommended for Production)
 
 Install PM2:
+
 ```bash
 npm install -g pm2
 ```
 
 Start the application with PM2:
+
 ```bash
 pm2 start npm --name "tei-xml-editor" -- start
 pm2 save
@@ -170,6 +177,7 @@ Checklist:
 **Symptoms:** CSS, JS, or images fail to load
 
 **Solution:**
+
 1. Verify `NEXT_PUBLIC_BASE_PATH` environment variable is set when building
 2. Check that the reverse proxy is forwarding requests correctly
 3. Ensure the application was rebuilt with the correct basePath: `npm run build:proxy`
@@ -179,6 +187,7 @@ Checklist:
 **Symptoms:** Clicking links or navigation causes 404 errors
 
 **Solution:**
+
 1. Verify `NEXT_PUBLIC_BASE_PATH` is set correctly (e.g., `/dhlab-experiment-ui`)
 2. Check nginx rewrite rules are not stripping the path incorrectly
 3. Ensure the app was built with: `npm run build:proxy`
@@ -188,6 +197,7 @@ Checklist:
 **Symptoms:** API endpoints fail to respond
 
 **Solution:**
+
 1. API routes should be accessed via: `https://nlp.lang.osaka-u.ac.jp/dhlab-experiment-ui/api/...`
 2. Check that Next.js API routes are properly prefixed with `basePath`
 3. Verify reverse proxy is forwarding API requests
@@ -197,6 +207,7 @@ Checklist:
 **Symptoms:** Live reload doesn't work in development
 
 **Solution:**
+
 1. Ensure nginx `proxy_set_header Upgrade $http_upgrade` is configured
 2. Add `proxy_cache_bypass $http_upgrade;` to nginx config
 3. Check WebSocket support is enabled in reverse proxy
@@ -206,17 +217,19 @@ Checklist:
 If you prefer a static deployment (no Node.js server needed), you can use static export:
 
 1. Update `next.config.ts`:
+
    ```typescript
    const nextConfig: NextConfig = {
      basePath: '/dhlab-experiment-ui',
-     output: 'export',  // Enable static export
+     output: 'export', // Enable static export
      images: {
-       unoptimized: true,  // Required for static export
+       unoptimized: true, // Required for static export
      },
    };
    ```
 
 2. Build and export:
+
    ```bash
    npm run build
    ```
@@ -248,12 +261,14 @@ ANTHROPIC_API_KEY=your-key-here
 For production deployment:
 
 1. **Enable gzip compression** in nginx:
+
    ```nginx
    gzip on;
    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
    ```
 
 2. **Set up caching** for static assets:
+
    ```nginx
    location /dhlab-experiment-ui/_next/static {
        expires 365d;
@@ -265,14 +280,16 @@ For production deployment:
    ```javascript
    // ecosystem.config.js
    module.exports = {
-     apps: [{
-       name: 'tei-xml-editor',
-       script: 'npm',
-       args: 'start',
-       instances: 2,  // Use 2 instances
-       exec_mode: 'cluster',
-       max_memory_restart: '1G',
-     }]
+     apps: [
+       {
+         name: 'tei-xml-editor',
+         script: 'npm',
+         args: 'start',
+         instances: 2, // Use 2 instances
+         exec_mode: 'cluster',
+         max_memory_restart: '1G',
+       },
+     ],
    };
    ```
 
@@ -293,6 +310,7 @@ For production deployment:
 ## Support
 
 For issues specific to reverse proxy deployment:
+
 - Check Next.js documentation: https://nextjs.org/docs/app/api-reference/next-config-js/basePath
 - Nginx proxy documentation: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
 - Project issues: [GitHub Issues]

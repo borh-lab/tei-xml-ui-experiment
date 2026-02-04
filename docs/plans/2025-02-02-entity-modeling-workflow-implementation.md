@@ -15,6 +15,7 @@
 ### Task 1: Add addSaidTag Mutation Method to TEIDocument
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts:96-97`
 - Test: `tests/unit/tei-document-entities.test.ts` (new file)
 
@@ -37,7 +38,7 @@ describe('TEIDocument - addSaidTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.addSaidTag(0, {start: 0, end: 11}, 'speaker1');
+    doc.addSaidTag(0, { start: 0, end: 11 }, 'speaker1');
 
     const serialized = doc.serialize();
     expect(serialized).toContain('<said who="#speaker1">');
@@ -55,7 +56,7 @@ describe('TEIDocument - addSaidTag', () => {
 </TEI>`;
 
     const doc = new TEIDocument(xml);
-    doc.addSaidTag(0, {start: 6, end: 10}, 'speaker1');
+    doc.addSaidTag(0, { start: 6, end: 10 }, 'speaker1');
 
     const serialized = doc.serialize();
     expect(serialized).toContain('Before');
@@ -97,15 +98,15 @@ export class TEIDocument {
 
     const saidElement = {
       '@_who': `#${speakerId}`,
-      '#text': selected
+      '#text': selected,
     };
 
     // Replace passage content with <said> tag
     if (typeof passage === 'string') {
       this.parsed.TEI.text.body.p[passageIndex] = {
         '#text': before,
-        'said': saidElement,
-        '#text_after': after
+        said: saidElement,
+        '#text_after': after,
       };
     } else {
       passage['#text'] = before;
@@ -114,7 +115,9 @@ export class TEIDocument {
     }
   }
 
-  getCharacters() { return []; }
+  getCharacters() {
+    return [];
+  }
 }
 ```
 
@@ -146,6 +149,7 @@ Co-Authored-By: glm-4.7"
 ### Task 2: Add updateSpeaker Mutation Method
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts` (after addSaidTag)
 - Test: `tests/unit/tei-document-entities.test.ts`
 
@@ -261,6 +265,7 @@ Co-Authored-By: glm-4.7"
 ### Task 3: Wire handleApplyTag to Call TEIDocument Mutations
 
 **Files:**
+
 - Modify: `components/editor/EditorLayout.tsx:311-314`
 - Test: `tests/integration/entity-workflow.test.tsx` (new file)
 
@@ -377,6 +382,7 @@ Co-Authored-By: glm-4.7"
 ### Task 4: Implement getCharacters to Parse listPerson
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts:96`
 - Test: `tests/unit/tei-document-entities.test.ts`
 
@@ -507,6 +513,7 @@ Co-Authored-By: glm-4.7"
 ### Task 5: Implement addCharacter Method
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts` (after getCharacters)
 - Test: `tests/unit/tei-document-entities.test.ts`
 
@@ -527,7 +534,7 @@ describe('TEIDocument - addCharacter', () => {
       'xml:id': 'bingley',
       persName: 'Mr. Bingley',
       sex: 'M',
-      age: 24
+      age: 24,
     });
 
     const characters = doc.getCharacters();
@@ -546,7 +553,7 @@ describe('TEIDocument - addCharacter', () => {
     doc.addCharacter({
       'xml:id': 'jane',
       persName: 'Jane Bennet',
-      sex: 'F'
+      sex: 'F',
     });
 
     const serialized = doc.serialize();
@@ -572,7 +579,7 @@ describe('TEIDocument - addCharacter', () => {
     doc.addCharacter({
       'xml:id': 'elizabeth',
       persName: 'Elizabeth Bennet',
-      sex: 'F'
+      sex: 'F',
     });
 
     const characters = doc.getCharacters();
@@ -675,6 +682,7 @@ Co-Authored-By: glm-4.7"
 ### Task 6: Create EntityEditorPanel Component
 
 **Files:**
+
 - Create: `components/editor/EntityEditorPanel.tsx` (new)
 - Create: `components/editor/CharacterForm.tsx` (new)
 - Test: `tests/unit/entity-editor-panel.test.tsx` (new)
@@ -952,6 +960,7 @@ Co-Authored-By: glm-4.7"
 ### Task 7: Integrate EntityEditorPanel into EditorLayout
 
 **Files:**
+
 - Modify: `components/editor/EditorLayout.tsx` (add entity panel toggle)
 - Test: `tests/integration/entity-workflow.test.tsx`
 
@@ -1000,16 +1009,19 @@ Expected: FAIL - "Unable to find role="button" with name /entities/i"
 In `components/editor/EditorLayout.tsx`:
 
 1. Add import:
+
 ```typescript
 import { EntityEditorPanel } from '@/components/editor/EntityEditorPanel';
 ```
 
 2. Add state (around line 38):
+
 ```typescript
 const [entityPanelOpen, setEntityPanelOpen] = useState(false);
 ```
 
 3. Add button to toolbar (around line 433, after ExportButton):
+
 ```typescript
 <Button
   variant={entityPanelOpen ? "default" : "outline"}
@@ -1022,6 +1034,7 @@ const [entityPanelOpen, setEntityPanelOpen] = useState(false);
 ```
 
 4. Add panel (after KeyboardShortcutHelp, around line 410):
+
 ```typescript
 <EntityEditorPanel
   open={entityPanelOpen}
@@ -1030,6 +1043,7 @@ const [entityPanelOpen, setEntityPanelOpen] = useState(false);
 ```
 
 5. Add hotkey (after existing hotkeys, around line 85):
+
 ```typescript
 useHotkeys('cmd+e', (e) => {
   if (isInputFocused()) return;
@@ -1069,6 +1083,7 @@ Co-Authored-By: glm-4.7"
 ### Task 8: Implement Relationship Methods in TEIDocument
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts` (after addCharacter)
 - Test: `tests/unit/tei-document-relationships.test.ts` (new)
 
@@ -1110,7 +1125,7 @@ describe('TEIDocument - Relationships', () => {
       from: 'darcy',
       to: 'elizabeth',
       type: 'romantic',
-      subtype: 'courtship'
+      subtype: 'courtship',
     });
 
     const relationships = doc.getRelationships();
@@ -1261,6 +1276,7 @@ Co-Authored-By: glm-4.7"
 ### Task 9: Create RelationshipEditor Component
 
 **Files:**
+
 - Create: `components/editor/RelationshipEditor.tsx` (new)
 - Modify: `components/editor/EntityEditorPanel.tsx` (integrate)
 - Test: `tests/unit/relationship-editor.test.tsx` (new)
@@ -1472,16 +1488,19 @@ export function RelationshipEditor({ onAddRelation }: RelationshipEditorProps) {
 Update `components/editor/EntityEditorPanel.tsx`:
 
 Add import:
+
 ```typescript
 import { RelationshipEditor } from './RelationshipEditor';
 ```
 
 Add state (after other state):
+
 ```typescript
 const [relationships, setRelationships] = useState<any[]>([]);
 ```
 
 Update relationships tab content:
+
 ```typescript
 <TabsContent value="relationships" className="space-y-4">
   <div className="flex items-center justify-between">
@@ -1539,6 +1558,7 @@ Co-Authored-By: glm-4.7"
 ### Task 10: Create EntityDetector with Pattern Matching
 
 **Files:**
+
 - Create: `lib/ai/entities/EntityDetector.ts` (new)
 - Create: `lib/ai/entities/types.ts` (new)
 - Test: `tests/unit/entity-detector.test.ts` (new)
@@ -1576,23 +1596,23 @@ describe('EntityDetector', () => {
 
   describe('detectPersonalNames', () => {
     test('detects names with titles', () => {
-      const text = "Mr. Darcy looked at Elizabeth";
+      const text = 'Mr. Darcy looked at Elizabeth';
       const result = detector.detectPersonalNames(text);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
         text: 'Mr. Darcy',
         type: 'persName',
-        confidence: expect.any(Number)
+        confidence: expect.any(Number),
       });
       expect(result[1]).toMatchObject({
         text: 'Elizabeth',
-        type: 'persName'
+        type: 'persName',
       });
     });
 
     test('detects multiple titles', () => {
-      const text = "Mrs. Bennet and Miss Bingley arrived";
+      const text = 'Mrs. Bennet and Miss Bingley arrived';
       const result = detector.detectPersonalNames(text);
 
       expect(result).toHaveLength(2);
@@ -1601,7 +1621,7 @@ describe('EntityDetector', () => {
     });
 
     test('excludes common words at sentence start', () => {
-      const text = "The sun was bright";
+      const text = 'The sun was bright';
       const result = detector.detectPersonalNames(text);
 
       expect(result).toHaveLength(0);
@@ -1610,7 +1630,7 @@ describe('EntityDetector', () => {
 
   describe('detectPlaces', () => {
     test('detects locations with prepositions', () => {
-      const text = "in London and at Hertfordshire";
+      const text = 'in London and at Hertfordshire';
       const result = detector.detectPlaces(text);
 
       expect(result).toHaveLength(2);
@@ -1653,7 +1673,7 @@ export class EntityDetector {
         end: match.index + match[0].length,
         text: match[0],
         type: 'persName',
-        confidence: 0.95
+        confidence: 0.95,
       });
     }
 
@@ -1667,7 +1687,7 @@ export class EntityDetector {
         end: nameStart + match[1].length,
         text: match[1],
         type: 'persName',
-        confidence: 0.75
+        confidence: 0.75,
       });
     }
 
@@ -1688,7 +1708,7 @@ export class EntityDetector {
         end: placeStart + match[2].length,
         text: match[2],
         type: 'placeName',
-        confidence: 0.8
+        confidence: 0.8,
       });
     }
 
@@ -1712,7 +1732,7 @@ export class EntityDetector {
         text: match[1],
         type: 'dialogue',
         speaker: match[3].toLowerCase(),
-        confidence: 0.85
+        confidence: 0.85,
       });
     }
 
@@ -1729,7 +1749,7 @@ export class EntityDetector {
         text: match[3],
         type: 'dialogue',
         speaker: match[1].toLowerCase(),
-        confidence: 0.9
+        confidence: 0.9,
       });
     }
 
@@ -1742,9 +1762,9 @@ export class EntityDetector {
 
     const result: EntitySpan[] = [];
     for (const span of sorted) {
-      const overlaps = result.some(r =>
-        span.start >= r.start && span.start < r.end ||
-        span.end > r.start && span.end <= r.end
+      const overlaps = result.some(
+        (r) =>
+          (span.start >= r.start && span.start < r.end) || (span.end > r.start && span.end <= r.end)
       );
 
       if (!overlaps) {
@@ -1786,6 +1806,7 @@ Co-Authored-By: glm-4.7"
 ### Task 11: Create NERAutoTagger Background Process
 
 **Files:**
+
 - Create: `lib/ai/entities/NERAutoTagger.ts` (new)
 - Modify: `components/editor/EntityEditorPanel.tsx` (add NER tab)
 - Test: `tests/unit/ner-auto-tagger.test.ts` (new)
@@ -1871,24 +1892,30 @@ export class NERAutoTagger {
     return {
       persNames: this.detector.detectPersonalNames(text),
       places: this.detector.detectPlaces(text),
-      dates: [] // TODO: implement date detection
+      dates: [], // TODO: implement date detection
     };
   }
 
   getHighConfidenceEntities(result: ScanResult): EntitySpan[] {
     return [
-      ...result.persNames.filter(e => e.confidence >= this.confidenceThreshold),
-      ...result.places.filter(e => e.confidence >= this.confidenceThreshold),
-      ...result.dates.filter(e => e.confidence >= this.confidenceThreshold)
+      ...result.persNames.filter((e) => e.confidence >= this.confidenceThreshold),
+      ...result.places.filter((e) => e.confidence >= this.confidenceThreshold),
+      ...result.dates.filter((e) => e.confidence >= this.confidenceThreshold),
     ];
   }
 
   getMediumConfidenceEntities(result: ScanResult): EntitySpan[] {
     const threshold = this.confidenceThreshold - 0.2;
     return [
-      ...result.persNames.filter(e => e.confidence >= threshold && e.confidence < this.confidenceThreshold),
-      ...result.places.filter(e => e.confidence >= threshold && e.confidence < this.confidenceThreshold),
-      ...result.dates.filter(e => e.confidence >= threshold && e.confidence < this.confidenceThreshold)
+      ...result.persNames.filter(
+        (e) => e.confidence >= threshold && e.confidence < this.confidenceThreshold
+      ),
+      ...result.places.filter(
+        (e) => e.confidence >= threshold && e.confidence < this.confidenceThreshold
+      ),
+      ...result.dates.filter(
+        (e) => e.confidence >= threshold && e.confidence < this.confidenceThreshold
+      ),
     ];
   }
 
@@ -1896,7 +1923,7 @@ export class NERAutoTagger {
     const result = this.scan(document);
     const highConfidence = this.getHighConfidenceEntities(result);
 
-    highConfidence.forEach(entity => {
+    highConfidence.forEach((entity) => {
       // TODO: Add to <standOff><listAnnotation>
       console.log(`Auto-applying: ${entity.text} (${entity.type})`);
     });
@@ -1907,17 +1934,20 @@ export class NERAutoTagger {
 Update `components/editor/EntityEditorPanel.tsx`:
 
 Add import:
+
 ```typescript
 import { NERAutoTagger } from '@/lib/ai/entities/NERAutoTagger';
 ```
 
 Add state:
+
 ```typescript
 const [nerSuggestions, setNerSuggestions] = useState<any[]>([]);
 const [nerScanned, setNerScanned] = useState(false);
 ```
 
 Add scan effect:
+
 ```typescript
 useEffect(() => {
   if (!document || entityPanelOpen !== 'ner') return;
@@ -1925,16 +1955,13 @@ useEffect(() => {
   const tagger = new NERAutoTagger();
   const result = tagger.scan(document);
 
-  setNerSuggestions([
-    ...result.persNames,
-    ...result.places,
-    ...result.dates
-  ]);
+  setNerSuggestions([...result.persNames, ...result.places, ...result.dates]);
   setNerScanned(true);
 }, [document, entityPanelOpen]);
 ```
 
 Update NER tab:
+
 ```typescript
 <TabsContent value="ner" className="space-y-4">
   <div className="flex items-center justify-between">
@@ -2021,6 +2048,7 @@ Co-Authored-By: glm-4.7"
 ### Task 12: Implement addNERTag Method in TEIDocument
 
 **Files:**
+
 - Modify: `lib/tei/TEIDocument.ts` (after relationship methods)
 - Test: `tests/unit/tei-document-entities.test.ts` (add NER tests)
 
@@ -2164,6 +2192,7 @@ Co-Authored-By: glm-4.7"
 ### Task 13: Fix RenderedView to Render TEI Tags
 
 **Files:**
+
 - Modify: `components/editor/RenderedView.tsx` (render tags not just text)
 - Test: `tests/unit/rendered-view.test.tsx` (modify existing)
 
@@ -2220,7 +2249,7 @@ useEffect(() => {
   const p = document.parsed.TEI.text.body.p;
 
   // Handle both array and single paragraph cases
-  const paragraphs = Array.isArray(p) ? p : (p ? [p] : []);
+  const paragraphs = Array.isArray(p) ? p : p ? [p] : [];
 
   const extractedPassages: Passage[] = paragraphs.map((para, idx) => {
     let content = '';
@@ -2251,7 +2280,7 @@ useEffect(() => {
       id: `passage-${idx}`,
       content: content.trim(),
       speaker,
-      confidence: undefined
+      confidence: undefined,
     };
   });
 
@@ -2310,6 +2339,7 @@ Co-Authored-By: glm-4.7"
 ### Task 14: Add Entity Tooltips to RenderedView
 
 **Files:**
+
 - Modify: `components/editor/RenderedView.tsx` (add tooltip)
 - Create: `components/editor/EntityTooltip.tsx` (new)
 - Test: `tests/unit/entity-tooltip.test.tsx` (new)
@@ -2403,16 +2433,22 @@ export function EntityTooltip({ entity, position, visible }: EntityTooltipProps)
 Integrate into `components/editor/RenderedView.tsx`:
 
 Add imports:
+
 ```typescript
 import { EntityTooltip } from './EntityTooltip';
 ```
 
 Add state (after other state):
+
 ```typescript
-const [hoveredEntity, setHoveredEntity] = useState<{ entity: any; position: { x: number; y: number } } | null>(null);
+const [hoveredEntity, setHoveredEntity] = useState<{
+  entity: any;
+  position: { x: number; y: number };
+} | null>(null);
 ```
 
 Add mouse handler to passage click area (around line 229):
+
 ```typescript
 onMouseEnter={(e) => {
   if (passage.speaker) {
@@ -2429,6 +2465,7 @@ onMouseLeave={() => setHoveredEntity(null)}
 ```
 
 Add tooltip before return closing tag:
+
 ```typescript
 {hoveredEntity && (
   <EntityTooltip
@@ -2470,6 +2507,7 @@ Co-Authored-By: glm-4.7"
 ### Task 15: Create E2E Tests for Entity Workflows
 
 **Files:**
+
 - Create: `tests/e2e/entity-modeling.spec.ts` (new)
 - Test: E2E test execution
 
@@ -2654,6 +2692,7 @@ Co-Authored-By: glm-4.7"
 ### Task 16: Performance Optimization and Final Polish
 
 **Files:**
+
 - Modify: Multiple files (optimization)
 - Documentation: Update README and create user guide
 
@@ -2672,6 +2711,7 @@ Expected: 75%+ pass rate (existing tests + new entity tests)
 **Step 3: Performance check**
 
 Test with large document:
+
 ```typescript
 // Create performance benchmark
 const largeXML = generateLargeTEI(1000); // 1000 passages
@@ -2691,6 +2731,7 @@ console.timeEnd('serialize');
 ```
 
 Optimize if needed:
+
 - Lazy load entity lists (virtualization)
 - Memoize expensive operations
 - Debounce NER scanning
@@ -2703,17 +2744,20 @@ Update `README.md`:
 ## Features
 
 ### Entity Modeling
+
 - **Character Management**: Add, edit, delete characters with full metadata (sex, age, occupation, traits)
 - **Relationship Tracking**: Define relationships between characters (family, romantic, social, professional, antagonistic)
 - **Network Visualization**: View character relationships as interactive network graph
 - **NER Integration**: Automatic detection of personal names, places, and organizations with confidence scoring
 
 ### AI-Assisted Tagging
+
 - **Pattern Detection**: Automatically detect dialogue speakers and named entities
 - **Confidence Scoring**: High-confidence (0.9+) entities auto-applied, medium-confidence shown for review
 - **Learning System**: Improves accuracy based on your corrections
 
 ### Workflow Features
+
 - **Functional Tag Application**: Select text and apply <said> tags with speaker attribution
 - **Real-time Updates**: Changes immediately reflected in TEI source view
 - **Entity Tooltips**: Hover over tagged dialogue to see character information
@@ -2826,6 +2870,7 @@ If all checks pass, implementation complete!
 ✅ Complete documentation
 
 **Next Steps:**
+
 1. Run test suite to verify all functionality
 2. Deploy to staging for user testing
 3. Gather feedback and iterate

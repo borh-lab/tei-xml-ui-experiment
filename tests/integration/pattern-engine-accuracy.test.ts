@@ -28,12 +28,9 @@ import {
   formatMetrics,
   formatSpeakerMetrics,
   DialogueSpan,
-  Annotation
+  Annotation,
 } from '@/lib/evaluation/AccuracyMetrics';
-import {
-  parseTEIDocument,
-  spansMatch
-} from '@/tests/utils/xml-parser';
+import { parseTEIDocument, spansMatch } from '@/tests/utils/xml-parser';
 
 // Dataset files
 const DATASET_DIR = join(process.cwd(), 'tests', 'dataset', 'manually-annotated');
@@ -42,7 +39,7 @@ const DOCUMENTS = [
   'gift-of-the-magi.xml',
   'tell-tale-heart.xml',
   'owl-creek-bridge.xml',
-  'pride-prejudice-ch1.xml'
+  'pride-prejudice-ch1.xml',
 ];
 
 describe('Pattern Engine Accuracy Tests', () => {
@@ -55,7 +52,7 @@ describe('Pattern Engine Accuracy Tests', () => {
   });
 
   describe('Individual Document Accuracy', () => {
-    DOCUMENTS.forEach(docFile => {
+    DOCUMENTS.forEach((docFile) => {
       test(`should test ${docFile}`, async () => {
         const docPath = join(DATASET_DIR, docFile);
         const xmlContent = readFileSync(docPath, 'utf-8');
@@ -67,15 +64,15 @@ describe('Pattern Engine Accuracy Tests', () => {
         // For now, use the AxProvider (which uses regex as placeholder)
         const detected = await provider.detectDialogue(plainText);
 
-        const predicted: DialogueSpan[] = detected.map(d => ({
+        const predicted: DialogueSpan[] = detected.map((d) => ({
           ...d,
-          who: '' // Pattern engine doesn't attribute speakers yet
+          who: '', // Pattern engine doesn't attribute speakers yet
         }));
 
         // Calculate metrics
         const result = {
           predicted,
-          actual: annotations
+          actual: annotations,
         };
 
         const metrics = calculateMetrics(result);
@@ -106,17 +103,19 @@ describe('Pattern Engine Accuracy Tests', () => {
         const detected = await provider.detectDialogue(plainText);
 
         // Accumulate predictions and actual annotations
-        allPredicted.push(...detected.map(d => ({
-          ...d,
-          who: ''
-        })));
+        allPredicted.push(
+          ...detected.map((d) => ({
+            ...d,
+            who: '',
+          }))
+        );
 
         allActual.push(...annotations);
       }
 
       const result = {
         predicted: allPredicted,
-        actual: allActual
+        actual: allActual,
       };
 
       const metrics = calculateMetrics(result);
@@ -132,11 +131,9 @@ describe('Pattern Engine Accuracy Tests', () => {
     test('should calculate speaker attribution accuracy', () => {
       // This will be implemented once speaker attribution is working
       const predicted: DialogueSpan[] = [
-        { start: 0, end: 10, text: 'test', confidence: 0.9, who: '#speaker1' }
+        { start: 0, end: 10, text: 'test', confidence: 0.9, who: '#speaker1' },
       ];
-      const actual: Annotation[] = [
-        { start: 0, end: 10, text: 'test', who: '#speaker1' }
-      ];
+      const actual: Annotation[] = [{ start: 0, end: 10, text: 'test', who: '#speaker1' }];
 
       const metrics = calculateSpeakerAccuracy(predicted, actual);
 
@@ -156,7 +153,7 @@ describe('Pattern Engine Accuracy Tests', () => {
         { confidence: 0.6, isCorrect: true },
         { confidence: 0.5, isCorrect: false },
         { confidence: 0.4, isCorrect: false },
-        { confidence: 0.3, isCorrect: true }
+        { confidence: 0.3, isCorrect: true },
       ];
 
       const optimal = optimizeConfidenceThreshold(results, 0.1);
@@ -178,12 +175,12 @@ describe('Pattern Engine Accuracy Tests', () => {
       // Test a simple case with known output
       const predicted: DialogueSpan[] = [
         { start: 0, end: 13, text: 'Hello, world!', confidence: 0.9 },
-        { start: 20, end: 30, text: 'How are you?', confidence: 0.8 }
+        { start: 20, end: 30, text: 'How are you?', confidence: 0.8 },
       ];
 
       const actual: Annotation[] = [
         { start: 0, end: 13, text: 'Hello, world!', who: '#speaker1' },
-        { start: 20, end: 30, text: 'How are you?', who: '#speaker2' }
+        { start: 20, end: 30, text: 'How are you?', who: '#speaker2' },
       ];
 
       const metrics = calculateMetrics({ predicted, actual });

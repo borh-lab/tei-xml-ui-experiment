@@ -4,22 +4,23 @@ import { ValidationPanel } from '@/components/validation/ValidationPanel';
 // Mock fetch
 global.fetch = jest.fn(() =>
   Promise.resolve({
-    json: () => Promise.resolve({
-      schemas: [
-        {
-          id: 'tei-minimal',
-          name: 'TEI Minimal',
-          description: 'Core TEI for dialogue',
-          tags: ['dialogue', 'fast']
-        },
-        {
-          id: 'tei-all',
-          name: 'TEI Complete',
-          description: 'Full TEI P5',
-          tags: ['complete']
-        }
-      ]
-    })
+    json: () =>
+      Promise.resolve({
+        schemas: [
+          {
+            id: 'tei-minimal',
+            name: 'TEI Minimal',
+            description: 'Core TEI for dialogue',
+            tags: ['dialogue', 'fast'],
+          },
+          {
+            id: 'tei-all',
+            name: 'TEI Complete',
+            description: 'Full TEI P5',
+            tags: ['complete'],
+          },
+        ],
+      }),
   })
 ) as any;
 

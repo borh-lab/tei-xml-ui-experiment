@@ -1,5 +1,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ValidationResultsDialog, ValidationIssue } from '@/components/editor/ValidationResultsDialog';
+import {
+  ValidationResultsDialog,
+  ValidationIssue,
+} from '@/components/editor/ValidationResultsDialog';
 
 describe('ValidationResultsDialog', () => {
   it('should render success state when no issues', () => {
@@ -24,8 +27,8 @@ describe('ValidationResultsDialog', () => {
         type: 'error',
         message: 'Untagged speaker',
         location: { index: 0, dialogueIndex: 0 },
-        suggestion: 'Use the "Tag All" operation to assign a speaker'
-      }
+        suggestion: 'Use the "Tag All" operation to assign a speaker',
+      },
     ];
 
     render(
@@ -39,10 +42,16 @@ describe('ValidationResultsDialog', () => {
 
     expect(screen.getByText('Validation Found Issues')).toBeInTheDocument();
     expect(screen.getByText('Untagged speaker')).toBeInTheDocument();
-    expect(screen.getByText((content, element) => {
-      // Custom text matcher to handle text split by HTML elements
-      return content.includes('Use the') && content.includes('Tag All') && content.includes('operation');
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((content, element) => {
+        // Custom text matcher to handle text split by HTML elements
+        return (
+          content.includes('Use the') &&
+          content.includes('Tag All') &&
+          content.includes('operation')
+        );
+      })
+    ).toBeInTheDocument();
   });
 
   it('should render warning issues', () => {
@@ -51,8 +60,8 @@ describe('ValidationResultsDialog', () => {
         type: 'warning',
         message: 'Low confidence annotation: 65%',
         location: { index: 2 },
-        suggestion: 'Review this passage manually'
-      }
+        suggestion: 'Review this passage manually',
+      },
     ];
 
     render(
@@ -74,8 +83,8 @@ describe('ValidationResultsDialog', () => {
         type: 'info',
         message: 'Very short dialogue: "OK"',
         location: { index: 1, dialogueIndex: 0 },
-        suggestion: 'Verify this is intentional dialogue'
-      }
+        suggestion: 'Verify this is intentional dialogue',
+      },
     ];
 
     render(
@@ -95,7 +104,7 @@ describe('ValidationResultsDialog', () => {
       { type: 'error', message: 'Error 1', location: { index: 0 } },
       { type: 'error', message: 'Error 2', location: { index: 1 } },
       { type: 'warning', message: 'Warning 1', location: { index: 2 } },
-      { type: 'info', message: 'Info 1', location: { index: 3 } }
+      { type: 'info', message: 'Info 1', location: { index: 3 } },
     ];
 
     render(
@@ -136,8 +145,8 @@ describe('ValidationResultsDialog', () => {
       {
         type: 'error',
         message: 'Test error',
-        location: { index: 0 }
-      }
+        location: { index: 0 },
+      },
     ];
 
     render(
@@ -162,8 +171,8 @@ describe('ValidationResultsDialog', () => {
         type: 'error',
         message: 'Untagged speaker',
         location: { index: 5, dialogueIndex: 2 },
-        suggestion: 'Tag this dialogue'
-      }
+        suggestion: 'Tag this dialogue',
+      },
     ];
 
     render(
@@ -184,8 +193,8 @@ describe('ValidationResultsDialog', () => {
         type: 'info',
         message: 'No dialogue tags found',
         location: { index: 3 },
-        suggestion: 'Add dialogue tags if needed'
-      }
+        suggestion: 'Add dialogue tags if needed',
+      },
     ];
 
     render(

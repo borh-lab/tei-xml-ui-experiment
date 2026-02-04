@@ -44,7 +44,7 @@ test.describe('Tag Selection and Editing', () => {
     await passage.click();
 
     // Verify success toast or some indication
-    const hasToastOrBreadcrumb = await page.getByText(/Applied|said/i).count() > 0;
+    const hasToastOrBreadcrumb = (await page.getByText(/Applied|said/i).count()) > 0;
     expect(hasToastOrBreadcrumb).toBeGreaterThan(0);
   });
 
@@ -117,7 +117,8 @@ test.describe('Tag Selection and Editing', () => {
     await saidButton.click();
 
     // Click to select
-    const taggedElement = page.locator('[data-tag="selected"]')
+    const taggedElement = page
+      .locator('[data-tag="selected"]')
       .or(page.locator('[data-tag="said"].ring-2'))
       .or(page.locator('[data-tag="said"].selected'));
     await page.waitForTimeout(500);
@@ -127,7 +128,9 @@ test.describe('Tag Selection and Editing', () => {
     await taggedElement.click();
 
     // After clicking, it should have selection styling
-    const selectedTag = page.locator('[data-tag="said"].ring-2, [data-tag="said"][data-selected="true"]');
+    const selectedTag = page.locator(
+      '[data-tag="said"].ring-2, [data-tag="said"][data-selected="true"]'
+    );
     await expect(selectedTag.first()).toBeVisible({ timeout: 2000 });
   });
 
