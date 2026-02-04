@@ -43,17 +43,6 @@
               entry = "bun run lint";
               files = "\\.(jsx?|tsx?|cts?|mts?)$";
             };
-            prettier = {
-              enable = false; # Enable if you add Prettier
-              entry = "bun prettier --check";
-              files = "\\.(jsx?|tsx?|css|md|json)$";
-            };
-            trailing-whitespace = {
-              enable = true;
-            };
-            end-of-file-fixer = {
-              enable = true;
-            };
           };
         };
       in
