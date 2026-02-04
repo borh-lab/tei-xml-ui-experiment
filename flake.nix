@@ -54,6 +54,7 @@
             bun
             git
             wasm-pack
+            ffmpeg
           ] ++ pre-commit-check.enabledPackages;
 
           shellHook = ''
