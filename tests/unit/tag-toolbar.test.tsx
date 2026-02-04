@@ -56,12 +56,35 @@ jest.mock('@/lib/selection/SelectionManager', () => {
   };
 });
 
-// Mock useDocumentContext and useErrorContext
-jest.mock('@/lib/context/DocumentContext', () => ({
-  useDocumentContext: () => ({
+// Mock SchemaLoader
+jest.mock('@/lib/schema/SchemaLoader', () => ({
+  SchemaLoader: jest.fn().mockImplementation(() => ({
+    loadSchema: jest.fn().mockResolvedValue(''),
+    clearCache: jest.fn(),
+  })),
+}));
+
+// Mock useDocumentService and useErrorContext
+jest.mock('@/lib/effect/react/hooks', () => ({
+  useDocumentService: () => ({
     document: mockDocument,
     addSaidTag: mockAddSaidTag,
-    addGenericTag: mockAddGenericTag,
+    addTag: mockAddGenericTag,
+  }),
+  useStorageService: () => ({
+    get: jest.fn(),
+    set: jest.fn(),
+    remove: jest.fn(),
+    has: jest.fn(),
+  }),
+  useValidationService: () => ({
+    validate: jest.fn(),
+  }),
+  useAIService: () => ({
+    isDetecting: false,
+    error: null,
+    detectDialogue: jest.fn(),
+    attributeSpeaker: jest.fn(),
   }),
 }));
 
