@@ -41,7 +41,6 @@
             eslint = {
               enable = true;
               entry = "bun run lint";
-              passes = 3;
               files = "\\.(jsx?|tsx?|cts?|mts?)$";
             };
             prettier = {
