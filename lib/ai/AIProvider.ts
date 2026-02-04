@@ -38,7 +38,7 @@ export interface AIDetector {
    * @returns Detection results for each dialogue
    */
   batchDetect(
-    dialogues: readonly { dialogue: string; metadata?: any }[],
+    dialogues: readonly { dialogue: string; metadata?: Record<string, unknown> }[],
     characters: readonly Character[],
     patterns: readonly SpeakerPattern[]
   ): readonly DetectionResult[][];
@@ -102,7 +102,7 @@ export class PatternBasedDetector implements AIDetector {
   }
 
   batchDetect(
-    dialogues: readonly { dialogue: string; metadata?: any }[],
+    dialogues: readonly { dialogue: string; metadata?: Record<string, unknown> }[],
     characters: readonly Character[],
     patterns: readonly SpeakerPattern[]
   ): readonly DetectionResult[][] {
