@@ -1,0 +1,18 @@
+{
+  "name": "Brevier Legislative Reports",
+  "sourceUrl": "https://github.com/iulibdcs/Brevier-Legislative-Reports.git",
+  "documentCount": 0,
+  "totalSizeBytes": 0,
+  "teiVersion": [],
+  "tagFrequency": {},
+  "structuralPatterns": {
+    "usesSaid": false,
+    "usesQ": false,
+    "usesSp": false,
+    "usesWhoAttributes": false,
+    "nestingLevels": 0
+  },
+  "encodingType": "minimal-markup",
+  "sampleDocuments": [],
+  "issues": []
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Setting up TEI corpus submodules..."
+echo "Setting up TEI corpus repositories..."
 
 CORPORA_DIR="corpora"
 
@@ -18,29 +18,37 @@ declare -a REPOS=(
     "tei-texts|https://github.com/christofs/tei-texts.git"
 )
 
-# Remove existing submodules if any (for clean setup)
-for repo in "${REPOS[@]}"; do
-    name="${repo%%|*}"
-    if [ -d "$CORPORA_DIR/$name" ]; then
-        echo "Removing existing $name..."
-        rm -rf "$CORPORA_DIR/$name"
-    fi
-done
-
-# Add each repository as a submodule
+# Setup each repository
 for repo in "${REPOS[@]}"; do
     name="${repo%%|*}"
     url="${repo##*|}"
+    repo_path="$CORPORA_DIR/$name"
 
-    echo "Adding submodule: $name from $url"
-    git submodule add "$url" "$CORPORA_DIR/$name"
+    if [ -d "$repo_path" ]; then
+        # Check if we need to update (makefile-like behavior)
+        cd "$repo_path"
+
+        # Fetch to check for updates
+        git fetch origin > /dev/null 2>&1
+
+        # Check if local is behind remote
+        LOCAL=$(git rev-parse HEAD)
+        REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "$LOCAL")
+
+        if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "Updating $name (new commits available)..."
+            git pull --ff-only || echo "  Warning: Could not fast-forward, skipping update"
+        else
+            echo "✓ $name is up-to-date"
+        fi
+
+        cd - > /dev/null
+    else
+        echo "Cloning $name..."
+        git clone "$url" "$repo_path"
+    fi
 done
 
-echo "Initializing submodules..."
-git submodule init
-
-echo "Updating submodules (this may take a while for large repos)..."
-git submodule update --recursive
-
-echo "✓ Corpus submodules setup complete!"
+echo ""
+echo "✓ Corpus repositories ready!"
 echo "Corpora are now available in: $CORPORA_DIR/"

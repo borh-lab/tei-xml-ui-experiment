@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-02-04T11:01:42.686Z",
+  "config": {
+    "train": 0.7,
+    "validation": 0.15,
+    "test": 0.15,
+    "seed": 42
+  },
+  "corpora": {
+    "wright-american-fiction": {
+      "train": [],
+      "validation": [],
+      "test": [],
+      "excluded": []
+    },
+    "victorian-women-writers": {
+      "train": [],
+      "validation": [],
+      "test": [],
+      "excluded": []
+    },
+    "indiana-magazine-history": {
+      "train": [],
+      "validation": [],
+      "test": [],
+      "excluded": []
+    },
+    "indiana-authors-books": {
+      "train": [],
+      "validation": [],
+      "test": [],
+      "excluded": []
+    },
+    "brevier-legislative": {
+      "train": [],
+      "validation": [],
+      "test": [],
+      "excluded": []
+    },
+    "tei-texts": {
+      "train": [
+        "french/romans/xml/Maupt_Vie.xml",
+        "french/romans/xml/Zola_Nana.xml",
+        "french/romans/xml/Flaubert_Sallambo.xml",
+        "french/romans/xml/Flaubert_Education.xml",
+        "french/romans/xml/Flaubert_Bovary.xml",
+        "french/romans/xml/Maupt_BelAmi.xml",
+        "toolbox/teiheader.xml",
+        "french/romans/xml/Zola_Bete.xml",
+        "french/romans/xml/Flaubert_Bouvard.xml",
+        "french/romans/xml/Maupt_Fort.xml",
+        "french/romans/xml/Maupt_Pierre.xml"
+      ],
+      "validation": [
+        "french/romans/xml/Maupt_Mont.xml",
+        "french/romans/xml/Zola_Germinal.xml"
+      ],
+      "test": [
+        "french/romans/xml/Zola_Ventre.xml",
+        "french/romans/xml/Zola_Oeuvre.xml",
+        "toolbox/Zola_Nana.xml"
+      ],
+      "excluded": []
+    }
+  },
+  "summary": {
+    "totalDocuments": 16,
+    "trainCount": 11,
+    "valCount": 2,
+    "testCount": 3,
+    "excludedCount": 0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Indiana Magazine of History",
+  "sourceUrl": "https://github.com/iulibdcs/Indiana-Magazine-of-History.git",
+  "documentCount": 0,
+  "totalSizeBytes": 0,
+  "teiVersion": [],
+  "tagFrequency": {},
+  "structuralPatterns": {
+    "usesSaid": false,
+    "usesQ": false,
+    "usesSp": false,
+    "usesWhoAttributes": false,
+    "nestingLevels": 0
+  },
+  "encodingType": "minimal-markup",
+  "sampleDocuments": [],
+  "issues": []
+}
