@@ -35,6 +35,17 @@ interface CharacterRow {
 }
 
 /**
+ * Character data structure for indexing
+ */
+interface CharacterData {
+  id: string;
+  mainName: string;
+  aliases: string[];
+  gender: string;
+  category: string;
+}
+
+/**
  * Generic CSV parser that handles quoted fields with embedded commas and newlines
  */
 function parseCSV(content: string): string[][] {
@@ -155,6 +166,57 @@ function parseCharactersCSV(content: string): CharacterRow[] {
 }
 
 /**
+ * Build a character index that allows lookup by ID or alias
+ *
+ * Creates a Map where keys can be:
+ * - Character ID (string)
+ * - Any alias name
+ *
+ * All keys point to the same CharacterData object, enabling
+ * flexible lookup regardless of which identifier is available.
+ */
+function buildCharacterIndex(characters: CharacterRow[]): Map<string, CharacterData> {
+  const index = new Map<string, CharacterData>();
+
+  for (const char of characters) {
+    // Parse aliases from Python set notation: {'alias1', 'alias2'}
+    let aliases: string[] = [];
+    if (char.aliases && char.aliases.trim()) {
+      // Remove Python set notation and quotes
+      const cleaned = char.aliases
+        .replace(/^[\[{]/, '')  // Remove opening { or [
+        .replace(/[\]}]$/, '')   // Remove closing } or ]
+        .replace(/'/g, '')       // Remove single quotes
+        .replace(/"/g, '');      // Remove double quotes
+
+      // Split by comma and trim
+      aliases = cleaned
+        .split(',')
+        .map(a => a.trim())
+        .filter(a => a.length > 0);
+    }
+
+    const data: CharacterData = {
+      id: String(char.characterId),
+      mainName: char.mainName,
+      aliases: aliases,
+      gender: char.gender,
+      category: char.category
+    };
+
+    // Index by character ID
+    index.set(data.id, data);
+
+    // Also index by aliases for lookup
+    for (const alias of data.aliases) {
+      index.set(alias, data);
+    }
+  }
+
+  return index;
+}
+
+/**
  * Main conversion function
  */
 async function main() {
@@ -226,11 +288,36 @@ async function main() {
       if (majorChars.length > 0) {
         console.log(`    First major character: ${majorChars[0]?.mainName}`);
       }
+
+      // Task 4: Test character index building
+      console.log(`\n[Task 4 Test] Building character index...`);
+      const charIndex = buildCharacterIndex(characters);
+      console.log(`  ✓ Character index has ${charIndex.size} entries (including aliases)`);
+
+      // Show sample character
+      const firstChar = characters[0];
+      const charData = charIndex.get(String(firstChar.characterId));
+      if (charData) {
+        console.log(`  ✓ Sample character: ${charData.mainName}`);
+        console.log(`    - ID: ${charData.id}`);
+        console.log(`    - Aliases: ${charData.aliases.length > 0 ? charData.aliases.join(', ') : '(none)'}`);
+        console.log(`    - Gender: ${charData.gender}`);
+        console.log(`    - Category: ${charData.category}`);
+
+        // Test alias lookup if aliases exist
+        if (charData.aliases.length > 0) {
+          const firstAlias = charData.aliases[0];
+          const lookupByAlias = charIndex.get(firstAlias);
+          if (lookupByAlias && lookupByAlias.id === charData.id) {
+            console.log(`  ✓ Alias lookup works: "${firstAlias}" → ${lookupByAlias.mainName}`);
+          }
+        }
+      }
     } catch (error) {
       console.error(`  ✗ Error parsing CSV files:`, error);
     }
 
-    console.log(`\n[Task 3] CSV parsing test complete. Stopping here for now.\n`);
+    console.log(`\n[Task 4] Character index building test complete. Stopping here for now.\n`);
     process.exit(0);
   }
 
