@@ -1,13 +1,13 @@
 # TEI Corpus Browsing
 
-This document describes the TEI corpus browsing feature, which allows users to explore and view TEI documents from 6 integrated corpora using an Effect-based architecture.
+This document describes the TEI corpus browsing feature, which allows users to explore and view TEI documents from 7 integrated corpora using an Effect-based architecture.
 
 ## Overview
 
 The corpus browser provides access to a comprehensive collection of TEI-encoded documents:
 
-- **6 TEI Corpora**: American fiction, Victorian literature, historical magazines, legislative reports, and more
-- **10,793 Documents**: Full corpus integration with complete metadata and content access
+- **7 TEI Corpora**: American fiction, Victorian literature, historical magazines, legislative reports, novel dialogism, and more
+- **10,819 Documents**: Full corpus integration with complete metadata and content access
 - **Train/Val/Test Splits**: 70/15/15 split with seeded randomness for reproducibility
 - **Effect-Based Architecture**: Built with Effect for robust state management and composability
 
@@ -20,8 +20,10 @@ The corpus browser provides access to a comprehensive collection of TEI-encoded 
 | Indiana Magazine of History     | 7,289     | dialogue-focused | P4          | Scholarly articles on Indiana history     |
 | Indiana Authors and Their Books | 394       | dramatic-text    | P4          | Bibliographic database of Indiana authors |
 | Brevier Legislative Reports     | 19        | dialogue-focused | P5          | Indiana legislative reports               |
-| Novel Dialogism Corpus        | 28        | dialogue-focused | P5          | Novels with rich quotation annotations |
+| Novel Dialogism Corpus          | 28        | dialogue-focused | P5          | Novels with rich quotation annotations    |
 | TEI Texts (French Novels)       | 14        | mixed            | P5          | Sample French novels in TEI format        |
+
+> **📖 For detailed information** about each corpus including speech tag frequencies, usage recommendations, and data quality notes, see the [Corpus Reference](./corpus-reference.md) documentation.
 
 ## Using the Corpus Browser
 
@@ -31,7 +33,7 @@ Navigate to `/corpus` in the application to access the corpus browser.
 
 ### Browsing Corpora
 
-1. **Select a Corpus**: Choose from 6 available corpus cards displaying name and description
+1. **Select a Corpus**: Choose from 7 available corpus cards displaying name and description
 2. **View Documents**: Browse documents with pagination (20 documents per page)
 3. **Read Content**: Click any document to view its full TEI XML content with metadata
 4. **Navigate Pages**: Use Previous/Next buttons to paginate through large document sets
@@ -178,7 +180,7 @@ npm test -- lib/effect/__tests__/CorpusBrowser.test.ts
 
 ### Variation Tests (All Corpora)
 
-Test with real corpus data across all 6 corpora:
+Test with real corpus data across all 7 corpora:
 
 ```bash
 npm test -- lib/effect/__tests__/CorpusVariation.test.ts
@@ -186,7 +188,7 @@ npm test -- lib/effect/__tests__/CorpusVariation.test.ts
 
 This test suite verifies:
 
-- All 6 corpora load successfully
+- All 7 corpora load successfully
 - Different encoding types are handled (dialogue-focused, dramatic-text, minimal-markup, mixed)
 - TEI P4 and P5 documents both work correctly
 - Document content loads from all corpora
@@ -216,7 +218,7 @@ npm run test:e2e:debug
 
 E2E test coverage:
 
-- Corpus selector displays all 6 corpora
+- Corpus selector displays all 7 corpora
 - Corpus loading and document listing
 - Pagination through documents
 - Document content viewing
@@ -599,6 +601,56 @@ Potential improvements to the corpus browser:
 6. **Advanced Queries**: Complex queries by TEI structure, encoding patterns, etc.
 7. **Visualization**: Corpus statistics, tag frequency charts, encoding type distributions
 8. **Batch Operations**: Bulk download, batch validation, bulk conversion
+
+## Corpus Analytics
+
+The corpus analytics feature provides statistical analysis of dialogue within TEI documents.
+
+### Features
+
+- **Character Rankings**: View top speakers by quote count with visual bar charts
+- **Conversation Matrix**: Heatmap showing character-to-character interaction frequencies
+- **Document Statistics**: Real-time analysis of loaded documents
+
+### Usage
+
+1. Load any TEI document from the corpus browser
+2. Click the "Analytics" tab in the visualization panel
+3. View character rankings and conversation patterns
+
+### Data
+
+Analytics are computed client-side from the loaded document's quotation data. The system:
+
+- Extracts all quotations from the TEI document
+- Calculates quote counts per character
+- Builds interaction matrices showing who speaks to whom
+- Displays results with visualizations
+
+### Technical Details
+
+- **Location**: `components/analytics/`
+- **Analysis Functions**: `lib/analytics/document.ts`
+- **Type Definitions**: `lib/analytics/types.ts`
+- **Pure Functions**: All analysis functions are pure (no side effects)
+
+### Running Analytics Tests
+
+Test the corpus analytics feature:
+
+```bash
+# Run E2E tests for analytics
+bun run test:e2e tests/e2e/corpus-analytics.spec.ts
+
+# Run all E2E tests
+bun run test:e2e
+```
+
+Test coverage includes:
+- Character rankings display
+- Conversation matrix rendering
+- Empty state handling for documents without dialogue
+- Analytics updates when switching documents
 
 ## Contributing
 
