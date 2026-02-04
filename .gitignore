@@ -61,5 +61,4 @@ TEI/
 
 # git worktrees
 .worktrees/
-corpora/*
-!corpora/.gitkeep
+
