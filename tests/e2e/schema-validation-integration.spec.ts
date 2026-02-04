@@ -109,10 +109,6 @@ test.describe('Schema Validation - Complete Integration', () => {
     // Wait a bit for the panel to update
     await page.waitForTimeout(500);
 
-    // Debug: log validation panel content
-    const panelContent = await page.locator('[role="region"][aria-label="Validation Results"]').textContent();
-    console.log('Validation panel content:', panelContent);
-
     // Should be valid with tei-minimal schema
     await expect(page.getByText(/document is valid/i)).toBeVisible();
 
