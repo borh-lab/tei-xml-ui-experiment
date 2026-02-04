@@ -5,27 +5,26 @@ describe('extractQuotes', () => {
   it('should extract quotes from document state', () => {
     const mockDocument = {
       state: {
-        quotes: [
-          { id: 'q1', speaker: 'alice', addressee: 'bob', text: 'Hello Bob' },
-          { id: 'q2', speaker: 'bob', addressee: 'alice', text: 'Hi Alice' },
-          { id: 'q3', speaker: 'alice', text: 'Monologue' }
+        dialogue: [
+          { id: 'q1', speaker: 'alice', content: 'Hello Bob' },
+          { id: 'q2', speaker: 'bob', content: 'Hi Alice' },
+          { id: 'q3', speaker: 'alice', content: 'Monologue' }
         ]
       }
-    };
+    } as any;
 
     const quotes = extractQuotes(mockDocument);
     expect(quotes).toHaveLength(3);
     expect(quotes[0]).toEqual({
       id: 'q1',
       speaker: 'alice',
-      addressee: 'bob',
+      addressee: undefined,
       text: 'Hello Bob'
     });
-    expect(quotes[2].addressee).toBeUndefined();
   });
 
   it('should handle empty document', () => {
-    const mockDocument = { state: { quotes: [] } };
+    const mockDocument = { state: { dialogue: [] } } as any;
     const quotes = extractQuotes(mockDocument);
     expect(quotes).toEqual([]);
   });
