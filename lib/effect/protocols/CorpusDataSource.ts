@@ -10,7 +10,8 @@ export const CorpusId = Schema.Union(
   Schema.Literal('indiana-magazine-history'),
   Schema.Literal('indiana-authors-books'),
   Schema.Literal('brevier-legislative'),
-  Schema.Literal('tei-texts')
+  Schema.Literal('tei-texts'),
+  Schema.Literal('novel-dialogism')
 );
 export type CorpusId = typeof CorpusId.Type;
 

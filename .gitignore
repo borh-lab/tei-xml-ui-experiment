@@ -88,3 +88,7 @@ annotation-ml/
 
 # Plans (draft documents)
 .plans/
+
+# Generated corpus files
+corpora/novel-dialogism/
+

@@ -1,0 +1,8 @@
+{
+  "id": "novel-dialogism",
+  "name": "Novel Dialogism Corpus",
+  "description": "Novels with rich quotation and character annotations for dialogue research",
+  "totalDocuments": 28,
+  "encodingTypes": ["dialogue-focused"],
+  "teiVersion": "P5"
+}
