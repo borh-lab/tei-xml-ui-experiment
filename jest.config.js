@@ -12,7 +12,12 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+  testMatch: [
+    '**/__tests__/**/*.[jt]s?(x)',
+    '**/?(*.)+(spec|test).[jt]s?(x)',
+    '**/components/**/__tests__/**/*.[jt]s?(x)',
+    '**/lib/**/__tests__/**/*.[jt]s?(x)',
+  ],
   testPathIgnorePatterns: ['<rootDir>/tests/e2e/', '<rootDir>/.worktrees/'],
   transformIgnorePatterns: [
     'node_modules/(?!(react-hotkeys-hook|@ax-llm|@radix-ui|effect|@effect)/)',
