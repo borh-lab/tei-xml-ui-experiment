@@ -634,6 +634,29 @@ Analytics are computed client-side from the loaded document's quotation data. Th
 - **Type Definitions**: `lib/analytics/types.ts`
 - **Pure Functions**: All analysis functions are pure (no side effects)
 
+### Recent Enhancements
+
+#### Character Name Lookup
+
+The analytics now displays actual character names instead of character IDs. The system:
+- Looks up character names from the document's character index
+- Falls back to character ID if not found
+- Shows "Unknown" for null speakers
+
+#### Temporal/Sectional Breakdown
+
+A new visualization shows quote distribution across the document:
+- **By Passage**: Shows each passage as a separate section
+- **By Chapter**: Groups passages into chapters (10 passages each)
+- Toggle between views using the buttons above the chart
+- Horizontal bar chart shows quote count and percentage per section
+
+### Technical Details
+
+- **Character Lookup**: `lib/analytics/document.ts` - `lookupCharacterName()`
+- **Sectional Grouping**: `lib/analytics/sectional.ts` - Strategy pattern for grouping
+- **Component**: `components/analytics/SectionalBreakdown.tsx`
+
 ### Running Analytics Tests
 
 Test the corpus analytics feature:
