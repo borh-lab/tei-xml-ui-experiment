@@ -1,15 +1,16 @@
 import type { Quote, CharacterRanking, ConversationMatrix } from './types';
+import type { TEIDocument } from '@/lib/tei/types';
 
 /**
  * Extract quotes from TEI document state.
  * Pure function - no side effects.
  */
-export function extractQuotes(document: { state: { quotes: any[] } }): Quote[] {
-  return document.state.quotes.map((q: any) => ({
-    id: q.id,
-    speaker: q.speaker,
-    addressee: q.addressee,
-    text: q.text
+export function extractQuotes(document: TEIDocument): Quote[] {
+  return document.state.dialogue.map((d) => ({
+    id: d.id,
+    speaker: d.speaker || 'Unknown',
+    addressee: undefined, // Not tracked in current document model
+    text: d.content
   }));
 }
 
