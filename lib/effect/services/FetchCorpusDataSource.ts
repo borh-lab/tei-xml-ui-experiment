@@ -66,6 +66,11 @@ const CORPORA_INFO: Record<CorpusId, { name: string; description: string; totalD
     description: 'TEI encoded text collection',
     totalDocuments: 100,
   },
+  'novel-dialogism': {
+    name: 'Novel Dialogism Corpus',
+    description: 'Novels with rich quotation and character annotations',
+    totalDocuments: 28,
+  },
 };
 
 /**
