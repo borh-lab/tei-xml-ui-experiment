@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
 
@@ -33,7 +33,7 @@ export const RenderedView = React.memo(({
   onTagDoubleClick,
   selectedTag
 }: RenderedViewProps) => {
-  const { document } = useDocumentContext();
+  const { document } = useDocumentService();
   const [passages, setPassages] = useState<Passage[]>([]);
   const [activePassageId, setActivePassageId] = useState<string | null>(null);
   const [hoveredEntity, setHoveredEntity] = useState<{ entity: any; position: { x: number; y: number } } | null>(null);

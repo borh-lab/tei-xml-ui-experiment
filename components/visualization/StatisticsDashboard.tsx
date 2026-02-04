@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   BarChart,
@@ -31,7 +31,7 @@ interface CharacterDialogueData {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 export function StatisticsDashboard() {
-  const { document } = useDocumentContext();
+  const { document } = useDocumentService();
 
   const stats = useMemo(() => {
     if (!document) return null;

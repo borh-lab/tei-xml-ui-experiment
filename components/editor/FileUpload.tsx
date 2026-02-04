@@ -2,13 +2,13 @@
 
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { useErrorContext } from '@/lib/context/ErrorContext';
 import { toast } from '@/components/ui/use-toast';
 import { categorizeError } from '@/lib/utils/error-categorization';
 
 export function FileUpload() {
-  const { loadDocument } = useDocumentContext();
+  const { loadDocument } = useDocumentService();
   const { logError } = useErrorContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
 

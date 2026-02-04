@@ -11,7 +11,7 @@
  * - Cached (for performance)
  */
 
-import { Effect, Context, Schema } from 'effect';
+import { Effect, Context } from 'effect';
 
 // ============================================================================
 // Type Imports (reuse existing types)
@@ -33,11 +33,12 @@ import type {
 /**
  * Base error for document operations
  */
-export class DocumentError extends Schema.Class<'DocumentError'>({
-  message: Schema.String,
-  cause: Schema.Unknown.orElse(Schema.Undefined),
-}) {
+export class DocumentError extends Error {
   readonly _tag = 'DocumentError';
+  constructor(message: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = 'DocumentError';
+  }
 }
 
 /**
@@ -45,6 +46,10 @@ export class DocumentError extends Schema.Class<'DocumentError'>({
  */
 export class DocumentNotFoundError extends DocumentError {
   readonly _tag = 'DocumentNotFoundError';
+  constructor(message: string) {
+    super(message);
+    this.name = 'DocumentNotFoundError';
+  }
 }
 
 /**
@@ -52,7 +57,10 @@ export class DocumentNotFoundError extends DocumentError {
  */
 export class DocumentParseError extends DocumentError {
   readonly _tag = 'DocumentParseError';
-  readonly xml: string;
+  constructor(message: string, public readonly xml: string) {
+    super(message);
+    this.name = 'DocumentParseError';
+  }
 }
 
 /**
@@ -60,7 +68,10 @@ export class DocumentParseError extends DocumentError {
  */
 export class InvalidOperationError extends DocumentError {
   readonly _tag = 'InvalidOperationError';
-  readonly reason: string;
+  constructor(message: string, public readonly reason: string) {
+    super(message);
+    this.name = 'InvalidOperationError';
+  }
 }
 
 // ============================================================================

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,7 @@ interface AIAssistantProps {
 }
 
 export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
-  const { document } = useDocumentContext();
+  const { document } = useDocumentService();
   const [suggestions, setSuggestions] = useState<readonly DialogueDetection[]>([]);
   const [scanned, setScanned] = useState(false);
   const [autoApplyThreshold, setAutoApplyThreshold] = useState(0.9);
