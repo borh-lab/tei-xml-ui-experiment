@@ -275,6 +275,149 @@ ${personElements}
 }
 
 /**
+ * Parse JSON field from CSV, handling Python-style quotes
+ *
+ * Converts Python list notation to valid JSON and parses it.
+ * Handles single quotes, empty lists, and malformed data gracefully.
+ *
+ * @param field - The field value to parse
+ * @returns Parsed array or object, or empty array if parsing fails
+ */
+function parseJSONField(field: string): any {
+  if (!field || field === '[]' || field === '""') return [];
+
+  try {
+    // Convert Python-style quotes to JSON
+    // Replace single quotes with double quotes, but be careful with nested quotes
+    let normalized = field
+      .replace(/'/g, '"')  // Replace single quotes with double quotes
+      .replace(/\\"/g, "'"); // Fix escaped quotes that got mangled
+
+    // Handle Python None/null
+    normalized = normalized.replace(/\bNone\b/g, 'null');
+
+    // Handle Python True/False
+    normalized = normalized.replace(/\bTrue\b/g, 'true');
+    normalized = normalized.replace(/\bFalse\b/g, 'false');
+
+    return JSON.parse(normalized);
+  } catch (error) {
+    // If parsing fails, return empty array
+    console.warn(`  ⚠ Warning: Failed to parse JSON field: ${field.substring(0, 50)}...`);
+    return [];
+  }
+}
+
+/**
+ * Convert a quotation row to TEI XML format
+ *
+ * Creates a <quote> element with:
+ * - Custom attributes (novel-dialogism:id, novel-dialogism:type, etc.)
+ * - <anchor> elements for byte spans
+ * - <s> elements for sub-quotations
+ * - <rs> elements for entity mentions
+ *
+ * @param quote - The quotation row to convert
+ * @returns TEI XML string representation of the quotation
+ */
+function convertQuotationToTEI(quote: QuotationRow): string {
+  const quoteId = quote.quoteID;
+  const quoteType = quote.quoteType;
+  const referringExpr = quote.referringExpression || '';
+  const speaker = quote.speaker || 'unknown';
+  const addressees = quote.addressees || '';
+
+  // Parse JSON fields
+  const subQuotationList = parseJSONField(quote.subQuotationList);
+  const quoteByteSpans = parseJSONField(quote.quoteByteSpans);
+  const mentionTextsList = parseJSONField(quote.mentionTextsList);
+  const mentionSpansList = parseJSONField(quote.mentionSpansList);
+  const mentionEntitiesList = parseJSONField(quote.mentionEntitiesList);
+
+  // Build quote element with custom attributes
+  const attrs = [
+    `xml:id="${quoteId}"`,
+    `novel-dialogism:type="${quoteType}"`,
+    `novel-dialogism:referringExpression="${referringExpr.replace(/"/g, '&quot;')}"`
+  ].join(' ');
+
+  // Build who attribute with speaker reference
+  const whoAttr = `who="#${speaker}"`;
+
+  // Build addr attribute if addressees exist
+  const addrAttr = addressees && addressees !== '[]'
+    ? `addr="${addressees}"`
+    : '';
+
+  let content = '';
+
+  // Process each sub-quotation
+  // subQuotationList is an array where each element is an array of sub-quotations for that span
+  // We need to join them with spaces to create the full text for that span
+  for (let i = 0; i < subQuotationList.length; i++) {
+    const subQuoteParts = subQuotationList[i];
+    const span = quoteByteSpans[i] || [0, 0];
+
+    // Add anchor elements for span start/end
+    content += `      <anchor xml:id="${quoteId}-start-${i}" spanTo="${quoteId}-end-${i}"/>\n`;
+
+    // Join sub-quote parts and add the sub-quotation text in an <s> element
+    const subQuoteText = Array.isArray(subQuoteParts) ? subQuoteParts.join(' ') : subQuoteParts;
+    const escapedText = subQuoteText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+    content += `      <s said="said">${escapedText}</s>\n`;
+    content += `      <anchor xml:id="${quoteId}-end-${i}"/>\n`;
+
+    // Process mentions within this sub-quotation
+    if (mentionTextsList[i] && mentionSpansList[i] && mentionEntitiesList[i]) {
+      const mentions = mentionTextsList[i];
+      const spans = mentionSpansList[i];
+      const entities = mentionEntitiesList[i];
+
+      if (Array.isArray(mentions) && Array.isArray(spans) && Array.isArray(entities)) {
+        for (let j = 0; j < mentions.length; j++) {
+          const mentionText = mentions[j];
+          const mentionSpan = spans[j];
+          const entityList = entities[j];
+
+          // Build ref attribute from entity list
+          let refAttr = '';
+          if (Array.isArray(entityList) && entityList.length > 0) {
+            const refs = entityList.map((e: any) => `#${e}`).join(' ');
+            refAttr = ` ref="${refs}"`;
+          } else if (typeof entityList === 'string') {
+            refAttr = ` ref="#${entityList}"`;
+          }
+
+          // Build span attribute
+          const spanAttr = Array.isArray(mentionSpan)
+            ? ` spanFrom="${mentionSpan[0]}" spanTo="${mentionSpan[1]}"`
+            : '';
+
+          // Escape mention text
+          const escapedMention = mentionText
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+
+          content += `      <rs xml:id="${quoteId}-mention-${i}-${j}"${refAttr}${spanAttr}>${escapedMention}</rs>\n`;
+        }
+      }
+    }
+  }
+
+  // Build complete quote element
+  return `    <quote ${attrs} ${whoAttr}${addrAttr ? ' ' + addrAttr : ''}>
+${content}    </quote>`;
+}
+
+/**
  * Main conversion function
  */
 async function main() {
@@ -390,6 +533,49 @@ async function main() {
           index === self.findIndex((c) => c.id === char.id)
         );
       console.log(`\n  ✓ Header includes ${uniqueChars.length} unique characters`);
+
+      // Task 6: Test quotation conversion
+      console.log(`\n[Task 6 Test] Converting quotation to TEI...`);
+
+      if (quotations.length > 0) {
+        // Find a quotation with mentions to test that functionality
+        const quoteWithMentions = quotations.find(q => {
+          const mentions = parseJSONField(q.mentionTextsList);
+          return mentions && mentions.some((m: any) => Array.isArray(m) && m.length > 0);
+        });
+
+        const testQuote = quoteWithMentions || quotations[0];
+
+        console.log(`  Processing quotation: ${testQuote.quoteID}`);
+        console.log(`    - Speaker: ${testQuote.speaker}`);
+        console.log(`    - Type: ${testQuote.quoteType}`);
+        console.log(`    - Sub-quotations: ${parseJSONField(testQuote.subQuotationList).length}`);
+
+        const mentions = parseJSONField(testQuote.mentionTextsList);
+        const mentionCount = mentions ? mentions.reduce((sum: number, m: any) => sum + (Array.isArray(m) ? m.length : 0), 0) : 0;
+        console.log(`    - Total mentions: ${mentionCount}`);
+
+        const quoteTEI = convertQuotationToTEI(testQuote);
+        console.log(`  ✓ Generated TEI quotation (${quoteTEI.length} chars)`);
+
+        // Show first 15 lines of generated quotation
+        console.log(`\n  First 15 lines of generated quotation:`);
+        const quoteLines = quoteTEI.split('\n').slice(0, 15);
+        quoteLines.forEach(line => {
+          console.log(`  ${line}`);
+        });
+
+        // Show structure statistics
+        const anchorCount = (quoteTEI.match(/<anchor/g) || []).length;
+        const rsCount = (quoteTEI.match(/<rs/g) || []).length;
+        console.log(`\n  Structure statistics:`);
+        console.log(`    - <anchor> elements: ${anchorCount}`);
+        console.log(`    - <rs> elements: ${rsCount}`);
+        console.log(`    - <s> elements: ${parseJSONField(testQuote.subQuotationList).length}`);
+      }
+
+      console.log(`\n[Task 6] Quotation to TEI conversion test complete. Stopping here for now.\n`);
+      process.exit(0);
     } catch (error) {
       console.error(`  ✗ Error parsing CSV files:`, error);
     }
