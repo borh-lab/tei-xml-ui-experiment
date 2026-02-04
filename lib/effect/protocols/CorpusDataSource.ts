@@ -23,11 +23,10 @@ export const EncodingType = Schema.Union(
 export type EncodingType = typeof EncodingType.Type;
 
 // Document ID as value type - explicitly scoped to corpus
-export const DocumentId = Schema.Class<DocumentId>('DocumentId')({
+export class DocumentId extends Schema.Class<DocumentId>('DocumentId')({
   corpus: CorpusId,
   path: Schema.String,
-});
-export type DocumentId = Schema.Schema.Type<typeof DocumentId>;
+}) {}
 
 // ============================================================================
 // Protocol Definition
