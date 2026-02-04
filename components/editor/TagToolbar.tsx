@@ -71,7 +71,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
       setCurrentSelection(null);
       onClose?.();
     },
-    [document, currentSelection, addSaidTag, addGenericTag, onClose]
+    [document, currentSelection, addSaidTag, addTag, onClose]
   );
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
 
     window.document.addEventListener('keydown', handleKeyDown);
     return () => window.document.removeEventListener('keydown', handleKeyDown);
-  }, [visible, currentSelection, document, handleApplyTag, onClose, addSaidTag, addGenericTag]);
+  }, [visible, currentSelection, document, handleApplyTag, onClose, addSaidTag, addTag]);
 
   if (!visible || !currentSelection || !document) {
     return null;

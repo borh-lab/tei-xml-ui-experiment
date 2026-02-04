@@ -523,14 +523,26 @@ export function redoFrom(doc: TEIDocument, fromRevision: number): TEIDocument {
 /**
  * Serialize document to XML
  * Uses existing XMLBuilder to convert state back to XML
+ * Handles both new immutable documents (doc.state.parsed) and old TEIDocument class (doc.parsed)
  */
-export function serializeDocument(doc: TEIDocument): string {
+export function serializeDocument(doc: any): string {
+  // For old TEIDocument class, use its serialize method if available
+  if (typeof doc.serialize === 'function') {
+    return doc.serialize();
+  }
+
+  // For new immutable document model, access via state.parsed
+  const parsed = doc.state?.parsed || doc.parsed;
+  if (!parsed) {
+    throw new Error('Cannot serialize document: no parsed data found');
+  }
+
   const builder = new XMLBuilder({
     ignoreAttributes: false,
     attributeNamePrefix: '@_',
     format: true,
   });
-  return builder.build(doc.state.parsed);
+  return builder.build(parsed);
 }
 
 // ============================================================================
