@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { generateTestDocument, uploadTestDocument } from './fixtures/test-helpers';
-import { URLS, TIMEOUTS } from './fixtures/test-constants';
+import { uploadTestDocument } from './fixtures/test-helpers';
+import { URLS } from './fixtures/test-constants';
 
 /**
  * Test-specific window interface
