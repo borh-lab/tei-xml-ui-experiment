@@ -4,6 +4,7 @@ import {
   CorpusMetadata,
   DocumentMetadata,
   DocumentId,
+  DataSourceError,
   DataSourceErrorType,
   type CorpusId,
 } from '../protocols/CorpusDataSource';
