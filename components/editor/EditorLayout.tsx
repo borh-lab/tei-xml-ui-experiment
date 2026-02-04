@@ -48,8 +48,6 @@ export function EditorLayout() {
     loadingProgress,
     validationResults,
     isValidating,
-    loadSample,
-    validateDocument,
   } = useDocumentService();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
@@ -61,7 +59,6 @@ export function EditorLayout() {
   const [selectedPassages, setSelectedPassages] = useState<string[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [highlightedPassageId, setHighlightedPassageId] = useState<string | null>(null);
-  const [currentPassageId, setCurrentPassageId] = useState<string | null>(null);
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -77,7 +74,7 @@ export function EditorLayout() {
   const [viewMode, setViewMode] = useState<ViewMode>('wysiwyg');
   const [codeContent, setCodeContent] = useState<string>('');
   const [isCodeDirty, setIsCodeDirty] = useState(false);
-  const [scrollSyncEnabled, setScrollSyncEnabled] = useState(true);
+  const [scrollSyncEnabled] = useState(true);
 
   // Refs for scroll synchronization
   const renderedViewRef = useRef<HTMLDivElement>(null);
@@ -91,6 +88,7 @@ export function EditorLayout() {
   useEffect(() => {
     const savedMode = localStorage.getItem('tei-editor-view-mode') as ViewMode | null;
     if (savedMode && ['wysiwyg', 'xml', 'split'].includes(savedMode)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Initializing from localStorage on mount
       setViewMode(savedMode);
     }
   }, []);
@@ -103,6 +101,7 @@ export function EditorLayout() {
   // Sync code content with document
   useEffect(() => {
     if (document && !isCodeDirty) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing state with document prop
       setCodeContent(serializeDocument(document));
     }
   }, [document, isCodeDirty]);
@@ -124,9 +123,25 @@ export function EditorLayout() {
   });
 
   // Helper function to show toast messages
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  // AI suggestion handlers (must be defined before useHotkeys that use them)
+  const handleAcceptSuggestion = (suggestion: DialogueSpan) => {
+    console.log('Accept suggestion:', suggestion);
+    // TODO: Apply TEI tag with suggestion data
+    setSuggestions((prev) =>
+      prev.filter((s) => !(s.start === suggestion.start && s.end === suggestion.end))
+    );
+  };
+
+  const handleRejectSuggestion = (suggestion: DialogueSpan) => {
+    console.log('Reject suggestion:', suggestion);
+    setSuggestions((prev) =>
+      prev.filter((s) => !(s.start === suggestion.start && s.end === suggestion.end))
+    );
   };
 
   // Helper function to check if user is in an input field
@@ -303,27 +318,142 @@ export function EditorLayout() {
   );
 
   // Keyboard shortcuts: 1-9 - Quick tag as speaker 1-9
-  for (let i = 1; i <= 9; i++) {
-    useHotkeys(
-      String(i),
-      (e) => {
-        if (isInputFocused()) return;
-        e.preventDefault();
-
-        const speakerId = `speaker${i}`;
-        const selection = window.getSelection();
-        const selectedText = selection?.toString() || '';
-
-        if (!selectedText || selectedText.trim().length === 0) {
-          showToast(`No text selected - Select text first, then press ${i}`, 'error');
-          return;
-        }
-
-        handleApplyTag('said', { '@who': speakerId });
-      },
-      [isInputFocused, handleApplyTag]
-    );
-  }
+  // Unrolled loop to satisfy Rules of Hooks
+  useHotkeys(
+    '1',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 1', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker1' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '2',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 2', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker2' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '3',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 3', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker3' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '4',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 4', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker4' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '5',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 5', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker5' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '6',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 6', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker6' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '7',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 7', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker7' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '8',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 8', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker8' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
+  useHotkeys(
+    '9',
+    (e) => {
+      if (isInputFocused()) return;
+      e.preventDefault();
+      const selection = window.getSelection();
+      const selectedText = selection?.toString() || '';
+      if (!selectedText || selectedText.trim().length === 0) {
+        showToast('No text selected - Select text first, then press 9', 'error');
+        return;
+      }
+      handleApplyTag('said', { '@who': 'speaker9' });
+    },
+    [isInputFocused, handleApplyTag]
+  );
 
   // Keyboard shortcut: A - Accept first AI suggestion
   useHotkeys(
@@ -466,21 +596,6 @@ export function EditorLayout() {
   const handleConvert = () => {
     console.log('Converting selected passages to dialogue');
     // TODO: Implement conversion logic
-  };
-
-  const handleAcceptSuggestion = (suggestion: DialogueSpan) => {
-    console.log('Accept suggestion:', suggestion);
-    // TODO: Apply TEI tag with suggestion data
-    setSuggestions((prev) =>
-      prev.filter((s) => !(s.start === suggestion.start && s.end === suggestion.end))
-    );
-  };
-
-  const handleRejectSuggestion = (suggestion: DialogueSpan) => {
-    console.log('Reject suggestion:', suggestion);
-    setSuggestions((prev) =>
-      prev.filter((s) => !(s.start === suggestion.start && s.end === suggestion.end))
-    );
   };
 
   const handleValidationErrorClick = (error: any) => {

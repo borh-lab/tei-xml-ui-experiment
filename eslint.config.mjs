@@ -12,6 +12,25 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // External dependencies:
+    "TEI/**",
+    "annotation-ml/.venv/**",
+    "corpora/**",
+    // Git worktrees:
+    ".worktrees/**",
+    "worktrees/**",
+    // Python:
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "**/*.pyo",
+    "**/*.pyd",
+    ".pytest_cache/**",
+    "htmlcov/**",
+    // Test fixtures:
+    "tests/corpora/**",
+    // Node modules in subdirectories:
+    "**/node_modules/**",
+    ".venv/**",
   ]),
 ]);
 

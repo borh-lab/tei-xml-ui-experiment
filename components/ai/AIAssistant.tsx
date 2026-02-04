@@ -184,11 +184,11 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
               >
                 {/* Dialogue text */}
                 <p className="text-sm italic">
-                  "
+                  &ldquo;
                   {detection.text.length > 100
                     ? detection.text.substring(0, 100) + '...'
                     : detection.text}
-                  "
+                  &rdquo;
                 </p>
 
                 {/* Speakers */}

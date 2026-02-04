@@ -127,7 +127,9 @@ export const RenderedView = React.memo(
         };
       });
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing derived state from document prop
       setPassages(extractedPassages);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing derived state from document prop
       setActivePassageId(null); // Reset active passage when passages change
     }, [document, renderPassageContent]);
 
@@ -146,6 +148,7 @@ export const RenderedView = React.memo(
     // Handle external highlight (from search result click)
     useEffect(() => {
       if (highlightedPassageId) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Responding to external prop change
         setActivePassageId(highlightedPassageId);
 
         // Scroll to the highlighted passage
