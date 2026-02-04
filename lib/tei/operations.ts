@@ -9,7 +9,13 @@
  */
 
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import { nanoid } from 'nanoid';
+
+// Initialize counters for browser-compatible unique IDs
+if (typeof globalThis.__tagCounter === 'undefined') {
+  globalThis.__tagCounter = 1;
+  globalThis.__passageCounter = 1;
+}
+
 import {
   TEIDocument,
   DocumentState,
@@ -31,24 +37,11 @@ import {
 // ============================================================================
 
 /**
- * Generate content-based passage ID
- * Uses hash of passage content for stable IDs
+ * Generate passage ID using counter
+ * Simple incremental ID generator for passages
  */
 function generatePassageId(content: string, index: number): PassageID {
-  const hash = crypto
-    .createHash('sha256')
-    .update(content)
-    .update(index.toString())
-    .digest('hex')
-    .substring(0, 12);
-  return `passage-${hash}` as PassageID;
-}
-
-/**
- * Generate unique tag ID using UUID
- */
-function generateTagId(): TagID {
-  return `tag-${nanoid()}` as TagID;
+  return `passage-${globalThis.__passageCounter++ || 1}` as PassageID;
 }
 
 /**
@@ -174,7 +167,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${nanoid()}` as TagID,
+        id: `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID,
         type: 'said',
         range,
         attributes: {
@@ -196,7 +189,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${nanoid()}` as TagID,
+        id: `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID,
         type: 'q',
         range,
         attributes: {},
@@ -214,7 +207,7 @@ function extractTagsFromPassage(passage: any): readonly Tag[] {
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${nanoid()}` as TagID,
+        id: `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID,
         type: 'persName',
         range,
         attributes: {
@@ -245,7 +238,7 @@ function extractCharacters(parsed: TEINode): readonly Character[] {
   const personArray = Array.isArray(persons) ? persons : [persons];
 
   return personArray.map((person: any) => {
-    const xmlId = person['@_xml:id'] || person['xml:id'] || `char-${nanoid()}`;
+    const xmlId = person['@_xml:id'] || person['xml:id'] || `char-${`tag-${globalThis.__tagCounter++ || 1}`}`;
 
     return {
       id: `char-${xmlId}` as CharacterID,
@@ -441,7 +434,7 @@ export function addTag(
     throw new Error(`Passage not found: ${passageId}`);
   }
 
-  const tagId = `tag-${nanoid()}` as TagID;
+  const tagId = `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID;
   const newTag: Tag = {
     id: tagId,
     type: tagName as any, // Cast to Tag type union
