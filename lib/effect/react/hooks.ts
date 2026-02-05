@@ -28,6 +28,7 @@ import type {
 } from '@/lib/tei/types';
 import type { HistoryState } from '@/lib/effect/protocols/Document';
 import { runEffectAsyncOrFail } from './runtime';
+import type { ValidationResult } from '@/lib/validation';
 
 // ============================================================================
 // DocumentService Hook
@@ -48,7 +49,7 @@ export interface UseDocumentServiceResult {
   /** Loading progress for sample loading (0-100) */
   loadingProgress: number;
   /** Validation results from last validation */
-  validationResults: any;
+  validationResults: ValidationResult | null;
   /** Whether validation is in progress */
   isValidating: boolean;
   /** Error from last operation (null if no error) */
@@ -115,7 +116,7 @@ export function useDocumentService(): UseDocumentServiceResult {
   const [loading, setLoading] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [validationResults, setValidationResults] = useState<any>(null);
+  const [validationResults, setValidationResults] = useState<ValidationResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

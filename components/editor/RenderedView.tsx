@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
@@ -66,17 +67,16 @@ export const RenderedView = React.memo(
     const passageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
     const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // HTML escape utility to prevent XSS
-    const escapeHtml = (str: string): string => {
-      const htmlEntities: Record<string, string> = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-        '/': '&#x2F;',
-      };
-      return str.replace(/[&<>"'/]/g, (char) => htmlEntities[char]);
+    // DOMPurify configuration to allow only safe tags and attributes for TEI markup
+    const purifyConfig = {
+      ALLOWED_TAGS: ['span', 'p', 'div', 'br', 'strong', 'em', 'i', 'b', 'u', 'a', 'sub', 'sup', 'span'],
+      ALLOWED_ATTR: ['data-tag', 'data-tag-id', 'data-who', 'data-speaker', 'data-confidence', 'class', 'id', 'href', 'title'],
+      ALLOW_DATA_ATTR: true,
+      SAFE_FOR_JQUERY: true,
+    };
+
+    const sanitizeHtml = (html: string): string => {
+      return DOMPurify.sanitize(html, purifyConfig);
     };
 
     /**
@@ -396,7 +396,7 @@ export const RenderedView = React.memo(
                   <div className={isBulkMode ? 'pl-8' : ''}>
                     <p
                       className="text-sm leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: passage.content }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(passage.content) }}
                       onClick={handleTagClick}
                     />
 
