@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Custom Document Title</title>
+        <author>Test Author</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p><s who="#speaker1">Test passage</s></p>
+    </body>
+  </text>
+</TEI>

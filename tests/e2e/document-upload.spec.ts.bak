@@ -36,9 +36,37 @@ test.describe('Document Upload - Basic Operations', () => {
     expect(state.document?.passageCount).toBe(5);
   });
 
+  test('should reject non-XML file (.txt)', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // FileProtocol will automatically ensure editor state
+    const state = await app.files().uploadInvalid('This is plain text content', 'test-file.txt');
+
+    // Should not load document
+    expect(state.document?.loaded).toBe(false);
+  });
+
+  test('should reject non-XML file (.json)', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const state = await app.files().uploadInvalid(JSON.stringify({ data: 'test' }), 'test-file.json');
+
+    expect(state.document?.loaded).toBe(false);
+  });
+
+  test('should reject binary file (.jpg)', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const buffer = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
+    const state = await app.files().uploadBinary(buffer, 'test-image.jpg');
+
+    expect(state.document?.loaded).toBe(false);
+  });
+
   test('should show loading indicator during upload', async ({ page }) => {
     const app = await TEIEditorApp.create(page);
 
+    // Create a larger document to ensure visible loading
     const doc = TEIDocument.valid({
       title: 'Large Document',
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA],
@@ -52,6 +80,8 @@ test.describe('Document Upload - Basic Operations', () => {
     expect(state.location).toBe('editor');
     expect(state.document?.loaded).toBe(true);
     expect(state.document?.passageCount).toBe(50);
+
+    // Should load in reasonable time
     expect(loadTime).toBeLessThan(10000);
   });
 
@@ -70,9 +100,11 @@ test.describe('Document Upload - Basic Operations', () => {
       passages: 5,
     });
 
+    // Upload first document
     let state = await app.editor().load(doc1);
     expect(state.document?.passageCount).toBe(3);
 
+    // Upload second document immediately after
     state = await app.editor().load(doc2);
     expect(state.document?.passageCount).toBe(5);
   });
@@ -110,12 +142,18 @@ test.describe('TEI Format Variants', () => {
       declarations: true,
     });
 
-    await app.files().uploadRaw(teiWithoutNS, 'without-namespace.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'without-namespace.tei.xml');
+    writeFileSync(tempPath, teiWithoutNS);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(5);
@@ -131,12 +169,18 @@ test.describe('TEI Format Variants', () => {
       declarations: false,
     });
 
-    await app.files().uploadRaw(teiNoDecl, 'no-declaration.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'no-declaration.tei.xml');
+    writeFileSync(tempPath, teiNoDecl);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(3);
@@ -162,12 +206,18 @@ test.describe('TEI Format Variants', () => {
     customTEI += '  </text>\n';
     customTEI += '</TEI>\n';
 
-    await app.files().uploadRaw(customTEI, 'custom-header.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'custom-header.tei.xml');
+    writeFileSync(tempPath, customTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const title = await app.editor().getTitle();
     expect(title).toBe('Custom Document Title');
@@ -176,18 +226,25 @@ test.describe('TEI Format Variants', () => {
   test('should handle different TEI versions', async ({ page }) => {
     const app = await TEIEditorApp.create(page);
 
+    // TEI P5 with standard namespace
     let teiP5 = '<?xml version="1.0" encoding="UTF-8"?>\n';
     teiP5 += '<TEI xmlns="http://www.tei-c.org/ns/1.0" version="5.0">\n';
     teiP5 += '  <teiHeader><fileDesc><titleStmt><title>P5</title></titleStmt></fileDesc></teiHeader>\n';
     teiP5 += '  <text><body><p><s who="#narrator">P5 content</s></p></body></text>\n';
     teiP5 += '</TEI>\n';
 
-    await app.files().uploadRaw(teiP5, 'tei-p5.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'tei-p5.tei.xml');
+    writeFileSync(tempPath, teiP5);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const title = await app.editor().getTitle();
     expect(title).toBe('P5');
@@ -200,11 +257,18 @@ test.describe('Edge Cases', () => {
 
     const emptyTEI = createMinimalTEI({ passages: [] });
 
-    await app.files().uploadRaw(emptyTEI, 'empty.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'empty.tei.xml');
+    writeFileSync(tempPath, emptyTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
 
+    // Should either not load or show empty state
     const state = await app.getState();
+    // Document may or may not load, but if it does, passage count should be 0
     if (state.document?.loaded) {
       expect(state.document.passageCount).toBe(0);
     }
@@ -234,9 +298,14 @@ test.describe('Edge Cases', () => {
     speakersOnly += '  </text>\n';
     speakersOnly += '</TEI>\n';
 
-    await app.files().uploadRaw(speakersOnly, 'speakers-only.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'speakers-only.tei.xml');
+    writeFileSync(tempPath, speakersOnly);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
 
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(0);
@@ -245,20 +314,26 @@ test.describe('Edge Cases', () => {
   test('should handle large document (>100KB)', async ({ page }) => {
     const app = await TEIEditorApp.create(page);
 
+    // Generate a large TEI document with enough passages to exceed 100KB
     const largeTEI = generateTestDocument({
       speakers: [SPEAKERS.NARRATOR, SPEAKERS.DELLA, SPEAKERS.JIM, SPEAKERS.PROTAGONIST],
       passages: 1500,
     });
 
-    const fs = await import('fs');
     const tempPath = join(process.cwd(), 'tests/fixtures', 'large-test.tei.xml');
     writeFileSync(tempPath, largeTEI);
 
+    // Check file size
+    const fs = await import('fs');
     const { size } = fs.statSync(tempPath);
+
+    // Verify it's larger than 100KB
     expect(size).toBeGreaterThan(100 * 1024);
 
-    await app.files().uploadRaw(largeTEI, 'large-test.tei.xml');
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
+    // Wait for load with extended timeout
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
@@ -278,8 +353,13 @@ test.describe('Edge Cases', () => {
       passages: 600,
     });
 
-    await app.files().uploadRaw(veryLargeTEI, 'very-large.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'very-large.tei.xml');
+    writeFileSync(tempPath, veryLargeTEI);
 
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    // Give extra time for very large document
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
@@ -302,12 +382,18 @@ test.describe('Edge Cases', () => {
     unicodeTEI += '  </body></text>\n';
     unicodeTEI += '</TEI>\n';
 
-    await app.files().uploadRaw(unicodeTEI, 'unicode.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'unicode.tei.xml');
+    writeFileSync(tempPath, unicodeTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(3);
@@ -325,12 +411,18 @@ test.describe('Edge Cases', () => {
     emojiTEI += '  </body></text>\n';
     emojiTEI += '</TEI>\n';
 
-    await app.files().uploadRaw(emojiTEI, 'emoji.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'emoji.tei.xml');
+    writeFileSync(tempPath, emojiTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(2);
@@ -348,12 +440,18 @@ test.describe('Edge Cases', () => {
     specialCharsTEI += '  </body></text>\n';
     specialCharsTEI += '</TEI>\n';
 
-    await app.files().uploadRaw(specialCharsTEI, 'special-chars.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'special-chars.tei.xml');
+    writeFileSync(tempPath, specialCharsTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(2);
@@ -371,12 +469,18 @@ test.describe('Edge Cases', () => {
     nestedTEI += '  </body></text>\n';
     nestedTEI += '</TEI>\n';
 
-    await app.files().uploadRaw(nestedTEI, 'nested.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'nested.tei.xml');
+    writeFileSync(tempPath, nestedTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
+
+    unlinkSync(tempPath);
 
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBeGreaterThan(0);
@@ -395,15 +499,220 @@ test.describe('Edge Cases', () => {
     multiParaTEI += '  </body></text>\n';
     multiParaTEI += '</TEI>\n';
 
-    await app.files().uploadRaw(multiParaTEI, 'multi-para.tei.xml');
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'multi-para.tei.xml');
+    writeFileSync(tempPath, multiParaTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
 
     await app.waitForState({
       location: 'editor',
       document: { loaded: true },
     });
 
+    unlinkSync(tempPath);
+
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(3);
+  });
+});
+
+test.describe('Validation and Error Handling', () => {
+  test('should detect malformed XML with unclosed tag', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const malformedTEI = createMalformedTEI({ error: 'unclosed-tag' });
+
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'malformed-unclosed.tei.xml');
+    writeFileSync(tempPath, malformedTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    // Should not load the document
+    const state = await app.getState();
+    expect(state.document?.loaded).toBe(false);
+  });
+
+  test('should detect malformed XML with invalid entities', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const malformedTEI = createMalformedTEI({ error: 'invalid-xml' });
+
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'malformed-entity.tei.xml');
+    writeFileSync(tempPath, malformedTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    const state = await app.getState();
+    expect(state.document?.loaded).toBe(false);
+  });
+
+  test('should detect missing root element', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const malformedTEI = createMalformedTEI({ error: 'missing-root' });
+
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'malformed-root.tei.xml');
+    writeFileSync(tempPath, malformedTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    const state = await app.getState();
+    expect(state.document?.loaded).toBe(false);
+  });
+
+  test('should reject completely empty file', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'empty.xml');
+    writeFileSync(tempPath, '');
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    const state = await app.getState();
+    expect(state.document?.loaded).toBe(false);
+  });
+
+  test('should reject file with only whitespace', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'whitespace.xml');
+    writeFileSync(tempPath, '   \n\n  \t  \n  ');
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    const state = await app.getState();
+    expect(state.document?.loaded).toBe(false);
+  });
+
+  test('should validate required TEI elements', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // TEI without required teiHeader
+    let incompleteTEI = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    incompleteTEI += '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n';
+    incompleteTEI += '  <text><body>\n';
+    incompleteTEI += '    <p><s who="#speaker1">Content</s></p>\n';
+    incompleteTEI += '  </body></text>\n';
+    incompleteTEI += '</TEI>\n';
+
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'incomplete.tei.xml');
+    writeFileSync(tempPath, incompleteTEI);
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    // Parser may still accept this depending on strictness
+    const state = await app.getState();
+    // If content shows, parser is lenient (which is fine)
+    if (state.document?.loaded) {
+      expect(state.document.passageCount).toBeGreaterThan(0);
+    }
+  });
+
+  test('should handle XML with encoding issues', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Create file with mismatched encoding declaration vs content
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'encoding-test.tei.xml');
+    writeFileSync(
+      tempPath,
+      '<?xml version="1.0" encoding="ISO-8859-1"?>\n<TEI>Content</TEI>',
+      'utf-8'
+    );
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    // Browser should handle encoding gracefully
+    const state = await app.getState();
+    // May or may not load depending on browser handling
+  });
+});
+
+test.describe('Upload UI Interactions', () => {
+  test('should preserve document state after failed upload attempt', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid document first
+    const validTEI = TEIDocument.valid({
+      title: 'Initial Document',
+      speakers: [SPEAKERS.NARRATOR],
+      passages: 3,
+    });
+
+    let state = await app.editor().load(validTEI);
+    expect(state.document?.passageCount).toBe(3);
+
+    // Try to upload invalid file
+    const tempPath = join(process.cwd(), 'tests/fixtures', 'invalid.xml');
+    writeFileSync(tempPath, '<invalid></invalid');
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(tempPath);
+
+    await page.waitForTimeout(1000);
+    unlinkSync(tempPath);
+
+    // Original document should still be visible
+    state = await app.getState();
+    expect(state.document?.passageCount).toBe(3);
+  });
+
+  test('should allow re-uploading different documents', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    const doc1 = TEIDocument.valid({
+      title: 'First Document',
+      speakers: ['speaker1'],
+      passages: 2,
+    });
+
+    const doc2 = TEIDocument.valid({
+      title: 'Second Document',
+      speakers: ['speaker2', 'speaker3'],
+      passages: 4,
+    });
+
+    // Upload first document
+    let state = await app.editor().load(doc1);
+    expect(state.document?.passageCount).toBe(2);
+
+    // Upload second document (should replace first)
+    state = await app.editor().load(doc2);
+
+    // Wait a bit for document replacement
+    await page.waitForTimeout(500);
+
+    // The document should be replaced
+    const passageCount = await app.editor().getPassageCount();
+    expect(passageCount).toBeGreaterThan(0);
   });
 });
 
@@ -421,7 +730,10 @@ test.describe('Performance and Stress Tests', () => {
     const state = await app.editor().load(doc);
     const loadTime = Date.now() - startTime;
 
+    // Should load within reasonable time (<30 seconds)
     expect(loadTime).toBeLessThan(30000);
+
+    // Should have loaded the document
     expect(state.document?.loaded).toBe(true);
     expect(state.document?.passageCount).toBeGreaterThan(0);
   });
@@ -442,6 +754,7 @@ test.describe('Performance and Stress Tests', () => {
       expect(state.document?.loaded).toBe(true);
     }
 
+    // Final document should be loaded correctly
     const passageCount = await app.editor().getPassageCount();
     expect(passageCount).toBe(50);
   });

@@ -10,6 +10,19 @@ export class DocumentProtocol {
     const xml = TEISerializer.serialize(doc);
     const buffer = Buffer.from(xml, 'utf-8');
 
+    // Check if we're in gallery state (no document loaded yet)
+    const currentState = await this.app.getState();
+
+    if (currentState.location === 'gallery') {
+      // Need to load a sample first to get to editor state
+      const samples = await this.app.samples().list();
+      if (samples.length === 0) {
+        throw new Error('No samples available to load for initial editor state');
+      }
+      await this.app.samples().load(samples[0].id);
+    }
+
+    // Now we're in editor state, file input should be available
     await this.app.page().locator('input[type="file"]').setInputFiles({
       name: 'test.tei.xml',
       mimeType: 'text/xml',

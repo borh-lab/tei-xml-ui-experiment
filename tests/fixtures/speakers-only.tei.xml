@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Speakers Only</title></titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <castList>
+        <castItem>
+          <role xml:id="speaker1">Speaker 1</role>
+        </castItem>
+        <castItem>
+          <role xml:id="speaker2">Speaker 2</role>
+        </castItem>
+      </castList>
+    </body>
+  </text>
+</TEI>
