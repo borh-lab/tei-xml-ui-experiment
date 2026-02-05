@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
-import type { TagInfo } from '@/lib/selection/types';
+import type { TagInfo, SelectionSnapshot } from '@/lib/selection/types';
 import type { TEINode } from '@/lib/tei/types';
 
 export interface UseEditorStateResult {
@@ -68,9 +68,12 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
   // Helper function to get all passage IDs from the document
   const getPassageIds = useCallback(() => {
     if (!document) return [];
-    const p = (document as any).parsed.TEI.text.body.p;
+    const tei = document.state.parsed.TEI as TEINode | undefined;
+    const text = tei?.text as TEINode | undefined;
+    const body = text?.body as TEINode | undefined;
+    const p = body?.p;
     const paragraphs = Array.isArray(p) ? p : p ? [p] : [];
-    return paragraphs.map((_, idx) => 'passage-' + idx);
+    return paragraphs.map((_, idx) => `passage-${idx}`);
   }, [document]);
 
   // Generic handler for applying tags to selected text
@@ -89,8 +92,8 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
       // Extract passage ID (using the passageId directly from selection)
       const passageId = selectionRange.passageId;
       const range: { start: number; end: number } = {
-        start: (selectionRange as any).startOffset,
-        end: (selectionRange as any).endOffset,
+        start: selectionRange.range.start,
+        end: selectionRange.range.end,
       };
 
       try {
@@ -114,15 +117,6 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
               .join(' ') + '>'
           : '<' + tag + '>';
         showToast('Applied ' + tagDisplay, 'success');
-
-        // Wait for React to re-render the updated document before restoring selection
-        setTimeout(() => {
-          (selectionManagerInstance.restoreSelection as any)({
-            start: (selectionRange as any).startOffset,
-            end: (selectionRange as any).endOffset,
-            passageId: selectionRange.passageId,
-          });
-        }, 100);
       } catch (error) {
         console.error('Failed to apply tag:', error);
         showToast('Failed to apply tag - See console for details', 'error');
@@ -138,7 +132,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
 
       try {
         // Find the element and update its attributes
-        const element = (tagToEdit as any).element;
+        const element = tagToEdit.element;
         if (!element) {
           showToast('Element not found', 'error');
           return;

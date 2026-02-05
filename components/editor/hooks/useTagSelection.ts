@@ -37,11 +37,12 @@ export function useTagSelection(
   const handleTagSelect = useCallback(
     (tagInfo: TagInfo) => {
       setSelectedTag(tagInfo);
-      showToast('Selected tag: <' + ((tagInfo as any).tagName) + '>', 'info');
+      const tagName = tagInfo.tagName || tagInfo.type;
+      showToast('Selected tag: <' + tagName + '>', 'info');
 
       // Add visual selection indicator to element
-      if ((tagInfo as any).element) {
-        (tagInfo as any).element.setAttribute('data-selected', 'true');
+      if (tagInfo.element) {
+        tagInfo.element.setAttribute('data-selected', 'true');
       }
     },
     [showToast]
@@ -52,7 +53,8 @@ export function useTagSelection(
     (tagInfo: TagInfo) => {
       setTagToEdit(tagInfo);
       setEditDialogOpen(true);
-      showToast('Editing tag: <' + ((tagInfo as any).tagName) + '>', 'info');
+      const tagName = tagInfo.tagName || tagInfo.type;
+      showToast('Editing tag: <' + tagName + '>', 'info');
     },
     [showToast]
   );
