@@ -153,7 +153,7 @@ export class ProximityAnalyzer {
 
     const paragraphsArray = Array.isArray(paragraphs) ? paragraphs : [paragraphs];
 
-    paragraphsArray.forEach((para: any) => {
+    paragraphsArray.forEach((para: TEINode) => {
       const characterPositions = this.extractCharacterWordPositions(para);
 
       // For each character, check proximity to others
@@ -391,23 +391,24 @@ export class ProximityAnalyzer {
   /**
    * Extract all character IDs from a paragraph
    */
-  private extractCharactersFromParagraph(para: any): string[] {
+  private extractCharactersFromParagraph(para: TEINode): string[] {
     const characters: string[] = [];
 
-    function traverse(node: any) {
+    function traverse(node: TEINode | TEINode[] | unknown) {
       if (!node || typeof node !== 'object') return;
 
       if (Array.isArray(node)) {
         node.forEach(traverse);
       } else {
+        const teiNode = node as TEINode;
         // Check for <said> elements with @who attribute
-        if (node['@_who']) {
-          characters.push(node['@_who']);
+        if (teiNode['@_who']) {
+          characters.push(teiNode['@_who']);
         }
         // Traverse nested elements
-        for (const key in node) {
+        for (const key in teiNode) {
           if (!key.startsWith('#') && !key.startsWith('@_')) {
-            traverse(node[key]);
+            traverse(teiNode[key]);
           }
         }
       }
@@ -421,31 +422,38 @@ export class ProximityAnalyzer {
    * Extract character word positions from a paragraph
    * Returns a map of character ID to array of word positions
    */
-  private extractCharacterWordPositions(para: any): Map<string, number[]> {
+  private extractCharacterWordPositions(para: TEINode): Map<string, number[]> {
     const positions = new Map<string, number[]>();
     let currentPosition = 0;
 
-    function traverse(node: any) {
+    function traverse(node: TEINode | TEINode[] | unknown) {
       if (!node || typeof node !== 'object') return;
 
+      if (Array.isArray(node)) {
+        node.forEach(traverse);
+        return;
+      }
+
+      const teiNode = node as TEINode;
+
       // Track text content
-      if (node['#text']) {
-        const words = node['#text'].split(/\s+/).length;
+      if (teiNode['#text']) {
+        const words = String(teiNode['#text']).split(/\s+/).length;
         currentPosition += words;
       }
 
       // Check for <said> elements
-      if (node['@_who']) {
-        const charId = node['@_who'];
+      if (teiNode['@_who']) {
+        const charId = teiNode['@_who'];
         const existingPositions = positions.get(charId) || [];
         existingPositions.push(currentPosition);
         positions.set(charId, existingPositions);
       }
 
       // Traverse nested elements
-      for (const key in node) {
+      for (const key in teiNode) {
         if (!key.startsWith('#') && !key.startsWith('@_')) {
-          traverse(node[key]);
+          traverse(teiNode[key]);
         }
       }
     }

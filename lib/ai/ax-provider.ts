@@ -3,6 +3,7 @@ import { ax, ai } from '@ax-llm/ax';
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 import { nlpDetectDialogue } from './nlp-provider';
 import { logger } from '@/lib/utils/logger';
+import type { TEIDocument } from '@/lib/tei/types';
 
 interface DetectedPassage {
   passageStartIndex: number;
@@ -289,7 +290,7 @@ export class AxProvider implements AIProvider {
     return characters[0].xmlId;
   }
 
-  async validateConsistency(_document: any): Promise<Issue[]> {
+  async validateConsistency(_document: TEIDocument): Promise<Issue[]> {
     // TODO: Implement with Ax signature
     return [];
   }

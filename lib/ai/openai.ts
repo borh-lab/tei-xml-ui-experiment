@@ -9,6 +9,7 @@
 // TODO: Uncomment when implementing actual API calls
 // import OpenAI from 'openai';
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
+import type { TEIDocument } from '@/lib/tei/types';
 
 export class OpenAIProvider implements AIProvider {
   // TODO: Initialize client when implementing actual API calls
@@ -79,7 +80,7 @@ export class OpenAIProvider implements AIProvider {
    * @param document - The TEI document to validate
    * @returns Array of validation issues
    */
-  async validateConsistency(_document: any): Promise<Issue[]> {
+  async validateConsistency(_document: TEIDocument): Promise<Issue[]> {
     // TODO: Implement validation
     return [];
   }
