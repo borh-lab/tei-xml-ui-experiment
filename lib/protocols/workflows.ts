@@ -59,6 +59,7 @@ export interface PlannedStep {
  * - Progress percentage
  * - Available entities for each step
  * - Navigation state
+ * - Passage ID and range for tag application
  */
 export interface WorkflowPlan {
   /** Workflow identifier */
@@ -77,6 +78,10 @@ export interface WorkflowPlan {
   readonly canGoBack: boolean;
   /** Whether workflow is complete */
   readonly isComplete: boolean;
+  /** Passage ID where workflow is applied */
+  readonly passageId: PassageID;
+  /** Text range for the workflow */
+  readonly range: TextRange;
 }
 
 /**
@@ -239,6 +244,8 @@ export function planWorkflow(
     canProgress,
     canGoBack,
     isComplete,
+    passageId,
+    range,
   });
 }
 
@@ -271,6 +278,8 @@ export function nextStep(plan: WorkflowPlan): Result<WorkflowPlan> {
     canGoBack: nextIndex > 0,
     canProgress: nextIndex < plan.totalSteps - 1,
     isComplete: nextIndex >= plan.totalSteps - 1,
+    passageId: plan.passageId,
+    range: plan.range,
   });
 }
 
@@ -303,6 +312,8 @@ export function previousStep(plan: WorkflowPlan): Result<WorkflowPlan> {
     canGoBack: prevIndex > 0,
     canProgress: true,
     isComplete: false,
+    passageId: plan.passageId,
+    range: plan.range,
   });
 }
 
