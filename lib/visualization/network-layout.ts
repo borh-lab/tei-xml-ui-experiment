@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Network Layout - Computed Layout for Character Network Visualization
  *

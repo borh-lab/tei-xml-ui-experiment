@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Selection Types for Tag Application
  *

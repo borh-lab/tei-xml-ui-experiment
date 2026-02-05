@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { TEIDocument } from '@/lib/tei';
 import { Node, Edge } from 'reactflow';
 import type { TEINode } from '@/lib/tei/types';
@@ -58,7 +57,10 @@ export class ProximityAnalyzer {
    */
   private analyzeParagraphProximity(): CharacterProximity[] {
     const proximityMap = new Map<string, CharacterProximity>();
-    const paragraphs = this.document.parsed.TEI?.text?.body?.p;
+    const tei = this.document.state.parsed.TEI as TEINode | undefined;
+    const text = tei?.text as TEINode | undefined;
+    const body = text?.body as TEINode | undefined;
+    const paragraphs = body?.p;
 
     if (!paragraphs) return [];
 
@@ -100,16 +102,16 @@ export class ProximityAnalyzer {
    */
   private analyzeDialogueProximity(maxTurns: number): CharacterProximity[] {
     const proximityMap = new Map<string, CharacterProximity>();
-    const dialogue = this.document.getDialogue();
+    const dialogue = this.document.state.dialogue;
 
     // Analyze dialogue turns
     for (let i = 0; i < dialogue.length; i++) {
-      const currentSpeaker = dialogue[i].who;
+      const currentSpeaker = dialogue[i].speaker;
       if (!currentSpeaker) continue;
 
       // Look ahead up to maxTurns
       for (let j = i + 1; j <= Math.min(i + maxTurns, dialogue.length - 1); j++) {
-        const nextSpeaker = dialogue[j].who;
+        const nextSpeaker = dialogue[j].speaker;
         if (!nextSpeaker || nextSpeaker === currentSpeaker) continue;
 
         const key = this.getPairKey(currentSpeaker, nextSpeaker);
@@ -142,7 +144,10 @@ export class ProximityAnalyzer {
    */
   private analyzeWordDistanceProximity(maxWords: number): CharacterProximity[] {
     const proximityMap = new Map<string, CharacterProximity>();
-    const paragraphs = this.document.parsed.TEI?.text?.body?.p;
+    const tei = this.document.state.parsed.TEI as TEINode | undefined;
+    const text = tei?.text as TEINode | undefined;
+    const body = text?.body as TEINode | undefined;
+    const paragraphs = body?.p;
 
     if (!paragraphs) return [];
 
@@ -250,20 +255,20 @@ export class ProximityAnalyzer {
     });
 
     // Get character details for display
-    const characters = this.document.getCharacters();
+    const characters = this.document.state.characters;
     const characterDetails = new Map<string, any>();
     characters.forEach((char) => {
-      const id = char['xml:id'];
+      const id = char.xmlId;
       characterDetails.set(id, char);
     });
 
     // Count dialogue per character
-    const dialogue = this.document.getDialogue();
+    const dialogue = this.document.state.dialogue;
     const dialogueCounts = new Map<string, number>();
     dialogue.forEach((d) => {
-      if (d.who) {
-        const count = dialogueCounts.get(d.who) || 0;
-        dialogueCounts.set(d.who, count + 1);
+      if (d.speaker) {
+        const count = dialogueCounts.get(d.speaker) || 0;
+        dialogueCounts.set(d.speaker, count + 1);
       }
     });
 
