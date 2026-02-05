@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Dialogue, Passage } from '../tei/types';
 import type { SectionGroup, SectionGroupingStrategy, SectionalBreakdown } from './types';
 

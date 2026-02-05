@@ -1,4 +1,3 @@
-// @ts-nocheck
 const RECENT_KEY = 'tei-recent-docs';
 const MAX_RECENT = 10;
 
