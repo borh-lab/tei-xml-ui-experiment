@@ -4,7 +4,12 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useEditorState, useEditorUI, useAISuggestions, useTagSelection, useViewMode, useBulkOperations, useKeyboardShortcuts } from './hooks';
 import { EditorToolbar, EditorContent, EditorModals, EditorPanels, EditorToast } from './EditorComponents';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
-import type { MonacoEditor } from './EditorLayout.backup';
+export interface MonacoEditor {
+  getModel?: () => { getLineCount: () => number } | null;
+  revealLine: (line: number) => void;
+  getVisibleRanges: () => { startLineNumber: number }[];
+  onDidScrollChange: (callback: () => void) => void;
+}
 
 interface ValidationError {
   line?: number;
@@ -28,7 +33,7 @@ export function EditorLayout() {
   
   const editorState = useEditorState({
     showToast: editorUI.showToast,
-    tagToEdit: editorUI.panelStates.editDialogOpen ? (null as any) : null,
+    tagToEdit: null,
   });
 
   // AI suggestions
@@ -275,8 +280,8 @@ export function EditorLayout() {
     URL.revokeObjectURL(url);
   };
 
-  const handleValidateSelection = async () => {
-    if (!editorState.document || bulkOps.selectedPassages.length === 0) return;
+  const handleValidateSelection = async (): Promise<any[]> => {
+    if (!editorState.document || bulkOps.selectedPassages.length === 0) return [];
 
     const issues: any[] = [];
     const paragraphs = (editorState.document as any).parsed.TEI.text.body.p;
@@ -424,4 +429,3 @@ export function EditorLayout() {
 }
 
 // Export types for backward compatibility
-export type { MonacoEditor };

@@ -93,8 +93,8 @@ export function useBulkOperationsHandlers(
     URL.revokeObjectURL(url);
   }, [document, selectedPassages]);
 
-  const handleValidateSelection = useCallback(async () => {
-    if (!document || selectedPassages.length === 0) return;
+  const handleValidateSelection = useCallback(async (): Promise<any[]> => {
+    if (!document || selectedPassages.length === 0) return [];
 
     const issues: any[] = [];
     const paragraphs = (document as any).parsed.TEI.text.body.p;

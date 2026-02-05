@@ -10,8 +10,8 @@ export interface MonacoEditor {
 }
 
 export interface UseScrollSyncResult {
-  renderedViewRef: React.RefObject<HTMLDivElement>;
-  codeEditorRef: React.RefObject<MonacoEditor>;
+  renderedViewRef: React.RefObject<HTMLDivElement | null>;
+  codeEditorRef: React.RefObject<MonacoEditor | null>;
   handleRenderedViewScroll: () => void;
   handleCodeEditorScroll: () => void;
   handleCodeEditorMount: (editor: MonacoEditor) => void;

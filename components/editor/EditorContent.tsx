@@ -36,7 +36,7 @@ export interface EditorContentProps {
   validationResults: any;
   // Scroll sync
   onRenderedViewScroll?: () => void;
-  renderedViewRef?: React.RefObject<HTMLDivElement>;
+  renderedViewRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
