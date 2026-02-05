@@ -83,17 +83,52 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
 
       const selectionManagerInstance = selectionManager.current;
 
-      // Use Parinfer-like smart selection
-      const smartSelection = selectionManagerInstance.captureSmartSelection(document, tag);
+      // Use schema-aware smart selection (validates structure + schema constraints)
+      const smartSelection = selectionManagerInstance.captureSchemaAwareSelection(
+        document,
+        tag,
+        attrs || {}
+      );
 
       if (!smartSelection) {
         showToast('No text selected - Select text first, then click tag button', 'error');
         return;
       }
 
-      const { snapshot, adjustment } = smartSelection;
+      const { snapshot, adjustment, schemaValidation } = smartSelection;
       const passageId = snapshot.passageId;
       const range: { start: number; end: number } = adjustment.adjustedRange;
+
+      // Check schema validation first (before applying tag)
+      if (schemaValidation && !schemaValidation.valid) {
+        // Schema validation failed - show helpful error
+        const errorMsg = schemaValidation.reason || 'Invalid tag application';
+
+        // Show missing attributes
+        if (schemaValidation.missingAttributes && schemaValidation.missingAttributes.length > 0) {
+          const missing = schemaValidation.missingAttributes.join(', ');
+          showToast(`Missing required attributes: ${missing}`, 'error');
+        }
+
+        // Show suggestions
+        if (schemaValidation.suggestions && schemaValidation.suggestions.length > 0) {
+          schemaValidation.suggestions.forEach(suggestion => {
+            console.log('Suggestion:', suggestion);
+          });
+          // Show first suggestion as toast
+          showToast(schemaValidation.suggestions[0], 'info');
+        }
+
+        // Show invalid attributes
+        if (schemaValidation.invalidAttributes) {
+          const invalidAttrs = Object.entries(schemaValidation.invalidAttributes)
+            .map(([attr, reason]) => `${attr}: ${reason}`)
+            .join(', ');
+          showToast(`Invalid attributes: ${invalidAttrs}`, 'error');
+        }
+
+        return; // Don't apply the tag
+      }
 
       // Show adjustment message if selection was modified
       if (adjustment.adjustedRange.start !== adjustment.originalRange.start ||

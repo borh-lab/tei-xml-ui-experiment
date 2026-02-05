@@ -9,9 +9,79 @@
  * 2. Snap selections to valid boundaries
  * 3. Maintain proper nesting (no overlapping tags)
  * 4. Minimal adjustments - change as little as possible
+ * 5. Schema-aware - validate against TEI P5 constraints
  */
 
-import type { Passage, Tag, TextRange } from '@/lib/tei/types';
+import type { Passage, Tag, TextRange, Character } from '@/lib/tei/types';
+
+/**
+ * Schema constraint definitions for TEI P5 tags
+ */
+export interface SchemaConstraint {
+  tagName: string;
+  requiredAttributes: string[];
+  optionalAttributes: string[];
+  attributeTypes: Record<string, 'IDREF' | 'ID' | 'string' | 'NCName'>;
+  allowedParents?: string[];
+  allowedChildren?: string[];
+  disallowedAncestors?: string[];
+}
+
+/**
+ * TEI P5 schema constraints for common dialogue tags
+ */
+export const TEI_P5_CONSTRAINTS: Record<string, SchemaConstraint> = {
+  said: {
+    tagName: 'said',
+    requiredAttributes: ['who'], // @who is required (speaker reference)
+    optionalAttributes: ['corresp', 'source'],
+    attributeTypes: {
+      who: 'IDREF', // Must reference existing character ID
+      corresp: 'IDREF',
+      source: 'string',
+    },
+    disallowedAncestors: ['said', 'q'], // Can't nest <said> in <said> or <q>
+  },
+  q: {
+    tagName: 'q',
+    requiredAttributes: [],
+    optionalAttributes: ['who', 'source', 'rend'],
+    attributeTypes: {
+      who: 'IDREF',
+      source: 'string',
+      rend: 'NCName',
+    },
+    disallowedAncestors: ['q', 'said'], // Can't nest <q> in <q> or <said>
+  },
+  persName: {
+    tagName: 'persName',
+    requiredAttributes: ['ref'], // @ref is required
+    optionalAttributes: ['role', 'key', 'nymRef'],
+    attributeTypes: {
+      ref: 'IDREF', // Must reference existing character ID
+      role: 'string',
+      key: 'string',
+      nymRef: 'IDREF',
+    },
+  },
+  speaker: {
+    tagName: 'speaker',
+    requiredAttributes: [],
+    optionalAttributes: ['who'],
+    attributeTypes: {
+      who: 'IDREF',
+    },
+  },
+  stage: {
+    tagName: 'stage',
+    requiredAttributes: ['type'],
+    optionalAttributes: ['who'],
+    attributeTypes: {
+      type: 'string',
+      who: 'IDREF',
+    },
+  },
+};
 
 /**
  * Tag boundary represents the start or end of a tag in the text
@@ -35,6 +105,17 @@ export interface SelectionAdjustment {
     start?: TagBoundary;
     end?: TagBoundary;
   };
+}
+
+/**
+ * Schema validation result
+ */
+export interface SchemaValidationResult {
+  valid: boolean;
+  reason?: string;
+  missingAttributes?: string[];
+  invalidAttributes?: Record<string, string>;
+  suggestions?: string[];
 }
 
 /**
@@ -325,6 +406,132 @@ export function validateSelection(
 }
 
 /**
+ * Validate selection against TEI P5 schema constraints
+ *
+ * Checks if a tag can be safely applied given:
+ * - Required attributes
+ * - Attribute value formats
+ * - Allowed nesting contexts
+ *
+ * @param passage - The passage containing the selection
+ * @param range - Selection range
+ * @param tagType - Type of tag to apply
+ * @param providedAttrs - Attributes that will be provided (if any)
+ * @param document - Full document (for character ID validation)
+ * @returns Schema validation result
+ */
+export function validateAgainstSchema(
+  passage: Passage,
+  range: TextRange,
+  tagType: string,
+  providedAttrs: Record<string, string> = {},
+  document?: { state: { characters?: Character[] } }
+): SchemaValidationResult {
+  // Get schema constraints for this tag
+  const constraints = TEI_P5_CONSTRAINTS[tagType];
+  if (!constraints) {
+    // Unknown tag - assume it's valid (no constraints defined)
+    return { valid: true };
+  }
+
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const missingAttrs: string[] = [];
+  const suggestions: string[] = [];
+  const invalidAttrs: Record<string, string> = {};
+
+  // Check required attributes
+  for (const required of constraints.requiredAttributes) {
+    if (!(required in providedAttrs)) {
+      missingAttrs.push(required);
+    }
+  }
+
+  if (missingAttrs.length > 0) {
+    errors.push(
+      `Tag <${tagType}> requires attribute(s): ${missingAttrs.join(', ')}`
+    );
+
+    // Generate helpful suggestions
+    if (tagType === 'said' && missingAttrs.includes('who')) {
+      suggestions.push('Select a character speaker from the entity panel');
+      if (document?.state?.characters?.length) {
+        const charNames = document.state.characters
+          .map(c => c.name)
+          .slice(0, 3)
+          .join(', ');
+        if (charNames) {
+          suggestions.push(`Available speakers: ${charNames}...`);
+        }
+      }
+    }
+
+    if (tagType === 'persName' && missingAttrs.includes('ref')) {
+      suggestions.push('Select a character reference from the entity panel');
+      if (document?.state?.characters?.length) {
+        const charNames = document.state.characters
+          .map(c => c.name)
+          .slice(0, 3)
+          .join(', ');
+        if (charNames) {
+          suggestions.push(`Available characters: ${charNames}...`);
+        }
+      }
+    }
+  }
+
+  // Check if provided attributes have correct format
+  for (const [attr, value] of Object.entries(providedAttrs)) {
+    const attrType = constraints.attributeTypes[attr];
+    if (!attrType) continue;
+
+    if (attrType === 'IDREF') {
+      // Check if referenced ID exists
+      if (attr === 'who' || attr === 'ref') {
+        const charId = value.replace('#', '');
+        const character = document?.state?.characters?.find(c => c.id === charId);
+
+        if (!character) {
+          invalidAttrs[attr] = `Referenced character "${value}" not found`;
+          suggestions.push(`Create character "${charId}" first, or select existing character`);
+        }
+      }
+    }
+  }
+
+  // Check nesting context (disallowed ancestors)
+  if (constraints.disallowedAncestors && constraints.disallowedAncestors.length > 0) {
+    const overlappingTags = passage.tags.filter(
+      t => t.range.start <= range.start && t.range.end >= range.end
+    );
+
+    for (const tag of overlappingTags) {
+      if (constraints.disallowedAncestors.includes(tag.type)) {
+        errors.push(
+          `Tag <${tagType}> cannot be nested inside <${tag.type}>`
+        );
+        suggestions.push(`Apply <${tagType}> outside of the <${tag.type}> tag`);
+      }
+    }
+  }
+
+  // Return validation result
+  if (errors.length > 0 || Object.keys(invalidAttrs).length > 0) {
+    return {
+      valid: false,
+      reason: errors[0],
+      missingAttributes: missingAttrs,
+      invalidAttributes: invalidAttrs,
+      suggestions,
+    };
+  }
+
+  return {
+    valid: true,
+  };
+}
+
+/**
  * Parinfer-like smart selection adjustment
  *
  * Automatically adjusts selection to maintain valid XML structure,
@@ -388,4 +595,68 @@ export function smartSelectionAdjust(
 
   // Default: try to snap to boundaries
   return snapToTagBoundaries(passage, range);
+}
+
+/**
+ * Schema-aware smart selection (combines structural + schema validation)
+ *
+ * Validates both:
+ * 1. Structural integrity (tag boundaries, nesting)
+ * 2. Schema constraints (required attributes, IDREFs, nesting rules)
+ *
+ * @param passage - The passage containing the selection
+ * @param range - User's selected range
+ * @param tagType - Type of tag to apply
+ * @param providedAttrs - Attributes that will be provided (if any)
+ * @param document - Full document (for character/entity validation)
+ * @returns Enhanced selection adjustment with schema validation
+ */
+export function schemaAwareSmartSelection(
+  passage: Passage,
+  range: TextRange,
+  tagType: string,
+  providedAttrs: Record<string, string> = {},
+  document?: { state: { characters?: Character[] } }
+): SelectionAdjustment & SchemaValidationResult {
+  // Step 1: Structural validation (existing logic)
+  const structuralValidation = validateSelection(passage, range, tagType);
+
+  if (!structuralValidation.valid) {
+    return {
+      ...structuralValidation.adjustment || snapToTagBoundaries(passage, range),
+      valid: false,
+      reason: structuralValidation.reason,
+    };
+  }
+
+  // Step 2: Schema validation (new)
+  const schemaValidation = validateAgainstSchema(
+    passage,
+    range,
+    tagType,
+    providedAttrs,
+    document
+  );
+
+  if (!schemaValidation.valid) {
+    // Schema validation failed - still adjust range structurally if needed
+    const adjustment = snapToTagBoundaries(passage, range);
+
+    return {
+      ...adjustment,
+      valid: false,
+      reason: schemaValidation.reason || adjustment.reason,
+      missingAttributes: schemaValidation.missingAttributes,
+      invalidAttributes: schemaValidation.invalidAttributes,
+      suggestions: schemaValidation.suggestions,
+    };
+  }
+
+  // Both validations passed
+  return {
+    originalRange: range,
+    adjustedRange: range,
+    reason: 'Selection is valid (structurally and for schema)',
+    valid: true,
+  };
 }
