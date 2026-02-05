@@ -4,6 +4,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useEditorState, useEditorUI, useAISuggestions, useTagSelection, useViewMode, useBulkOperations, useKeyboardShortcuts } from './hooks';
 import { EditorToolbar, EditorContent, EditorModals, EditorPanels, EditorToast } from './EditorComponents';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
+import type { TEINode } from '@/lib/tei/types';
 export interface MonacoEditor {
   getModel?: () => { getLineCount: () => number } | null;
   revealLine: (line: number) => void;
@@ -30,11 +31,21 @@ interface FixSuggestion {
 export function EditorLayout() {
   // Core editor state
   const editorUI = useEditorUI();
-  
+
   const editorState = useEditorState({
     showToast: editorUI.showToast,
     tagToEdit: null,
   });
+
+  // Helper to get paragraphs from document
+  const getParagraphs = useCallback((): TEINode[] => {
+    if (!editorState.document) return [];
+    const tei = editorState.document.state.parsed.TEI as TEINode | undefined;
+    const text = tei?.text as TEINode | undefined;
+    const body = text?.body as TEINode | undefined;
+    const p = body?.p;
+    return Array.isArray(p) ? p : p ? [p] : [];
+  }, [editorState.document]);
 
   // AI suggestions
   const aiState = useAISuggestions({
@@ -218,16 +229,19 @@ export function EditorLayout() {
   const handleTagAll = async (speakerId: string) => {
     if (!editorState.document) return;
 
-    const newDoc = { ...editorState.document };
-    const paragraphs = (newDoc as any).parsed.TEI.text.body.p;
+    const paragraphs = getParagraphs();
     const passagesToTag = [...bulkOps.selectedPassages];
 
     bulkOps.selectedPassages.forEach((index) => {
-      if (paragraphs[index] && paragraphs[index].said) {
-        paragraphs[index].said = paragraphs[index].said.map((s: Record<string, unknown>) => ({
-          ...s,
-          '@who': speakerId,
-        }));
+      const idx = Number(index);
+      if (paragraphs[idx] && paragraphs[idx].said) {
+        const said = paragraphs[idx].said as TEINode[];
+        if (Array.isArray(said)) {
+          paragraphs[idx].said = said.map((s: TEINode) => ({
+            ...s,
+            '@who': speakerId,
+          }));
+        }
       }
     });
 
@@ -245,12 +259,15 @@ export function EditorLayout() {
     if (!editorState.document) return;
 
     const untaggedIndices = new Set<number>();
-    const paragraphs = (editorState.document as any).parsed.TEI.text.body.p;
+    const paragraphs = getParagraphs();
 
-    paragraphs.forEach((para: any, index: number) => {
-      const hasUntagged = para.said?.some((s: Record<string, unknown>) => !s['@who'] || s['@who'] === '');
-      if (hasUntagged) {
-        untaggedIndices.add(index);
+    paragraphs.forEach((para: TEINode, index: number) => {
+      const said = para.said as TEINode[];
+      if (Array.isArray(said)) {
+        const hasUntagged = said.some((s: TEINode) => !s['@who'] || s['@who'] === '');
+        if (hasUntagged) {
+          untaggedIndices.add(index);
+        }
       }
     });
 
@@ -264,8 +281,9 @@ export function EditorLayout() {
   const handleExportSelection = () => {
     if (!editorState.document || bulkOps.selectedPassages.length === 0) return;
 
+    const paragraphs = getParagraphs();
     const selectedParagraphs = bulkOps.selectedPassages.map(
-      (index) => (editorState.document as any).parsed.TEI.text.body.p[Number(index)]
+      (index) => paragraphs[Number(index)]
     );
 
     const data = JSON.stringify(selectedParagraphs, null, 2);
@@ -284,19 +302,21 @@ export function EditorLayout() {
     if (!editorState.document || bulkOps.selectedPassages.length === 0) return [];
 
     const issues: any[] = [];
-    const paragraphs = (editorState.document as any).parsed.TEI.text.body.p;
+    const paragraphs = getParagraphs();
 
     bulkOps.selectedPassages.forEach((indexStr) => {
       const index = Number(indexStr);
       const para = paragraphs[index];
-      if (!para.said) {
+      const said = para.said as TEINode[];
+
+      if (!Array.isArray(said)) {
         issues.push({
           type: 'warning',
           message: 'Paragraph ' + (index + 1) + ': No dialogue found',
           location: { index },
         });
       } else {
-        para.said.forEach((s: Record<string, unknown>, i: number) => {
+        said.forEach((s: TEINode, i: number) => {
           if (!s['@who'] || s['@who'] === '') {
             issues.push({
               type: 'error',
