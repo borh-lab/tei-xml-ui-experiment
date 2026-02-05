@@ -1,5 +1,5 @@
-// @ts-nocheck
-import { loadDocument } from '@/lib/tei';
+import { loadDocument } from '@/lib/tei/operations';
+import type { TEIDocument } from '@/lib/tei/types';
 
 export interface SampleMetadata {
   id: string;

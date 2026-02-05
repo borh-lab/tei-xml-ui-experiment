@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * History Utilities for Undo/Redo Operations
  *
