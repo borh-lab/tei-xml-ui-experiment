@@ -4,7 +4,16 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { VisualizationPanel } from '@/components/visualization/VisualizationPanel';
 import { ValidationPanel } from '@/components/validation/ValidationPanel';
-import type { ValidationError, FixSuggestion } from '@/lib/effect/react/hooks';
+
+interface ValidationError {
+  line?: number;
+  message?: string;
+  [key: string]: unknown;
+}
+
+interface FixSuggestion {
+  [key: string]: unknown;
+}
 
 export interface EditorPanelsProps {
   vizPanelOpen: boolean;
