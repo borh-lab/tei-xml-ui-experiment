@@ -39,6 +39,7 @@ const videoConfig = {
 
 /**
  * Optimize a video using ffmpeg
+ * Scales up from Playwright's 800x450 recording to Full HD 1920x1080
  */
 async function optimizeVideo(
   input: string,
@@ -54,6 +55,8 @@ async function optimizeVideo(
     '-r', String(config.fps),
     '-crf', String(config.crf),
     '-cpu-used', String(config['cpu-used']),
+    // Scale to Full HD with high quality upscaling
+    '-vf', 'scale=1920:1080:flags=lanczos', // Lanczos for sharp upscaling
     // Better quality settings
     '-pix_fmt', 'yuv420p', // Standard colorspace for compatibility
     '-deadline', 'good', // Quality vs speed tradeoff
@@ -176,7 +179,7 @@ async function main(): Promise<void> {
 
     // Extract video name from directory name
     const dirName = dir.split('/').pop()!;
-    const match = dirName.match(/Documentation-Videos-([^(]+)-doc-videos/);
+    const match = dirName.match(/Documentation-Videos-([^(]+)-(doc-videos|chromium)/);
 
     if (!match) {
       console.warn(`⚠️  Skipping: ${dirName} (unrecognized format)`);
