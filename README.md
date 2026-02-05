@@ -154,65 +154,138 @@ Test suites include:
 
 ## Corpus Analysis
 
-This project includes tools for analyzing TEI corpora:
+This project includes tools for analyzing TEI corpora and preparing ML-ready datasets.
+
+### Corpus Management Workflow
 
 ```bash
-# Setup, analyze, and generate train/val/test splits
+# Complete workflow: setup, convert, analyze, split, and export
 bun run corpus:all
 
 # Individual steps
-bun run corpus:setup    # Clone/update corpus repositories
-bun run corpus:analyze  # Analyze TEI documents
-bun run corpus:split    # Generate train/val/test splits
-bun run corpus:split:ml # Generate ML-compatible splits (optional)
+bun run corpus:setup                 # Clone/update corpus repositories
+bun run corpus:convert-novel-dialogism  # Convert novel-dialogism CSV to TEI
+bun run corpus:convert-p4            # Convert P4→P5 corpora (with libxslt)
+bun run corpus:analyze               # Analyze TEI documents and generate metadata
+bun run corpus:split                 # Generate train/val/test splits
+bun run corpus:split:ml              # Generate ML-compatible splits (optional)
+bun run corpus:export                # Export to datasets/ for ML training
 ```
 
-See [scripts/README.md](./scripts/README.md) for details.
+### Corpus Directory Structure
 
-### ML-Ready Dataset Format
+```
+corpora/
+├── novel-dialogism/              # Git submodule (source data: CSV/text files)
+├── novel-dialogism-converted/    # Generated TEI files from novel-dialogism
+├── wright-american-fiction/      # External corpus repository
+├── victorian-women-writers/      # External corpus repository
+├── indiana-magazine-history/     # External corpus repository
+├── indiana-authors-books/        # External corpus repository
+├── brevier-legislative/          # External corpus repository
+└── tei-texts/                    # External corpus repository
 
-For machine learning applications, the corpus includes an ML-compatible split format:
+datasets/                          # ML-ready exports (gitignored)
+├── {corpus-name}/
+│   ├── train/                    # Training set TEI files
+│   ├── validation/               # Validation set TEI files
+│   ├── test/                     # Test set TEI files
+│   └── metadata.json             # Corpus metadata
+├── splits.json                   # Split configuration
+└── README.md                     # Dataset documentation
+
+tests/corpora/metadata/            # Analysis metadata (gitignored)
+├── {corpus-name}.json            # Individual corpus metadata
+└── summary.json                  # All corpora summary
+```
+
+### Key Points
+
+- **Submodule Management**: `novel-dialogism` is a git submodule at `corpora/novel-dialogism/`
+- **On-the-Fly Conversion**: P4 corpora are converted to P5 during analysis (no separate `corpora-p5/` directory needed)
+- **Generated Files**: `corpora/novel-dialogism-converted/` contains TEI files converted from the submodule's CSV data
+- **Dataset Exports**: `datasets/` contains clean, ML-ready exports with train/val/test splits (see below for loading with Python)
+
+### Recent Consolidation (2026-02-05)
+
+The corpus directory structure was consolidated to reduce complexity:
+
+**Removed directories** (saved 1.3GB):
+- `corpora-p5/` (376M) - Deprecated; on-the-fly P4→P5 conversion is now used
+- `corpora-p4-backup/` (928M) - No longer needed; originals remain in `corpora/`
+- `data/` (2M) - Old splits.json format replaced by `datasets/`
+
+**Reorganized**:
+- `novel-dialogism/` submodule moved from project root to `corpora/novel-dialogism/`
+- Converted TEI files now output to `corpora/novel-dialogism-converted/` (separate from source)
+- All corpus analysis scripts updated to use new paths with overrides where needed
+
+**Benefits**:
+- Cleaner top-level directory structure
+- All corpus data consolidated under `corpora/`
+- Clear separation between source data (submodule) and generated files
+- Consistent with git best practices for submodules
+
+See [scripts/README.md](./scripts/README.md) for detailed corpus management documentation.
+
+### ML-Ready Datasets
+
+For machine learning applications, export the corpora with train/val/test splits:
 
 ```bash
-bun run corpus:split:ml
+# Run after corpus:analyze and corpus:split
+bun run corpus:export
 ```
 
-This generates `data/splits.json` with:
-- **Flat structure** organized by split (train/validation/test)
-- **Full file paths** from project root
-- **Dataset metadata** (document counts, split ratios, seed)
-- **Split details** with corpus information
+This creates a `datasets/` directory with:
+- **Organized structure**: Files grouped by corpus and split (train/validation/test)
+- **HuggingFace compatibility**: Ready for use with HF datasets library
+- **Metadata included**: Each corpus has its own metadata.json
+- **Split configuration**: Complete splits.json with reproducibility info
 
-**Format** (HuggingFace/Scikit-learn compatible):
+**Directory Structure**:
+```
+datasets/
+├── wright-american-fiction/
+│   ├── train/           # 2,013 TEI files
+│   ├── validation/      # 431 TEI files
+│   ├── test/            # 432 TEI files
+│   └── metadata.json    # Corpus statistics
+├── splits.json          # Split configuration
+├── summary.json         # All corpora summary
+└── README.md            # Dataset documentation
+```
+
+**Loading with Python** (HuggingFace datasets):
+```bash
+# Show dataset statistics
+uv run scripts/load-datasets.py --stats
+
+# Load specific corpus
+uv run scripts/load-datasets.py --corpus wright-american-fiction
+
+# Sample first N examples
+uv run scripts/load-datasets.py --corpus tei-texts --sample 5
+```
+
+The Python script uses inline dependency specification (requires Python >=3.10). Dependencies are automatically installed by uv.
+
+**Format** (HuggingFace compatible):
 ```json
 {
-  "dataset_info": {
-    "name": "tei-dialogue-corpus",
-    "splits": {"train": 7570, "validation": 1620, "test": 1629}
-  },
-  "splits": {
-    "train": ["corpora/wright-american-fiction/VAC5518.xml", ...],
-    "validation": [...],
-    "test": [...]
+  "version": "1.0.0",
+  "config": {"train": 0.7, "validation": 0.15, "test": 0.15, "seed": 42},
+  "corpora": {
+    "wright-american-fiction": {
+      "train": ["file1.xml", "file2.xml", ...],
+      "validation": [...],
+      "test": [...]
+    }
   }
 }
 ```
 
-**Usage Example** (Python):
-```python
-import json
-from pathlib import Path
-
-# Load splits
-with open('data/splits.json') as f:
-    data = json.load(f)
-
-# Access training files
-train_files = data['splits']['train']
-content = Path(train_files[0]).read_text()
-```
-
-See [examples/load_dataset.py](./examples/load_dataset.py) for complete examples with Pandas, scikit-learn, and HuggingFace datasets.
+See [scripts/load-datasets.py](./scripts/load-datasets.py) for usage examples and [datasets/README.md](./datasets/README.md) for complete dataset documentation.
 
 ### Integrated Corpora
 
@@ -243,9 +316,19 @@ tei-dialogue-editor/
 │   ├── context/          # React contexts
 │   ├── tei/              # TEI document handling
 │   └── validation/       # Schema validation
+├── corpora/               # TEI corpus repositories (gitignored)
+│   ├── novel-dialogism/   # Git submodule (source CSV/text data)
+│   └── {corpus-name}/     # External corpus repositories
+├── datasets/              # ML-ready exports (gitignored)
+│   ├── {corpus-name}/
+│   │   ├── train/
+│   │   ├── validation/
+│   │   └── test/
+│   └── splits.json
 ├── tests/                 # Test suites
 │   ├── unit/             # Unit tests
-│   └── integration/      # Integration tests
+│   ├── integration/      # Integration tests
+│   └── corpora/          # Corpus analysis metadata (gitignored)
 └── __tests__/            # Setup and infrastructure tests
 ```
 
