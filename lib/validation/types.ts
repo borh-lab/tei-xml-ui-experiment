@@ -74,3 +74,9 @@ export interface TextRange {
   start: number
   end: number
 }
+
+// Schema cache configuration
+export interface SchemaCacheOptions {
+  maxSize: number
+  ttl?: number
+}
