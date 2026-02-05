@@ -131,10 +131,12 @@ export class RelaxNGParser {
 
       constraints.tags[tagName] = tagConstraint
 
-      // Parse content model
+      // Parse content model (always create one, even if empty)
       const contentModel = this.parseContentModel(el)
-      if (contentModel) {
-        constraints.contentModels[tagName] = contentModel
+      constraints.contentModels[tagName] = contentModel || {
+        textOnly: false,
+        mixedContent: false,
+        allowedChildren: []
       }
     }
   }
@@ -178,7 +180,21 @@ export class RelaxNGParser {
     }
 
     // Check for text-only content
-    if (el.text) {
+    // fast-xml-parser may represent self-closing <text/> as an object or empty string
+    if (el.text !== undefined) {
+      model.textOnly = true
+      return model
+    }
+
+    // Check if element has no children (empty content model)
+    // In this case, it might be text-only by default
+    const hasContentPatterns = [
+      'mixed', 'choice', 'interleave', 'zeroOrMore', 'oneOrMore',
+      'optional', 'ref', 'element'
+    ].some(key => el[key] !== undefined)
+
+    if (!hasContentPatterns && !el.attribute) {
+      // Element with no explicit content model - assume text-only
       model.textOnly = true
       return model
     }

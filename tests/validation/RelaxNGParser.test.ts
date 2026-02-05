@@ -140,4 +140,63 @@ describe('RelaxNGParser', () => {
 
     expect(() => parser.parse(schemaXML)).toThrow('Invalid RelaxNG schema')
   })
+
+  it('should parse nested content patterns (choice, interleave)', () => {
+    const schemaXML = `
+      <grammar xmlns="http://relaxng.org/ns/structure/1.0">
+        <define name="model.div">
+          <element name="div">
+            <interleave>
+              <ref name="model.p"/>
+              <optional>
+                <ref name="model.sp"/>
+              </optional>
+            </interleave>
+          </element>
+        </define>
+      </grammar>
+    `
+
+    const parser = new RelaxNGParser()
+    const constraints = parser.parse(schemaXML)
+
+    expect(constraints.contentModels['div']).toBeDefined()
+    expect(constraints.contentModels['div'].allowedChildren).toContain('model.p')
+    expect(constraints.contentModels['div'].allowedChildren).toContain('model.sp')
+  })
+
+  it('should parse all attribute types correctly', () => {
+    const schemaXML = `
+      <grammar xmlns="http://relaxng.org/ns/structure/1.0">
+        <define name="model.test">
+          <element name="test">
+            <attribute name="idref">
+              <data type="IDREF"/>
+            </attribute>
+            <attribute name="id">
+              <data type="ID"/>
+            </attribute>
+            <attribute name="ncname">
+              <data type="NCName"/>
+            </attribute>
+            <attribute name="token">
+              <data type="token"/>
+            </attribute>
+            <attribute name="string">
+              <data type="string"/>
+            </attribute>
+          </element>
+        </define>
+      </grammar>
+    `
+
+    const parser = new RelaxNGParser()
+    const constraints = parser.parse(schemaXML)
+
+    expect(constraints.attributes['test.idref'].type).toBe('IDREF')
+    expect(constraints.attributes['test.id'].type).toBe('ID')
+    expect(constraints.attributes['test.ncname'].type).toBe('NCName')
+    expect(constraints.attributes['test.token'].type).toBe('token')
+    expect(constraints.attributes['test.string'].type).toBe('string')
+  })
 })
