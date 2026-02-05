@@ -111,8 +111,8 @@ export interface DocumentProviderProps {
 export function DocumentProvider({ children }: DocumentProviderProps) {
   const docService = useDocumentService();
 
-  // Memoize context value to prevent infinite re-renders
-  // Only depend on state values, assuming functions are stable
+  // Memoize context value to prevent unnecessary re-renders
+  // Only depend on state values, functions are assumed to be stable (created with useCallback)
   const contextValue: DocumentContextType = useMemo(() => ({
     // State
     document: docService.document,
@@ -123,7 +123,7 @@ export function DocumentProvider({ children }: DocumentProviderProps) {
     isValidating: docService.isValidating,
     error: docService.error,
 
-    // Document operations (assumed to be stable)
+    // Document operations
     loadDocument: docService.loadDocument,
     loadSample: docService.loadSample,
     updateDocument: docService.updateDocument,
@@ -141,21 +141,21 @@ export function DocumentProvider({ children }: DocumentProviderProps) {
     },
     clearDocument: docService.clearDocument,
 
-    // Tag operations (assumed to be stable)
+    // Tag operations
     addSaidTag: docService.addSaidTag,
     addQTag: docService.addQTag,
     addPersNameTag: docService.addPersNameTag,
     addTag: docService.addTag,
     removeTag: docService.removeTag,
 
-    // Character and relationship operations (assumed to be stable)
+    // Character and relationship operations
     addCharacter: docService.addCharacter,
     updateCharacter: docService.updateCharacter,
     removeCharacter: docService.removeCharacter,
     addRelationship: docService.addRelationship,
     removeRelationship: docService.removeRelationship,
 
-    // History operations (assumed to be stable)
+    // History operations
     undo: docService.undo,
     redo: docService.redo,
     getHistoryState: docService.getHistoryState,

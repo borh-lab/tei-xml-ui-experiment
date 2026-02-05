@@ -30,7 +30,6 @@ function HomeContent() {
       },
     };
 
-    console.log('[app/page] Exposing state:', state);
     (window as any).__TEI_EDITOR_STATE__ = state;
   }, [document]);
 
