@@ -3,10 +3,12 @@
  * ValidationService Implementation
  *
  * Wraps existing ValidationService with Effect for composability.
+ * Uses BrowserSchemaLoader in browser, SchemaLoader on server.
  */
 
 import { Effect, Layer } from 'effect';
 import { SchemaLoader } from '@/lib/schema/SchemaLoader';
+import { BrowserSchemaLoader } from '@/lib/schema/BrowserSchemaLoader';
 import {
   ValidationService,
   ValidationError,
@@ -16,6 +18,13 @@ import {
   AttributeDefinition,
   XmlPath,
 } from '../protocols/Validation';
+
+/**
+ * Detect if we're in a browser environment
+ */
+function isBrowser(): boolean {
+  return typeof window !== 'undefined';
+}
 
 // ============================================================================
 // Browser Implementation
@@ -28,7 +37,9 @@ export const BrowserValidationService: ValidationService = {
   ): Effect.Effect<ValidationResult, ValidationError> =>
     Effect.tryPromise({
       try: async () => {
-        const schemaLoader = new SchemaLoader();
+        // Use BrowserSchemaLoader in browser, SchemaLoader on server
+        const SchemaLoaderClass = isBrowser() ? BrowserSchemaLoader : SchemaLoader;
+        const schemaLoader = new SchemaLoaderClass();
         const result = await schemaLoader.validate(xmlContent, schemaPath);
         return {
           valid: result.valid,
@@ -92,7 +103,8 @@ export const BrowserValidationService: ValidationService = {
   preloadSchema: (schemaPath: string): Effect.Effect<void, SchemaLoadError> =>
     Effect.tryPromise({
       try: async () => {
-        const schemaLoader = new SchemaLoader();
+        const SchemaLoaderClass = isBrowser() ? BrowserSchemaLoader : SchemaLoader;
+        const schemaLoader = new SchemaLoaderClass();
         await schemaLoader.loadSchema(schemaPath);
       },
       catch: (error) =>
@@ -109,7 +121,8 @@ export const BrowserValidationService: ValidationService = {
   ): Effect.Effect<readonly TagDefinition[], SchemaLoadError> =>
     Effect.try({
       try: () => {
-        const schemaLoader = new SchemaLoader();
+        const SchemaLoaderClass = isBrowser() ? BrowserSchemaLoader : SchemaLoader;
+        const schemaLoader = new SchemaLoaderClass();
         return schemaLoader.getAllowedTags(schemaPath, context);
       },
       catch: (error) =>
@@ -126,7 +139,8 @@ export const BrowserValidationService: ValidationService = {
   ): Effect.Effect<readonly AttributeDefinition[], SchemaLoadError> =>
     Effect.try({
       try: () => {
-        const schemaLoader = new SchemaLoader();
+        const SchemaLoaderClass = isBrowser() ? BrowserSchemaLoader : SchemaLoader;
+        const schemaLoader = new SchemaLoaderClass();
         return schemaLoader.getTagAttributes(schemaPath, tagName);
       },
       catch: (error) =>
@@ -139,7 +153,9 @@ export const BrowserValidationService: ValidationService = {
 
   clearCache: (schemaPath?: string): Effect.Effect<void, never> =>
     Effect.sync(() => {
-      SchemaLoader.clearCache();
+      const SchemaLoaderClass = isBrowser() ? BrowserSchemaLoader : SchemaLoader;
+      const schemaLoader = new SchemaLoaderClass();
+      schemaLoader.clearCache();
     }),
 };
 

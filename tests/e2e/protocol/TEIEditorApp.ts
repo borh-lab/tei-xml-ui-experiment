@@ -3,12 +3,14 @@ import { StateMonitor, AppState } from './StateMonitor';
 import { SampleProtocol } from '../protocols/SampleProtocol';
 import { DocumentProtocol } from '../protocols/DocumentProtocol';
 import { TagProtocol } from '../protocols/TagProtocol';
+import { FileProtocol } from '../protocols/FileProtocol';
 
 export class TEIEditorApp {
   private monitor: StateMonitor;
   private _samples?: SampleProtocol;
   private _editor?: DocumentProtocol;
   private _tags?: TagProtocol;
+  private _files?: FileProtocol;
 
   private constructor(private _page: Page, monitor: StateMonitor) {
     this.monitor = monitor;
@@ -55,6 +57,13 @@ export class TEIEditorApp {
       this._tags = new TagProtocol(this);
     }
     return this._tags;
+  }
+
+  files(): FileProtocol {
+    if (!this._files) {
+      this._files = new FileProtocol(this);
+    }
+    return this._files;
   }
 
   page(): Page {

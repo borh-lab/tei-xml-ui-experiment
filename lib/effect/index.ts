@@ -12,8 +12,7 @@
 
 export * from './protocols/Document';
 export * from './protocols/Storage';
-// TODO: ValidationService uses server-only SchemaLoader, needs server action wrapper
-// export * from './protocols/Validation';
+export * from './protocols/Validation';
 // TODO: Fix AIService provider implementation
 // export * from './protocols/AI';
 
@@ -23,8 +22,7 @@ export * from './protocols/Storage';
 
 export * from './services/DocumentService';
 export * from './services/StorageService';
-// TODO: ValidationService uses server-only SchemaLoader, needs server action wrapper
-// export * from './services/ValidationService';
+export * from './services/ValidationService';
 // TODO: Fix AIService provider implementation
 // export * from './services/AIService';
 

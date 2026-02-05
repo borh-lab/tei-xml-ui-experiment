@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Generate Gource visualization video (WebM VP9 with legend)
+# Generate Gource visualization video (WebM VP9)
 # Usage: ./scripts/generate-gource-webm.sh
 # Note: Requires xvfb-run for headless rendering
 
@@ -20,7 +20,7 @@ CRF="18"  # Lower = better quality (18-25 is good range, 18 is high quality)
 BITRATE="4M"  # Target bitrate for VP9
 
 echo "╔═══════════════════════════════════════════════════════╗"
-echo "║  Generating Gource WebM with Legend Overlay          ║"
+echo "║  Generating Gource WebM Video                         ║"
 echo "╚═══════════════════════════════════════════════════════╝"
 echo ""
 echo "Settings:"
@@ -44,31 +44,22 @@ rm -rf "${TEMP_DIR}"
 mkdir -p "${TEMP_DIR}"
 
 echo "Step 1: Rendering Gource frames (using xvfb for headless rendering)..."
+echo "  • File extension key enabled (shows what colors mean)"
 nix run nixpkgs#xvfb-run -- \
   nix run nixpkgs#gource -- \
     --viewport "${VIEWPORT}" \
     --stop-at-time "${MAX_SECONDS}" \
     --output-framerate "${FPS}" \
+    --hide-date \
+    --key \
     -o "${TEMP_DIR}/gource.ppm" \
     .
 
 echo ""
-echo "Step 2: Encoding WebM with VP9 + Legend overlay..."
-
-# Create legend overlay using ffmpeg drawtext
-# Shows conventional commit colors at the bottom of the video
+echo "Step 2: Encoding WebM with VP9..."
 ffmpeg -y \
   -r "${FPS}" \
   -i "${TEMP_DIR}/gource.ppm" \
-  -vf "\
-    drawtext=text='feat':fontsize=24:fontcolor=white:x=50:y=50:box=1:boxcolor=0x0096FF@0.8:boxborderw=2,\
-    drawtext=text='fix':fontsize=24:fontcolor=white:x=150:y=50:box=1:boxcolor=0xFF9600@0.8:boxborderw=2,\
-    drawtext=text='docs':fontsize=24:fontcolor=white:x=250:y=50:box=1:boxcolor=0x00C832@0.8:boxborderw=2,\
-    drawtext=text='test':fontsize=24:fontcolor=white:x=370:y=50:box=1:boxcolor=0xDCDC32@0.8:boxborderw=2,\
-    drawtext=text='refactor':fontsize=24:fontcolor=white:x=490:y=50:box=1:boxcolor=0x969696@0.8:boxborderw=2,\
-    drawtext=text='perf':fontsize=24:fontcolor=white:x=630:y=50:box=1:boxcolor=0xB432C8@0.8:boxborderw=2,\
-    drawtext=text='chore':fontsize=24:fontcolor=white:x=750:y=50:box=1:boxcolor=0x646464@0.8:boxborderw=2,\
-    drawtext=text='Files colored by type - Users unique colors':fontsize=18:fontcolor=0xCCCCCC@0.9:x=50:y=h-60" \
   -c:v libvpx-vp9 \
   -b:v "${BITRATE}" \
   -crf "${CRF}" \
@@ -88,9 +79,10 @@ echo ""
 echo "File: ${OUTPUT_FILE}"
 ls -lh "${OUTPUT_FILE}" | awk '{print "Size: " $5}'
 echo ""
-echo "Legend overlay shows:"
-echo "  • Conventional commit types (colored boxes)"
-echo "  • Note: Files are colored by type, users by unique color"
+echo "Features:"
+echo "  • File extension key (built-in gource legend)"
+echo "  • No timestamp display (cleaner visual)"
+echo "  • Shows colors by file type (.ts, .xml, .md, etc.)"
 echo ""
 echo "Play with:"
 echo "  mpv \"${OUTPUT_FILE}\""
