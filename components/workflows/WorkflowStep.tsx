@@ -9,7 +9,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { EntityPicker } from './EntityPicker';
-import type { PlannedStep } from '@/lib/protocols/workflows';
+import type { PlannedStep, AvailableEntity } from '@/lib/protocols/workflows';
 import { cn } from '@/lib/utils';
 
 /**
@@ -44,13 +44,11 @@ export function WorkflowStep({
   onComplete,
   onBack,
 }: WorkflowStepProps) {
-  const [selectedEntity, setSelectedEntity] = useState<
-    ReturnType<typeof step.availableEntities> extends readonly (infer T)[] ? T : never
-  >();
+  const [selectedEntity, setSelectedEntity] = useState<AvailableEntity | undefined>();
 
   // Handle entity selection
   const handleEntitySelect = useCallback(
-    (entity: typeof step.availableEntities extends readonly (infer T)[] ? T : never) => {
+    (entity: AvailableEntity) => {
       setSelectedEntity(entity);
     },
     []

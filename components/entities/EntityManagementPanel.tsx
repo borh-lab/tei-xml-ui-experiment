@@ -11,8 +11,11 @@ import { useState } from 'react';
 import { EntityForm } from './EntityForm';
 import { EntityList } from './EntityList';
 import { EntityUsageViz } from './EntityUsageViz';
-import type { Entity, EntityType } from '@/lib/tei/types';
+import type { Entity } from '@/lib/tei/types';
 import type { EntityUsage } from './EntityUsageViz';
+
+// EntityType is a union of all entity types
+type EntityType = 'character' | 'place' | 'organization';
 
 export interface EntityManagementPanelProps {
   /** All entities */
@@ -149,31 +152,29 @@ export function EntityManagementPanel({
       )}
 
       {/* Tab Navigation */}
-      {activeTab !== 'create' && (
-        <div className="tab-navigation">
-          <button
-            className={activeTab === 'browse' ? 'active' : ''}
-            onClick={() => handleTabChange('browse')}
-            disabled={loading}
-          >
-            Browse
-          </button>
-          <button
-            className={activeTab === 'create' ? 'active' : ''}
-            onClick={() => handleTabChange('create')}
-            disabled={loading}
-          >
-            {editingEntity ? 'Edit' : 'Create'}
-          </button>
-          <button
-            className={activeTab === 'usage' ? 'active' : ''}
-            onClick={() => handleTabChange('usage')}
-            disabled={loading}
-          >
-            Usage
-          </button>
-        </div>
-      )}
+      <div className="tab-navigation">
+        <button
+          className={activeTab === 'browse' ? 'active' : ''}
+          onClick={() => handleTabChange('browse')}
+          disabled={loading}
+        >
+          Browse
+        </button>
+        <button
+          className={activeTab === 'create' ? 'active' : ''}
+          onClick={() => handleTabChange('create')}
+          disabled={loading}
+        >
+          {editingEntity ? 'Edit' : 'Create'}
+        </button>
+        <button
+          className={activeTab === 'usage' ? 'active' : ''}
+          onClick={() => handleTabChange('usage')}
+          disabled={loading}
+        >
+          Usage
+        </button>
+      </div>
 
       {/* Tab Content */}
       <div className="tab-content">

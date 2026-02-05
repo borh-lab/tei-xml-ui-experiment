@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { EditorLayout } from '@/components/editor/EditorLayout';
 import { FileUpload } from '@/components/editor/FileUpload';
 import { SampleGallery } from '@/components/samples/SampleGallery';
 
 function HomeContent() {
-  const { document, loadSample } = useDocumentService();
+  const documentService = useDocumentContext();
+  const { document } = documentService;
 
   // Expose app state for E2E tests
   useEffect(() => {
@@ -17,7 +18,7 @@ function HomeContent() {
       location: document ? 'editor' : 'gallery',
       document: document ? {
         loaded: true,
-        title: document.title || 'Untitled',
+        title: document.state?.metadata?.title || 'Untitled',
         passageCount: document.state?.passages?.length || 0,
       } : null,
       viewMode: 'wysiwyg', // Default view mode
@@ -34,7 +35,7 @@ function HomeContent() {
 
   // Show welcome screen with sample gallery when no document is loaded
   if (!document) {
-    return <SampleGallery onLoadSample={loadSample} onSelect={() => {}} />;
+    return <SampleGallery onLoadSample={documentService.loadSample} onSelect={() => {}} />;
   }
 
   // Show editor when document is loaded

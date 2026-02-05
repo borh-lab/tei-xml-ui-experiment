@@ -81,6 +81,8 @@ export function ToastWithActions({
         }
       };
     }
+    // Explicit return for type safety
+    return undefined;
   }, [autoClose, duration]);
 
   // Don't render if not visible

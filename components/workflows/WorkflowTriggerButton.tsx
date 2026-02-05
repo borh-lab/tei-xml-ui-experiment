@@ -74,6 +74,8 @@ export function WorkflowTriggerButton({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
+    // Explicit return for type safety
+    return undefined;
   }, [isOpen, handleClickOutside]);
 
   const workflows = getAllWorkflows();

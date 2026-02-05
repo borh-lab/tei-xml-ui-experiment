@@ -78,12 +78,18 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
   const [highlightedPassageId, setHighlightedPassageId] = useState<string | null>(null);
 
   // Tag queue state
-  const [queue, setQueue] = useState<TagQueue>(() => new TagQueue());
+  const queueRef = useRef<TagQueue>(new TagQueue());
+  const [queueState, setQueueState] = useState<TagQueueState>(() => queueRef.current.getState());
   const [multiTagMode, setMultiTagMode] = useState<boolean>(false);
   const [isApplyingQueue, setIsApplyingQueue] = useState<boolean>(false);
 
   // Maintain a single SelectionManager instance
   const selectionManager = useRef(new SelectionManager());
+
+  // Helper to update queue state
+  const updateQueueState = useCallback(() => {
+    setQueueState(queueRef.current.getState());
+  }, []);
 
   // Helper function to get all passage IDs from the document
   const getPassageIds = useCallback(() => {
@@ -165,27 +171,27 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
 
   // Add tag to queue
   const addToQueue = useCallback((tag: Omit<QueuedTag, 'id' | 'timestamp'>) => {
-    const id = queue.add(tag);
-    setQueue(new TagQueue(queue.getState())); // Force re-render
+    const id = queueRef.current.add(tag);
+    updateQueueState();
     return id;
-  }, [queue]);
+  }, [updateQueueState]);
 
   // Remove tag from queue
   const removeFromQueue = useCallback((id: string) => {
-    queue.remove(id);
-    setQueue(new TagQueue(queue.getState()));
-  }, [queue]);
+    queueRef.current.remove(id);
+    updateQueueState();
+  }, [updateQueueState]);
 
   // Clear queue
   const clearQueue = useCallback(() => {
-    queue.clear();
-    setQueue(new TagQueue(queue.getState()));
-  }, [queue]);
+    queueRef.current.clear();
+    updateQueueState();
+  }, [updateQueueState]);
 
   // Apply all queued tags
   const applyQueue = useCallback(async () => {
     setIsApplyingQueue(true);
-    const pending = queue.getPending();
+    const pending = queueRef.current.getPending();
 
     try {
       for (const tag of pending) {
@@ -195,17 +201,17 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
         } else {
           await addTag(tag.passageId, tag.range, tag.tagType, tag.attributes);
         }
-        queue.markApplied(tag.id);
+        queueRef.current.markApplied(tag.id);
       }
     } catch (error) {
       console.error('Failed to apply queue:', error);
       // Mark remaining as failed
-      pending.forEach(tag => queue.markFailed(tag.id, String(error)));
+      pending.forEach(tag => queueRef.current.markFailed(tag.id));
     } finally {
       setIsApplyingQueue(false);
-      setQueue(new TagQueue(queue.getState()));
+      updateQueueState();
     }
-  }, [queue, addSaidTag, addTag]);
+  }, [addSaidTag, addTag, updateQueueState]);
 
   /**
    * Show toast with action buttons for fixes
@@ -220,7 +226,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
   ): void => {
     // If no fixes, show regular toast
     if (!fixes || fixes.length === 0) {
-      showToast(message, type);
+      showToast(message, type as 'success' | 'error' | 'info');
       return;
     }
 
@@ -243,7 +249,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
         action: actions[0],
       });
     } else {
-      showToast(message, type);
+      showToast(message, type as 'success' | 'error' | 'info');
     }
   }, [showToast, executeFix]);
 
@@ -334,7 +340,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
               .map(([k, v]) => k + '="' + v + '"')
               .join(' ') + '>'
           : '<' + tag + '>';
-        showToast(`Added ${tagDisplay} to queue (${queue.size} pending)`, 'info');
+        showToast(`Added ${tagDisplay} to queue (${queueRef.current.size} pending)`, 'info');
         return;
       }
 
@@ -367,7 +373,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
         showToast('Failed to apply tag - See console for details', 'error');
       }
     },
-    [document, addSaidTag, addTag, showToast, showToastWithActions, multiTagMode, addToQueue, queue]
+    [document, addSaidTag, addTag, showToast, showToastWithActions, multiTagMode, addToQueue]
   );
 
   // Handle tag attribute updates from edit dialog
@@ -428,7 +434,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
     handleTagAttributeUpdate,
     // Tag queue
     queue: {
-      state: queue.getState(),
+      state: queueState,
       multiTagMode,
       toggleMultiTagMode,
       addToQueue,

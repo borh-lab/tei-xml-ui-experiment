@@ -9,8 +9,11 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import type { Entity, EntityType, Character, Place, Organization } from '@/lib/tei/types';
+import type { Entity, Character, Place, Organization } from '@/lib/tei/types';
 import type { EntityDelta } from '@/lib/values/EntityDelta';
+
+// EntityType is a union of all entity types
+type EntityType = 'character' | 'place' | 'organization';
 import {
   applyEntityDelta,
   getEntityById,
@@ -132,7 +135,7 @@ export function useEntities(): UseEntitiesResult {
 
       // Update state using functional update to avoid stale closure
       setState(prevState => ({
-        entities: result.data!,
+        entities: result.value,
         deltas: [...prevState.deltas, delta],
       }));
 
@@ -308,8 +311,8 @@ export function useEntities(): UseEntitiesResult {
 
       for (const delta of deltasToReplay) {
         const result = applyEntityDelta(entities, delta);
-        if (result.success && result.data) {
-          entities = result.data;
+        if (result.success) {
+          entities = result.value;
         }
       }
 
@@ -329,10 +332,10 @@ export function useEntities(): UseEntitiesResult {
       const delta = prevState.deltas[deltaPositionRef.current];
       const result = applyEntityDelta(prevState.entities, delta);
 
-      if (result.success && result.data) {
+      if (result.success) {
         deltaPositionRef.current++;
         return {
-          entities: result.data,
+          entities: result.value,
           deltas: prevState.deltas,
         };
       }

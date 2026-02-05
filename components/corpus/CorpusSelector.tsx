@@ -3,6 +3,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { CorpusId } from '@/lib/effect/protocols/CorpusDataSource';
 
 const CORPORA = [
   {
@@ -50,7 +51,7 @@ const CORPORA = [
 ];
 
 interface CorpusSelectorProps {
-  onSelectCorpus: (corpusId: string) => void;
+  onSelectCorpus: (corpusId: CorpusId) => void;
 }
 
 export function CorpusSelector({ onSelectCorpus }: CorpusSelectorProps) {

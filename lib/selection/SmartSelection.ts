@@ -784,7 +784,7 @@ export function schemaAwareSmartSelection(
     return {
       ...structuralValidation.adjustment || snapToTagBoundaries(passage, range),
       valid: false,
-      reason: structuralValidation.reason,
+      reason: structuralValidation.reason || 'Invalid selection',
     };
   }
 

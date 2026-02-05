@@ -8,8 +8,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Entity, Character, Place, Organization, EntityType } from '@/lib/tei/types';
+import type { Entity, Character, Place, Organization } from '@/lib/tei/types';
 import { generateXmlId } from '@/lib/protocols/entities';
+
+// EntityType is a union of all entity types
+export type EntityType = 'character' | 'place' | 'organization';
 
 export interface EntityFormProps {
   /** Entity type being edited */

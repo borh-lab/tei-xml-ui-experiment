@@ -7,7 +7,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import type { Entity, EntityType, Character, Place, Organization } from '@/lib/tei/types';
+import type { Entity, Character, Place, Organization } from '@/lib/tei/types';
+
+// EntityType is a union of all entity types
+type EntityType = 'character' | 'place' | 'organization';
 
 export interface EntityListProps {
   /** Entities to display */

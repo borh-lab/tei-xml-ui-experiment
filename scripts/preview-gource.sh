@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Preview Gource visualization interactively
+# Note: For remote/headless systems, use generate-gource-video.sh instead
 # Usage: ./scripts/preview-gource.sh
 # Press ESC or q to exit
 
@@ -11,6 +12,9 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 echo "╔═══════════════════════════════════════════════════════╗"
 echo "║  Gource Interactive Preview                          ║"
 echo "╚═══════════════════════════════════════════════════════╝"
+echo ""
+echo "⚠️  This requires a display. For remote systems use:"
+echo "    ./scripts/generate-gource-video.sh"
 echo ""
 echo "Controls:"
 echo "  ESC or q  - Exit"
@@ -28,10 +32,15 @@ echo ""
 echo "Starting preview..."
 echo ""
 
+# Check if we have a display
+if [ -z "${DISPLAY:-}" ]; then
+  echo "❌ No display detected. Use generate-gource-video.sh for headless systems."
+  exit 1
+fi
+
 # Run gource interactively via nix
 nix run nixpkgs#gource -- \
-  --resolution 1280x720 \
-  --framerate 30 \
+  --viewport 1280x720 \
   --auto-skip-seconds 0.5 \
   --time-scale 1.0 \
   --seconds-per-day 1.0 \

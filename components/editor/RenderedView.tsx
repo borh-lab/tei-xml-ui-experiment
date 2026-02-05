@@ -179,8 +179,7 @@ export const RenderedView = React.memo(
       if (onTextSelectionChange) {
         onTextSelectionChange(textSelection);
       }
-    }, [textSelection, onTextSelectionChange]);
-    }, [highlightedPassageId]);
+    }, [textSelection, onTextSelectionChange, highlightedPassageId]);
 
     // Handle tag click
     const handleTagClick = useCallback(

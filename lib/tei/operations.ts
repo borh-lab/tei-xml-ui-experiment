@@ -449,6 +449,8 @@ export function loadDocument(xml: string): TEIDocument {
     dialogue: extractDialogue(passages),
     characters: extractCharacters(parsed),
     relationships: extractRelationships(parsed),
+    places: [],
+    organizations: [],
   };
 
   const event: DocumentEvent = {
@@ -765,6 +767,8 @@ function loadDocumentInternal(xml: string): DocumentState {
     dialogue: extractDialogue(passages),
     characters: extractCharacters(parsed),
     relationships: extractRelationships(parsed),
+    places: [],
+    organizations: [],
   };
 }
 
@@ -867,9 +871,13 @@ function applyRelationAdded(
   state: DocumentState,
   event: Extract<DocumentEvent, { type: 'relationAdded' }>
 ): DocumentState {
+  const relation: Relationship = {
+    ...event.relation,
+    id: event.id,
+  };
   return {
     ...state,
-    relationships: [...state.relationships, event.relation],
+    relationships: [...state.relationships, relation],
     revision: event.revision,
   };
 }

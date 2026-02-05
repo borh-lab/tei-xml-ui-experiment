@@ -1,4 +1,5 @@
 import { TEIDocumentValue } from './TEIDocument';
+import type { PassageValue } from './TEIDocument';
 
 export class TEISerializer {
   static serialize(doc: TEIDocumentValue): string {

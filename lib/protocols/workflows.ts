@@ -187,7 +187,7 @@ export function planWorkflow(
   }
 
   // Prepare planned steps
-  const plannedSteps: PlannedStep[] = workflow.steps.map((step, index) => {
+  const plannedSteps: (PlannedStep | Result<never>)[] = workflow.steps.map((step, index) => {
     const nestedSelection = calculateNestedSelection(index, range);
 
     // Prepare available entities if step requires entity selection

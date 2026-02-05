@@ -48,7 +48,7 @@ export function useHints(
     );
 
     // Generate hint from validation result
-    if (validationResult.isSuccess && validationResult.value) {
+    if (validationResult.success) {
       const newHint = generateHint(validationResult.value, activeTagType);
       setHint(newHint);
     } else {

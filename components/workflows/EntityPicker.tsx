@@ -131,6 +131,8 @@ export function EntityPicker({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
+    // Explicit return for type safety
+    return undefined;
   }, [isOpen, handleClickOutside]);
 
   // Handle keyboard navigation

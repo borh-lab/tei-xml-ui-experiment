@@ -31,12 +31,21 @@ export function useBulkOperationsHandlers(
 
   // Helper to get paragraphs from document
   const getParagraphs = useCallback((): TEINode[] => {
-    if (!document) return [];
+    if (!document) {
+      const empty: TEINode[] = [];
+      return empty;
+    }
     const tei = document.state.parsed.TEI as TEINode | undefined;
     const text = tei?.text as TEINode | undefined;
     const body = text?.body as TEINode | undefined;
     const p = body?.p;
-    return Array.isArray(p) ? p : p ? [p] : [];
+    if (Array.isArray(p)) return p as TEINode[];
+    if (p) {
+      const result: TEINode[] = [p as TEINode];
+      return result;
+    }
+    const empty: TEINode[] = [];
+    return empty;
   }, [document]);
 
   const handleTagAll = useCallback(async (speakerId: string) => {
