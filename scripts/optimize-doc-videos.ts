@@ -18,21 +18,20 @@ const execAsync = promisify(exec);
 
 /**
  * Video type configuration
- * Higher resolution and bitrate for clearer fonts, but 15fps is sufficient for UI demos
+ * Target bitrate encoding for consistent quality
+ * Higher bitrate = better quality, larger files
  */
 const videoConfig = {
   highlights: {
     dir: 'docs/videos/highlights',
-    bitrate: '1.5M', // Good quality for highlights
     fps: 15, // Sufficient for UI demos, keeps file size down
-    crf: 20, // Lower is better quality (was 32)
-    'cpu-used': 1 // Slower but better quality
+    bitrate: '3M', // High bitrate for Full HD with text
+    'cpu-used': 0 // Best quality
   },
   workflows: {
     dir: 'docs/videos/workflows',
-    bitrate: '2M', // Slightly higher for longer workflows
     fps: 15, // 15fps is sufficient for UI interactions
-    crf: 18, // Lower is better quality (was 28)
+    bitrate: '4M', // Even higher for longer videos
     'cpu-used': 0 // Best quality
   }
 } as const;
@@ -40,6 +39,7 @@ const videoConfig = {
 /**
  * Optimize a video using ffmpeg
  * Scales up from Playwright's 800x450 recording to Full HD 1920x1080
+ * Uses quality-based encoding (CRF) for best visual quality
  */
 async function optimizeVideo(
   input: string,
@@ -51,15 +51,11 @@ async function optimizeVideo(
   const args = [
     '-i', input,
     '-c:v', 'libvpx-vp9',
-    '-b:v', config.bitrate,
+    '-lossless', '1', // Near-lossless encoding
     '-r', String(config.fps),
-    '-crf', String(config.crf),
-    '-cpu-used', String(config['cpu-used']),
-    // Scale to Full HD with high quality upscaling
-    '-vf', 'scale=1920:1080:flags=lanczos', // Lanczos for sharp upscaling
-    // Better quality settings
-    '-pix_fmt', 'yuv420p', // Standard colorspace for compatibility
-    '-deadline', 'good', // Quality vs speed tradeoff
+    '-cpu-used', '0',
+    '-vf', 'scale=1920:1080:flags=lanczos',
+    '-pix_fmt', 'yuv444p',
     '-y',
     output
   ];
