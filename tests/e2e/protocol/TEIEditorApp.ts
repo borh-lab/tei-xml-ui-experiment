@@ -20,7 +20,7 @@ export class TEIEditorApp {
 
     // Navigate to home and wait for initial state
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Wait for state to be initialized
     await app.waitForState({ location: 'gallery' });
