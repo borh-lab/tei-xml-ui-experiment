@@ -54,8 +54,10 @@ export interface TagApplicationResult {
 export interface TagInfo {
   readonly id: TagID;
   readonly type: string;
+  readonly tagName?: string; /** DOM tag name (e.g., 'said', 'q') */
   readonly attributes: Readonly<Record<string, string>>;
   readonly range: TextRange;
+  readonly element?: HTMLElement; /** DOM element reference (for editing) */
 }
 
 // Re-export old types for backwards compatibility during migration
