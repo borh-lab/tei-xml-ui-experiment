@@ -5,7 +5,6 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import type { TagInfo } from '@/lib/selection/types';
-import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 /**
  * TagBreadcrumb
@@ -16,7 +15,6 @@ import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 export function TagBreadcrumb() {
   const { document } = useDocumentService();
   const [selectedTag, setSelectedTag] = React.useState<TagInfo | null>(null);
-  const useEffectEditor = isFeatureEnabled('useEffectEditor');
 
   React.useEffect(() => {
     if (document) {
@@ -32,7 +30,7 @@ export function TagBreadcrumb() {
   return (
     <div className="flex items-center gap-2 text-sm">
       <Badge variant="outline" className="text-xs">
-        {useEffectEditor ? 'Effect-Based' : 'React-Based'}
+        Effect-Based
       </Badge>
       <span className="text-muted-foreground">Tag:</span>
       <span className="font-mono">{selectedTag.type}</span>

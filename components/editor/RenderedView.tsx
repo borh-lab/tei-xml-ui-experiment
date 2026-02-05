@@ -5,7 +5,6 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
-import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 interface Passage {
   id: string;
@@ -57,7 +56,6 @@ export const RenderedView = React.memo(
     selectedTag: _selectedTag,
   }: RenderedViewProps) => {
     const { document } = useDocumentService();
-    const useEffectEditor = isFeatureEnabled('useEffectEditor');
     const [passages, setPassages] = useState<Passage[]>([]);
     const [activePassageId, setActivePassageId] = useState<string | null>(null);
     const [hoveredEntity, setHoveredEntity] = useState<{
@@ -311,7 +309,7 @@ export const RenderedView = React.memo(
         {/* Feature Flag Badge */}
         <div className="px-4 py-2 border-b bg-muted/30">
           <Badge variant="outline" className="text-xs">
-            {useEffectEditor ? 'Effect-Based RenderedView' : 'React-Based RenderedView'}
+            Effect-Based RenderedView
           </Badge>
         </div>
 
