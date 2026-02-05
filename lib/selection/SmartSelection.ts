@@ -12,7 +12,10 @@
  * 5. Schema-aware - validate against TEI P5 constraints
  */
 
-import type { Passage, Tag, TextRange, Character } from '@/lib/tei/types';
+import type { Passage, Tag, TextRange, Character, TEIDocument } from '@/lib/tei/types';
+import { SchemaCache } from '@/lib/validation/SchemaCache';
+import { Validator } from '@/lib/validation/Validator';
+import type { ValidationResult, Fix } from '@/lib/validation/types';
 
 /**
  * Schema constraint definitions for TEI P5 tags
@@ -28,7 +31,38 @@ export interface SchemaConstraint {
 }
 
 /**
+ * Singleton instances for schema-driven validation
+ * Lazy initialization to avoid unnecessary overhead
+ */
+let schemaCacheInstance: SchemaCache | null = null;
+let validatorInstance: Validator | null = null;
+
+/**
+ * Get or create the SchemaCache singleton
+ */
+function getSchemaCache(): SchemaCache {
+  if (!schemaCacheInstance) {
+    schemaCacheInstance = new SchemaCache({
+      maxSize: 10, // Cache up to 10 schemas
+      ttl: 1000 * 60 * 5, // 5 minutes
+    });
+  }
+  return schemaCacheInstance;
+}
+
+/**
+ * Get or create the Validator singleton
+ */
+function getValidator(): Validator {
+  if (!validatorInstance) {
+    validatorInstance = new Validator(getSchemaCache());
+  }
+  return validatorInstance;
+}
+
+/**
  * TEI P5 schema constraints for common dialogue tags
+ * @deprecated Use the new schema-driven validator instead
  */
 export const TEI_P5_CONSTRAINTS: Record<string, SchemaConstraint> = {
   said: {
@@ -408,6 +442,9 @@ export function validateSelection(
 /**
  * Validate selection against TEI P5 schema constraints
  *
+ * Now uses the new schema-driven validator internally while maintaining
+ * backward compatibility with the existing function signature.
+ *
  * Checks if a tag can be safely applied given:
  * - Required attributes
  * - Attribute value formats
@@ -421,6 +458,97 @@ export function validateSelection(
  * @returns Schema validation result
  */
 export function validateAgainstSchema(
+  passage: Passage,
+  range: TextRange,
+  tagType: string,
+  providedAttrs: Record<string, string> = {},
+  document?: { state: { characters?: Character[] } }
+): SchemaValidationResult {
+  // Try to use the new schema-driven validator
+  try {
+    // Check if document has the required structure for the new Validator
+    const teiDoc = document as any;
+    const hasTEIHeader = teiDoc?.teiHeader !== undefined;
+    const hasText = teiDoc?.text !== undefined;
+
+    // The new Validator requires a proper TEIDocument structure
+    // If we don't have it, fall back to legacy validation
+    if (!hasTEIHeader || !hasText) {
+      return validateAgainstSchemaLegacy(passage, range, tagType, providedAttrs, document);
+    }
+
+    // Use the new Validator
+    const teiDocument = teiDoc as TEIDocument;
+    const validator = getValidator();
+    const newResult: ValidationResult = validator.validate(
+      passage,
+      range,
+      tagType,
+      providedAttrs,
+      teiDocument
+    );
+
+    // Map new ValidationResult to old SchemaValidationResult format
+    return mapValidationResult(newResult);
+  } catch (error) {
+    // If schema validation fails (e.g., schema not found, parse error),
+    // fall back to legacy constraints
+    console.warn('Schema validation failed, falling back to legacy constraints:', error);
+    return validateAgainstSchemaLegacy(passage, range, tagType, providedAttrs, document);
+  }
+}
+
+/**
+ * Map new ValidationResult format to old SchemaValidationResult format
+ * for backward compatibility
+ */
+function mapValidationResult(newResult: ValidationResult): SchemaValidationResult {
+  if (newResult.valid) {
+    return { valid: true };
+  }
+
+  const missingAttrs: string[] = [];
+  const invalidAttrs: Record<string, string> = {};
+  const suggestions: string[] = [];
+
+  // Process errors
+  for (const error of newResult.errors) {
+    if (error.type === 'missing-required-attribute' && error.attribute) {
+      missingAttrs.push(error.attribute);
+    } else if (error.type === 'invalid-idref' && error.attribute) {
+      invalidAttrs[error.attribute] = error.message;
+    } else if (error.type === 'invalid-attribute-value' && error.attribute) {
+      invalidAttrs[error.attribute] = error.message;
+    }
+  }
+
+  // Process fixes to generate suggestions
+  for (const fix of newResult.fixes) {
+    suggestions.push(fix.label);
+    if (fix.type === 'add-attribute' && fix.suggestedValues) {
+      if (fix.suggestedValues.length > 0) {
+        suggestions.push(`Suggested values: ${fix.suggestedValues.slice(0, 3).join(', ')}${fix.suggestedValues.length > 3 ? '...' : ''}`);
+      }
+    }
+  }
+
+  // Get the first error message as the reason
+  const reason = newResult.errors.length > 0 ? newResult.errors[0].message : undefined;
+
+  return {
+    valid: false,
+    reason,
+    missingAttributes: missingAttrs.length > 0 ? missingAttrs : undefined,
+    invalidAttributes: Object.keys(invalidAttrs).length > 0 ? invalidAttrs : undefined,
+    suggestions: suggestions.length > 0 ? suggestions : undefined,
+  };
+}
+
+/**
+ * Legacy validation using hardcoded TEI_P5_CONSTRAINTS
+ * @deprecated Use the new schema-driven validator instead
+ */
+function validateAgainstSchemaLegacy(
   passage: Passage,
   range: TextRange,
   tagType: string,
