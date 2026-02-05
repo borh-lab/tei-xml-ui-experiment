@@ -10,7 +10,9 @@ import type { Hint } from '@/lib/values/Hint';
 import { RealTimeHints } from '@/components/hints/RealTimeHints';
 import { useHints } from '@/hooks/useHints';
 import { useSuggestions } from '@/hooks/useSuggestions';
+import { useDocumentSummary } from '@/hooks/useDocumentSummary';
 import type { Suggestion } from '@/lib/values/Suggestion';
+import type { ValidationIssue } from '@/lib/values/ValidationSummary';
 export interface MonacoEditor {
   getModel?: () => { getLineCount: () => number } | null;
   revealLine: (line: number) => void;
@@ -69,6 +71,9 @@ export function EditorLayout() {
   // Smart tag suggestions
   const suggestions = useSuggestions(textSelection);
   const [suggestionsPanelOpen, setSuggestionsPanelOpen] = useState<boolean>(false);
+
+  // Document-wide validation summary
+  const validationSummary = useDocumentSummary(editorState.document);
 
   // Auto-open suggestions panel when there are suggestions and text is selected
   useEffect(() => {
@@ -414,6 +419,32 @@ export function EditorLayout() {
     editorUI.showToast('Fix suggestions not yet implemented', 'info');
   };
 
+  const handleValidationErrorClick = (issue: ValidationIssue) => {
+    console.log('Validation issue clicked:', issue);
+    // Navigate to the passage where the issue occurs
+    const passageId = issue.passageId;
+    editorState.setCurrentPassageId(passageId);
+    editorState.setHighlightedPassageId(passageId);
+
+    // Find the passage index and set it as active
+    const passages = editorState.getPassageIds();
+    const passageIndex = passages.indexOf(passageId);
+    if (passageIndex >= 0) {
+      editorState.setActivePassageIndex(passageIndex);
+    }
+
+    // Scroll to the passage
+    setTimeout(() => {
+      const element = globalThis.document?.getElementById(passageId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => editorState.setHighlightedPassageId(null), 3000);
+      }
+    }, 100);
+
+    editorUI.showToast(`Navigated to ${issue.code}: ${issue.message}`, 'info');
+  };
+
   if (!editorState.document) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -508,7 +539,9 @@ export function EditorLayout() {
           vizPanelOpen={editorUI.panelStates.vizPanelOpen}
           validationPanelOpen={editorUI.panelStates.validationPanelOpen}
           validationResults={editorState.validationResults}
+          validationSummary={validationSummary}
           onErrorClick={handleValidationErrorClick}
+          onValidationErrorClick={handleValidationErrorClick}
           onFixClick={handleValidationFixClick}
           queue={editorState.queue ? {
             state: editorState.queue.state,

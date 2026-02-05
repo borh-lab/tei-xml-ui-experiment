@@ -50,21 +50,32 @@ export function useDocumentSummary(document: TEIDocument | null): ValidationSumm
 export function useDocumentSummaryWithRefresh(
   document: TEIDocument | null
 ): [ValidationSummary | null, () => void] {
-  const summary = useDocumentSummary(document);
+  const [summary, setSummary] = useState<ValidationSummary | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const refresh = useCallback(() => {
+    // Force re-validation by incrementing refresh key
+    setRefreshKey(prev => prev + 1);
+  }, []);
+
+  // Update summary when document or refresh key changes
+  useEffect(() => {
+    // Skip if no document
     if (!document) {
+      setSummary(null);
       return;
     }
 
+    // Validate document (summarizeValidation is already optimized with caching)
     const result = summarizeValidation(document);
 
     if (isSuccess(result)) {
-      // Force update by setting state
-      // Note: In a real implementation, we'd use a ref or state manager
-      window.location.reload(); // Temporary - will be replaced with proper state update
+      setSummary(result.value);
+    } else {
+      console.error('Validation failed:', result.error);
+      setSummary(null);
     }
-  }, [document]);
+  }, [document, refreshKey]); // Depend on refreshKey to force re-validation
 
   return [summary, refresh];
 }
