@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { AIMode } from '@/components/ai/AIModeSwitcher';
 import { DialogueSpan } from '@/lib/ai/providers';
+import type { TEIDocument, TEINode } from '@/lib/tei/types';
 
 export interface UseAISuggestionsResult {
   aiMode: AIMode;
@@ -13,7 +14,7 @@ export interface UseAISuggestionsResult {
 }
 
 export interface UseAISuggestionsOptions {
-  document: any;
+  document: TEIDocument | null;
 }
 
 /**
@@ -55,14 +56,18 @@ export function useAISuggestions(
     async function detectDialogue() {
       if (!document || aiMode === 'manual') return;
 
-      const text = (document as any).parsed?.TEI?.text?.body?.p || '';
+      const tei = document.state.parsed.TEI as TEINode | undefined;
+      const text = tei?.text as TEINode | undefined;
+      const body = text?.body as TEINode | undefined;
+      const paragraphs = body?.p;
+      const textContent = Array.isArray(paragraphs) ? paragraphs.join(' ') : paragraphs?.['#text'] || '';
 
       // Simulate AI dialogue detection (placeholder until Task 13)
       const detectedSpans: DialogueSpan[] = [];
       const quoteRegex = /"([^"]+)"/g;
       let match;
 
-      while ((match = quoteRegex.exec(text)) !== null) {
+      while ((match = quoteRegex.exec(textContent)) !== null) {
         detectedSpans.push({
           start: match.index,
           end: match.index + match[0].length,
