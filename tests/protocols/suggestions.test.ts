@@ -2,10 +2,14 @@
  * Tests for suggestions protocol
  */
 
-import { generateSuggestions } from '@/lib/protocols/suggestions';
+import { generateSuggestions, clearSuggestionCache, getSuggestionCacheStats } from '@/lib/protocols/suggestions';
 import type { Selection } from '@/lib/values/Selection';
 
 describe('generateSuggestions protocol', () => {
+  beforeEach(() => {
+    // Clear cache before each test
+    clearSuggestionCache();
+  });
   it('should run all heuristics on selection', () => {
     const selection: Selection = {
       passageId: 'passage-1',
@@ -129,5 +133,74 @@ describe('generateSuggestions protocol', () => {
     results.forEach(result => {
       expect(result.confidence).toBeGreaterThanOrEqual(0.8);
     });
+  });
+
+  it('should cache results for identical selections', () => {
+    const selection: Selection = {
+      passageId: 'passage-1',
+      range: { start: 0, end: 30 },
+      text: '"Hello," John said.',
+      context: '"Hello," John said.',
+      timestamp: Date.now()
+    };
+
+    // First call
+    const results1 = generateSuggestions(selection);
+
+    // Check cache size
+    const stats1 = getSuggestionCacheStats();
+    expect(stats1.size).toBe(1);
+
+    // Second call with same selection
+    const results2 = generateSuggestions(selection);
+
+    // Should return same results from cache
+    expect(results2).toEqual(results1);
+
+    // Cache size should still be 1 (not incremented)
+    const stats2 = getSuggestionCacheStats();
+    expect(stats2.size).toBe(1);
+  });
+
+  it('should handle different options as different cache entries', () => {
+    const selection: Selection = {
+      passageId: 'passage-1',
+      range: { start: 0, end: 30 },
+      text: '"Hello," John said.',
+      context: '"Hello," John said.',
+      timestamp: Date.now()
+    };
+
+    // Call with different options
+    generateSuggestions(selection, { minConfidence: 0.3 });
+    generateSuggestions(selection, { minConfidence: 0.8 });
+
+    // Should have 2 cache entries
+    const stats = getSuggestionCacheStats();
+    expect(stats.size).toBe(2);
+  });
+
+  it('should clear cache when clearSuggestionCache is called', () => {
+    const selection: Selection = {
+      passageId: 'passage-1',
+      range: { start: 0, end: 30 },
+      text: '"Hello," John said.',
+      context: '"Hello," John said.',
+      timestamp: Date.now()
+    };
+
+    // Generate some suggestions
+    generateSuggestions(selection);
+
+    // Verify cache has entries
+    const stats1 = getSuggestionCacheStats();
+    expect(stats1.size).toBeGreaterThan(0);
+
+    // Clear cache
+    clearSuggestionCache();
+
+    // Verify cache is empty
+    const stats2 = getSuggestionCacheStats();
+    expect(stats2.size).toBe(0);
   });
 });
