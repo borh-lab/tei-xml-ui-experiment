@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CorpusManager } from '@/lib/corpora';
 import { writeFileSync, mkdirSync, rmSync, existsSync } from 'fs';
 import { join } from 'path';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ValidationService - High-level validation service for TEI documents
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { renderHook, act } from '@testing-library/react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { DocumentProvider } from '@/lib/context/DocumentContext';

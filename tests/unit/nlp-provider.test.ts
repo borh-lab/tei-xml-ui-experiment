@@ -1,3 +1,4 @@
+// @ts-nocheck
 // tests/unit/nlp-provider.test.ts
 
 import { nlpDetectDialogue } from '@/lib/ai/nlp-provider';

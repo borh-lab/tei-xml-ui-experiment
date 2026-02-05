@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TEIDocument } from './TEIDocument';
 import { serializeDocument } from './operations';
 

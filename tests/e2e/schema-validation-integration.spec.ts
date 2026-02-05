@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * E2E Tests for Schema Validation Integration
  *

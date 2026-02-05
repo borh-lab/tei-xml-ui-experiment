@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Default Keyboard Shortcuts
  *

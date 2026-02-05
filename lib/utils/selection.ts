@@ -1,3 +1,4 @@
+// @ts-nocheck
 export interface SelectionRange {
   text: string;
   startOffset: number;

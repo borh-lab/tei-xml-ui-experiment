@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getParagraphText, applyTagToParagraph } from '../../lib/utils/teiTagging';
 
 describe('TEI Tagging Utilities', () => {

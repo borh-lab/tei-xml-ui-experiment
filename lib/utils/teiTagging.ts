@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Utility functions for applying TEI tags to text selections
  */

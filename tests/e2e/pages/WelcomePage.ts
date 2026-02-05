@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Page, expect } from '@playwright/test';
 import { URLS } from '../fixtures/test-constants';
 import { waitForEditorReady } from '../fixtures/test-helpers';

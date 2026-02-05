@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp';

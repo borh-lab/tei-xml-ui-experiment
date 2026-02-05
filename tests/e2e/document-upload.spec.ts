@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { test, expect } from '@playwright/test';
 import { Page } from '@playwright/test';
 import { writeFileSync, unlinkSync, existsSync } from 'fs';

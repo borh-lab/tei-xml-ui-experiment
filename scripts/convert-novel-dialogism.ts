@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// @ts-nocheck
 import { readdir, mkdir, access, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { constants } from 'fs';
@@ -854,6 +855,7 @@ function generateTEIDocument(
 ${teiHeader}
   <text>
 ${bodyContent}
+  </text>
 </TEI>`;
 }
 

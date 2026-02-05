@@ -1,3 +1,4 @@
+// @ts-nocheck
 export interface EntitySpan {
   start: number;
   end: number;

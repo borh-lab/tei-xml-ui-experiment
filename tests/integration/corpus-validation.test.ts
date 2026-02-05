@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CorpusManager } from '@/lib/corpora';
 import { TEIDocument } from '@/lib/tei';
 

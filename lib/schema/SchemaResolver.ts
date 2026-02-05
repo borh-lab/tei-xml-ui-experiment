@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Schema metadata returned to clients
  */

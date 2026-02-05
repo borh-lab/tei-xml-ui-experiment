@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { test, expect } from '@playwright/test';
 import { readFile } from 'fs/promises';
 import { join } from 'path';

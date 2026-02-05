@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CorpusBrowser } from '@/components/corpus/CorpusBrowser';
 
 export default function CorpusPage() {

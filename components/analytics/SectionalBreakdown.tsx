@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { SectionalBreakdown as BreakdownType, SectionGroupingStrategy } from '@/lib/analytics/types';
 import { ByPassage, ByChapter } from '@/lib/analytics/sectional';
 

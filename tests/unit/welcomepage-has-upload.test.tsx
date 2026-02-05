@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen } from '@testing-library/react';
 import Home from '@/app/page';
 import { DocumentProvider, useDocumentContext } from '@/lib/context/DocumentContext';

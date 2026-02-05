@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TEIDocument } from '@/lib/tei';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';

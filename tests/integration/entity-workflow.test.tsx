@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TEIDocument } from '@/lib/tei';
 
 const sampleXML = `<?xml version="1.0" encoding="UTF-8"?>

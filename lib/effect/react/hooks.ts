@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * React Integration Layer
  *

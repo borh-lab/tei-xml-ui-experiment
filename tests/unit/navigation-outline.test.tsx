@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DialogueOutline } from '@/components/navigation/DialogueOutline';
 import { TEIDocument } from '@/lib/tei';

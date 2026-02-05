@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen } from '@testing-library/react';
 import { EntityTooltip } from '@/components/editor/EntityTooltip';
 

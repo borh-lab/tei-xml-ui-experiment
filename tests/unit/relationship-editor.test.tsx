@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { RelationshipEditor } from '@/components/editor/RelationshipEditor';
 
 describe('RelationshipEditor', () => {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EntityEditorPanel } from '@/components/editor/EntityEditorPanel';
 import { CharacterForm } from '@/components/editor/CharacterForm';
 

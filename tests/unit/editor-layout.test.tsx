@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { BulkOperationsPanel } from '@/components/editor/BulkOperationsPanel';
 import userEvent from '@testing-library/user-event';

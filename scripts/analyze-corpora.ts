@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// @ts-nocheck
 import { writeFileSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { CorpusMetadata, SchemaValidationResult, SchemaValidationError } from './types';

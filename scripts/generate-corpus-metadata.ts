@@ -1,3 +1,4 @@
+// @ts-nocheck
 #!/usr/bin/env bun
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';

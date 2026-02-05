@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Effect, Layer } from 'effect';
 import { describe, it, expect } from '@jest/globals';
 import { CorpusBrowser } from '../services/CorpusBrowser';

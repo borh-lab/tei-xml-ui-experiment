@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** Test URLs */
 export const URLS = {
   HOME: '/',

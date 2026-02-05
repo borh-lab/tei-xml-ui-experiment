@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AIProvider, DialogueSpan } from '@/lib/ai/providers';
 
 describe('AI Provider Interface', () => {

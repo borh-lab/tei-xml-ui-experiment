@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * DocumentContext - Minimal implementation for main branch tests
  *

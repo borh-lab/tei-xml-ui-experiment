@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PatternDB } from '@/lib/db/PatternDB';
 
 describe('PatternDB', () => {

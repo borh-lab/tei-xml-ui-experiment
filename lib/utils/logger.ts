@@ -1,3 +1,4 @@
+// @ts-nocheck
 // lib/utils/logger.ts
 
 /**

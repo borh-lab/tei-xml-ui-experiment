@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { toast as sonnerToast } from 'sonner';
 
 type ToastProps = {

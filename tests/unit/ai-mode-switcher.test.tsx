@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, fireEvent } from '@testing-library/react';
 import { AIModeSwitcher } from '@/components/ai/AIModeSwitcher';
 

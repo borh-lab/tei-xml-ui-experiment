@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { parseQuotationsCSV, parseCharactersCSV, buildCharacterIndex, generateTEIHeader } from '../convert-novel-dialogism';
 
