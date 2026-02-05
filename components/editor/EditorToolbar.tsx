@@ -37,6 +37,11 @@ export interface EditorToolbarProps {
   // Loading state
   loadingSample: boolean;
   loadingProgress: number;
+  // Tag queue
+  queue?: {
+    multiTagMode: boolean;
+    toggleMultiTagMode: () => void;
+  };
 }
 
 /**
@@ -67,6 +72,7 @@ export function EditorToolbar({
   onInsertStructuralTag,
   loadingSample,
   loadingProgress,
+  queue,
 }: EditorToolbarProps) {
   return (
     <div className="flex items-center gap-2 p-2 border-b">
@@ -109,6 +115,15 @@ export function EditorToolbar({
       )}
 
       <TagToolbar />
+      <Button
+        variant={queue?.multiTagMode ? 'default' : 'outline'}
+        size="sm"
+        onClick={queue?.toggleMultiTagMode}
+        title={queue?.multiTagMode ? 'Multi-tag mode ON - tags are queued' : 'Multi-tag mode OFF - tags applied immediately'}
+        className={queue?.multiTagMode ? 'bg-primary text-primary-foreground' : ''}
+      >
+        {queue?.multiTagMode ? '✓ Multi-Tag' : 'Multi-Tag'}
+      </Button>
       <Button
         variant={bulkPanelOpen ? 'default' : 'outline'}
         size="sm"

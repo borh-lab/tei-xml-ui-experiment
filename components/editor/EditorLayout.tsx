@@ -395,6 +395,10 @@ export function EditorLayout() {
         onInsertStructuralTag={handleInsertStructuralTag}
         loadingSample={editorState.loadingSample}
         loadingProgress={editorState.loadingProgress}
+        queue={editorState.queue ? {
+          multiTagMode: editorState.queue.multiTagMode,
+          toggleMultiTagMode: editorState.queue.toggleMultiTagMode,
+        } : undefined}
       />
 
       {/* Main Content Area */}
@@ -429,6 +433,13 @@ export function EditorLayout() {
           validationResults={editorState.validationResults}
           onErrorClick={handleValidationErrorClick}
           onFixClick={handleValidationFixClick}
+          queue={editorState.queue ? {
+            state: editorState.queue.state,
+            onApplyAll: editorState.queue.applyQueue,
+            onRemoveTag: editorState.queue.removeFromQueue,
+            onClearAll: editorState.queue.clearQueue,
+            isApplying: editorState.queue.isApplyingQueue,
+          } : undefined}
         />
       </div>
 
