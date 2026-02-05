@@ -178,7 +178,7 @@ export function useEntities(): UseEntitiesResult {
     characterData: Omit<Character, 'id' | 'xmlId'>
   ): Promise<Character> => {
     const xmlId = generateXmlId(characterData.name);
-    const id = `char-${xmlId}` as Character['id'];
+    const id = `character-${xmlId}` as Character['id'];
 
     const character: Character = {
       ...characterData,
@@ -222,7 +222,7 @@ export function useEntities(): UseEntitiesResult {
     orgData: Omit<Organization, 'id' | 'xmlId'>
   ): Promise<Organization> => {
     const xmlId = generateXmlId(orgData.name);
-    const id = `org-${xmlId}`;
+    const id = `organization-${xmlId}`;
 
     const org: Organization = {
       ...orgData,

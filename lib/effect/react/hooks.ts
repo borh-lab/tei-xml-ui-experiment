@@ -14,7 +14,7 @@
 
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { Effect } from 'effect';
 import type {
   TEIDocument,
@@ -634,7 +634,8 @@ export function useDocumentService(): UseDocumentServiceResult {
     }
   }, [updateState, validateDocument]);
 
-  return {
+  // Memoize return value to prevent infinite re-renders
+  return useMemo(() => ({
     document,
     loading,
     loadingSample,
@@ -660,7 +661,33 @@ export function useDocumentService(): UseDocumentServiceResult {
     getHistoryState,
     timeTravel,
     clearDocument,
-  };
+  }), [
+    document,
+    loading,
+    loadingSample,
+    loadingProgress,
+    validationResults,
+    isValidating,
+    error,
+    loadDocument,
+    loadSample,
+    updateDocument,
+    addSaidTag,
+    addQTag,
+    addPersNameTag,
+    addTag,
+    removeTag,
+    addCharacter,
+    updateCharacter,
+    removeCharacter,
+    addRelationship,
+    removeRelationship,
+    undo,
+    redo,
+    getHistoryState,
+    timeTravel,
+    clearDocument,
+  ]);
 }
 
 // ============================================================================
