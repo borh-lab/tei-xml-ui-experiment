@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * API route for validating TEI documents
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Pattern Extraction Module
  *

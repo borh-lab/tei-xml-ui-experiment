@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>With Namespace</title></titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p><s who="#narrator">Narrator speaks</s></p>
+      <p><s who="#character1">Character speaks</s></p>
+    </body>
+  </text>
+</TEI>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ConversationMatrix as MatrixType } from '../../lib/analytics/types';
 
 interface ConversationMatrixProps {

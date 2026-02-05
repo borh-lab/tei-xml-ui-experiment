@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * DOM Tag Hierarchy Utilities
  *

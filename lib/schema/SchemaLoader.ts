@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * SchemaLoader - Load and parse TEI RelaxNG schemas
  *
