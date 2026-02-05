@@ -42,6 +42,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      // Standard e2e tests use default webServer config
     },
     {
       name: 'doc-videos',
@@ -50,6 +51,13 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         video: 'on', // Always record videos for doc generation
         baseURL: 'http://localhost:3001', // Use port 3001
+      },
+      // Isolated server with cache cleaning to avoid Turbopack lock issues
+      webServer: {
+        command: 'rm -rf .next && bun run dev --port 3001',
+        url: 'http://localhost:3001',
+        reuseExistingServer: false, // Don't reuse - always start fresh
+        timeout: 120 * 1000,
       },
     },
   ],
