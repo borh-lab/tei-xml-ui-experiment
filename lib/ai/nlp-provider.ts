@@ -1,4 +1,3 @@
-// @ts-nocheck
 // lib/ai/nlp-provider.ts
 
 import nlp from 'compromise';

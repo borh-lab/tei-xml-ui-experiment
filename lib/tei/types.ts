@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Immutable TEI Document Types
  *
@@ -14,10 +13,16 @@
 /**
  * TEINode represents parsed XML elements
  *
- * Uses unknown instead of any for type safety.
- * Access properties with type guards or type assertions.
+ * Supports common XML node properties:
+ * - #text: Text content
+ * - @_value: Attribute value
+ * - @attrName: XML attributes
+ * - elementName: Child elements
  */
 export interface TEINode {
+  '#text'?: string;
+  '#name'?: string;
+  '@_value'?: string;
   [key: string]: unknown;
 }
 
@@ -204,6 +209,7 @@ export type DocumentEvent =
 export interface TEIDocument {
   readonly state: DocumentState;
   readonly events: readonly DocumentEvent[];
+  readonly serialize?: () => string;
 }
 
 /**

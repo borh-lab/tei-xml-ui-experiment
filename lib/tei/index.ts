@@ -1,4 +1,3 @@
-// @ts-nocheck
 // TEI document handling utilities
 // Immutable architecture with pure functions
 

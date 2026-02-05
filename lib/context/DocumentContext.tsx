@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * DocumentContext - Test helper using Effect services
  *
