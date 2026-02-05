@@ -5,17 +5,14 @@ import DOMPurify from 'dompurify';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
+import type { Tag } from '@/lib/tei/types';
 
 interface Passage {
   id: string;
   content: string;
   speaker?: string;
   confidence?: number;
-  tags?: Array<{
-    name: string;
-    range: { start: number; end: number };
-    attributes: Record<string, string>;
-  }>;
+  tags?: readonly Tag[];
 }
 
 interface EntityInfo {
@@ -95,14 +92,14 @@ export const RenderedView = React.memo(
         const after = html.substring(tag.range.end);
 
         // Build data attributes
-        const dataAttrs = [`data-tag="${(tag as any).type}"`, `data-tag-id="${(tag as any).id}"`];
+        const dataAttrs = [`data-tag="${tag.type}"`, `data-tag-id="${tag.id}"`];
 
-        if ((tag as any).type === 'said' && tag.attributes.who) {
+        if (tag.type === 'said' && tag.attributes.who) {
           dataAttrs.push(`data-who="${tag.attributes.who}"`);
         }
 
         // Style classes based on tag type
-        const tagType = (tag as any).type || 'q';
+        const tagType = tag.type || 'q';
         const tagClass = `tei-tag tei-tag-${tagType} ${
           tagType === 'said'
             ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
@@ -129,7 +126,7 @@ export const RenderedView = React.memo(
         const speaker = dialogue?.speaker || undefined;
 
         // Render content with tags
-        const content = renderPassageContent(passage as any);
+        const content = renderPassageContent({ ...passage, speaker: undefined, confidence: undefined });
 
         return {
           id: passage.id,
@@ -355,7 +352,7 @@ export const RenderedView = React.memo(
                       );
                       if (character) {
                         setHoveredEntity({
-                          entity: { ...character, type: 'character' } as any,
+                          entity: { ...character, type: 'character' },
                           position: { x: e.clientX, y: e.clientY },
                         });
                       }
