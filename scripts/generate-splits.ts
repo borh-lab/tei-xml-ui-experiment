@@ -1,5 +1,5 @@
-// @ts-nocheck
 #!/usr/bin/env bun
+// @ts-nocheck
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import type { SplitDefinition, CorpusMetadata } from './types';

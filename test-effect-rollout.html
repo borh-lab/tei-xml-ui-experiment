@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Effect Migration Test - All Features Enabled</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .feature-flag {
+      background: #f0f9ff;
+      border: 1px solid #0ea5e9;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
+    }
+    .success {
+      background: #f0fdf4;
+      border: 1px solid #22c55e;
+      color: #15803d;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+    .test-section {
+      margin: 24px 0;
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    code {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Effect Migration Rollout Test</h1>
+
+  <div class="success">
+    <strong>✅ All Effect Feature Flags Enabled!</strong>
+    <p>Redirecting to application in 2 seconds...</p>
+  </div>
+
+  <div class="test-section">
+    <h2>Enabled Feature Flags:</h2>
+    
+      <div class="feature-flag">
+        <strong>feature-useEffectAI</strong> = <code>true</code>
+      </div>
+    
+      <div class="feature-flag">
+        <strong>feature-useEffectAnalytics</strong> = <code>true</code>
+      </div>
+    
+      <div class="feature-flag">
+        <strong>feature-useEffectEditor</strong> = <code>true</code>
+      </div>
+    
+      <div class="feature-flag">
+        <strong>feature-useEffectVisualization</strong> = <code>true</code>
+      </div>
+    
+      <div class="feature-flag">
+        <strong>feature-useEffectCorpus</strong> = <code>true</code>
+      </div>
+    
+      <div class="feature-flag">
+        <strong>feature-useEffectMisc</strong> = <code>true</code>
+      </div>
+    
+  </div>
+
+  <div class="test-section">
+    <h2>Testing Checklist:</h2>
+    <ul>
+      <li>☐ Load a sample document</li>
+      <li>☐ Add <said> tags with speaker attribution</li>
+      <li>☐ Add characters and relationships</li>
+      <li>☐ View character network visualization</li>
+      <li>☐ Run document analytics</li>
+      <li>☐ Browse corpus samples</li>
+      <li>☐ Test undo/redo functionality</li>
+      <li>☐ Export document to TEI XML</li>
+    </ul>
+  </div>
+
+  <div class="test-section">
+    <h2>To Disable Features:</h2>
+    <p>Open browser console and run:</p>
+    <code>localStorage.removeItem('feature-useEffectAI')
+localStorage.removeItem('feature-useEffectAnalytics')
+localStorage.removeItem('feature-useEffectEditor')
+localStorage.removeItem('feature-useEffectVisualization')
+localStorage.removeItem('feature-useEffectCorpus')
+localStorage.removeItem('feature-useEffectMisc')</code>
+    <p>Then reload the page.</p>
+  </div>
+
+  <script>
+    // Enable all Effect feature flags
+    const featureFlags = ["feature-useEffectAI","feature-useEffectAnalytics","feature-useEffectEditor","feature-useEffectVisualization","feature-useEffectCorpus","feature-useEffectMisc"];
+    featureFlags.forEach(flag => {
+      localStorage.setItem(flag, 'true');
+    });
+
+    console.log('✅ All Effect feature flags enabled:', featureFlags);
+    console.log('📊 Current localStorage:', { ...localStorage });
+
+    // Redirect to main app after 2 seconds
+    setTimeout(() => {
+      console.log('🚀 Redirecting to application...');
+      window.location.href = '/';
+    }, 2000);
+  </script>
+</body>
+</html>

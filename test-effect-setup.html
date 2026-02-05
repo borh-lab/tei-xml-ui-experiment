@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Enable All Effect Features</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 600px;
+    }
+    h1 { color: #333; margin-top: 0; }
+    .feature { 
+      background: #f0f9ff; 
+      padding: 12px; 
+      margin: 8px 0; 
+      border-radius: 8px;
+      border-left: 4px solid #0ea5e9;
+    }
+    .success { 
+      background: #f0fdf4; 
+      color: #15803d; 
+      padding: 16px; 
+      border-radius: 8px; 
+      margin: 16px 0;
+      border-left: 4px solid #22c55e;
+    }
+    button {
+      background: #0ea5e9;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+    }
+    button:hover { background: #0284c7; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🚀 Enable Effect Features</h1>
+    
+    <div class="success">
+      <strong>✅ Ready to Test!</strong>
+      <p>All Effect migration features will be enabled.</p>
+    </div>
+
+    <div class="feature"><strong>feature-useEffectAI</strong> - AI components</div>
+    <div class="feature"><strong>feature-useEffectAnalytics</strong> - Document analytics</div>
+    <div class="feature"><strong>feature-useEffectEditor</strong> - Editor operations</div>
+    <div class="feature"><strong>feature-useEffectVisualization</strong> - Visualizations</div>
+    <div class="feature"><strong>feature-useEffectCorpus</strong> - Corpus browsing</div>
+    <div class="feature"><strong>feature-useEffectMisc</strong> - Other features</div>
+
+    <button onclick="enableAndRedirect()">
+      Enable Effect & Start Testing →
+    </button>
+
+    <p style="color: #666; font-size: 14px; margin-top: 20px;">
+      You'll be redirected to the app in 2 seconds...
+    </p>
+  </div>
+
+  <script>
+    function enableAndRedirect() {
+      const flags = [
+        'feature-useEffectAI',
+        'feature-useEffectAnalytics',
+        'feature-useEffectEditor',
+        'feature-useEffectVisualization',
+        'feature-useEffectCorpus',
+        'feature-useEffectMisc',
+      ];
+
+      flags.forEach(flag => localStorage.setItem(flag, 'true'));
+
+      console.log('✅ Effect features enabled!', flags);
+      alert('Effect features enabled! Redirecting to app...');
+      
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
+    }
+
+    // Auto-enable after 3 seconds
+    setTimeout(enableAndRedirect, 3000);
+  </script>
+</body>
+</html>

@@ -1,13 +1,13 @@
 // @ts-nocheck
 'use client';
 
-import { useDocument } from '@/lib/context/DocumentContext';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { EditorLayout } from '@/components/editor/EditorLayout';
 import { FileUpload } from '@/components/editor/FileUpload';
 import { SampleGallery } from '@/components/samples/SampleGallery';
 
 function HomeContent() {
-  const { document, loadSample } = useDocument();
+  const { document, loadSample } = useDocumentService();
 
   // Show welcome screen with sample gallery when no document is loaded
   if (!document) {

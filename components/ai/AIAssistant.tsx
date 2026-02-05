@@ -18,11 +18,6 @@ interface AIAssistantProps {
   onClose?: () => void;
 }
 
-// Feature flag for Effect integration
-const EFFECT_ENABLED = typeof window !== 'undefined'
-  ? localStorage.getItem('feature-useEffectAI') === 'true'
-  : false;
-
 export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
   const { document } = useDocumentService();
   const [suggestions, setSuggestions] = useState<readonly DialogueDetection[]>([]);
@@ -108,9 +103,7 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
           <CardTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5" />
             AI Assistant
-            {EFFECT_ENABLED && (
-              <Badge variant="secondary" className="text-xs">Effect</Badge>
-            )}
+            <Badge variant="secondary" className="text-xs">Effect</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -134,9 +127,7 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
           <CardTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5" />
             AI Assistant
-            {EFFECT_ENABLED && (
-              <Badge variant="secondary" className="text-xs">Effect</Badge>
-            )}
+            <Badge variant="secondary" className="text-xs">Effect</Badge>
           </CardTitle>
           {onClose && (
             <Button size="sm" variant="ghost" onClick={onClose}>
