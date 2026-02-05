@@ -60,7 +60,9 @@ export function useAISuggestions(
       const text = tei?.text as TEINode | undefined;
       const body = text?.body as TEINode | undefined;
       const paragraphs = body?.p;
-      const textContent = Array.isArray(paragraphs) ? paragraphs.join(' ') : paragraphs?.['#text'] || '';
+      const textContent = Array.isArray(paragraphs)
+        ? paragraphs.join(' ')
+        : (paragraphs as TEINode)?.['#text'] || '';
 
       // Simulate AI dialogue detection (placeholder until Task 13)
       const detectedSpans: DialogueSpan[] = [];

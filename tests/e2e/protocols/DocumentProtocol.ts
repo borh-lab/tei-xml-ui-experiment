@@ -1,5 +1,5 @@
-import { TEIEditorApp } from '../TEIEditorApp';
-import { AppState } from '../StateMonitor';
+import { TEIEditorApp } from '../protocol/TEIEditorApp';
+import { AppState } from '../protocol/StateMonitor';
 import { TEIDocumentValue } from '../fixtures/TEIDocument';
 import { TEISerializer } from '../fixtures/TEISerializer';
 

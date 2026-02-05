@@ -1,4 +1,4 @@
-import { TEIEditorApp } from '../TEIEditorApp';
+import { TEIEditorApp } from '../protocol/TEIEditorApp';
 
 export class TagProtocol {
   constructor(private app: TEIEditorApp) {}

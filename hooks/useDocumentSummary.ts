@@ -34,7 +34,7 @@ export function useDocumentSummary(document: TEIDocument | null): ValidationSumm
     if (isSuccess(result)) {
       setSummary(result.value);
     } else {
-      console.error('Validation failed:', result.error);
+      console.error('Validation failed:', result);
       setSummary(null);
     }
   }, [document]); // Only depend on document object reference
@@ -72,7 +72,7 @@ export function useDocumentSummaryWithRefresh(
     if (isSuccess(result)) {
       setSummary(result.value);
     } else {
-      console.error('Validation failed:', result.error);
+      console.error('Validation failed:', result);
       setSummary(null);
     }
   }, [document, refreshKey]); // Depend on refreshKey to force re-validation

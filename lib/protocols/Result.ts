@@ -35,17 +35,18 @@ export function isFailure<T>(result: Result<T>): result is { success: false; err
 
 export function map<T, U>(result: Result<T>, fn: (value: T) => U): Result<U> {
   if (isSuccess(result)) return success(fn(result.value));
-  return result;
+  return result as Result<U>;
 }
 
 export function chain<T, U>(result: Result<T>, fn: (value: T) => Result<U>): Result<U> {
   if (isSuccess(result)) return fn(result.value);
-  return result;
+  return result as Result<U>;
 }
 
 export function unwrap<T>(result: Result<T>): T {
   if (isSuccess(result)) return result.value;
-  throw new Error(`Protocol error: ${result.error.message} (${result.error.code})`);
+  if (isFailure(result)) throw new Error(`Protocol error: ${result.error.message} (${result.error.code})`);
+  throw new Error('Unreachable');
 }
 
 export function getValueOrDefault<T>(result: Result<T>, defaultValue: T): T {

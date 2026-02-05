@@ -37,12 +37,21 @@ export function EditorLayout() {
 
   // Helper to get paragraphs from document
   const getParagraphs = useCallback((): TEINode[] => {
-    if (!editorState.document) return [];
+    if (!editorState.document) {
+      const empty: TEINode[] = [];
+      return empty;
+    }
     const tei = editorState.document.state.parsed.TEI as TEINode | undefined;
     const text = tei?.text as TEINode | undefined;
     const body = text?.body as TEINode | undefined;
     const p = body?.p;
-    return Array.isArray(p) ? p : p ? [p] : [];
+    if (Array.isArray(p)) return p as TEINode[];
+    if (p) {
+      const result: TEINode[] = [p as TEINode];
+      return result;
+    }
+    const empty: TEINode[] = [];
+    return empty;
   }, [editorState.document]);
 
   // AI suggestions
@@ -438,6 +447,12 @@ export function EditorLayout() {
     editorUI.showToast(`Navigated to ${issue.code}: ${issue.message}`, 'info');
   };
 
+  // Legacy handler for old ValidationError type
+  const handleLegacyErrorClick = (error: ValidationError) => {
+    console.log('Legacy validation error clicked:', error);
+    editorUI.showToast(`Error: ${error.message}`, 'info');
+  };
+
   if (!editorState.document) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -533,7 +548,7 @@ export function EditorLayout() {
           validationPanelOpen={editorUI.panelStates.validationPanelOpen}
           validationResults={editorState.validationResults}
           validationSummary={validationSummary}
-          onErrorClick={handleValidationErrorClick}
+          onErrorClick={handleLegacyErrorClick}
           onValidationErrorClick={handleValidationErrorClick}
           onFixClick={handleValidationFixClick}
           queue={editorState.queue ? {

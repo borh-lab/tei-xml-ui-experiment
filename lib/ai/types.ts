@@ -5,8 +5,10 @@
  * Includes discriminated unions for detection states and validation results.
  */
 
-// Re-export TextRange from TEI types to avoid duplication
-export type { TextRange } from '../tei/types';
+import type { TextRange } from '@/lib/tei/types';
+
+// Re-export for convenience
+export type { TextRange };
 
 // ============================================================================
 // Speaker Pattern Types

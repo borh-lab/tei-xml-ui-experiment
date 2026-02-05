@@ -5,7 +5,7 @@
  * Returns a Selection value object or null when no selection exists.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Selection } from '@/lib/values/Selection';
 import { createSelection, extractContext } from '@/lib/values/Selection';
 import type { TextRange } from '@/lib/validation/types';
@@ -68,6 +68,7 @@ function extractRange(range: Range): TextRange | null {
  */
 export function useSelection(): Selection | null {
   const [selection, setSelection] = useState<Selection | null>(null);
+  const lastSelectionRef = useRef<Selection | null>(null);
 
   const handleSelectionChange = useCallback(() => {
     if (typeof window === 'undefined') {
@@ -76,7 +77,10 @@ export function useSelection(): Selection | null {
 
     const domSelection = window.getSelection();
     if (!domSelection || domSelection.rangeCount === 0) {
-      setSelection(null);
+      if (lastSelectionRef.current !== null) {
+        lastSelectionRef.current = null;
+        setSelection(null);
+      }
       return;
     }
 
@@ -85,7 +89,10 @@ export function useSelection(): Selection | null {
 
     // Don't capture empty selections
     if (!text || text.trim().length === 0) {
-      setSelection(null);
+      if (lastSelectionRef.current !== null) {
+        lastSelectionRef.current = null;
+        setSelection(null);
+      }
       return;
     }
 
@@ -97,7 +104,10 @@ export function useSelection(): Selection | null {
 
     if (!passageId) {
       // No passage ID found, can't create selection
-      setSelection(null);
+      if (lastSelectionRef.current !== null) {
+        lastSelectionRef.current = null;
+        setSelection(null);
+      }
       return;
     }
 
@@ -110,15 +120,31 @@ export function useSelection(): Selection | null {
     // Extract context (surrounding text)
     const context = extractContext(text, textRange);
 
-    // Create Selection value
-    const newSelection = createSelection(
-      passageId,
-      textRange,
-      text,
-      context
-    );
+    // Check if selection actually changed (excluding timestamp)
+    const lastSelection = lastSelectionRef.current;
+    const selectionChanged =
+      !lastSelection ||
+      lastSelection.passageId !== passageId ||
+      lastSelection.range.start !== textRange.start ||
+      lastSelection.range.end !== textRange.end ||
+      lastSelection.text !== text ||
+      lastSelection.context !== context;
 
-    setSelection(newSelection);
+    if (selectionChanged) {
+      // Create Selection value with stable timestamp
+      // Reuse timestamp from previous selection if values match
+      const timestamp = lastSelection?.timestamp || Date.now();
+      const newSelection = createSelection(
+        passageId,
+        textRange,
+        text,
+        context,
+        timestamp
+      );
+
+      lastSelectionRef.current = newSelection;
+      setSelection(newSelection);
+    }
   }, []);
 
   useEffect(() => {

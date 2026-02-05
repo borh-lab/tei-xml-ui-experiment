@@ -1,5 +1,5 @@
-import { TEIEditorApp } from '../TEIEditorApp';
-import { AppState } from '../StateMonitor';
+import { TEIEditorApp } from '../protocol/TEIEditorApp';
+import { AppState } from '../protocol/StateMonitor';
 
 export interface Sample {
   id: string;
@@ -56,13 +56,10 @@ export class SampleProtocol {
     console.log('State after clicking load button:', JSON.stringify(currentState, null, 2));
 
     // Wait for state transition to editor (with longer timeout)
-    const newState = await this.app.waitForState(
-      {
-        location: 'editor',
-        document: { loaded: true },
-      },
-      15000 // Increased timeout
-    );
+    const newState = await this.app.waitForState({
+      location: 'editor',
+      document: { loaded: true },
+    });
 
     return newState;
   }

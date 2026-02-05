@@ -315,11 +315,7 @@ export type RequireParams<
   T extends (...args: any[]) => any,
   P extends keyof Parameters<T>
 > = (
-  ...args: {
-    [K in keyof Parameters<T>]: K extends P
-      ? Parameters<T>[K]
-      : Parameters<T>[K] | undefined;
-  }
+  ...args: any[]
 ) => ReturnType<T>;
 
 /**
