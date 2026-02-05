@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { test, expect } from '@playwright/test';
-import { TEIEditorApp } from './protocol/TEIEditorApp';
+import { TEIEditorApp } from './TEIEditorApp';
+import { SampleProtocol } from '../protocols/SampleProtocol';
+import { DocumentProtocol } from '../protocols/DocumentProtocol';
 
 /**
  * Phase 1 Manual Verification Test

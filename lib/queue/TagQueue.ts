@@ -76,10 +76,7 @@ export class TagQueue {
     }
 
     // Create new array without the removed tag (immutable)
-    this.pending = [
-      ...this.pending.slice(0, index),
-      ...this.pending.slice(index + 1),
-    ];
+    this.pending = [...this.pending.slice(0, index), ...this.pending.slice(index + 1)];
 
     return true;
   }
@@ -128,10 +125,7 @@ export class TagQueue {
     const tag = this.pending[index];
 
     // Move from pending to applied (immutable)
-    this.pending = [
-      ...this.pending.slice(0, index),
-      ...this.pending.slice(index + 1),
-    ];
+    this.pending = [...this.pending.slice(0, index), ...this.pending.slice(index + 1)];
 
     this.applied = [...this.applied, tag];
   }
@@ -150,10 +144,7 @@ export class TagQueue {
     const tag = this.pending[index];
 
     // Move from pending to failed (immutable)
-    this.pending = [
-      ...this.pending.slice(0, index),
-      ...this.pending.slice(index + 1),
-    ];
+    this.pending = [...this.pending.slice(0, index), ...this.pending.slice(index + 1)];
 
     this.failed = [...this.failed, tag];
   }
@@ -161,12 +152,12 @@ export class TagQueue {
   /**
    * Get current queue state (immutable snapshot)
    */
-  getState(): Readonly<TagQueueState> {
-    return Object.freeze({
-      pending: Object.freeze([...this.pending]),
-      applied: Object.freeze([...this.applied]),
-      failed: Object.freeze([...this.failed]),
-    });
+  getState(): TagQueueState {
+    return {
+      pending: [...this.pending],
+      applied: [...this.applied],
+      failed: [...this.failed],
+    };
   }
 
   /**

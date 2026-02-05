@@ -5,7 +5,6 @@ import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DialogueSpan } from '@/lib/ai/providers';
-import { db } from '@/lib/db/PatternDB';
 import { extract, determinePosition } from '@/lib/learning/PatternExtractor';
 import { logger } from '@/lib/utils/logger';
 import { useStorageService } from '@/lib/effect/react/hooks';

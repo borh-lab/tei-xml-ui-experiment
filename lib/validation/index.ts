@@ -23,7 +23,8 @@
  * @default true - System is working well, defaults to enabled
  */
 export const ENABLE_SCHEMA_DRIVEN_VALIDATION: boolean =
-  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION === 'true') ||
+  (typeof process !== 'undefined' &&
+    process.env?.NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION === 'true') ||
   (typeof process !== 'undefined' && process.env?.ENABLE_SCHEMA_DRIVEN_VALIDATION === 'true') ||
   true; // Default to enabled
 
@@ -70,16 +71,16 @@ export type {
   // Tag queue
   QueuedTag,
   TagQueueState,
-} from './types'
+} from './types';
 
 // Classes
-export { RelaxNGParser } from './RelaxNGParser'
-export { SchemaCache } from './SchemaCache'
-export { Validator } from './Validator'
+export { RelaxNGParser } from './RelaxNGParser';
+export { SchemaCache } from './SchemaCache';
+export { Validator } from './Validator';
 
 // Functions
-export { detectSchemaPath } from './schemaDetection'
-export { detectEntityTypeFromAttribute, getEntities } from './EntityDetector'
+export { detectSchemaPath } from './schemaDetection';
+export { detectEntityTypeFromAttribute, getEntities } from './EntityDetector';
 
 // Tag Queue (from separate module)
-export { TagQueue } from '../queue/TagQueue'
+export { TagQueue } from '../queue/TagQueue';

@@ -5,7 +5,22 @@
  * with detailed error reporting and fix suggestions.
  */
 
-import { SchemaLoader } from '../schema/SchemaLoader';
+/**
+ * Dynamic import for SchemaLoader (server-only)
+ * Returns null in browser environment
+ */
+function getSchemaLoaderClass(): typeof import('../schema/SchemaLoader').SchemaLoader | null {
+  if (typeof window !== 'undefined') {
+    return null; // Browser environment
+  }
+
+  try {
+    const { SchemaLoader } = require('../schema/SchemaLoader');
+    return SchemaLoader;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Validation error with location and context information
@@ -62,11 +77,12 @@ export interface ValidationServiceOptions {
  * ValidationService provides high-level XML validation with detailed error reporting
  */
 export class ValidationService {
-  private schemaLoader: SchemaLoader;
+  private schemaLoader: InstanceType<ReturnType<typeof getSchemaLoaderClass>> | null;
   private options: ValidationServiceOptions;
 
   constructor(options: ValidationServiceOptions = {}) {
-    this.schemaLoader = new SchemaLoader();
+    const SchemaLoaderClass = getSchemaLoaderClass();
+    this.schemaLoader = SchemaLoaderClass ? new SchemaLoaderClass() : null;
     this.options = {
       enableSuggestions: true,
       maxErrors: 100,
@@ -96,6 +112,19 @@ export class ValidationService {
       };
     }
 
+    if (!this.schemaLoader) {
+      return {
+        valid: false,
+        errors: [
+          {
+            message: 'SchemaLoader is not available in this environment',
+            severity: 'error',
+          },
+        ],
+        warnings: [],
+      };
+    }
+
     try {
       // Use SchemaLoader to validate
       const schemaResult = await this.schemaLoader.validate(xmlContent, effectiveSchemaPath);
@@ -116,7 +145,7 @@ export class ValidationService {
 
       // Generate fix suggestions if enabled
       const suggestions = this.options.enableSuggestions
-        ? this.generateSuggestions(limitedErrors, xmlContent, effectiveSchemaPath)
+        ? this.generateSuggestions(limitedErrors)
         : [];
 
       return {
@@ -159,6 +188,9 @@ export class ValidationService {
    * Clear the schema cache
    */
   clearCache(): void {
+    if (!this.schemaLoader) {
+      throw new Error('SchemaLoader is not available in this environment');
+    }
     this.schemaLoader.clearCache();
   }
 
@@ -168,6 +200,9 @@ export class ValidationService {
    * @returns True if schema is in cache
    */
   hasSchema(schemaPath: string): boolean {
+    if (!this.schemaLoader) {
+      return false;
+    }
     return this.schemaLoader.hasSchema(schemaPath);
   }
 
@@ -176,6 +211,9 @@ export class ValidationService {
    * @param schemaPath - Path to the schema file
    */
   async preloadSchema(schemaPath: string): Promise<void> {
+    if (!this.schemaLoader) {
+      throw new Error('SchemaLoader is not available in this environment');
+    }
     await this.schemaLoader.loadSchema(schemaPath);
   }
 
@@ -186,15 +224,11 @@ export class ValidationService {
    * @param schemaPath - Path to schema file
    * @returns Array of fix suggestions
    */
-  private generateSuggestions(
-    errors: ValidationError[],
-    xmlContent: string,
-    schemaPath: string
-  ): FixSuggestion[] {
+  private generateSuggestions(errors: ValidationError[]): FixSuggestion[] {
     const suggestions: FixSuggestion[] = [];
 
     for (const error of errors) {
-      const suggestion = this.createSuggestionForError(error, xmlContent, schemaPath);
+      const suggestion = this.createSuggestionForError(error);
       if (suggestion) {
         suggestions.push(suggestion);
       }
@@ -249,9 +283,7 @@ export class ValidationService {
    * @param schemaPath - Path to schema file
    * @returns Fix suggestion or null
    */
-  private createSuggestionForError(
-    error: ValidationError
-  ): FixSuggestion | null {
+  private createSuggestionForError(error: ValidationError): FixSuggestion | null {
     const message = error.message.toLowerCase();
 
     // Unknown element error
