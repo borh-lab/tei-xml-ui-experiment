@@ -66,7 +66,7 @@ export class StateMonitor {
   }
 
   async waitFor(matcher: Partial<AppState>, timeout = 5000): Promise<AppState> {
-    const state = await this.page.waitForFunction(
+    await this.page.waitForFunction(
       (expected) => {
         const actual = (window as any).__TEI_EDITOR_STATE__;
         if (!actual) return false;
@@ -117,8 +117,11 @@ export class StateMonitor {
       { timeout }
     );
 
-    const result = await state.jsonValue();
-    return result as unknown as AppState;
+    // Fetch the actual state after the condition is met
+    const result = await this.page.evaluate(() => {
+      return (window as any).__TEI_EDITOR_STATE__;
+    });
+    return result as AppState;
   }
 
   async onChange(callback: (state: AppState) => void): Promise<void> {

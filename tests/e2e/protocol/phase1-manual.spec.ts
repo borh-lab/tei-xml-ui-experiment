@@ -61,11 +61,8 @@ test.describe('Phase 1: Protocol Verification', () => {
     const samples = await app.samples().list();
     const firstSample = samples[0];
 
-    console.log('Loading sample:', firstSample);
-
     // Load first sample
     const newState = await app.samples().load(firstSample.id);
-    console.log('State after load:', JSON.stringify(newState, null, 2));
 
     // Verify state transition
     expect(newState.location).toBe('editor');
