@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
@@ -114,8 +113,7 @@ export const RenderedView = React.memo(
                 : 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200'
         }`;
 
-        const escapedSelected = escapeHtml(selected);
-        html = `${before}<span ${dataAttrs.join(' ')} class="${tagClass}">${escapedSelected}</span>${after}`;
+        html = `${before}<span ${dataAttrs.join(' ')} class="${tagClass}">${selected}</span>${after}`;
       });
 
       return html;
