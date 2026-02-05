@@ -419,6 +419,31 @@ All corpora use 70/15/15 train/val/test split with seeded randomness (seed=42) f
 
 ---
 
+## Schema Validation
+
+All TEI corpora are validated against TEI RelaxNG schemas during analysis:
+
+**Validation Strategy:**
+- Progressive fallback: tei-all.rng → tei-novel.rng → tei-minimal.rng
+- Files are included even if they fail all schema validation
+- Validation compliance percentage reported in metadata
+
+**Schema Compliance Results:**
+- Wright American Fiction: 100% compliance (2,876/2,876 pass tei-novel)
+- Victorian Women Writers: 100% compliance (199/199 pass tei-novel)
+- Brevier Legislative: 100% compliance (19/19 pass tei-novel)
+- TEI Texts: 100% compliance (14/14 pass tei-novel)
+- Indiana Magazine of History: 0% compliance (uses TEI P4 format)
+- Indiana Authors and Books: 0% compliance (uses TEI P4 format)
+- Novel Dialogism: 0% compliance (XML well-formedness issues)
+
+**Schemas Used:**
+- `tei-all.rng` - Full TEI P5 schema (612KB)
+- `tei-novel.rng` - Optimized for prose fiction (3KB)
+- `tei-minimal.rng` - Core dialogue elements (2.5KB)
+
+---
+
 ## Related Documentation
 
 - [Corpus Browsing Feature](./corpus-browsing.md) - How to browse corpora in the UI
