@@ -9,23 +9,17 @@
  * Generates actionable fixes for validation errors.
  */
 
-import { SchemaCache } from './SchemaCache'
-import { detectSchemaPath } from './schemaDetection'
-import { detectEntityTypeFromAttribute, getEntities } from './EntityDetector'
-import type {
-  ValidationResult,
-  ValidationError,
-  Fix,
-  ParsedConstraints,
-  TextRange
-} from './types'
-import type { TEIDocument, Passage } from '@/lib/tei/types'
+import { SchemaCache } from './SchemaCache';
+import { detectSchemaPath } from './schemaDetection';
+import { detectEntityTypeFromAttribute, getEntities } from './EntityDetector';
+import type { ValidationResult, ValidationError, Fix, ParsedConstraints, TextRange } from './types';
+import type { TEIDocument, Passage } from '@/lib/tei/types';
 
 export class Validator {
-  private schemaCache: SchemaCache
+  private schemaCache: SchemaCache;
 
   constructor(schemaCache: SchemaCache) {
-    this.schemaCache = schemaCache
+    this.schemaCache = schemaCache;
   }
 
   /**
@@ -45,27 +39,27 @@ export class Validator {
     attributes: Record<string, string>,
     document: TEIDocument
   ): ValidationResult {
-    const errors: ValidationError[] = []
-    const warnings: string[] = []
-    const fixes: Fix[] = []
+    const errors: ValidationError[] = [];
+    const warnings: string[] = [];
+    const fixes: Fix[] = [];
 
     // Get schema constraints
-    const schemaPath = detectSchemaPath(document)
-    let constraints: ParsedConstraints | null = null
+    const schemaPath = detectSchemaPath();
+    let constraints: ParsedConstraints | null = null;
 
     try {
-      constraints = this.schemaCache.get(schemaPath)
+      constraints = this.schemaCache.get(schemaPath);
     } catch (error) {
       // If schema parsing fails, we can't validate
-      console.warn('Failed to load schema:', error)
-      return { valid: true, errors: [], warnings: [], fixes: [] }
+      console.warn('Failed to load schema:', error);
+      return { valid: true, errors: [], warnings: [], fixes: [] };
     }
 
     // Get tag constraints
-    const tagConstraint = constraints.tags[tagName]
+    const tagConstraint = constraints.tags[tagName];
     if (!tagConstraint) {
       // Unknown tag - can't validate
-      return { valid: true, errors: [], warnings: [], fixes: [] }
+      return { valid: true, errors: [], warnings: [], fixes: [] };
     }
 
     // Check required attributes
@@ -78,7 +72,7 @@ export class Validator {
       range,
       errors,
       fixes
-    )
+    );
 
     // Check attribute types (IDREF validation)
     this.checkAttributeTypes(
@@ -90,14 +84,14 @@ export class Validator {
       range,
       errors,
       fixes
-    )
+    );
 
     return {
       valid: errors.length === 0,
       errors,
-      warnings: warnings.map(w => ({ type: 'warning', message: w })),
-      fixes
-    }
+      warnings: warnings.map((w) => ({ type: 'warning', message: w })),
+      fixes,
+    };
   }
 
   /**
@@ -108,8 +102,8 @@ export class Validator {
     attributes: Record<string, string>,
     requiredAttributes: string[],
     document: TEIDocument,
-    passage: Passage,
-    range: TextRange,
+    _passage: Passage,
+    _range: TextRange,
     errors: ValidationError[],
     fixes: Fix[]
   ): void {
@@ -119,18 +113,12 @@ export class Validator {
         errors.push({
           type: 'missing-required-attribute',
           attribute: attrName,
-          message: `Required attribute '${attrName}' is missing`
-        })
+          message: `Required attribute '${attrName}' is missing`,
+        });
 
         // Generate fixes
-        const attrFixes = this.generateFixesForMissingAttribute(
-          tagName,
-          attrName,
-          document,
-          passage,
-          range
-        )
-        fixes.push(...attrFixes)
+        const attrFixes = this.generateFixesForMissingAttribute(tagName, attrName, document);
+        fixes.push(...attrFixes);
       }
     }
   }
@@ -141,36 +129,34 @@ export class Validator {
   private generateFixesForMissingAttribute(
     tagName: string,
     attrName: string,
-    document: TEIDocument,
-    _passage: Passage,
-    _range: TextRange
+    document: TEIDocument
   ): Fix[] {
-    const fixes: Fix[] = []
+    const fixes: Fix[] = [];
 
     // Check if this is an IDREF attribute
-    const entityType = detectEntityTypeFromAttribute(tagName, attrName)
-    const entities = getEntities(document, entityType)
+    const entityType = detectEntityTypeFromAttribute(tagName, attrName);
+    const entities = getEntities(document, entityType);
 
     // If we have entities, suggest them
     if (entities.length > 0) {
       fixes.push({
         type: 'add-attribute',
         attribute: attrName,
-        suggestedValues: entities.map(e => e.id),
+        suggestedValues: entities.map((e) => e.id),
         entityType,
-        label: `Add @${attrName} with existing ${entityType}`
-      })
+        label: `Add @${attrName} with existing ${entityType}`,
+      });
     } else {
       // No entities exist, suggest creating one
       fixes.push({
         type: 'create-entity',
         entityType,
         attribute: attrName,
-        label: `Create new ${entityType} for @${attrName}`
-      })
+        label: `Create new ${entityType} for @${attrName}`,
+      });
     }
 
-    return fixes
+    return fixes;
   }
 
   /**
@@ -187,25 +173,16 @@ export class Validator {
     fixes: Fix[]
   ): void {
     for (const [attrName, attrValue] of Object.entries(attributes)) {
-      const attrKey = `${tagName}.${attrName}`
-      const attrConstraint = constraints.attributes[attrKey]
+      const attrKey = `${tagName}.${attrName}`;
+      const attrConstraint = constraints.attributes[attrKey];
 
       if (!attrConstraint) {
-        continue
+        continue;
       }
 
       // Check IDREF attributes
       if (attrConstraint.type === 'IDREF') {
-        this.validateIDREF(
-          tagName,
-          attrName,
-          attrValue,
-          document,
-          passage,
-          range,
-          errors,
-          fixes
-        )
+        this.validateIDREF(tagName, attrName, attrValue, document, passage, range, errors, fixes);
       }
 
       // Check enumerated values
@@ -215,16 +192,17 @@ export class Validator {
             type: 'invalid-attribute-value',
             attribute: attrName,
             value: attrValue,
-            message: `Invalid value '${attrValue}' for attribute '${attrName}'. ` +
-              `Allowed values: ${attrConstraint.allowedValues.join(', ')}`
-          })
+            message:
+              `Invalid value '${attrValue}' for attribute '${attrName}'. ` +
+              `Allowed values: ${attrConstraint.allowedValues.join(', ')}`,
+          });
 
           fixes.push({
             type: 'change-attribute',
             attribute: attrName,
             suggestedValues: attrConstraint.allowedValues,
-            label: `Change @${attrName} to valid value`
-          })
+            label: `Change @${attrName} to valid value`,
+          });
         }
       }
     }
@@ -244,45 +222,43 @@ export class Validator {
     fixes: Fix[]
   ): void {
     // Strip leading '#' if present
-    const referenceId = attrValue.startsWith('#')
-      ? attrValue.substring(1)
-      : attrValue
+    const referenceId = attrValue.startsWith('#') ? attrValue.substring(1) : attrValue;
 
     // Detect entity type
-    const entityType = detectEntityTypeFromAttribute(tagName, attrName)
-    const entities = getEntities(_document, entityType)
+    const entityType = detectEntityTypeFromAttribute(tagName, attrName);
+    const entities = getEntities(_document, entityType);
 
     // Check if referenced entity exists
-    const exists = entities.some(e => {
+    const exists = entities.some((e) => {
       // Check both id and xmlId
-      return e.id === referenceId || ('xmlId' in e && e.xmlId === referenceId)
-    })
+      return e.id === referenceId || ('xmlId' in e && e.xmlId === referenceId);
+    });
 
     if (!exists) {
       errors.push({
         type: 'invalid-idref',
         attribute: attrName,
         value: attrValue,
-        message: `Referenced ${entityType} '${attrValue}' not found`
-      })
+        message: `Referenced ${entityType} '${attrValue}' not found`,
+      });
 
       // Suggest existing entities
       if (entities.length > 0) {
         fixes.push({
           type: 'change-attribute',
           attribute: attrName,
-          suggestedValues: entities.map(e => `#${e.id}`),
+          suggestedValues: entities.map((e) => `#${e.id}`),
           entityType,
-          label: `Change @${attrName} to existing ${entityType}`
-        })
+          label: `Change @${attrName} to existing ${entityType}`,
+        });
       } else {
         // Suggest creating new entity
         fixes.push({
           type: 'create-entity',
           entityType,
           attribute: attrName,
-          label: `Create new ${entityType} for @${attrName}`
-        })
+          label: `Create new ${entityType} for @${attrName}`,
+        });
       }
     }
   }

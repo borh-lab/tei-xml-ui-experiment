@@ -1,8 +1,8 @@
-import { LRUCache } from 'lru-cache'
-import { RelaxNGParser } from './RelaxNGParser'
-import type { ParsedConstraints, SchemaCacheOptions } from './types'
+import { LRUCache } from 'lru-cache';
+import { RelaxNGParser } from './RelaxNGParser';
+import type { ParsedConstraints, SchemaCacheOptions } from './types';
 
-type FileReader = (path: string, encoding: string) => string
+type FileReader = (path: string, encoding: string) => string;
 
 /**
  * LRU cache for parsed RelaxNG schemas to avoid re-parsing on every validation.
@@ -13,17 +13,17 @@ type FileReader = (path: string, encoding: string) => string
  * used in client-side code.
  */
 export class SchemaCache {
-  private cache: LRUCache<string, ParsedConstraints>
-  private parser: RelaxNGParser
-  private readFile: FileReader | null
+  private cache: LRUCache<string, ParsedConstraints>;
+  private parser: RelaxNGParser;
+  private readFile: FileReader | null;
 
   constructor(options: SchemaCacheOptions, fileReader?: FileReader) {
     this.cache = new LRUCache<string, ParsedConstraints>({
       max: options.maxSize,
       ttl: options.ttl,
-    })
-    this.parser = new RelaxNGParser()
-    this.readFile = fileReader || null
+    });
+    this.parser = new RelaxNGParser();
+    this.readFile = fileReader || null;
   }
 
   /**
@@ -35,23 +35,23 @@ export class SchemaCache {
    */
   get(schemaPath: string): ParsedConstraints {
     // Check cache first
-    const cached = this.cache.get(schemaPath)
+    const cached = this.cache.get(schemaPath);
     if (cached) {
-      return cached
+      return cached;
     }
 
     if (!this.readFile) {
-      throw new Error('SchemaCache: fileReader not provided. Cannot read schema file.')
+      throw new Error('SchemaCache: fileReader not provided. Cannot read schema file.');
     }
 
     // Read and parse schema file
-    const schemaContent = this.readFile(schemaPath, 'utf-8')
-    const parsed = this.parser.parse(schemaContent)
+    const schemaContent = this.readFile(schemaPath, 'utf-8');
+    const parsed = this.parser.parse(schemaContent);
 
     // Cache the result
-    this.cache.set(schemaPath, parsed)
+    this.cache.set(schemaPath, parsed);
 
-    return parsed
+    return parsed;
   }
 
   /**
@@ -62,7 +62,7 @@ export class SchemaCache {
   getStats(): { size: number } {
     return {
       size: this.cache.size,
-    }
+    };
   }
 
   /**
@@ -70,6 +70,6 @@ export class SchemaCache {
    * Useful for testing or forcing re-parsing.
    */
   clear(): void {
-    this.cache.clear()
+    this.cache.clear();
   }
 }

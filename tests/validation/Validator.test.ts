@@ -1,7 +1,7 @@
-import { describe, it, expect } from '@jest/globals'
-import { Validator } from '@/lib/validation/Validator'
-import { SchemaCache } from '@/lib/validation/SchemaCache'
-import type { TEIDocument, Passage } from '@/lib/tei/types'
+import { describe, it, expect } from '@jest/globals';
+import { Validator } from '@/lib/validation/Validator';
+import { SchemaCache } from '@/lib/validation/SchemaCache';
+import type { TEIDocument, Passage } from '@/lib/tei/types';
 
 // Mock RelaxNG schema for testing
 const mockSchemaXML = `
@@ -16,15 +16,15 @@ const mockSchemaXML = `
     </element>
   </define>
 </grammar>
-`
+`;
 
 // Mock file reader that returns test schema
-const mockFileReader = (path: string, _encoding: string) => {
+const mockFileReader = (path: string) => {
   if (path.includes('tei-all.rng') || path.includes('tei-novel.rng')) {
-    return mockSchemaXML
+    return mockSchemaXML;
   }
-  throw new Error(`File not found: ${path}`)
-}
+  throw new Error(`File not found: ${path}`);
+};
 
 describe('Validator', () => {
   it('should validate required attributes', () => {
@@ -32,7 +32,7 @@ describe('Validator', () => {
       id: 'passage-1',
       content: 'John said hello',
       tags: [],
-    }
+    };
 
     const document: TEIDocument = {
       state: {
@@ -41,31 +41,31 @@ describe('Validator', () => {
         passages: [passage],
         revision: 0,
       },
-      events: []
-    }
+      events: [],
+    };
 
-    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader)
-    const validator = new Validator(schemaCache)
+    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader);
+    const validator = new Validator(schemaCache);
 
     const result = validator.validate(
       passage,
       { start: 0, end: 4 },
       'said',
-      {},  // No attributes provided
+      {}, // No attributes provided
       document
-    )
+    );
 
-    expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.message.includes('Required'))).toBe(true)
-    expect(result.fixes.length).toBeGreaterThan(0)
-  })
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.message.includes('Required'))).toBe(true);
+    expect(result.fixes.length).toBeGreaterThan(0);
+  });
 
   it('should validate IDREF references', () => {
     const passage: Passage = {
       id: 'passage-1',
       content: 'John said hello',
       tags: [],
-    }
+    };
 
     const document: TEIDocument = {
       state: {
@@ -74,31 +74,31 @@ describe('Validator', () => {
         passages: [passage],
         revision: 0,
       },
-      events: []
-    }
+      events: [],
+    };
 
-    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader)
-    const validator = new Validator(schemaCache)
+    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader);
+    const validator = new Validator(schemaCache);
 
     const result = validator.validate(
       passage,
       { start: 0, end: 4 },
       'said',
-      { who: '#nonexistent' },  // Invalid reference
+      { who: '#nonexistent' }, // Invalid reference
       document
-    )
+    );
 
-    expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.message.includes('not found'))).toBe(true)
-    expect(result.fixes.length).toBeGreaterThan(0)
-  })
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.message.includes('not found'))).toBe(true);
+    expect(result.fixes.length).toBeGreaterThan(0);
+  });
 
   it('should pass validation with valid attributes', () => {
     const passage: Passage = {
       id: 'passage-1',
       content: 'John said hello',
       tags: [],
-    }
+    };
 
     const document: TEIDocument = {
       state: {
@@ -107,30 +107,30 @@ describe('Validator', () => {
         passages: [passage],
         revision: 0,
       },
-      events: []
-    }
+      events: [],
+    };
 
-    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader)
-    const validator = new Validator(schemaCache)
+    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader);
+    const validator = new Validator(schemaCache);
 
     const result = validator.validate(
       passage,
       { start: 0, end: 4 },
       'said',
-      { who: '#char-1' },  // Valid reference
+      { who: '#char-1' }, // Valid reference
       document
-    )
+    );
 
-    expect(result.valid).toBe(true)
-    expect(result.errors).toHaveLength(0)
-  })
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
 
   it('should generate fixes with suggested entity values', () => {
     const passage: Passage = {
       id: 'passage-1',
       content: 'John said hello',
       tags: [],
-    }
+    };
 
     const document: TEIDocument = {
       state: {
@@ -142,32 +142,32 @@ describe('Validator', () => {
         passages: [passage],
         revision: 0,
       },
-      events: []
-    }
+      events: [],
+    };
 
-    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader)
-    const validator = new Validator(schemaCache)
+    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader);
+    const validator = new Validator(schemaCache);
 
     const result = validator.validate(
       passage,
       { start: 0, end: 4 },
       'said',
-      {},  // Missing required attribute
+      {}, // Missing required attribute
       document
-    )
+    );
 
-    expect(result.fixes.length).toBeGreaterThan(0)
-    const addAttrFix = result.fixes.find(f => f.type === 'add-attribute')
-    expect(addAttrFix).toBeDefined()
-    expect(addAttrFix?.suggestedValues).toEqual(['char-1', 'char-2'])
-  })
+    expect(result.fixes.length).toBeGreaterThan(0);
+    const addAttrFix = result.fixes.find((f) => f.type === 'add-attribute');
+    expect(addAttrFix).toBeDefined();
+    expect(addAttrFix?.suggestedValues).toEqual(['char-1', 'char-2']);
+  });
 
   it('should suggest creating entity when no entities exist', () => {
     const passage: Passage = {
       id: 'passage-1',
       content: 'Someone said hello',
       tags: [],
-    }
+    };
 
     const document: TEIDocument = {
       state: {
@@ -176,23 +176,23 @@ describe('Validator', () => {
         passages: [passage],
         revision: 0,
       },
-      events: []
-    }
+      events: [],
+    };
 
-    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader)
-    const validator = new Validator(schemaCache)
+    const schemaCache = new SchemaCache({ maxSize: 10 }, mockFileReader);
+    const validator = new Validator(schemaCache);
 
     const result = validator.validate(
       passage,
       { start: 0, end: 7 },
       'said',
-      {},  // Missing required attribute
+      {}, // Missing required attribute
       document
-    )
+    );
 
-    expect(result.fixes.length).toBeGreaterThan(0)
-    const createEntityFix = result.fixes.find(f => f.type === 'create-entity')
-    expect(createEntityFix).toBeDefined()
-    expect(createEntityFix?.entityType).toBe('character')
-  })
-})
+    expect(result.fixes.length).toBeGreaterThan(0);
+    const createEntityFix = result.fixes.find((f) => f.type === 'create-entity');
+    expect(createEntityFix).toBeDefined();
+    expect(createEntityFix?.entityType).toBe('character');
+  });
+});

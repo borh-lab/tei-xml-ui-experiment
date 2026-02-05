@@ -101,15 +101,11 @@ export function TagQueuePanel({
               <div key={tag.id} className="tag-queue-item">
                 <div className="tag-queue-item__main">
                   <div className="tag-queue-item__type">{tag.tagType}</div>
-                  <div className="tag-queue-item__attrs">
-                    {formatAttributes(tag.attributes)}
-                  </div>
+                  <div className="tag-queue-item__attrs">{formatAttributes(tag.attributes)}</div>
                 </div>
                 <div className="tag-queue-item__meta">
                   <span className="tag-queue-item__passage">{tag.passageId}</span>
-                  <span className="tag-queue-item__range">
-                    {formatRange(tag.range)}
-                  </span>
+                  <span className="tag-queue-item__range">{formatRange(tag.range)}</span>
                 </div>
                 <button
                   onClick={() => onRemoveTag(tag.id)}

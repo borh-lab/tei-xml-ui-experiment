@@ -1,8 +1,8 @@
 import { Page } from '@playwright/test';
 import { StateMonitor, AppState } from './StateMonitor';
-import { SampleProtocol } from './protocols/SampleProtocol';
-import { DocumentProtocol } from './protocols/DocumentProtocol';
-import { TagProtocol } from './protocols/TagProtocol';
+import { SampleProtocol } from '../protocols/SampleProtocol';
+import { DocumentProtocol } from '../protocols/DocumentProtocol';
+import { TagProtocol } from '../protocols/TagProtocol';
 
 export class TEIEditorApp {
   private monitor: StateMonitor;
@@ -10,7 +10,7 @@ export class TEIEditorApp {
   private _editor?: DocumentProtocol;
   private _tags?: TagProtocol;
 
-  private constructor(private page: Page, monitor: StateMonitor) {
+  private constructor(private _page: Page, monitor: StateMonitor) {
     this.monitor = monitor;
   }
 
@@ -58,6 +58,6 @@ export class TEIEditorApp {
   }
 
   page(): Page {
-    return this.page;
+    return this._page;
   }
 }

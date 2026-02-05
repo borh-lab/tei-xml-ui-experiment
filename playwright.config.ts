@@ -50,17 +50,10 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         video: 'on', // Always record videos for doc generation
-        baseURL: 'http://localhost:3001', // Use port 3001
         viewport: { width: 800, height: 450 }, // Match Playwright's native recording size
         deviceScaleFactor: 1,
       },
-      // Isolated server with cache cleaning to avoid Turbopack lock issues
-      webServer: {
-        command: 'PORT=3001 bun run dev',
-        url: 'http://localhost:3001',
-        reuseExistingServer: false, // Don't reuse - always start fresh
-        timeout: 120 * 1000,
-      },
+      // Use default webServer (port 3000) - don't start separate server
     },
   ],
 

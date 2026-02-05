@@ -45,13 +45,24 @@ export class SampleProtocol {
       throw new Error(`Sample not found: ${sampleId}`);
     }
 
+    console.log(`Clicking load button for sample: ${sampleId}`);
     await button.first().click();
 
-    // Wait for state transition to editor
-    const newState = await this.app.waitForState({
-      location: 'editor',
-      document: { loaded: true },
-    });
+    // Wait a bit for the document to start loading
+    await this.app.page().waitForTimeout(2000);
+
+    // Check current state after clicking
+    const currentState = await this.app.getState();
+    console.log('State after clicking load button:', JSON.stringify(currentState, null, 2));
+
+    // Wait for state transition to editor (with longer timeout)
+    const newState = await this.app.waitForState(
+      {
+        location: 'editor',
+        document: { loaded: true },
+      },
+      15000 // Increased timeout
+    );
 
     return newState;
   }

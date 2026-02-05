@@ -69,7 +69,49 @@ export class StateMonitor {
     const state = await this.page.waitForFunction(
       (expected) => {
         const actual = (window as any).__TEI_EDITOR_STATE__;
-        return matchState(actual, expected);
+        if (!actual) return false;
+
+        // Inline match logic for browser context
+        if (expected.location && actual.location !== expected.location) {
+          return false;
+        }
+
+        if (expected.document) {
+          if (expected.document.loaded !== undefined) {
+            if (!actual.document || actual.document.loaded !== expected.document.loaded) {
+              return false;
+            }
+          }
+          if (expected.document.title && actual.document?.title !== expected.document.title) {
+            return false;
+          }
+          if (expected.document.passageCount !== undefined) {
+            if (actual.document?.passageCount !== expected.document.passageCount) {
+              return false;
+            }
+          }
+        }
+
+        if (expected.viewMode && actual.viewMode !== expected.viewMode) {
+          return false;
+        }
+
+        if (expected.panels) {
+          if (expected.panels.validation !== undefined && actual.panels.validation !== expected.panels.validation) {
+            return false;
+          }
+          if (expected.panels.bulk !== undefined && actual.panels.bulk !== expected.panels.bulk) {
+            return false;
+          }
+          if (expected.panels.entities !== undefined && actual.panels.entities !== expected.panels.entities) {
+            return false;
+          }
+          if (expected.panels.viz !== undefined && actual.panels.viz !== expected.panels.viz) {
+            return false;
+          }
+        }
+
+        return true;
       },
       matcher,
       { timeout }
