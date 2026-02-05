@@ -66,6 +66,18 @@ export function applyEntityDelta(
  * Validate that entity matches the declared type
  */
 function validateEntityType(entity: Entity, entityType: EntityType): Result<void> {
+  // Check ID prefix matches entity type
+  const idPrefix = `${entityType}-`;
+  if (!entity.id.startsWith(idPrefix)) {
+    return failure(
+      'TYPE_MISMATCH',
+      `Entity ID "${entity.id}" does not match declared type "${entityType}"`,
+      false,
+      { expected: idPrefix, actual: entity.id.substring(0, idPrefix.length) }
+    );
+  }
+
+  // Additional structural validation based on type
   switch (entityType) {
     case 'character':
       if (!isCharacter(entity)) {
@@ -78,27 +90,22 @@ function validateEntityType(entity: Entity, entityType: EntityType): Result<void
       }
       break;
     case 'place':
-      if (!isPlace(entity)) {
+      // Places are identified by not having 'sex' and not matching organization pattern
+      if (isCharacter(entity)) {
         return failure(
           'TYPE_MISMATCH',
-          'Entity is not a place',
-          false,
-          { expected: 'place', hasCoordinates: 'coordinates' in entity }
+          'Entity is a character, not a place',
+          false
         );
       }
       break;
     case 'organization':
-      if (!isOrganization(entity)) {
+      // Organizations have neither 'sex' nor 'coordinates' but do have 'type'
+      if (isCharacter(entity) || isPlace(entity)) {
         return failure(
           'TYPE_MISMATCH',
           'Entity is not an organization',
-          false,
-          {
-            expected: 'organization',
-            hasSex: 'sex' in entity,
-            hasCoordinates: 'coordinates' in entity,
-            hasType: 'type' in entity
-          }
+          false
         );
       }
       break;
