@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Phase 3 & 4: Component Migration Implementation
  *
