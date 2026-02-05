@@ -1,7 +1,14 @@
 import { XMLParser } from 'fast-xml-parser';
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
-import type { TEIFileInfo, TagAnalysis, CorpusMetadata } from './types';
+import type { TEIFileInfo, TagAnalysis, CorpusMetadata, SchemaValidationResult, SchemaError } from './types';
+import { SchemaLoader } from '../lib/schema/SchemaLoader';
+
+const SCHEMA_PATHS = {
+  teiAll: '../public/schemas/tei-all.rng',
+  teiNovel: '../public/schemas/tei-novel.rng',
+  teiMinimal: '../public/schemas/tei-minimal.rng',
+} as const;
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -141,4 +148,82 @@ export function determineEncodingType(tags: TagAnalysis[]): CorpusMetadata['enco
   if (hasSaid || hasQ) return 'dialogue-focused';
   if (tagNames.size < 10) return 'minimal-markup';
   return 'mixed';
+}
+
+/**
+ * Validate TEI content against RelaxNG schemas with progressive fallback
+ *
+ * Tries schemas in order: tei-all → tei-novel → tei-minimal
+ * Stops at first successful validation
+ *
+ * @param content - TEI XML content
+ * @param filePath - File path (for error reporting)
+ * @param schemaLoader - SchemaLoader instance
+ * @returns Validation result with pass/fail for each schema
+ */
+export async function validateWithSchemas(
+  content: string,
+  filePath: string,
+  schemaLoader: SchemaLoader
+): Promise<SchemaValidationResult> {
+  const result: SchemaValidationResult = {
+    teiAllPass: false,
+    teiNovelPass: false,
+    teiMinimalPass: false,
+    errors: [] as SchemaError[],
+  };
+
+  // Try tei-all.rng first
+  try {
+    const teiAllResult = await schemaLoader.validate(content, SCHEMA_PATHS.teiAll);
+    if (teiAllResult.valid) {
+      result.teiAllPass = true;
+      return result;
+    }
+    // Collect errors
+    result.errors.push(...teiAllResult.errors.map((e) => ({
+      schema: 'tei-all',
+      line: e.line,
+      column: e.column,
+      message: e.message,
+    })));
+  } catch (error) {
+    console.warn(`  tei-all validation failed for ${filePath}: ${error}`);
+  }
+
+  // Try tei-novel.rng as fallback
+  try {
+    const teiNovelResult = await schemaLoader.validate(content, SCHEMA_PATHS.teiNovel);
+    if (teiNovelResult.valid) {
+      result.teiNovelPass = true;
+      return result;
+    }
+    result.errors.push(...teiNovelResult.errors.map((e) => ({
+      schema: 'tei-novel',
+      line: e.line,
+      column: e.column,
+      message: e.message,
+    })));
+  } catch (error) {
+    console.warn(`  tei-novel validation failed for ${filePath}: ${error}`);
+  }
+
+  // Try tei-minimal.rng as final fallback
+  try {
+    const teiMinimalResult = await schemaLoader.validate(content, SCHEMA_PATHS.teiMinimal);
+    if (teiMinimalResult.valid) {
+      result.teiMinimalPass = true;
+      return result;
+    }
+    result.errors.push(...teiMinimalResult.errors.map((e) => ({
+      schema: 'tei-minimal',
+      line: e.line,
+      column: e.column,
+      message: e.message,
+    })));
+  } catch (error) {
+    console.warn(`  tei-minimal validation failed for ${filePath}: ${error}`);
+  }
+
+  return result;
 }
