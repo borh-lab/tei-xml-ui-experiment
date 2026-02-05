@@ -9,6 +9,8 @@ import type { Selection } from '@/lib/values/Selection';
 import type { Hint } from '@/lib/values/Hint';
 import { RealTimeHints } from '@/components/hints/RealTimeHints';
 import { useHints } from '@/hooks/useHints';
+import { useSuggestions } from '@/hooks/useSuggestions';
+import type { Suggestion } from '@/lib/values/Suggestion';
 export interface MonacoEditor {
   getModel?: () => { getLineCount: () => number } | null;
   revealLine: (line: number) => void;
@@ -64,6 +66,19 @@ export function EditorLayout() {
   const [textSelection, setTextSelection] = useState<Selection | null>(null);
   const hint = useHints(textSelection, activeTagType);
 
+  // Smart tag suggestions
+  const suggestions = useSuggestions(textSelection);
+  const [suggestionsPanelOpen, setSuggestionsPanelOpen] = useState<boolean>(false);
+
+  // Auto-open suggestions panel when there are suggestions and text is selected
+  useEffect(() => {
+    if (textSelection && suggestions.length > 0 && !suggestionsPanelOpen) {
+      setSuggestionsPanelOpen(true);
+    } else if (!textSelection && suggestionsPanelOpen) {
+      setSuggestionsPanelOpen(false);
+    }
+  }, [textSelection, suggestions.length, suggestionsPanelOpen]);
+
   // Handle hint actions
   const handleHintAccepted = useCallback((action: Hint['suggestedAction']) => {
     if (!action) return;
@@ -82,6 +97,14 @@ export function EditorLayout() {
         // TODO: Implement tag application
         break;
     }
+  }, [editorUI]);
+
+  // Handle suggestion click
+  const handleSuggestionClick = useCallback((suggestion: Suggestion) => {
+    editorUI.showToast(`Applying tag suggestion: <${suggestion.tagType}>`, 'info');
+    // TODO: Implement tag application based on suggestion
+    // For now, just close the panel
+    setSuggestionsPanelOpen(false);
   }, [editorUI]);
 
   // Keyboard shortcuts
@@ -494,6 +517,9 @@ export function EditorLayout() {
             onClearAll: editorState.queue.clearQueue,
             isApplying: editorState.queue.isApplyingQueue,
           } : undefined}
+          suggestionsPanelOpen={suggestionsPanelOpen && textSelection !== null}
+          suggestions={suggestions}
+          onSuggestionClick={handleSuggestionClick}
         />
       </div>
 
