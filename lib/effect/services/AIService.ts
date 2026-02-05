@@ -110,24 +110,24 @@ export const TestAIServiceLive = Layer.effect(
 function toAIError(error: unknown, operation: string): AIError {
   const message = error instanceof Error ? error.message : String(error);
 
-  if (error instanceof Error && 'status' in error) {
-    const status = (error as any).status;
+  // Check for HTTP error status
+  const errorWithStatus = error as { status?: number } | undefined;
+  const status = errorWithStatus?.status;
 
-    if (status === 429) {
-      return new AIRateLimitError({
-        message: `Rate limited during ${operation}`,
-        provider: 'OpenAIProvider',
-        cause: error,
-      });
-    }
+  if (status === 429) {
+    return new AIRateLimitError({
+      message: `Rate limited during ${operation}`,
+      provider: 'OpenAIProvider',
+      cause: error,
+    });
+  }
 
-    if (status === 401 || status === 403) {
-      return new AIAuthenticationError({
-        message: `Authentication failed during ${operation}`,
-        provider: 'OpenAIProvider',
-        cause: error,
-      });
-    }
+  if (status === 401 || status === 403) {
+    return new AIAuthenticationError({
+      message: `Authentication failed during ${operation}`,
+      provider: 'OpenAIProvider',
+      cause: error,
+    });
   }
 
   return new AIError({
