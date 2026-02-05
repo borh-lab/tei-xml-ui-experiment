@@ -9,8 +9,15 @@ describe('Project Directory Structure', () => {
     const componentDirs = [
       'components/editor',
       'components/visualization',
-      'components/character',
-      'components/shared',
+      'components/analytics',
+      'components/corpus',
+      'components/ai',
+      'components/navigation',
+      'components/validation',
+      'components/samples',
+      'components/search',
+      'components/ui',
+      'components/keyboard',
     ];
 
     test.each(componentDirs)('%s should exist', (dir) => {
@@ -51,7 +58,7 @@ describe('Project Directory Structure', () => {
   describe('Public Resource Directories', () => {
     const publicDirs = [
       'public/schemas',
-      'public/xslt',
+      'public/samples',
     ];
 
     test.each(publicDirs)('%s should exist', (dir) => {

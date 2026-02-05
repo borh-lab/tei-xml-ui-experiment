@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
-import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 interface StructuralTagPaletteProps {
   onInsertTag: (tagName: string) => void;
@@ -87,15 +86,13 @@ export const StructuralTagPalette: React.FC<StructuralTagPaletteProps> = ({
     }
   };
 
-  const useEffectEditor = isFeatureEnabled('useEffectEditor');
-
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold">Structural Tags</h3>
           <Badge variant="outline" className="text-xs">
-            {useEffectEditor ? 'Effect-Based' : 'React-Based'}
+            Effect-Based
           </Badge>
         </div>
         {isValidating && (
