@@ -1,0 +1,60 @@
+{
+  "name": "Novel Dialogism Corpus",
+  "sourceUrl": "https://github.com/Priya22/project-dialogism-novel-corpus.git",
+  "documentCount": 28,
+  "totalSizeBytes": 20205367,
+  "teiVersion": [
+    "P5"
+  ],
+  "tagFrequency": {
+    "anchor": 74262,
+    "quote": 37131,
+    "s": 37131,
+    "rs": 22024,
+    "p": 28011,
+    "alias": 2098,
+    "person": 1226,
+    "persName": 1226,
+    "head": 762,
+    "TEI": 28,
+    "teiHeader": 28,
+    "fileDesc": 28,
+    "titleStmt": 28,
+    "title": 28,
+    "author": 28,
+    "sourceDesc": 28,
+    "particDesc": 28,
+    "listPerson": 28,
+    "encodingDesc": 28,
+    "text": 28,
+    "body": 28,
+    "div": 34,
+    "hi": 31
+  },
+  "structuralPatterns": {
+    "usesSaid": false,
+    "usesQ": false,
+    "usesSp": false,
+    "usesWhoAttributes": true,
+    "nestingLevels": 0
+  },
+  "encodingType": "mixed",
+  "sampleDocuments": [
+    "corpora/novel-dialogism-converted/AHandfulOfDust.tei.xml",
+    "corpora/novel-dialogism-converted/APassageToIndia.tei.xml",
+    "corpora/novel-dialogism-converted/ARoomWithAView.tei.xml",
+    "corpora/novel-dialogism-converted/AlicesAdventuresInWonderland.tei.xml",
+    "corpora/novel-dialogism-converted/AnneOfGreenGables.tei.xml"
+  ],
+  "validationResults": {
+    "totalDocuments": 28,
+    "validAgainstSchema": 28,
+    "schemaCompliance": 100,
+    "teiAllPass": 0,
+    "teiNovelPass": 28,
+    "teiMinimalPass": 0,
+    "filesWithValidationErrors": 0,
+    "sampleErrors": []
+  },
+  "issues": []
+}

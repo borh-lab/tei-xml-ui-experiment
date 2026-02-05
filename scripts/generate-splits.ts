@@ -9,6 +9,11 @@ const CORPORA_DIR = 'corpora';
 const METADATA_DIR = 'tests/corpora/metadata';
 const OUTPUT_FILE = 'tests/corpora/splits.json';
 
+// Path overrides for corpora that use different directory names
+const CORPUS_PATH_OVERRIDES: Record<string, string> = {
+  'novel-dialogism': 'novel-dialogism-converted',
+};
+
 const SPLIT_CONFIG = {
   train: 0.7,
   validation: 0.15,
@@ -134,7 +139,8 @@ async function main() {
   let totalTest = 0;
 
   for (const [corpusId, meta] of Object.entries(metadata)) {
-    const corpusPath = join(CORPORA_DIR, corpusId);
+    const pathOverride = CORPUS_PATH_OVERRIDES[corpusId];
+    const corpusPath = join(CORPORA_DIR, pathOverride || corpusId);
     const validFiles = getValidFiles(corpusPath);
 
     console.log(`\n${corpusId}:`);

@@ -51,6 +51,8 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         video: 'on', // Always record videos for doc generation
         baseURL: 'http://localhost:3001', // Use port 3001
+        viewport: { width: 1920, height: 1080 }, // Full HD for better quality
+        screen: { width: 1920, height: 1080 },
       },
       // Isolated server with cache cleaning to avoid Turbopack lock issues
       webServer: {

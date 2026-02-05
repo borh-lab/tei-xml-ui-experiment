@@ -17,7 +17,7 @@ import { SchemaLoader } from '../lib/schema/SchemaLoader';
 const CORPORA_DIR = 'corpora';
 const METADATA_DIR = 'tests/corpora/metadata';
 
-const CORPORA_CONFIG: Record<string, { name: string; url: string }> = {
+const CORPORA_CONFIG: Record<string, { name: string; url: string; path?: string }> = {
   'wright-american-fiction': {
     name: 'Wright American Fiction',
     url: 'https://github.com/iulibdcs/Wright-American-Fiction.git',
@@ -45,6 +45,7 @@ const CORPORA_CONFIG: Record<string, { name: string; url: string }> = {
   'novel-dialogism': {
     name: 'Novel Dialogism Corpus',
     url: 'https://github.com/Priya22/project-dialogism-novel-corpus.git',
+    path: 'novel-dialogism-converted', // Use converted TEI files, not source
   },
 };
 
@@ -231,7 +232,8 @@ async function main() {
   const validationErrors: SchemaValidationError[] = [];
 
   for (const corpusId of Object.keys(CORPORA_CONFIG)) {
-    const corpusPath = join(CORPORA_DIR, corpusId);
+    const config = CORPORA_CONFIG[corpusId];
+    const corpusPath = join(CORPORA_DIR, config.path || corpusId);
 
     // Check if corpus exists
     try {

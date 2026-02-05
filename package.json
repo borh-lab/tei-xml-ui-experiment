@@ -30,10 +30,12 @@
     "corpus:convert-p4": "nix-shell -p libxslt --run 'bun scripts/convert-p4-to-p5.ts'",
     "corpus:convert-novel-dialogism": "bun scripts/convert-novel-dialogism.ts",
     "corpus:all": "bun run corpus:convert-novel-dialogism && bun run corpus:setup && nix-shell -p libxslt --run 'bun scripts/convert-p4-to-p5.ts' && bun run corpus:analyze && bun run corpus:split && bun run corpus:split:ml",
+    "corpus:export": "bun scripts/export-datasets.ts",
     "docs:videos": "bun run test:e2e --project=doc-videos",
     "docs:videos:watch": "bun scripts/watch-doc-videos.ts",
     "docs:videos:optimize": "bun scripts/optimize-doc-videos.ts",
     "docs:videos:cli": "bun scripts/generate-doc-videos.ts",
+    "docs:video": "bun scripts/generate-one-video.ts",
     "prepare": "effect-language-service patch"
   },
   "dependencies": {

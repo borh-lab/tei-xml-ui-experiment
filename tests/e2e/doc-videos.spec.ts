@@ -21,7 +21,13 @@ test.describe('Documentation Videos', () => {
   test('test-basic', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(3000);
+
+    // Load a sample to show actual content
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+    await loadButton.click();
+    await page.waitForTimeout(3000); // Wait for document to load
+
+    // Show navigation
     await page.keyboard.press('j');
     await page.waitForTimeout(500);
     await page.keyboard.press('k');
@@ -33,39 +39,59 @@ test.describe('Documentation Videos', () => {
   test('command-palette', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
+
+    // Load a sample first
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+    await loadButton.click();
     await page.waitForTimeout(2000);
+
+    // Open command palette
     await page.keyboard.press('Meta+k');
-    // Wait a bit for the command palette to appear (non-blocking)
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2000);
   });
 
   test('bulk-operations', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
+
+    // Load a sample first
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+    await loadButton.click();
     await page.waitForTimeout(2000);
+
+    // Open bulk operations
     await page.keyboard.press('Meta+b');
-    // Wait a bit for bulk operations panel to appear (non-blocking)
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2000);
   });
 
   test('keyboard-shortcuts', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
+
+    // Load a sample first
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+    await loadButton.click();
     await page.waitForTimeout(2000);
+
+    // Show keyboard shortcuts
     await page.keyboard.press('?');
-    // Wait a bit for shortcuts dialog to appear (non-blocking)
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(2500);
   });
 
   test('character-network', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000);
-    // Try to find and click visualizations button with timeout
+
+    // Load a sample first
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+    await loadButton.click();
+    await page.waitForTimeout(2500);
+
+    // Try to find and click visualizations button
     try {
       const vizButton = page.getByRole('button', { name: /visualizations/i });
       await vizButton.click({ timeout: 10000 });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(2500);
     } catch {
       // If button not found, just wait - video still captures the page
       await page.waitForTimeout(3000);
@@ -75,13 +101,18 @@ test.describe('Documentation Videos', () => {
   test('annotation-workflow', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(3000);
-    // Try to find a passage to click
+
+    // Load a sample first
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+    await loadButton.click();
+    await page.waitForTimeout(2500);
+
+    // Click on a passage and annotate
     try {
       const passage = page.locator('[id^="passage-"]').first();
       await passage.click({ timeout: 10000 });
       await page.waitForTimeout(500);
-      await page.keyboard.press('1');
+      await page.keyboard.press('1'); // Narrative
       await page.waitForTimeout(1000);
       await page.keyboard.press('j');
       await page.waitForTimeout(500);
@@ -99,7 +130,12 @@ test.describe('Documentation Videos', () => {
   test('ai-assisted-session', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000);
+
+    // Load a sample first
+    const loadButton = page.getByRole('button', { name: 'Load Sample' }).first();
+    await loadButton.click();
+    await page.waitForTimeout(2500);
+
     // Try to click AI Suggest button
     try {
       const aiButton = page.getByRole('button', { name: /AI Suggest/i });

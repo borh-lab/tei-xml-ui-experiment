@@ -18,21 +18,22 @@ const execAsync = promisify(exec);
 
 /**
  * Video type configuration
+ * Higher resolution and bitrate for clearer fonts
  */
 const videoConfig = {
   highlights: {
     dir: 'docs/videos/highlights',
-    bitrate: '500K',
-    fps: 15,
-    crf: 32,
-    'cpu-used': 4
+    bitrate: '2M', // Increased from 500K for better quality
+    fps: 30, // Increased from 15 for smoother playback
+    crf: 20, // Lower is better quality (was 32)
+    'cpu-used': 1 // Slower but better quality
   },
   workflows: {
     dir: 'docs/videos/workflows',
-    bitrate: '1M',
-    fps: 24,
-    crf: 28,
-    'cpu-used': 2
+    bitrate: '3M', // Increased from 1M
+    fps: 30, // Increased from 24
+    crf: 18, // Lower is better quality (was 28)
+    'cpu-used': 0 // Best quality
   }
 } as const;
 
@@ -53,6 +54,7 @@ async function optimizeVideo(
     '-r', String(config.fps),
     '-crf', String(config.crf),
     '-cpu-used', String(config['cpu-used']),
+    '-vf', 'scale=1920:1080', // Scale to Full HD for crisp text
     '-y',
     output
   ];
@@ -81,7 +83,7 @@ async function generateThumbnail(
     '-i', videoPath,
     '-ss', '00:00:01', // Take frame at 1 second (or use 50% duration)
     '-vframes', '1',
-    '-vf', 'scale=320:-1', // Resize to 320px width
+    '-vf', 'scale=640:-1', // Resize to 640px width for better quality
     '-y',
     thumbnailPath
   ];
