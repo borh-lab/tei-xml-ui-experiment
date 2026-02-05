@@ -1,5 +1,4 @@
 import { LRUCache } from 'lru-cache'
-import * as fs from 'fs'
 import { RelaxNGParser } from './RelaxNGParser'
 import type { ParsedConstraints, SchemaCacheOptions } from './types'
 
@@ -8,11 +7,15 @@ type FileReader = (path: string, encoding: string) => string
 /**
  * LRU cache for parsed RelaxNG schemas to avoid re-parsing on every validation.
  * Caches ParsedConstraints objects by schema file path.
+ *
+ * NOTE: When using in Node.js environment, you must pass a fileReader function
+ * that uses fs.readFileSync. This class cannot import fs directly as it's
+ * used in client-side code.
  */
 export class SchemaCache {
   private cache: LRUCache<string, ParsedConstraints>
   private parser: RelaxNGParser
-  private readFile: FileReader
+  private readFile: FileReader | null
 
   constructor(options: SchemaCacheOptions, fileReader?: FileReader) {
     this.cache = new LRUCache<string, ParsedConstraints>({
@@ -20,7 +23,7 @@ export class SchemaCache {
       ttl: options.ttl,
     })
     this.parser = new RelaxNGParser()
-    this.readFile = fileReader || fs.readFileSync
+    this.readFile = fileReader || null
   }
 
   /**
@@ -35,6 +38,10 @@ export class SchemaCache {
     const cached = this.cache.get(schemaPath)
     if (cached) {
       return cached
+    }
+
+    if (!this.readFile) {
+      throw new Error('SchemaCache: fileReader not provided. Cannot read schema file.')
     }
 
     // Read and parse schema file
