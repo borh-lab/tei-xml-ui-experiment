@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useEditorState, useEditorUI, useAISuggestions, useTagSelection, useViewMode, useBulkOperations, useKeyboardShortcuts } from './hooks';
 import { EditorToolbar, EditorContent, EditorModals, EditorPanels, EditorToast } from './EditorComponents';
 import type { TEINode } from '@/lib/tei/types';
 import type { ValidationError, FixSuggestion } from '@/lib/validation';
+import type { Selection } from '@/lib/values/Selection';
+import type { Hint } from '@/lib/values/Hint';
+import { RealTimeHints } from '@/components/hints/RealTimeHints';
+import { useHints } from '@/hooks/useHints';
 export interface MonacoEditor {
   getModel?: () => { getLineCount: () => number } | null;
   revealLine: (line: number) => void;
@@ -54,6 +58,31 @@ export function EditorLayout() {
 
   // Bulk operations
   const bulkOps = useBulkOperations();
+
+  // Real-time hints for tag validation
+  const [activeTagType, setActiveTagType] = useState<string>('said');
+  const [textSelection, setTextSelection] = useState<Selection | null>(null);
+  const hint = useHints(textSelection, activeTagType);
+
+  // Handle hint actions
+  const handleHintAccepted = useCallback((action: Hint['suggestedAction']) => {
+    if (!action) return;
+
+    switch (action.type) {
+      case 'add-attribute':
+        editorUI.showToast(`Adding attribute: ${action.label}`, 'info');
+        // TODO: Implement attribute addition
+        break;
+      case 'expand-selection':
+        editorUI.showToast(`Expanding selection: ${action.label}`, 'info');
+        // TODO: Implement selection expansion
+        break;
+      case 'apply-tag':
+        editorUI.showToast(`Applying tag: ${action.label}`, 'info');
+        // TODO: Implement tag application
+        break;
+    }
+  }, [editorUI]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -448,6 +477,7 @@ export function EditorLayout() {
           validationResults={editorState.validationResults}
           onRenderedViewScroll={handleRenderedViewScroll}
           renderedViewRef={renderedViewRef}
+          onTextSelectionChange={setTextSelection}
         />
 
         {/* Side Panels */}
@@ -469,6 +499,14 @@ export function EditorLayout() {
 
       {/* Toast Notifications */}
       <EditorToast toast={editorUI.toast} />
+
+      {/* Real-Time Hints Overlay */}
+      <RealTimeHints
+        selection={textSelection}
+        activeTagType={activeTagType}
+        hint={hint}
+        onHintAccepted={handleHintAccepted}
+      />
     </div>
   );
 }
