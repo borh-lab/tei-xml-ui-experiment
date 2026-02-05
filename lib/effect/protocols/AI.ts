@@ -7,6 +7,7 @@
 
 import { Effect, Context } from 'effect';
 import type { DialogueSpan, Issue } from '@/lib/ai/providers';
+import type { TEIDocument } from '@/lib/tei/types';
 
 // ============================================================================
 // Error Types
@@ -79,7 +80,7 @@ export interface AIService {
    *
    * Checks for character inconsistencies, timeline contradictions, plot holes
    */
-  readonly validateConsistency: (document: any) => Effect.Effect<readonly Issue[], AIError>;
+  readonly validateConsistency: (document: TEIDocument) => Effect.Effect<readonly Issue[], AIError>;
 
   /**
    * Bulk detect dialogue in multiple passages
