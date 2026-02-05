@@ -18,20 +18,20 @@ const execAsync = promisify(exec);
 
 /**
  * Video type configuration
- * Higher resolution and bitrate for clearer fonts
+ * Higher resolution and bitrate for clearer fonts, but 15fps is sufficient for UI demos
  */
 const videoConfig = {
   highlights: {
     dir: 'docs/videos/highlights',
-    bitrate: '2M', // Increased from 500K for better quality
-    fps: 30, // Increased from 15 for smoother playback
+    bitrate: '1.5M', // Good quality for highlights
+    fps: 15, // Sufficient for UI demos, keeps file size down
     crf: 20, // Lower is better quality (was 32)
     'cpu-used': 1 // Slower but better quality
   },
   workflows: {
     dir: 'docs/videos/workflows',
-    bitrate: '3M', // Increased from 1M
-    fps: 30, // Increased from 24
+    bitrate: '2M', // Slightly higher for longer workflows
+    fps: 15, // 15fps is sufficient for UI interactions
     crf: 18, // Lower is better quality (was 28)
     'cpu-used': 0 // Best quality
   }
