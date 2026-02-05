@@ -135,7 +135,7 @@ export function useDocumentService(): UseDocumentServiceResult {
       loading: boolean;
       loadingSample: boolean;
       loadingProgress: number;
-      validationResults: any;
+      validationResults: ValidationResult;
       isValidating: boolean;
       error: Error | null;
     }>
