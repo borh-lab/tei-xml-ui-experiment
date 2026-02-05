@@ -10,6 +10,7 @@ import * as salve from 'salve-annos';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { SaxesParser } from 'saxes';
+import type { ValidationError } from '@/lib/validation';
 
 /**
  * Interface for salve validation error
@@ -82,17 +83,14 @@ export interface AttributeDefinition {
   type?: string;
 }
 
-export interface ValidationResult {
-  valid: boolean;
-  errors: ValidationError[];
-}
+// Re-export ValidationResult from lib/validation for backward compatibility
+// This module's ValidationResult interface is now deprecated in favor of lib/validation
+export type { ValidationResult as SchemaValidationResult } from '@/lib/validation';
 
-export interface ValidationError {
-  message: string;
-  line?: number;
-  column?: number;
-  context?: string;
-}
+/**
+ * @deprecated Use ValidationResult from @/lib/validation instead
+ */
+export type ValidationResult = SchemaValidationResult;
 
 export type XmlPath = Array<{ name: string; namespace?: string }>;
 

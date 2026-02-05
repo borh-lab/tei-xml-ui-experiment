@@ -5,21 +5,12 @@ import { useEditorState, useEditorUI, useAISuggestions, useTagSelection, useView
 import { EditorToolbar, EditorContent, EditorModals, EditorPanels, EditorToast } from './EditorComponents';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
 import type { TEINode } from '@/lib/tei/types';
+import type { ValidationError, FixSuggestion } from '@/lib/validation';
 export interface MonacoEditor {
   getModel?: () => { getLineCount: () => number } | null;
   revealLine: (line: number) => void;
   getVisibleRanges: () => { startLineNumber: number }[];
   onDidScrollChange: (callback: () => void) => void;
-}
-
-interface ValidationError {
-  line?: number;
-  message?: string;
-  [key: string]: unknown;
-}
-
-interface FixSuggestion {
-  [key: string]: unknown;
 }
 
 /**
