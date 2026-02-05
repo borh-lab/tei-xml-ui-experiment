@@ -11,7 +11,8 @@ Comprehensive guide to the TEI XML validation system that provides real-time sch
 5. [Migration Guide](#migration-guide)
 6. [Testing Guide](#testing-guide)
 7. [API Reference](#api-reference)
-8. [Troubleshooting](#troubleshooting)
+8. [Feature Flags](#feature-flags)
+9. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -1497,11 +1498,184 @@ interface TagQueueState {
 
 ---
 
+## Feature Flags
+
+The validation system includes feature flags to allow safe rollout and easy rollback if issues arise in production.
+
+### ENABLE_SCHEMA_DRIVEN_VALIDATION
+
+**Location**: `/home/bor/Projects/tei-xml/lib/validation/index.ts`
+
+**Purpose**: Controls whether the new schema-driven validation system is enabled.
+
+**Default**: `true` (enabled)
+
+**How to Use**:
+
+#### 1. Environment Variable (Recommended for Production)
+
+Set the environment variable before building:
+
+```bash
+# Enable schema-driven validation (default)
+NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION=true
+
+# Disable schema-driven validation (fallback to legacy)
+NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION=false
+```
+
+#### 2. Hardcoded Constant (For Development)
+
+Edit the flag directly in `/home/bor/Projects/tei-xml/lib/validation/index.ts`:
+
+```typescript
+export const ENABLE_SCHEMA_DRIVEN_VALIDATION = true;  // Enable
+export const ENABLE_SCHEMA_DRIVEN_VALIDATION = false; // Disable
+```
+
+#### 3. Runtime Behavior
+
+**When enabled (`true`)**:
+- Uses the new `Validator` class with RelaxNG-parsed constraints
+- Validates against all tags in the schema
+- Provides actionable fixes for validation errors
+- Supports all entity types (characters, places, organizations)
+
+**When disabled (`false`)**:
+- Falls back to legacy `validateAgainstSchemaLegacy` function
+- Uses hardcoded `TEI_P5_CONSTRAINTS` (limited to 3 tags)
+- Basic validation without fix suggestions
+- Only validates character IDREFs
+
+### When to Disable the Flag
+
+Consider disabling the schema-driven validation if:
+
+1. **Performance Issues**: Schema parsing is causing slowdowns on large documents
+2. **Schema Errors**: RelaxNG schema files have parsing errors
+3. **Rollback Needed**: Critical bugs are found in the new validation system
+4. **Testing**: Need to compare old vs new validation behavior
+
+### How to Check Current Flag Value
+
+```typescript
+import { ENABLE_SCHEMA_DRIVEN_VALIDATION } from '@/lib/validation'
+
+if (ENABLE_SCHEMA_DRIVEN_VALIDATION) {
+  console.log('Using schema-driven validation')
+} else {
+  console.log('Using legacy validation')
+}
+```
+
+### Testing Both Code Paths
+
+The test suite includes tests for both validation paths:
+
+```bash
+# Run all validation tests
+npm test -- tests/unit/schema-aware-smart-selection.test.ts
+
+# Tests verify both flag states
+npm test -- --testNamePattern="Feature Flag"
+```
+
+Example test:
+
+```typescript
+describe('Feature Flag Tests', () => {
+  it('should use schema-driven validation when flag is true', () => {
+    const result = validateAgainstSchema(...)
+    expect(result.valid).toBe(true)
+  })
+
+  it('should fall back to legacy when flag is false', () => {
+    // Legacy validation path
+    const result = validateAgainstSchema(...)
+    expect(result).toBeDefined()
+  })
+})
+```
+
+### Monitoring Flag Status in Production
+
+Add logging to track which validation path is being used:
+
+```typescript
+export function validateAgainstSchema(...) {
+  if (!ENABLE_SCHEMA_DRIVEN_VALIDATION) {
+    console.warn('[Validation] Using legacy validation (flag disabled)')
+    return validateAgainstSchemaLegacy(...)
+  }
+
+  console.log('[Validation] Using schema-driven validation (flag enabled)')
+  // ... new validation logic
+}
+```
+
+### Feature Flag Best Practices
+
+1. **Default to Enabled**: The flag should default to `true` unless there's a known issue
+2. **Test Both Paths**: Ensure both validation modes have test coverage
+3. **Monitor Performance**: Track validation time with and without the flag
+4. **Document Changes**: Update documentation when changing the default value
+5. **Rollback Plan**: Have a plan to quickly disable the flag if critical issues arise
+
+### Impact on Other Components
+
+The feature flag affects:
+
+- `validateAgainstSchema()` in SmartSelection.ts
+- `schemaAwareSmartSelection()` in SmartSelection.ts
+- Any code that depends on validation results
+- Error messages and fix suggestions
+
+Components that are **NOT** affected:
+
+- Tag queue management
+- Toast notifications
+- Entity panel
+- Navigation outline
+- Visualization components
+
+---
+
 ## Troubleshooting
 
 ### Common Issues
 
-#### Issue 1: Schema Parsing Fails
+#### Issue 1: Feature Flag Not Working
+
+**Symptom**: Changing `ENABLE_SCHEMA_DRIVEN_VALIDATION` has no effect
+
+**Cause**: Module loaded before environment variable was set
+
+**Solution**:
+
+1. Set environment variable **before** starting the dev server:
+   ```bash
+   export NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION=false
+   npm run dev
+   ```
+
+2. Or modify the flag directly in code:
+   ```typescript
+   // In lib/validation/index.ts
+   export const ENABLE_SCHEMA_DRIVEN_VALIDATION = false
+   ```
+
+3. Clear build cache:
+   ```bash
+   rm -rf .next
+   npm run dev
+   ```
+
+4. Verify flag value at runtime:
+   ```typescript
+   console.log('Flag value:', ENABLE_SCHEMA_DRIVEN_VALIDATION)
+   ```
+
+#### Issue 2: Schema Parsing Fails
 
 **Symptom**: Validation always returns `{ valid: true }` even for invalid tags
 
