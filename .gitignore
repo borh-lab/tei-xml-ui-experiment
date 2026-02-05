@@ -61,8 +61,17 @@ debug-*.png
 # test fixtures
 /tests/fixtures/Wright-American-Fiction
 
-# Corpora (external repositories)
-corpora/
+# Corpora (external repositories and converted files)
+# Note: Submodules are tracked as gitlinks, not as files, so they work despite this ignore
+corpora/*/
+!corpora/novel-dialogism/
+corpora/novel-dialogism-converted/
+corpora/brevier-legislative/
+corpora/indiana-authors-books/
+corpora/indiana-magazine-history/
+corpora/tei-texts/
+corpora/victorian-women-writers/
+corpora/wright-american-fiction/
 
 # submodules
 TEI/
@@ -90,10 +99,7 @@ annotation-ml/
 .plans/
 
 # Generated corpus files
-corpora/novel-dialogism/
+corpora/novel-dialogism-converted/
 
-data/
-
-# Generated P5 corpora (on-the-fly conversion makes these unnecessary)
-corpora-p5/
-corpora-p4-backup/
+# ML-ready exported datasets
+datasets/

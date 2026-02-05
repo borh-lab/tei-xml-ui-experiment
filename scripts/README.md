@@ -131,6 +131,84 @@ Shared utility functions for corpus analysis.
 
 ---
 
+### export-datasets.ts
+
+Exports converted corpora with splits to a `datasets/` directory for ML training.
+
+**Usage:**
+
+```bash
+bun run corpus:export
+```
+
+**Features:**
+
+- Copies TEI files organized by corpus and split (train/validation/test)
+- Includes metadata files for each corpus
+- Includes splits configuration and summary
+- Generates README with dataset statistics
+
+**Output Structure:**
+
+```
+datasets/
+├── corpus-name/
+│   ├── train/           # Training set TEI files
+│   ├── validation/      # Validation set TEI files
+│   ├── test/            # Test set TEI files
+│   └── metadata.json    # Corpus metadata
+├── splits.json          # Split configuration
+├── summary.json         # All corpora summary
+└── README.md            # Dataset documentation
+```
+
+**Loading with Python:**
+
+```bash
+# Show statistics
+uv run scripts/load-datasets.py --stats
+
+# Load specific corpus
+uv run scripts/load-datasets.py --corpus wright-american-fiction
+
+# Load all corpora
+uv run scripts/load-datasets.py
+```
+
+See `load-datasets.py` for usage examples with HuggingFace datasets library.
+
+---
+
+### load-datasets.py
+
+Python script for loading exported TEI corpora using HuggingFace datasets library.
+
+**Usage:**
+
+```bash
+# Show dataset statistics
+uv run scripts/load-datasets.py --stats
+
+# Load specific corpus
+uv run scripts/load-datasets.py --corpus corpus-name
+
+# Load all corpora
+uv run scripts/load-datasets.py
+
+# Sample first N examples
+uv run scripts/load-datasets.py --corpus corpus-name --sample 5
+```
+
+**Dependencies:**
+
+Uses inline dependency specification with uv (see script header). Requires Python >=3.10.
+
+**Output:**
+
+Returns HuggingFace `DatasetDict` objects with `train`, `validation`, and `test` splits.
+
+---
+
 ## Development Scripts
 
 ### fix-strict-mode.sh
@@ -141,17 +219,29 @@ Utility script for fixing TypeScript strict mode issues. (Currently unused)
 
 ## Running All Corpus Scripts
 
-To setup, analyze, and split all corpora in one command:
+To setup, analyze, split, and export all corpora:
 
 ```bash
-bun run corpus:all
+# Complete workflow
+bun run corpus:all          # Setup, analyze, and split
+bun run corpus:export       # Export to datasets/ (after corpus:all)
+
+# Or run export separately
+bun run corpus:export       # Requires corpus:analyze and corpus:split to be run first
 ```
 
-This runs:
+**Complete workflow:**
 
 1. `corpus:setup` - Clone/update repositories
 2. `corpus:analyze` - Generate metadata
 3. `corpus:split` - Create train/val/test splits
+4. `corpus:export` - Export to `datasets/` directory
+
+**Loading exported datasets:**
+
+```bash
+uv run scripts/load-datasets.py --stats
+```
 
 ## Corpus Statistics
 

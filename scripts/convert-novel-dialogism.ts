@@ -4,8 +4,8 @@ import { readdir, mkdir, access, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { constants } from 'fs';
 
-const SOURCE_DIR = 'novel-dialogism/data';
-const OUTPUT_DIR = 'corpora/novel-dialogism/';
+const SOURCE_DIR = 'corpora/novel-dialogism/data';
+const OUTPUT_DIR = 'corpora/novel-dialogism-converted/';
 
 /**
  * Interface for a row in quotation_info.csv
