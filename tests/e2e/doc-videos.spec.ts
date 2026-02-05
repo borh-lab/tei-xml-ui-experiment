@@ -11,9 +11,8 @@ import { test, expect } from '@playwright/test';
  */
 
 test.beforeEach(async ({ page }) => {
-  // Clear localStorage for fresh state
-  await page.goto('/');
-  await page.evaluate(() => {
+  // Clear localStorage for fresh state before page loads
+  await page.addInitScript(() => {
     localStorage.clear();
   });
 });
