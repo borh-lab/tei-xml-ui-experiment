@@ -1,14 +1,16 @@
 #!/usr/bin/env bun
-import { writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-import type { CorpusMetadata } from './types';
+import type { CorpusMetadata, SchemaValidationResult, SchemaValidationError } from './types';
 import {
   findXMLFiles,
   validateTEIFile,
   getTEIVersion,
   analyzeTags,
   determineEncodingType,
+  validateWithSchemas,
 } from './corpus-utils';
+import { SchemaLoader } from '../lib/schema/SchemaLoader';
 
 const CORPORA_DIR = 'corpora';
 const METADATA_DIR = 'tests/corpora/metadata';
@@ -47,7 +49,13 @@ const CORPORA_CONFIG: Record<string, { name: string; url: string }> = {
 /**
  * Analyze a single corpus
  */
-function analyzeCorpus(corpusId: string, corpusPath: string): CorpusMetadata {
+async function analyzeCorpus(
+  corpusId: string,
+  corpusPath: string,
+  schemaLoader: SchemaLoader,
+  validationStats: Map<string, SchemaValidationResult[]>,
+  validationErrors: SchemaValidationError[]
+): Promise<CorpusMetadata> {
   console.log(`\nAnalyzing: ${corpusId}`);
 
   const config = CORPORA_CONFIG[corpusId];
@@ -70,9 +78,11 @@ function analyzeCorpus(corpusId: string, corpusPath: string): CorpusMetadata {
   let usesWhoAttributes = false;
   const maxNesting = 0;
 
+  const MAX_SAMPLE_ERRORS = 10;
+  const results: SchemaValidationResult[] = [];
+
   for (const filePath of xmlFiles) {
     const info = validateTEIFile(filePath);
-
     if (!info.isTEI) {
       continue;
     }
@@ -86,7 +96,7 @@ function analyzeCorpus(corpusId: string, corpusPath: string): CorpusMetadata {
     totalSize += info.size;
 
     // Read and analyze content
-    const content = require('fs').readFileSync(filePath, 'utf-8');
+    const content = readFileSync(filePath, 'utf-8');
     teiVersions.add(getTEIVersion(content));
 
     // Analyze tags
@@ -99,6 +109,36 @@ function analyzeCorpus(corpusId: string, corpusPath: string): CorpusMetadata {
       if (tag.tagName === 'q') usesQ = true;
       if (tag.tagName === 'sp') usesSp = true;
       if (tag.attributes?.who) usesWhoAttributes = true;
+    }
+
+    // NEW: Validate against schemas
+    const validationResult = await validateWithSchemas(content, filePath, schemaLoader);
+    results.push(validationResult);
+    validationStats.set(corpusId, results);
+  }
+
+  // Aggregate validation results
+  const teiAllPass = results.filter(r => r.teiAllPass).length;
+  const teiNovelPass = results.filter(r => r.teiNovelPass).length;
+  const teiMinimalPass = results.filter(r => r.teiMinimalPass).length;
+  const filesWithErrors = results.filter(r => !r.teiAllPass && !r.teiNovelPass && !r.teiMinimalPass).length;
+
+  // Collect sample errors (up to MAX_SAMPLE_ERRORS)
+  const errorCount = validationErrors.length;
+  if (errorCount < MAX_SAMPLE_ERRORS) {
+    // Add files that failed all schemas with sample errors
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      if (!result.teiAllPass && !result.teiNovelPass && !result.teiMinimalPass) {
+        const filePath = validFiles[i];
+        const sampleErrors = result.errors.slice(0, 5); // Max 5 errors per file
+
+        validationErrors.push({
+          file: filePath,
+          attemptedSchemas: ['tei-all', 'tei-novel', 'tei-minimal'],
+          allErrors: sampleErrors,
+        });
+      }
     }
   }
 
@@ -129,12 +169,30 @@ function analyzeCorpus(corpusId: string, corpusPath: string): CorpusMetadata {
     },
     encodingType,
     sampleDocuments,
-    issues: issues.slice(0, 10), // Limit to first 10 issues
+    validationResults: {
+      totalDocuments: validFiles.length,
+      validAgainstSchema: results.filter(r => r.teiAllPass || r.teiNovelPass || r.teiMinimalPass).length,
+      schemaCompliance: 0, // Calculated below
+      teiAllPass,
+      teiNovelPass,
+      teiMinimalPass,
+      filesWithValidationErrors,
+      sampleErrors: validationErrors,
+    },
+    issues,
   };
+
+  // Calculate compliance percentage
+  metadata.validationResults.schemaCompliance = Math.round(
+    (metadata.validationResults.validAgainstSchema / metadata.validationResults.totalDocuments) * 100
+  );
 
   console.log(`  Valid TEI documents: ${validFiles.length}`);
   console.log(`  Encoding type: ${encodingType}`);
   console.log(`  TEI versions: ${Array.from(teiVersions).join(', ')}`);
+  console.log(`  Schema validation: ${teiAllPass} tei-all, ${teiNovelPass} tei-novel, ${teiMinimalPass} tei-minimal`);
+  console.log(`  Compliance: ${metadata.validationResults.schemaCompliance}%`);
+
   if (issues.length > 0) {
     console.log(`  Issues found: ${issues.length}`);
   }
@@ -149,10 +207,15 @@ async function main() {
   console.log('TEI Corpus Analysis');
   console.log('===================\n');
 
+  // Initialize SchemaLoader for validation
+  const schemaLoader = new SchemaLoader();
+
   // Create metadata directory
   mkdirSync(METADATA_DIR, { recursive: true });
 
   const results: Record<string, CorpusMetadata> = {};
+  const validationStats: Map<string, SchemaValidationResult[]> = new Map();
+  const validationErrors: SchemaValidationError[] = [];
 
   for (const corpusId of Object.keys(CORPORA_CONFIG)) {
     const corpusPath = join(CORPORA_DIR, corpusId);
@@ -165,7 +228,13 @@ async function main() {
       continue;
     }
 
-    const metadata = analyzeCorpus(corpusId, corpusPath);
+    const metadata = await analyzeCorpus(
+      corpusId,
+      corpusPath,
+      schemaLoader,
+      validationStats,
+      validationErrors
+    );
     results[corpusId] = metadata;
 
     // Save individual metadata file
