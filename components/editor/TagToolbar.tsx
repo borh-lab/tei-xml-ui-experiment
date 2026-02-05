@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { SelectionManager } from '@/lib/selection';
 import type { SelectionSnapshot } from '@/lib/selection';
 import { WorkflowTriggerButton } from '@/components/workflows/WorkflowTriggerButton';
@@ -15,7 +15,7 @@ interface TagToolbarProps {
 }
 
 export function TagToolbar({ onClose }: TagToolbarProps) {
-  const { document, addSaidTag, addTag } = useDocumentService();
+  const { document, addSaidTag, addTag } = useDocumentContext();
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [visible, setVisible] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<SelectionSnapshot | null>(null);

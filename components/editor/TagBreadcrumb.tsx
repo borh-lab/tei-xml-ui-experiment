@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import type { TagInfo } from '@/lib/selection/types';
 
 /**
@@ -12,7 +12,7 @@ import type { TagInfo } from '@/lib/selection/types';
  * Uses Effect-based useDocumentService hook.
  */
 export function TagBreadcrumb() {
-  const { document } = useDocumentService();
+  const { document } = useDocumentContext();
   const [selectedTag, setSelectedTag] = React.useState<TagInfo | null>(null);
 
   React.useEffect(() => {

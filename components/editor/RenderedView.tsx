@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import DOMPurify from 'dompurify';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
 import { useSelection } from '@/hooks/useSelection';
@@ -49,7 +49,7 @@ export const RenderedView = React.memo(
     selectedTag: _selectedTag,
     onTextSelectionChange,
   }: RenderedViewProps) => {
-    const { document } = useDocumentService();
+    const { document } = useDocumentContext();
     const [passages, setPassages] = useState<Passage[]>([]);
     const [activePassageId, setActivePassageId] = useState<string | null>(null);
     const [hoveredEntity, setHoveredEntity] = useState<{

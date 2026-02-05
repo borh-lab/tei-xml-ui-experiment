@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { exportToHTML, downloadFile } from '@/lib/tei/export';
 import { serializeDocument } from '@/lib/tei/operations';
 
@@ -13,7 +13,7 @@ import { serializeDocument } from '@/lib/tei/operations';
  * Uses Effect-based useDocumentService hook.
  */
 export function ExportButton() {
-  const { document } = useDocumentService();
+  const { document } = useDocumentContext();
 
   const handleExportHTML = () => {
     if (!document) return;
