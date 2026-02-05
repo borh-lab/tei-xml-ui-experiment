@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { SelectionManager } from '@/lib/selection';
 import type { SelectionSnapshot } from '@/lib/selection';
+import { WorkflowTriggerButton } from '@/components/workflows/WorkflowTriggerButton';
+import { WorkflowDialog } from '@/components/workflows/WorkflowDialog';
+import type { Workflow } from '@/lib/workflows/definitions';
 
 interface TagToolbarProps {
   onClose?: () => void;
@@ -16,6 +19,27 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
   const [visible, setVisible] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<SelectionSnapshot | null>(null);
   const [selectionManager] = useState(() => new SelectionManager());
+
+  // Workflow state
+  const [workflowDialogOpen, setWorkflowDialogOpen] = useState(false);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
+
+  // Handle workflow selection
+  const handleWorkflowSelect = useCallback((workflow: Workflow) => {
+    setSelectedWorkflow(workflow);
+    setWorkflowDialogOpen(true);
+  }, []);
+
+  // Handle workflow dialog close
+  const handleWorkflowDialogClose = useCallback(() => {
+    setWorkflowDialogOpen(false);
+    setSelectedWorkflow(null);
+    // Also hide the toolbar
+    setVisible(false);
+    setCurrentSelection(null);
+    window.getSelection()?.removeAllRanges();
+    onClose?.();
+  }, [onClose]);
 
   const handleSelection = useCallback(() => {
     const selection = selectionManager.captureSelection();
@@ -203,6 +227,27 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
       >
         ✕
       </Button>
+
+      {/* Workflow trigger button */}
+      <div className="w-px bg-border mx-1" />
+      <WorkflowTriggerButton
+        onWorkflowSelect={handleWorkflowSelect}
+        label="Workflow"
+        variant="ghost"
+        className="text-xs"
+      />
     </div>
+
+    {/* Workflow dialog */}
+    {selectedWorkflow && currentSelection && (
+      <WorkflowDialog
+        open={workflowDialogOpen}
+        onClose={handleWorkflowDialogClose}
+        workflow={selectedWorkflow}
+        passageId={currentSelection.passageId}
+        range={currentSelection.range}
+      />
+    )}
+    </>
   );
 }
