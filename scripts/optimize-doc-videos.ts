@@ -54,7 +54,9 @@ async function optimizeVideo(
     '-r', String(config.fps),
     '-crf', String(config.crf),
     '-cpu-used', String(config['cpu-used']),
-    '-vf', 'scale=1920:1080', // Scale to Full HD for crisp text
+    // Better quality settings
+    '-pix_fmt', 'yuv420p', // Standard colorspace for compatibility
+    '-deadline', 'good', // Quality vs speed tradeoff
     '-y',
     output
   ];
@@ -78,12 +80,13 @@ async function generateThumbnail(
   videoPath: string,
   thumbnailPath: string
 ): Promise<void> {
-  // Extract frame at 50% of video duration
+  // Extract high-quality frame at 50% of video duration
   const args = [
     '-i', videoPath,
-    '-ss', '00:00:01', // Take frame at 1 second (or use 50% duration)
+    '-ss', '00:00:01', // Take frame at 1 second
     '-vframes', '1',
-    '-vf', 'scale=640:-1', // Resize to 640px width for better quality
+    '-q:v', '2', // High quality for thumbnail (1-31, lower is better)
+    '-vf', 'scale=1280:-1', // Higher resolution for better quality
     '-y',
     thumbnailPath
   ];
