@@ -93,3 +93,7 @@ annotation-ml/
 corpora/novel-dialogism/
 
 data/
+
+# Generated P5 corpora (on-the-fly conversion makes these unnecessary)
+corpora-p5/
+corpora-p4-backup/

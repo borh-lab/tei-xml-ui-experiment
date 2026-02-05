@@ -10,6 +10,7 @@ import {
   analyzeTags,
   determineEncodingType,
   validateWithSchemas,
+  convertP4toP5OnTheFly,
 } from './corpus-utils';
 import { SchemaLoader } from '../lib/schema/SchemaLoader';
 
@@ -96,9 +97,20 @@ async function analyzeCorpus(
     validFiles.push(filePath);
     totalSize += info.size;
 
-    // Read and analyze content
-    const content = readFileSync(filePath, 'utf-8');
-    teiVersions.add(getTEIVersion(content));
+    // Read content
+    let content = readFileSync(filePath, 'utf-8');
+    const teiVersion = getTEIVersion(content);
+    teiVersions.add(teiVersion);
+
+    // Convert P4 to P5 on-the-fly for validation and analysis
+    if (teiVersion === 'P4') {
+      try {
+        content = convertP4toP5OnTheFly(content);
+      } catch (error) {
+        issues.push(`${filePath}: P4→P5 conversion failed - ${error}`);
+        continue;
+      }
+    }
 
     // Analyze tags
     const tags = analyzeTags(content);

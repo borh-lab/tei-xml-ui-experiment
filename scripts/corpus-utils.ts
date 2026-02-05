@@ -1,7 +1,9 @@
 // @ts-nocheck
 import { XMLParser } from 'fast-xml-parser';
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, readdirSync, statSync, writeFileSync, unlinkSync, mkdirSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { execSync } from 'child_process';
+import { tmpdir } from 'os';
 import type { TEIFileInfo, TagAnalysis, CorpusMetadata, SchemaValidationResult, SchemaError } from './types';
 import { SchemaLoader } from '../lib/schema/SchemaLoader';
 
@@ -125,6 +127,54 @@ export function getTEIVersion(content: string): string {
     return match ? match[1] : 'P5';
   }
   return 'P5';
+}
+
+/**
+ * Convert TEI P4 content to P5 on-the-fly using xsltproc
+ *
+ * This function performs temporary conversion using the official TEI p4top5.xsl stylesheet.
+ * The original file is never modified - conversion happens entirely in memory with temporary files.
+ *
+ * @param p4Content - TEI P4 XML content
+ * @returns TEI P5 XML content
+ * @throws Error if xsltproc is not available or conversion fails
+ */
+export function convertP4toP5OnTheFly(p4Content: string): string {
+  const xsltStylesheet = join(scriptDir, 'p4top5.xsl');
+
+  // Check if stylesheet exists
+  if (!existsSync(xsltStylesheet)) {
+    throw new Error(`p4top5.xsl stylesheet not found at ${xsltStylesheet}. Please run corpus:setup first.`);
+  }
+
+  // Create temporary files for conversion
+  const tempInput = join(tmpdir(), `tei-p4-${process.pid}-${Date.now()}.xml`);
+  const tempOutput = join(tmpdir(), `tei-p5-${process.pid}-${Date.now()}.xml`);
+
+  try {
+    // Write P4 content to temp input file
+    writeFileSync(tempInput, p4Content, 'utf-8');
+
+    // Run xsltproc to convert
+    const cmd = `xsltproc -o "${tempOutput}" "${xsltStylesheet}" "${tempInput}"`;
+    execSync(cmd, { stdio: 'ignore' });
+
+    // Read converted P5 content
+    const p5Content = readFileSync(tempOutput, 'utf-8');
+
+    return p5Content;
+  } catch (error) {
+    throw new Error(`P4 to P5 conversion failed: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    // Clean up temporary files
+    try {
+      if (existsSync(tempInput)) unlinkSync(tempInput);
+      if (existsSync(tempOutput)) unlinkSync(tempOutput);
+    } catch (cleanupError) {
+      // Log cleanup error but don't throw
+      console.warn(`Warning: Failed to clean up temp files: ${cleanupError}`);
+    }
+  }
 }
 
 export function analyzeTags(content: string): TagAnalysis[] {

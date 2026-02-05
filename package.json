@@ -24,7 +24,7 @@
     "test:e2e:firefox": "playwright test --project=firefox",
     "test:e2e:webkit": "playwright test --project=webkit",
     "corpus:setup": "scripts/setup-corpora.sh",
-    "corpus:analyze": "bun scripts/analyze-corpora.ts",
+    "corpus:analyze": "nix-shell -p libxslt --run 'bun scripts/analyze-corpora.ts'",
     "corpus:split": "bun scripts/generate-splits.ts",
     "corpus:split:ml": "bun scripts/generate-ml-splits.ts",
     "corpus:convert-p4": "nix-shell -p libxslt --run 'bun scripts/convert-p4-to-p5.ts'",
