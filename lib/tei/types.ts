@@ -159,6 +159,60 @@ export interface Character {
 }
 
 /**
+ * Generic Entity type (union of all entity types)
+ *
+ * Used for entity management operations that handle multiple entity types.
+ */
+export type Entity = Character | Place | Organization;
+
+/**
+ * Place entity
+ */
+export interface Place {
+  readonly id: string;
+  readonly xmlId: string;           // TEI @xml:id
+  readonly name: string;           // placeName content
+  readonly type?: string;          // city, country, building, etc.
+  readonly coordinates?: {
+    readonly lat: number;
+    readonly lng: number;
+  };
+  readonly description?: string;
+}
+
+/**
+ * Organization entity
+ */
+export interface Organization {
+  readonly id: string;
+  readonly xmlId: string;           // TEI @xml:id
+  readonly name: string;           // orgName content
+  readonly type?: string;          // company, government, etc.
+  readonly description?: string;
+}
+
+/**
+ * Type guard for Character
+ */
+export function isCharacter(entity: Entity): entity is Character {
+  return 'sex' in entity;
+}
+
+/**
+ * Type guard for Place
+ */
+export function isPlace(entity: Entity): entity is Place {
+  return 'coordinates' in entity;
+}
+
+/**
+ * Type guard for Organization
+ */
+export function isOrganization(entity: Entity): entity is Organization {
+  return !('sex' in entity) && !('coordinates' in entity) && 'type' in entity;
+}
+
+/**
  * Relationship type union
  */
 export type RelationshipType =
@@ -241,6 +295,8 @@ export interface DocumentState {
   readonly passages: readonly Passage[];
   readonly dialogue: readonly Dialogue[];
   readonly characters: readonly Character[];
+  readonly places: readonly Place[];
+  readonly organizations: readonly Organization[];
   readonly relationships: readonly Relationship[];
 }
 
