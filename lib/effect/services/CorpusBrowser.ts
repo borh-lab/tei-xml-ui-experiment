@@ -1,5 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck
 import { Effect, Layer, Ref, Context, Schema } from 'effect';
 import {
   CorpusDataSource,
