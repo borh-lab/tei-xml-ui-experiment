@@ -12,7 +12,11 @@ import {
   smartSelectionAdjust,
   snapToTagBoundaries,
   validateSelection,
+  validateAgainstSchema,
+  schemaAwareSmartSelection,
   type SelectionAdjustment,
+  type SchemaValidationResult,
+  type TEI_P5_CONSTRAINTS,
 } from './SmartSelection';
 
 export class SelectionManager {
@@ -185,6 +189,135 @@ export class SelectionManager {
     }
 
     return validateSelection(passage, snapshot.range, tagType);
+  }
+
+  /**
+   * Schema-aware smart selection (combines structural + schema validation)
+   *
+   * Validates both structural integrity and schema constraints before tag application.
+   * Provides helpful error messages about missing attributes or invalid values.
+   *
+   * @param doc - Current document
+   * @param tagType - Type of tag to apply
+   * @param providedAttrs - Attributes that will be provided
+   * @returns Validation result with schema-aware feedback
+   */
+  validateTagApplicationWithSchema(
+    doc: TEIDocument,
+    tagType: string,
+    providedAttrs: Record<string, string> = {}
+  ): {
+    valid: boolean;
+    reason?: string;
+    adjustment?: SelectionAdjustment;
+    missingAttributes?: string[];
+    invalidAttributes?: Record<string, string>;
+    suggestions?: string[];
+  } | null {
+    const snapshot = this.captureSelection();
+    if (!snapshot) {
+      return null;
+    }
+
+    const passage = doc.state.passages.find(p => p.id === snapshot.passageId);
+    if (!passage) {
+      return null;
+    }
+
+    // Check schema constraints
+    const schemaValidation = validateAgainstSchema(
+      passage,
+      snapshot.range,
+      tagType,
+      providedAttrs,
+      doc
+    );
+
+    if (!schemaValidation.valid) {
+      return {
+        valid: false,
+        reason: schemaValidation.reason,
+        missingAttributes: schemaValidation.missingAttributes,
+        invalidAttributes: schemaValidation.invalidAttributes,
+        suggestions: schemaValidation.suggestions,
+      };
+    }
+
+    // Also check structural validation
+    const structuralValidation = validateSelection(passage, snapshot.range, tagType);
+
+    if (!structuralValidation.valid) {
+      return {
+        valid: false,
+        reason: structuralValidation.reason,
+        adjustment: structuralValidation.adjustment,
+      };
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Capture selection with schema-aware validation
+   *
+   * Like captureSmartSelection, but validates against schema constraints.
+   *
+   * @param doc - Current document
+   * @param tagType - Type of tag to apply
+   * @param providedAttrs - Attributes that will be provided
+   * @returns Validation result with adjustment info
+   */
+  captureSchemaAwareSelection(
+    doc: TEIDocument,
+    tagType: string,
+    providedAttrs: Record<string, string> = {}
+  ): {
+    snapshot: SelectionSnapshot;
+    adjustment: SelectionAdjustment;
+    schemaValidation?: SchemaValidationResult;
+  } | null {
+    const snapshot = this.captureSelection();
+    if (!snapshot) {
+      return null;
+    }
+
+    const passage = doc.state.passages.find(p => p.id === snapshot.passageId);
+    if (!passage) {
+      return null;
+    }
+
+    // Apply schema-aware smart selection
+    const result = schemaAwareSmartSelection(
+      passage,
+      snapshot.range,
+      tagType,
+      providedAttrs,
+      doc
+    );
+
+    // Update snapshot if range was adjusted
+    const adjustedSnapshot = result.adjustedRange.start !== snapshot.range.start ||
+                          result.adjustedRange.end !== snapshot.range.end
+      ? {
+          ...snapshot,
+          range: result.adjustedRange,
+          text: passage.content.substring(
+            result.adjustedRange.start,
+            result.adjustedRange.end
+          ),
+        }
+      : snapshot;
+
+    return {
+      snapshot: adjustedSnapshot,
+      adjustment: result,
+      schemaValidation: {
+        valid: result.valid,
+        missingAttributes: result.missingAttributes,
+        invalidAttributes: result.invalidAttributes,
+        suggestions: result.suggestions,
+      },
+    };
   }
 
   // Helper methods (private)
