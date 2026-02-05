@@ -123,10 +123,8 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
           : '<' + tag + '>';
         showToast('Applied ' + tagDisplay, 'success');
 
-        // Restore selection after update (with adjusted range)
-        setTimeout(() => {
-          (selectionManagerInstance.restoreSelection as any)(document, snapshot);
-        }, 100);
+        // Note: Selection restoration after document update is not currently supported
+        // due to document revision changing on each update
       } catch (error) {
         console.error('Failed to apply tag:', error);
         showToast('Failed to apply tag - See console for details', 'error');
