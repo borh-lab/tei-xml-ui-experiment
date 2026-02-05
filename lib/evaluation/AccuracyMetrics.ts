@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Accuracy Metrics for Pattern Engine Evaluation
  *

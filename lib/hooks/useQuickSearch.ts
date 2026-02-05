@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useCallback } from 'react';
 import { SearchResult } from '@/lib/search/QuickSearch';
 
