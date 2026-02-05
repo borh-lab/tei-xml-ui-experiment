@@ -1,0 +1,75 @@
+/**
+ * Document Validation Summary Styles
+ *
+ * Dashboard styling, issue list styling, responsive design
+ */
+
+.document-validation-summary {
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .document-validation-summary {
+    padding: 0.5rem;
+  }
+}
+
+/* Issue Dashboard */
+.issue-dashboard {
+  background: white;
+  border-radius: 0.5rem;
+}
+
+/* Issue List */
+.issue-list {
+  background: white;
+  border-radius: 0.5rem;
+}
+
+.issue-list .validation-issue-item {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.issue-list .validation-issue-item:hover {
+  opacity: 0.8;
+}
+
+/* Filter buttons */
+.issue-list button {
+  transition: all 0.2s ease-in-out;
+}
+
+.issue-list button:hover {
+  transform: translateY(-1px);
+}
+
+/* Sort dropdown */
+.issue-list select {
+  cursor: pointer;
+}
+
+/* Print styles */
+@media print {
+  .document-validation-summary button,
+  .document-validation-summary select {
+    display: none;
+  }
+
+  .document-validation-summary {
+    padding: 0;
+  }
+
+  .issue-dashboard,
+  .issue-list {
+    page-break-inside: avoid;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .issue-dashboard,
+  .issue-list {
+    background: #1a1a1a;
+    color: #f5f5f5;
+  }
+}
