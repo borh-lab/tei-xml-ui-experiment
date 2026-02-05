@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { CharacterRanking as RankingType } from '../../lib/analytics/types';
 
 interface CharacterRankingsProps {
