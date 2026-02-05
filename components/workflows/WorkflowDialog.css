@@ -1,0 +1,129 @@
+/**
+ * WorkflowDialog Styles
+ *
+ * Styles for workflow dialog component including:
+ * - Dialog container
+ * - Step transitions
+ * - Progress indicator
+ * - Entity picker
+ * - Animations
+ */
+
+/* Dialog container */
+.workflow-dialog {
+  animation: dialog-fade-in 0.2s ease-out;
+}
+
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Step transition */
+.workflow-step {
+  animation: step-slide-in 0.2s ease-out;
+}
+
+@keyframes step-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Progress bar animation */
+.workflow-progress {
+  transition: width 0.3s ease-out;
+}
+
+/* Entity picker dropdown */
+.entity-picker-dropdown {
+  animation: dropdown-fade-in 0.15s ease-out;
+}
+
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Entity item hover */
+.entity-item {
+  transition: background-color 0.15s ease-out, transform 0.1s ease-out;
+}
+
+.entity-item:hover {
+  transform: translateX(4px);
+}
+
+/* Selected entity highlight */
+.entity-item[aria-selected='true'] {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+/* Button states */
+.workflow-button {
+  transition: all 0.15s ease-out;
+}
+
+.workflow-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.workflow-loading {
+  animation: spin 1s linear infinite;
+}
+
+/* Error message */
+.workflow-error {
+  animation: error-shake 0.4s ease-out;
+}
+
+@keyframes error-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .workflow-dialog {
+    max-width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .workflow-step {
+    padding: 1rem;
+  }
+}
