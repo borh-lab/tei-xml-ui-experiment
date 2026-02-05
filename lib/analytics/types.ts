@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Protocol types for corpus analytics feature.
  * All types use readonly interfaces for immutability.

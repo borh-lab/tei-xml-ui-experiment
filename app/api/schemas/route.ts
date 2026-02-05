@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { NextResponse } from 'next/server';
 import { createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
 

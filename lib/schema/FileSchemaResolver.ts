@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { SchemaResolver, SchemaInfo } from './SchemaResolver';
 
 /**

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Quote, CharacterRanking, ConversationMatrix } from './types';
 import type { TEIDocument, Character } from '@/lib/tei/types';
 
