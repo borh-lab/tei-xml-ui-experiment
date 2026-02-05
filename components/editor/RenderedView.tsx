@@ -300,7 +300,7 @@ export const RenderedView = React.memo(
     }
 
     return (
-      <div className="flex flex-col h-full">
+      <div data-test-page="editor" className="flex flex-col h-full">
         {/* Feature Flag Badge */}
         <div className="px-4 py-2 border-b bg-muted/30">
           <Badge variant="outline" className="text-xs">
@@ -339,6 +339,8 @@ export const RenderedView = React.memo(
                 <div
                   key={passage.id}
                   id={passage.id}
+                  data-test-passage={index}
+                  data-test-state={isActive ? 'highlighted' : 'normal'}
                   data-passage-id={passage.id}
                   data-document-revision={document.state.revision}
                   ref={(el) => {

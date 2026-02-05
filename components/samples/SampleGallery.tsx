@@ -60,7 +60,7 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+    <div data-test-page="gallery" className="max-w-7xl mx-auto px-4 py-4 md:py-8">
       {error && (
         <div className="mb-4 bg-destructive text-destructive-foreground p-4 rounded">
           <p className="font-semibold">Failed to load sample</p>
@@ -136,10 +136,10 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSamples.map((sample) => (
-              <Card key={sample.id} className="flex flex-col hover:shadow-lg transition-shadow">
+              <Card key={sample.id} data-test-sample-card={sample.id} data-test-sample-id={sample.id} data-test-state={loading ? 'loading' : 'ready'} className="flex flex-col hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-xl line-clamp-2">{sample.title}</CardTitle>
+                    <CardTitle data-test-sample-title className="text-xl line-clamp-2">{sample.title}</CardTitle>
                     <Badge className={getDifficultyColor(sample.difficulty)} variant="secondary">
                       {sample.difficulty}
                     </Badge>
@@ -180,6 +180,8 @@ export function SampleGallery({ onSelect, onLoadSample }: SampleGalleryProps) {
                   </div>
 
                   <Button
+                    data-test-action="load-sample"
+                    data-test-sample-id={sample.id}
                     onClick={() => handleLoadSample(sample.id)}
                     disabled={loading}
                     className="w-full"
