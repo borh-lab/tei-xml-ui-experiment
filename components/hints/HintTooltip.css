@@ -1,0 +1,159 @@
+/**
+ * HintTooltip Styles
+ */
+
+.hint-tooltip {
+  min-width: 200px;
+  max-width: 400px;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  line-height: 1.5;
+  pointer-events: auto;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hint-tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hint-tooltip-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.hint-tooltip-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.hint-tooltip-message {
+  flex: 1;
+  word-break: break-word;
+}
+
+.hint-tooltip-action {
+  margin-top: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+/* Severity-specific styles */
+
+.hint-valid {
+  background-color: #f0fdf4;
+  border: 1px solid #22c55e;
+  color: #15803d;
+}
+
+.hint-valid .hint-tooltip-icon {
+  color: #22c55e;
+}
+
+.hint-valid .hint-tooltip-action {
+  background-color: #22c55e;
+  color: white;
+}
+
+.hint-valid .hint-tooltip-action:hover {
+  background-color: #16a34a;
+}
+
+.hint-warning {
+  background-color: #fffbeb;
+  border: 1px solid #f59e0b;
+  color: #b45309;
+}
+
+.hint-warning .hint-tooltip-icon {
+  color: #f59e0b;
+}
+
+.hint-warning .hint-tooltip-action {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.hint-warning .hint-tooltip-action:hover {
+  background-color: #d97706;
+}
+
+.hint-invalid {
+  background-color: #fef2f2;
+  border: 1px solid #ef4444;
+  color: #b91c1c;
+}
+
+.hint-invalid .hint-tooltip-icon {
+  color: #ef4444;
+}
+
+.hint-invalid .hint-tooltip-action {
+  background-color: #ef4444;
+  color: white;
+}
+
+.hint-invalid .hint-tooltip-action:hover {
+  background-color: #dc2626;
+}
+
+/* Dark mode support */
+
+@media (prefers-color-scheme: dark) {
+  .hint-valid {
+    background-color: #14532d;
+    border-color: #22c55e;
+    color: #86efac;
+  }
+
+  .hint-warning {
+    background-color: #78350f;
+    border-color: #f59e0b;
+    color: #fcd34d;
+  }
+
+  .hint-invalid {
+    background-color: #7f1d1d;
+    border-color: #ef4444;
+    color: #fca5a5;
+  }
+}
+
+/* Responsive design */
+
+@media (max-width: 640px) {
+  .hint-tooltip {
+    min-width: 150px;
+    max-width: 300px;
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .hint-tooltip-action {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
