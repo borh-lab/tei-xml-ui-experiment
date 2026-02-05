@@ -53,6 +53,9 @@ export default defineConfig({
         baseURL: 'http://localhost:3001', // Use port 3001
         viewport: { width: 1920, height: 1080 }, // Full HD for better quality
         screen: { width: 1920, height: 1080 },
+        // Explicitly set video recording size to match viewport
+        videoSize: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1, // Force 1:1 pixel mapping for crisp text
       },
       // Isolated server with cache cleaning to avoid Turbopack lock issues
       webServer: {
