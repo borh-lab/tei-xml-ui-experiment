@@ -10,6 +10,46 @@ export interface RecentDocument {
   lastModified?: number;
 }
 
+// ============================================================================
+// Type Guards
+// ============================================================================
+
+/**
+ * Type guard for RecentDocument objects
+ */
+export function isRecentDocument(value: unknown): value is RecentDocument {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    'title' in value &&
+    'timestamp' in value &&
+    'progress' in value &&
+    typeof value.id === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.timestamp === 'number' &&
+    typeof value.progress === 'number'
+  );
+}
+
+/**
+ * Validate progress percentage
+ */
+export function isValidProgress(value: number): boolean {
+  return typeof value === 'number' && value >= 0 && value <= 100;
+}
+
+/**
+ * Validate timestamp
+ */
+export function isValidTimestamp(value: number): boolean {
+  return typeof value === 'number' && value > 0 && value <= Date.now();
+}
+
+// ============================================================================
+// Storage Functions (with type guards)
+// ============================================================================
+
 export function getRecentDocuments(): RecentDocument[] {
   if (typeof window === 'undefined') return [];
 
@@ -19,15 +59,21 @@ export function getRecentDocuments(): RecentDocument[] {
 
     const parsed = JSON.parse(stored);
 
-    // Validate and filter old format
+    // Use type guard to validate array
     if (!Array.isArray(parsed)) return [];
 
     // Sort by timestamp descending
     return parsed
       .sort((a: RecentDocument, b: RecentDocument) => b.timestamp - a.timestamp)
-      .filter((doc: RecentDocument) => {
-        // Only return documents with valid id and title
-        return doc.id && doc.title && typeof doc.timestamp === 'number';
+      .filter((doc: unknown): doc is RecentDocument => {
+        // Use type guard for validation
+        if (!isRecentDocument(doc)) return false;
+
+        // Additional validation
+        if (!isValidTimestamp(doc.timestamp)) return false;
+        if (!isValidProgress(doc.progress)) return false;
+
+        return true;
       });
   } catch (error) {
     console.error('Failed to parse recent documents:', error);
@@ -62,6 +108,11 @@ export function addRecentDocument(doc: RecentDocument) {
 export function updateProgress(id: string, progress: number) {
   if (typeof window === 'undefined') return;
 
+  // Validate progress
+  if (!isValidProgress(progress)) {
+    throw new Error(`Invalid progress value: ${progress}. Must be between 0 and 100.`);
+  }
+
   const recent = getRecentDocuments();
   const doc = recent.find((d) => d.id === id);
 
@@ -77,8 +128,19 @@ export function updateProgress(id: string, progress: number) {
   }
 }
 
+/**
+ * Update document with validation
+ * @throws {Error} If updates contain invalid progress value
+ */
 export function updateDocument(id: string, updates: Partial<RecentDocument>) {
   if (typeof window === 'undefined') return;
+
+  // Validate progress if provided
+  if ('progress' in updates && updates.progress !== undefined) {
+    if (!isValidProgress(updates.progress)) {
+      throw new Error(`Invalid progress value: ${updates.progress}. Must be between 0 and 100.`);
+    }
+  }
 
   const recent = getRecentDocuments();
   const index = recent.findIndex((d) => d.id === id);
@@ -150,8 +212,23 @@ export function formatTimestamp(timestamp: number): string {
   }
 }
 
+// ============================================================================
+// Statistics Types
+// ============================================================================
+
+/**
+ * Statistics about recent documents
+ */
+export interface RecentDocumentsStats {
+  readonly total: number;
+  readonly completed: number;
+  readonly inProgress: number;
+  readonly notStarted: number;
+  readonly averageProgress: number;
+}
+
 // Get statistics about recent documents
-export function getRecentDocumentsStats() {
+export function getRecentDocumentsStats(): RecentDocumentsStats {
   const recent = getRecentDocuments();
 
   return {

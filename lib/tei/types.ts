@@ -26,11 +26,44 @@ export interface TEINode {
   [key: string]: unknown;
 }
 
+// ============================================================================
+// Type Guards for TEI Node (enable isTEINode() usage)
+// ============================================================================
+
 /**
- * Stable content-addressable identifiers
+ * Type predicate for text nodes
+ */
+export type TextNode = TEINode & { '#text': string };
+
+/**
+ * Type predicate for element nodes
+ */
+export type ElementNode = TEINode & { '#name': string };
+
+/**
+ * Check if node is a text node
+ */
+export function isTextNode(node: TEINode): node is TextNode {
+  return '#text' in node && typeof node['#text'] === 'string';
+}
+
+/**
+ * Check if node is an element node
+ */
+export function isElementNode(node: TEINode): node is ElementNode {
+  return '#name' in node && typeof node['#name'] === 'string';
+}
+
+/**
+ * ID Types with format validation
  *
- * These IDs are derived from content hash or UUID and remain stable
- * across document mutations, unlike positional indices.
+ * These are type aliases for now with runtime validation helpers.
+ * In the future, these could become branded types for true nominal typing.
+ *
+ * Format requirements:
+ * - PassageID: "passage-{hash}"
+ * - TagID: "tag-{uuid}"
+ * - CharacterID: "char-{xml-id}"
  */
 
 /** Passage identifier: format "passage-{hash}" */
@@ -41,6 +74,37 @@ export type TagID = string;
 
 /** Character identifier: format "char-{xml-id}" */
 export type CharacterID = string;
+
+/** Helper to validate and create PassageID */
+export function createPassageID(id: string): PassageID {
+  if (!id.startsWith('passage-')) {
+    throw new Error(`Invalid PassageID format: ${id}. Expected 'passage-{hash}'`);
+  }
+  return id;
+}
+
+/** Helper to validate and create TagID */
+export function createTagID(id: string): TagID {
+  if (!id.startsWith('tag-')) {
+    throw new Error(`Invalid TagID format: ${id}. Expected 'tag-{uuid}'`);
+  }
+  return id;
+}
+
+/** Helper to validate and create CharacterID */
+export function createCharacterID(id: string): CharacterID {
+  if (!id.startsWith('char-')) {
+    throw new Error(`Invalid CharacterID format: ${id}. Expected 'char-{xml-id}'`);
+  }
+  return id;
+}
+
+/**
+ * Stable content-addressable identifiers
+ *
+ * These IDs are derived from content hash or UUID and remain stable
+ * across document mutations, unlike positional indices.
+ */
 
 /**
  * Text range within a passage
@@ -186,15 +250,81 @@ export interface DocumentState {
  * Events represent state transitions. Each event has a timestamp
  * and revision number. Events are append-only - never modified.
  */
+
+// ============================================================================
+// Event Type Helpers
+// ============================================================================
+
+/** Base event fields */
+interface BaseEvent {
+  readonly timestamp: number;
+  readonly revision: number;
+}
+
+/** Character update type (excludes id and xmlId) */
+export type CharacterUpdates = Partial<Omit<Character, 'id' | 'xmlId'>>;
+
+/** Relationship without id field */
+export type RelationshipInput = Omit<Relationship, 'id'>;
+
+// ============================================================================
+// Document Event Types with Conditional Types
+// ============================================================================
+
+/**
+ * Discriminated union of all document events
+ * Each event type has a unique discriminator for type narrowing
+ */
 export type DocumentEvent =
-  | { type: 'loaded'; xml: string; timestamp: number; revision: number }
-  | { type: 'saidTagAdded'; id: TagID; passageId: PassageID; range: TextRange; speaker: CharacterID; timestamp: number; revision: number }
-  | { type: 'tagRemoved'; id: TagID; timestamp: number; revision: number }
-  | { type: 'characterAdded'; id: CharacterID; character: Character; timestamp: number; revision: number }
-  | { type: 'characterUpdated'; id: CharacterID; updates: Partial<Omit<Character, 'id' | 'xmlId'>>; timestamp: number; revision: number }
-  | { type: 'characterRemoved'; id: CharacterID; timestamp: number; revision: number }
-  | { type: 'relationAdded'; id: string; relation: Relationship; timestamp: number; revision: number }
-  | { type: 'relationRemoved'; id: string; timestamp: number; revision: number };
+  // Document lifecycle events
+  | BaseEvent & { type: 'loaded'; readonly xml: string }
+  // Tag operation events
+  | BaseEvent & { type: 'saidTagAdded'; readonly id: TagID; readonly passageId: PassageID; readonly range: TextRange; readonly speaker: CharacterID }
+  | BaseEvent & { type: 'qTagAdded'; readonly id: TagID; readonly passageId: PassageID; readonly range: TextRange }
+  | BaseEvent & { type: 'persNameTagAdded'; readonly id: TagID; readonly passageId: PassageID; readonly range: TextRange; readonly ref: string }
+  | BaseEvent & { type: 'tagRemoved'; readonly id: TagID }
+  // Character operation events
+  | BaseEvent & { type: 'characterAdded'; readonly id: CharacterID; readonly character: Character }
+  | BaseEvent & { type: 'characterUpdated'; readonly id: CharacterID; readonly updates: CharacterUpdates }
+  | BaseEvent & { type: 'characterRemoved'; readonly id: CharacterID }
+  // Relationship operation events
+  | BaseEvent & { type: 'relationAdded'; readonly id: string; readonly relation: RelationshipInput }
+  | BaseEvent & { type: 'relationRemoved'; readonly id: string };
+
+// ============================================================================
+// Event Type Extractors (using conditional types)
+// ============================================================================
+
+/** Extract event type discriminator */
+export type EventType = DocumentEvent['type'];
+
+/** Extract all event types that have a payload */
+export type EventsWithPayload<T extends DocumentEvent['type']> = Extract<DocumentEvent, { type: T }>;
+
+/** Get event by type */
+export type EventByType<T extends EventType> = Extract<DocumentEvent, { type: T }>;
+
+/** Check if event has specific data */
+export type HasEventField<T extends DocumentEvent, K extends string> = T extends { [P in K]: any } ? true : false;
+
+// ============================================================================
+// Event Type Guards
+// ============================================================================
+
+/** Type guard for loaded events */
+export function isLoadedEvent(event: DocumentEvent): event is EventByType<'loaded'> {
+  return event.type === 'loaded';
+}
+
+/** Type guard for character events */
+export function isCharacterEvent(event: DocumentEvent): event is EventByType<'characterAdded'> | EventByType<'characterUpdated'> | EventByType<'characterRemoved'> {
+  return ['characterAdded', 'characterUpdated', 'characterRemoved'].includes(event.type);
+}
+
+/** Type guard for tag events */
+export function isTagEvent(event: DocumentEvent): event is EventByType<'saidTagAdded'> | EventByType<'qTagAdded'> | EventByType<'persNameTagAdded'> | EventByType<'tagRemoved'> {
+  return ['saidTagAdded', 'qTagAdded', 'persNameTagAdded', 'tagRemoved'].includes(event.type);
+}
 
 /**
  * TEI Document (immutable value)
