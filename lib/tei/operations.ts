@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * TEI Document Operations (Pure Functions)
  *
@@ -24,6 +23,7 @@ import {
   Character,
   Dialogue,
   Relationship,
+  RelationshipType,
   TEINode,
 } from './types';
 
@@ -152,13 +152,16 @@ function generateCharacterId(xmlId: string | undefined, name: string): Character
  * Extract metadata from parsed TEI document
  */
 function extractMetadata(parsed: TEINode): DocumentState['metadata'] {
-  const teiHeader = parsed.TEI?.teiHeader;
-  const titleStmt = teiHeader?.fileDesc?.titleStmt;
+  const teiHeader = (parsed.TEI as TEINode)?.teiHeader as TEINode;
+  const fileDesc = teiHeader?.fileDesc as TEINode;
+  const titleStmt = fileDesc?.titleStmt as TEINode;
+  const title = titleStmt?.title as string | TEINode;
+  const author = titleStmt?.author as string | TEINode;
 
   return {
-    title: titleStmt?.title?.['#text'] || titleStmt?.title || 'Untitled',
-    author: titleStmt?.author?.['#text'] || titleStmt?.author || 'Unknown',
-    created: new Date(), // Could parse from teiHeader if present
+    title: (typeof title === 'string' ? title : title?.['#text']) || 'Untitled',
+    author: (typeof author === 'string' ? author : author?.['#text']) || 'Unknown',
+    created: new Date(),
   };
 }
 
@@ -167,7 +170,9 @@ function extractMetadata(parsed: TEINode): DocumentState['metadata'] {
  * Converts TEI <p> elements to Passage[] with stable IDs
  */
 function extractPassages(parsed: TEINode): readonly Passage[] {
-  const body = parsed.TEI?.text?.body;
+  const tei = parsed.TEI as TEINode | undefined;
+  const text = tei?.text as TEINode | undefined;
+  const body = text?.body as TEINode | undefined;
   if (!body) return [];
 
   const paragraphs = body.p;
@@ -274,9 +279,9 @@ function extractTagsFromPassage(passage: TEINode, passageId: PassageID): readonl
         type: 'said',
         range,
         attributes: {
-          who: said['@_who'] || said['@_speaker'] || '',
-          ...(said['@_direct'] && { direct: said['@_direct'] }),
-          ...(said['@_aloud'] && { aloud: said['@_aloud'] }),
+          who: (said['@_who'] as string | undefined) || (said['@_speaker'] as string | undefined) || '',
+          ...(said['@_direct'] ? { direct: said['@_direct'] as string } : {}),
+          ...(said['@_aloud'] ? { aloud: said['@_aloud'] as string } : {}),
         },
       });
     });
@@ -314,7 +319,7 @@ function extractTagsFromPassage(passage: TEINode, passageId: PassageID): readonl
         type: 'persName',
         range,
         attributes: {
-          ...(persName['@_ref'] && { ref: persName['@_ref'] }),
+          ...(persName['@_ref'] ? { ref: persName['@_ref'] as string } : {}),
         },
       });
     });
@@ -329,28 +334,32 @@ function extractTagsFromPassage(passage: TEINode, passageId: PassageID): readonl
  * Extract characters from parsed TEI document
  */
 function extractCharacters(parsed: TEINode): readonly Character[] {
-  const standOff = parsed.TEI?.standOff;
+  const tei = parsed.TEI as TEINode | undefined;
+  const standOff = tei?.standOff as TEINode | undefined;
   if (!standOff) return [];
 
-  const listPerson = standOff.listPerson;
+  const listPerson = standOff.listPerson as TEINode | undefined;
   if (!listPerson) return [];
 
-  const persons = listPerson.person;
+  const persons = listPerson.person as TEINode | TEINode[] | undefined;
   if (!persons) return [];
 
   const personArray = Array.isArray(persons) ? persons : [persons];
 
-  return personArray.map((person: TEINode, idx: number) => {
-    const xmlId = person['@_xml:id'] || person['xml:id'];
-    const name = person.persName?.['#text'] || person.persName || `Unknown-${idx}`;
+  return personArray.map((person: TEINode, idx: number): Character => {
+    const xmlId = (person['@_xml:id'] as string | undefined) || (person['xml:id'] as string | undefined);
+    const persName = person.persName as TEINode | string | undefined;
+    const name = (typeof persName === 'string' ? persName : persName?.['#text']) || `Unknown-${idx}`;
     const charId = generateCharacterId(xmlId, name);
+    const sexNode = person.sex as TEINode | undefined;
+    const ageNode = person.age as TEINode | undefined;
 
     return {
       id: charId,
       xmlId: xmlId || charId.replace('char-', ''),
-      name,
-      sex: person.sex?.['@_value'],
-      age: person.age?.['@_value'] ? parseInt(person.age['@_value']) : undefined,
+      name: name as string,
+      sex: sexNode?.['@_value'] as Character['sex'],
+      age: ageNode?.['@_value'] ? parseInt(ageNode['@_value'] as string) : undefined,
     };
   });
 }
@@ -359,29 +368,30 @@ function extractCharacters(parsed: TEINode): readonly Character[] {
  * Extract relationships from parsed TEI document
  */
 function extractRelationships(parsed: TEINode): readonly Relationship[] {
-  const standOff = parsed.TEI?.standOff;
+  const tei = parsed.TEI as TEINode | undefined;
+  const standOff = tei?.standOff as TEINode | undefined;
   if (!standOff) return [];
 
-  const listRelation = standOff.listRelation;
+  const listRelation = standOff.listRelation as TEINode | undefined;
   if (!listRelation) return [];
 
-  const relations = listRelation.relation;
+  const relations = listRelation.relation as TEINode | TEINode[] | undefined;
   if (!relations) return [];
 
   const relationArray = Array.isArray(relations) ? relations : [relations];
 
-  return relationArray.map((rel: TEINode) => {
-    const active = rel['@_active']?.replace('#', '') || '';
-    const passive = rel['@_passive']?.replace('#', '') || '';
-    const name = rel['@_name'] || 'unknown';
+  return relationArray.map((rel: TEINode): Relationship => {
+    const active = (rel['@_active'] as string | undefined)?.replace('#', '') || '';
+    const passive = (rel['@_passive'] as string | undefined)?.replace('#', '') || '';
+    const name = (rel['@_name'] as string | undefined) || 'unknown';
 
     return {
-      id: rel['@_xml:id'] || `${name}-${active}-${passive}`,
-      from: active,
-      to: passive,
-      type: name,
-      subtype: rel['@_subtype'],
-      mutual: rel['@_mutual'] !== 'false',
+      id: (rel['@_xml:id'] as string | undefined) || `${name}-${active}-${passive}`,
+      from: active as CharacterID,
+      to: passive as CharacterID,
+      type: name as RelationshipType,
+      subtype: rel['@_subtype'] as string | undefined,
+      mutual: (rel['@_mutual'] as string | undefined) !== 'false',
     };
   });
 }
@@ -652,7 +662,7 @@ export function serializeDocument(doc: TEIDocument | { state?: { parsed?: TEINod
   }
 
   // For new immutable document model
-  const state = doc.state;
+  const state = doc.state as DocumentState;
   if (!state) {
     throw new Error('Cannot serialize document: no state found');
   }
@@ -662,7 +672,7 @@ export function serializeDocument(doc: TEIDocument | { state?: { parsed?: TEINod
   const passages = state.passages;
 
   // Rebuild passages with tags embedded
-  const rebuiltPassages = passages.map((passage) => rebuildPassageWithTags(passage));
+  const rebuiltPassages = passages.map((passage: Passage) => rebuildPassageWithTags(passage));
 
   // Replace body/p with rebuilt passages
   if (parsed.TEI?.text?.body?.p) {

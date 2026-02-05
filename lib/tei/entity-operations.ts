@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Entity Operations - Pure Functions for Character and Relationship CRUD
  *
@@ -175,7 +174,6 @@ export function addRelation(
   const relations: Relationship[] = [...doc.state.relationships];
   const newRelation: Relationship = {
     id: crypto.randomUUID(),
-    mutual: false, // Will be set to true if mutual
     ...relation,
   };
 

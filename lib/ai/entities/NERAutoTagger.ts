@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { TEIDocument } from '@/lib/tei';
 import { serializeDocument } from '@/lib/tei/operations';
 import { EntityDetector } from './EntityDetector';

@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { TEIDocument } from './TEIDocument';
+import { TEIDocument } from './types';
 import { serializeDocument } from './operations';
 
 export function exportToHTML(document: TEIDocument): string {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 // lib/ai/ax-provider.ts
 import { ax, ai } from '@ax-llm/ax';
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
