@@ -14,7 +14,42 @@ export interface CorpusMetadata {
   };
   encodingType: 'dialogue-focused' | 'dramatic-text' | 'minimal-markup' | 'mixed';
   sampleDocuments: string[];
+
+  // NEW FIELD
+  validationResults: SchemaValidationResults;
+
   issues: string[];
+}
+
+export interface SchemaValidationResults {
+  totalDocuments: number;
+  validAgainstSchema: number;
+  schemaCompliance: number; // percentage
+  teiAllPass: number;
+  teiNovelPass: number;
+  teiMinimalPass: number;
+  filesWithValidationErrors: number;
+  sampleErrors: SchemaValidationError[];
+}
+
+export interface SchemaValidationError {
+  file: string;
+  attemptedSchemas: string[];
+  allErrors: SchemaError[];
+}
+
+export interface SchemaError {
+  schema: string;
+  line?: number;
+  column?: number;
+  message: string;
+}
+
+export interface SchemaValidationResult {
+  teiAllPass: boolean;
+  teiNovelPass: boolean;
+  teiMinimalPass: boolean;
+  errors: SchemaError[];
 }
 
 export interface SplitDefinition {
