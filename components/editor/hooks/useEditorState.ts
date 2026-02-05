@@ -5,6 +5,8 @@ import { useDocumentService } from '@/lib/effect/react/hooks';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
 import type { TagInfo } from '@/lib/selection/types';
 import type { TEINode } from '@/lib/tei/types';
+import type { Fix } from '@/lib/validation/types';
+import { toast } from '@/components/ui/use-toast';
 
 export interface UseEditorStateResult {
   // Document state (from useDocumentService)
@@ -76,6 +78,108 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
     return paragraphs.map((_, idx) => `passage-${idx}`);
   }, [document]);
 
+  /**
+   * Execute a fix action to resolve a validation error
+   */
+  const executeFix = useCallback(
+    async (
+      fix: Fix,
+      passageId: string,
+      range: { start: number; end: number },
+      tagType: string
+    ): Promise<void> => {
+      try {
+        switch (fix.type) {
+          case 'add-attribute':
+            // Re-apply tag with missing attribute added
+            // If there are suggestedValues, use the first one
+            const valueToAdd = fix.suggestedValues && fix.suggestedValues.length > 0
+              ? fix.suggestedValues[0]
+              : fix.value || '';
+            await addTag(
+              passageId,
+              range,
+              tagType,
+              fix.attribute ? { [fix.attribute]: valueToAdd } : {}
+            );
+            showToast(`Added @${fix.attribute}="${valueToAdd}" to <${tagType}>`, 'success');
+            break;
+
+          case 'change-attribute':
+            // Re-apply tag with corrected attribute value
+            const valueToChange = fix.suggestedValues && fix.suggestedValues.length > 0
+              ? fix.suggestedValues[0]
+              : fix.value || '';
+            await addTag(
+              passageId,
+              range,
+              tagType,
+              fix.attribute ? { [fix.attribute]: valueToChange } : {}
+            );
+            showToast(`Changed @${fix.attribute} to "${valueToChange}" in <${tagType}>`, 'success');
+            break;
+
+          case 'create-entity':
+            // Open entity creation dialog (future task)
+            showToast('Entity creation coming soon', 'info');
+            break;
+
+          case 'expand-selection':
+            // Re-apply tag with expanded selection
+            if (fix.expandedRange) {
+              await addTag(passageId, fix.expandedRange, tagType, {});
+              showToast(`Expanded selection for <${tagType}> tag`, 'success');
+            }
+            break;
+        }
+      } catch (error) {
+        console.error('Failed to execute fix:', error);
+        showToast('Failed to apply fix', 'error');
+      }
+    },
+    [addTag, showToast]
+  );
+
+  /**
+   * Show toast with action buttons for fixes
+   */
+  const showToastWithActions = useCallback((
+    message: string,
+    type: 'success' | 'error' | 'info' | 'warning',
+    fixes?: Fix[],
+    passageId?: string,
+    range?: { start: number; end: number },
+    tagType?: string
+  ): void => {
+    // If no fixes, show regular toast
+    if (!fixes || fixes.length === 0) {
+      showToast(message, type);
+      return;
+    }
+
+    // Convert fixes to action buttons using sonner toast
+    const actions = fixes.slice(0, 3).map(fix => ({
+      label: fix.label,
+      onClick: () => {
+        if (passageId && range && tagType) {
+          executeFix(fix, passageId, range, tagType);
+        }
+      },
+    }));
+
+    // Show first action with sonner toast
+    if (actions.length > 0) {
+      toast[type](message, {
+        description: fixes.length > 1
+          ? `${fixes.length} fixes available. First fix shown below.`
+          : undefined,
+        action: actions[0],
+      });
+    } else {
+      showToast(message, type);
+    }
+  }, [showToast, executeFix]);
+
   // Generic handler for applying tags to selected text
   const handleApplyTag = useCallback(
     async (tag: string, attrs?: Record<string, string>) => {
@@ -104,27 +208,40 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
         // Schema validation failed - show helpful error
         const errorMsg = schemaValidation.reason || 'Invalid tag application';
 
-        // Show missing attributes
-        if (schemaValidation.missingAttributes && schemaValidation.missingAttributes.length > 0) {
-          const missing = schemaValidation.missingAttributes.join(', ');
-          showToast(`Missing required attributes: ${missing}`, 'error');
-        }
+        // Show fixes as actionable toasts if available
+        if (schemaValidation.fixes && schemaValidation.fixes.length > 0) {
+          showToastWithActions(
+            errorMsg,
+            'warning',
+            schemaValidation.fixes,
+            passageId,
+            range,
+            tag
+          );
+        } else {
+          // Fallback to showing errors as separate toasts (backward compatibility)
+          // Show missing attributes
+          if (schemaValidation.missingAttributes && schemaValidation.missingAttributes.length > 0) {
+            const missing = schemaValidation.missingAttributes.join(', ');
+            showToast(`Missing required attributes: ${missing}`, 'error');
+          }
 
-        // Show suggestions
-        if (schemaValidation.suggestions && schemaValidation.suggestions.length > 0) {
-          schemaValidation.suggestions.forEach(suggestion => {
-            console.log('Suggestion:', suggestion);
-          });
-          // Show first suggestion as toast
-          showToast(schemaValidation.suggestions[0], 'info');
-        }
+          // Show suggestions
+          if (schemaValidation.suggestions && schemaValidation.suggestions.length > 0) {
+            schemaValidation.suggestions.forEach(suggestion => {
+              console.log('Suggestion:', suggestion);
+            });
+            // Show first suggestion as toast
+            showToast(schemaValidation.suggestions[0], 'info');
+          }
 
-        // Show invalid attributes
-        if (schemaValidation.invalidAttributes) {
-          const invalidAttrs = Object.entries(schemaValidation.invalidAttributes)
-            .map(([attr, reason]) => `${attr}: ${reason}`)
-            .join(', ');
-          showToast(`Invalid attributes: ${invalidAttrs}`, 'error');
+          // Show invalid attributes
+          if (schemaValidation.invalidAttributes) {
+            const invalidAttrs = Object.entries(schemaValidation.invalidAttributes)
+              .map(([attr, reason]) => `${attr}: ${reason}`)
+              .join(', ');
+            showToast(`Invalid attributes: ${invalidAttrs}`, 'error');
+          }
         }
 
         return; // Don't apply the tag
@@ -165,7 +282,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
         showToast('Failed to apply tag - See console for details', 'error');
       }
     },
-    [document, addSaidTag, addTag, showToast]
+    [document, addSaidTag, addTag, showToast, showToastWithActions]
   );
 
   // Handle tag attribute updates from edit dialog

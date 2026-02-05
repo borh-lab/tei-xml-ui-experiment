@@ -39,23 +39,41 @@ let validatorInstance: Validator | null = null;
 
 /**
  * Get or create the SchemaCache singleton
+ * Only available in Node.js environment (server-side)
  */
-function getSchemaCache(): SchemaCache {
+function getSchemaCache(): SchemaCache | null {
   if (!schemaCacheInstance) {
-    schemaCacheInstance = new SchemaCache({
-      maxSize: 10, // Cache up to 10 schemas
-      ttl: 1000 * 60 * 5, // 5 minutes
-    });
+    // Only create if fs is available (Node.js environment)
+    if (typeof window === 'undefined') {
+      try {
+        const fs = require('fs');
+        schemaCacheInstance = new SchemaCache({
+          maxSize: 10, // Cache up to 10 schemas
+          ttl: 1000 * 60 * 5, // 5 minutes
+        }, fs.readFileSync);
+      } catch {
+        // fs not available, return null
+        return null;
+      }
+    } else {
+      // Browser environment
+      return null;
+    }
   }
   return schemaCacheInstance;
 }
 
 /**
  * Get or create the Validator singleton
+ * Only available in Node.js environment (server-side)
  */
-function getValidator(): Validator {
+function getValidator(): Validator | null {
   if (!validatorInstance) {
-    validatorInstance = new Validator(getSchemaCache());
+    const schemaCache = getSchemaCache();
+    if (!schemaCache) {
+      return null; // Not available in browser
+    }
+    validatorInstance = new Validator(schemaCache);
   }
   return validatorInstance;
 }
@@ -150,6 +168,7 @@ export interface SchemaValidationResult {
   missingAttributes?: string[];
   invalidAttributes?: Record<string, string>;
   suggestions?: string[];
+  fixes?: Fix[];
 }
 
 /**
@@ -480,6 +499,10 @@ export function validateAgainstSchema(
     // Use the new Validator
     const teiDocument = teiDoc as TEIDocument;
     const validator = getValidator();
+    if (!validator) {
+      // Validator not available (browser environment), fall back to legacy
+      return validateAgainstSchemaLegacy(passage, range, tagType, providedAttrs, document);
+    }
     const newResult: ValidationResult = validator.validate(
       passage,
       range,
@@ -510,6 +533,7 @@ function mapValidationResult(newResult: ValidationResult): SchemaValidationResul
   const missingAttrs: string[] = [];
   const invalidAttrs: Record<string, string> = {};
   const suggestions: string[] = [];
+  const fixes: Fix[] = newResult.fixes || [];
 
   // Process errors
   for (const error of newResult.errors) {
@@ -541,6 +565,7 @@ function mapValidationResult(newResult: ValidationResult): SchemaValidationResul
     missingAttributes: missingAttrs.length > 0 ? missingAttrs : undefined,
     invalidAttributes: Object.keys(invalidAttrs).length > 0 ? invalidAttrs : undefined,
     suggestions: suggestions.length > 0 ? suggestions : undefined,
+    fixes: fixes.length > 0 ? fixes : undefined,
   };
 }
 
