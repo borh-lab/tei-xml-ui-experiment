@@ -13,9 +13,8 @@
  * ```
  */
 
-import type { TEINode, Tag, Character, Dialogue } from '@/lib/tei/types';
-import type { SpeakerPattern, DetectionResult, PatternDatabase } from '@/lib/ai/types';
-import type { DocumentMetadata, Passage, TextRange } from '@/lib/tei/types';
+import type { TEINode, Tag, Character, Dialogue, DocumentMetadata, Passage, TextRange } from '../tei/types';
+import type { SpeakerPattern, DetectionResult, PatternDatabase } from '../ai/types';
 
 // ============================================================================
 // TEI Node Guards

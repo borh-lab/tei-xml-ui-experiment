@@ -7,10 +7,18 @@
  */
 
 import * as salve from 'salve-annos';
-import * as fs from 'fs/promises';
 import * as path from 'path';
 import { SaxesParser } from 'saxes';
 import type { ValidationError } from '@/lib/validation';
+
+// Dynamic fs import (server-only)
+const getFs = (): typeof import('fs/promises') | null => {
+  try {
+    return require('fs/promises');
+  } catch {
+    return null;
+  }
+};
 
 /**
  * Interface for salve validation error
@@ -57,6 +65,10 @@ class FileSystemResourceLoader implements salve.ResourceLoader {
     return {
       url,
       getText: async () => {
+        const fs = getFs();
+        if (!fs) {
+          throw new Error('fs is not available in browser environment');
+        }
         try {
           return await fs.readFile(filePath, 'utf-8');
         } catch (error) {
