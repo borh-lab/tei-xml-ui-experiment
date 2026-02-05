@@ -99,9 +99,9 @@ export function EditorContent({
           onSelectionChange={onSelectionChange}
           onPassageClick={onPassageClick}
           highlightedPassageId={highlightedPassageId}
-          onTagSelect={onTagSelect as any}
-          onTagDoubleClick={onTagDoubleClick as any}
-          selectedTag={selectedTag as any}
+          onTagSelect={onTagSelect}
+          onTagDoubleClick={onTagDoubleClick}
+          selectedTag={selectedTag}
         />
       </div>
     </Card>

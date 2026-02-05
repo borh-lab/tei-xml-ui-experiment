@@ -6,6 +6,7 @@ import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
 import type { Tag } from '@/lib/tei/types';
+import type { TagInfo } from '@/lib/selection/types';
 
 interface Passage {
   id: string;
@@ -28,17 +29,9 @@ interface RenderedViewProps {
   onSelectionChange: (passageIds: string[]) => void;
   onPassageClick?: (passageId: string) => void;
   highlightedPassageId?: string | null;
-  onTagSelect?: (tagInfo: {
-    tagName: string;
-    attributes: Record<string, string>;
-    element: HTMLElement;
-  }) => void;
-  onTagDoubleClick?: (tagInfo: {
-    tagName: string;
-    attributes: Record<string, string>;
-    element: HTMLElement;
-  }) => void;
-  selectedTag?: { tagName: string; element: HTMLElement } | null;
+  onTagSelect?: (tagInfo: TagInfo) => void;
+  onTagDoubleClick?: (tagInfo: TagInfo) => void;
+  selectedTag?: TagInfo | null;
 }
 
 export const RenderedView = React.memo(
@@ -196,7 +189,14 @@ export const RenderedView = React.memo(
               }
             }
 
-            const tagInfo = { tagName, attributes, element: tagElement };
+            const tagInfo: TagInfo = {
+              id: tagElement.getAttribute('data-tag-id') || '',
+              type: tagName,
+              tagName,
+              attributes,
+              range: { start: 0, end: 0 },
+              element: tagElement,
+            };
 
             if (event.detail === 2) {
               // Double click
