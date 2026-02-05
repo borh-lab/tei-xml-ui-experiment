@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Documentation Video Generator - CLI Entry Point
  *

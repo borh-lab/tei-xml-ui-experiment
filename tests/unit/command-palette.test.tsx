@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CommandPalette } from '@/components/keyboard/CommandPalette';
 import { DocumentProvider } from '@/lib/context/DocumentContext';

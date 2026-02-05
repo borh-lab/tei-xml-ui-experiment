@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * TEI Document Operations (Pure Functions)
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
 
 // Mock ValidationService

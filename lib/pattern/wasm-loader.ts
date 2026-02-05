@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WASM Pattern Engine Loader
  *

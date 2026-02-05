@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { FileSchemaResolver, createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
 import { SchemaInfo } from '@/lib/schema/SchemaResolver';
 

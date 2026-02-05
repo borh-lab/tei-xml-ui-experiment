@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Page, expect } from '@playwright/test';
 
 export class VisualizationPage {

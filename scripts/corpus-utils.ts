@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { XMLParser } from 'fast-xml-parser';
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';

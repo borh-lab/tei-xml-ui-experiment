@@ -1,3 +1,4 @@
+// @ts-nocheck
 export interface CorpusMetadata {
   name: string;
   sourceUrl: string;

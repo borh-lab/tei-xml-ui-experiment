@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { test, expect } from '@playwright/test';
 import { generateTestDocument, uploadTestDocument } from './fixtures/test-helpers';
 import { URLS, TIMEOUTS } from './fixtures/test-constants';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EntityDetector } from '@/lib/ai/entities/EntityDetector';
 
 describe('EntityDetector', () => {

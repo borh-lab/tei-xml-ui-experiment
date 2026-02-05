@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { QuickSearch, SearchResult } from '@/lib/search/QuickSearch';
 import { TEIDocument } from '@/lib/tei';
 

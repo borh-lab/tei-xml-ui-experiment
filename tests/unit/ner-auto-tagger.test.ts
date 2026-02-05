@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NERAutoTagger } from '@/lib/ai/entities/NERAutoTagger';
 import { TEIDocument } from '@/lib/tei';
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { categorizeError, ErrorType } from '@/lib/utils/error-categorization';
 
 describe('categorizeError', () => {

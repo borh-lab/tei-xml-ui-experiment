@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 

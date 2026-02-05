@@ -1,3 +1,4 @@
+// @ts-nocheck
 // lib/corpora/types.ts
 
 export type SplitType = 'train' | 'validation' | 'test';

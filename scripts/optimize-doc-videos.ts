@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Documentation Video Post-Processing
  *

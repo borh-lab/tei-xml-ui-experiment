@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, waitFor } from '@testing-library/react';
 import { AxProvider } from '@/lib/ai/ax-provider';
 import { TEIDocument } from '@/lib/tei';

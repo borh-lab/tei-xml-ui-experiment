@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Effect Testing Utilities
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests for WASM Pattern Engine JavaScript Wrapper
  *

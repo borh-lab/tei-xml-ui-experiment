@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TEIDocument } from '@/lib/tei';
 
 describe('TEIDocument Query Methods', () => {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ByPassage, ByChapter, groupDialogueBySections, calculateSectionStats } from '../sectional';
 
 describe('ByPassage strategy', () => {

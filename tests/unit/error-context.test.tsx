@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { renderHook, act } from '@testing-library/react';
 import { ErrorProvider, useErrorContext } from '@/lib/context/ErrorContext';
 

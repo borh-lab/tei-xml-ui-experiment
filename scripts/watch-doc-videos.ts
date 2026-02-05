@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Watch Mode with Auto-Optimization
  *

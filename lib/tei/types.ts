@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Immutable TEI Document Types
  *

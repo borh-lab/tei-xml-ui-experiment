@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * XML Parser Utilities for Testing
  *

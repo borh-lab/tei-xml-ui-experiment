@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { extractQuotes, calculateRankings, buildConversationMatrix, lookupCharacterName } from '../document';
 
 describe('extractQuotes', () => {

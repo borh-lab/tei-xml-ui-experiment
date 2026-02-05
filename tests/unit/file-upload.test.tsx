@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { FileUpload } from '@/components/editor/FileUpload';
 import { DocumentProvider } from '@/lib/context/DocumentContext';

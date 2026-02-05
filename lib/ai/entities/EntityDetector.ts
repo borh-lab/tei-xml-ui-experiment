@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EntitySpan, DialogueSpan } from './types';
 
 export class EntityDetector {

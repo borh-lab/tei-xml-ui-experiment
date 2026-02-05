@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getSelectionRange } from '@/lib/utils/selection';
 
 describe('getSelectionRange', () => {

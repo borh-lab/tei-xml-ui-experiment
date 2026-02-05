@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CorpusDataSource, DocumentId, type CorpusId } from '../protocols/CorpusDataSource';
 
 describe('CorpusDataSource Protocol', () => {

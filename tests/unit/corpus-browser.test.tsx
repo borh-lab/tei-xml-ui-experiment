@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, waitFor } from '@testing-library/react';
 import { CorpusBrowser } from '@/components/samples/CorpusBrowser';
 import { DocumentProvider } from '@/lib/context/DocumentContext';

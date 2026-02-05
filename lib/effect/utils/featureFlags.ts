@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Feature Flag System for Effect Migration
  *

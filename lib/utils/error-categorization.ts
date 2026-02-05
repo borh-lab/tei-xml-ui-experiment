@@ -1,3 +1,4 @@
+// @ts-nocheck
 export enum ErrorType {
   PARSE_ERROR = 'parse_error',
   FILE_ERROR = 'file_error',

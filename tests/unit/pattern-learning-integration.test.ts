@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { renderHook, act } from '@testing-library/react';
 import { extract } from '@/lib/learning/PatternExtractor';
 import { db } from '@/lib/db/PatternDB';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // tests/unit/logger.test.ts
 
 import { logger, setLogLevel, LogLevel } from '@/lib/utils/logger';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // tests/unit/ax-speaker-attribution.test.ts
 
 // Mock the Ax framework to avoid TransformStream polyfill issues

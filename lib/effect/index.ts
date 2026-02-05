@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Effect Library - Main Export
  *

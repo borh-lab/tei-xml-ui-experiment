@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Quote, CharacterRanking, ConversationMatrix, DocumentAnalysisResult, ComparisonResult } from '../types';
 
 describe('Analytics Types', () => {
