@@ -6,3 +6,4 @@
 
 export * from './types';
 export { SelectionManager } from './SelectionManager';
+export * from './SmartSelection';

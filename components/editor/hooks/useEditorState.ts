@@ -82,19 +82,24 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
       if (!document) return;
 
       const selectionManagerInstance = selectionManager.current;
-      const selectionRange = selectionManagerInstance.captureSelection();
 
-      if (!selectionRange) {
+      // Use Parinfer-like smart selection
+      const smartSelection = selectionManagerInstance.captureSmartSelection(document, tag);
+
+      if (!smartSelection) {
         showToast('No text selected - Select text first, then click tag button', 'error');
         return;
       }
 
-      // Extract passage ID (using the passageId directly from selection)
-      const passageId = selectionRange.passageId;
-      const range: { start: number; end: number } = {
-        start: selectionRange.range.start,
-        end: selectionRange.range.end,
-      };
+      const { snapshot, adjustment } = smartSelection;
+      const passageId = snapshot.passageId;
+      const range: { start: number; end: number } = adjustment.adjustedRange;
+
+      // Show adjustment message if selection was modified
+      if (adjustment.adjustedRange.start !== adjustment.originalRange.start ||
+          adjustment.adjustedRange.end !== adjustment.originalRange.end) {
+        showToast(adjustment.reason, 'info');
+      }
 
       try {
         // Use value-oriented service methods based on tag type
@@ -117,6 +122,11 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
               .join(' ') + '>'
           : '<' + tag + '>';
         showToast('Applied ' + tagDisplay, 'success');
+
+        // Restore selection after update (with adjusted range)
+        setTimeout(() => {
+          (selectionManagerInstance.restoreSelection as any)(document, snapshot);
+        }, 100);
       } catch (error) {
         console.error('Failed to apply tag:', error);
         showToast('Failed to apply tag - See console for details', 'error');

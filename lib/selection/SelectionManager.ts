@@ -8,6 +8,12 @@
 import type { SelectionSnapshot, TextRange, TagInfo } from './types';
 import type { PassageID } from '@/lib/tei/types';
 import type { TEIDocument } from '@/lib/tei/types';
+import {
+  smartSelectionAdjust,
+  snapToTagBoundaries,
+  validateSelection,
+  type SelectionAdjustment,
+} from './SmartSelection';
 
 export class SelectionManager {
   /**
@@ -95,6 +101,90 @@ export class SelectionManager {
    */
   isSelectionInTag(doc: TEIDocument, selection: SelectionSnapshot): boolean {
     return this.getContainingTag(doc, selection) !== null;
+  }
+
+  /**
+   * Parinfer-like: Capture selection with smart boundary adjustment
+   *
+   * Automatically adjusts selection to maintain valid XML structure.
+   * Returns the adjusted selection with adjustment details.
+   *
+   * @param doc - Current document
+   * @param tagType - Type of tag to be applied (optional)
+   * @returns Selection snapshot with adjustment info, or null if no selection
+   */
+  captureSmartSelection(
+    doc: TEIDocument,
+    tagType?: string
+  ): {
+    snapshot: SelectionSnapshot;
+    adjustment: SelectionAdjustment;
+  } | null {
+    const snapshot = this.captureSelection();
+    if (!snapshot) {
+      return null;
+    }
+
+    // Get passage
+    const passage = doc.state.passages.find(p => p.id === snapshot.passageId);
+    if (!passage) {
+      return null;
+    }
+
+    // Apply Parinfer-like adjustment
+    const adjustment = smartSelectionAdjust(passage, snapshot.range, tagType);
+
+    // If adjustment was made, update the snapshot
+    if (adjustment.adjustedRange.start !== snapshot.range.start ||
+        adjustment.adjustedRange.end !== snapshot.range.end) {
+
+      return {
+        snapshot: {
+          ...snapshot,
+          range: adjustment.adjustedRange,
+          text: passage.content.substring(
+            adjustment.adjustedRange.start,
+            adjustment.adjustedRange.end
+          ),
+        },
+        adjustment,
+      };
+    }
+
+    return {
+      snapshot,
+      adjustment,
+    };
+  }
+
+  /**
+   * Parinfer-like: Validate selection before tag application
+   *
+   * Checks if a tag can be safely applied to the current selection.
+   *
+   * @param doc - Current document
+   * @param tagType - Type of tag to apply
+   * @returns Validation result with suggested adjustment if invalid
+   */
+  validateTagApplication(
+    doc: TEIDocument,
+    tagType: string
+  ): {
+    valid: boolean;
+    reason?: string;
+    adjustment?: SelectionAdjustment;
+  } | null {
+    const snapshot = this.captureSelection();
+    if (!snapshot) {
+      return null;
+    }
+
+    const passage = doc.state.passages.find(p => p.id === snapshot.passageId);
+    if (!passage) {
+      return null;
+    }
+
+    return validateSelection(passage, snapshot.range, tagType);
   }
 
   // Helper methods (private)
