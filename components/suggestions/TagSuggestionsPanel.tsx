@@ -11,6 +11,7 @@
 import React from 'react';
 import { SuggestionItem } from './SuggestionItem';
 import type { Suggestion } from '@/lib/values/Suggestion';
+import './TagSuggestionsPanel.css';
 
 export interface TagSuggestionsPanelProps {
   /** Array of suggestions to display */

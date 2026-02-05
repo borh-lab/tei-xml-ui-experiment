@@ -1,0 +1,131 @@
+/**
+ * TagSuggestionsPanel Styles
+ *
+ * Styles for the tag suggestions panel and suggestion items.
+ * Includes responsive design and confidence bar styling.
+ */
+
+.tag-suggestions-panel {
+  /* Base styles */
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--background);
+  border-radius: 0.5rem;
+}
+
+/* Suggestion items */
+.suggestion-item {
+  transition: all 0.2s ease;
+  border-color: var(--border);
+}
+
+.suggestion-item:hover {
+  background-color: hsl(var(--accent) / 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Confidence bar colors */
+.suggestion-item .bg-green-500 {
+  background-color: hsl(142 76% 36%);
+}
+
+.suggestion-item .bg-yellow-500 {
+  background-color: hsl(48 96% 53%);
+}
+
+.suggestion-item .bg-orange-500 {
+  background-color: hsl(25 95% 53%);
+}
+
+.suggestion-item .bg-red-500 {
+  background-color: hsl(0 84% 60%);
+}
+
+/* Progress bar animation */
+.suggestion-item [role="progressbar"] {
+  transition: width 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .tag-suggestions-panel {
+    padding: 0.75rem;
+  }
+
+  .suggestion-item {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .suggestion-item .text-sm {
+    font-size: 0.8125rem;
+  }
+
+  .suggestion-item .text-xs {
+    font-size: 0.75rem;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .suggestion-item {
+    background-color: hsl(var(--card));
+    border-color: hsl(var(--border));
+  }
+
+  .suggestion-item:hover {
+    background-color: hsl(var(--accent) / 0.3);
+  }
+}
+
+/* Empty state */
+.tag-suggestions-panel .text-muted-foreground {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Loading state animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.tag-suggestions-panel .animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Confidence bar container */
+.suggestion-item .w-full {
+  width: 100%;
+}
+
+.suggestion-item .h-2 {
+  height: 0.5rem;
+}
+
+/* Rounded progress bars */
+.suggestion-item .rounded-full {
+  border-radius: 9999px;
+}
+
+/* Spacing utilities */
+.tag-suggestions-panel .mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.tag-suggestions-panel .mb-4 {
+  margin-bottom: 1rem;
+}
+
+.tag-suggestions-panel .space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
