@@ -3,17 +3,22 @@
 import { Card } from '@/components/ui/card';
 import { VisualizationPanel } from '@/components/visualization/VisualizationPanel';
 import { ValidationPanel } from '@/components/validation/ValidationPanel';
+import { DocumentValidationSummary } from '@/components/doc-validation/DocumentValidationSummary';
 import { TagQueuePanel } from '@/components/queue/TagQueuePanel';
 import { TagSuggestionsPanel } from '@/components/suggestions/TagSuggestionsPanel';
 import type { ValidationResult, ValidationError, FixSuggestion } from '@/lib/validation';
 import type { TagQueueState } from '@/lib/queue/TagQueue';
 import type { Suggestion } from '@/lib/values/Suggestion';
 import type { Selection } from '@/lib/values/Selection';
+import type { ValidationSummary } from '@/lib/values/ValidationSummary';
+import type { ValidationIssue } from '@/lib/values/ValidationSummary';
 
 export interface EditorPanelsProps {
   vizPanelOpen: boolean;
   validationPanelOpen: boolean;
   validationResults: ValidationResult | null;
+  validationSummary?: ValidationSummary | null;
+  onValidationErrorClick?: (issue: ValidationIssue) => void;
   onErrorClick?: (error: ValidationError) => void;
   onFixClick?: (suggestion: FixSuggestion) => void;
   // Tag queue
@@ -39,6 +44,8 @@ export function EditorPanels({
   vizPanelOpen,
   validationPanelOpen,
   validationResults,
+  validationSummary,
+  onValidationErrorClick,
   onErrorClick,
   onFixClick,
   queue,
@@ -62,12 +69,19 @@ export function EditorPanels({
           <div className="w-1 bg-border" />
           <Card className="w-96 m-2 overflow-auto">
             <div className="p-4">
-              <ValidationPanel
-                validationResults={validationResults}
-                onErrorClick={onErrorClick}
-                onFixClick={onFixClick}
-                visible={validationPanelOpen}
-              />
+              {validationSummary ? (
+                <DocumentValidationSummary
+                  summary={validationSummary}
+                  onNavigate={onValidationErrorClick}
+                />
+              ) : (
+                <ValidationPanel
+                  validationResults={validationResults}
+                  onErrorClick={onErrorClick}
+                  onFixClick={onFixClick}
+                  visible={validationPanelOpen}
+                />
+              )}
             </div>
           </Card>
         </>
