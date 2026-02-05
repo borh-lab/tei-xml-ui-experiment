@@ -1,6 +1,5 @@
 // @ts-nocheck
 // @ts-nocheck
-// @ts-nocheck
 /**
  * FetchCorpusDataSource - Browser-compatible corpus data source
  *

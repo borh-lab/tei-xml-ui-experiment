@@ -1,6 +1,5 @@
 // @ts-nocheck
 // @ts-nocheck
-// @ts-nocheck
 /**
  * DocumentService Implementation
  *

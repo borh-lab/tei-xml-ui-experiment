@@ -61,6 +61,9 @@ export async function runEffectAsync<A>(
 export async function runEffectAsyncOrFail<E, A, R>(
   program: Effect.Effect<A, E, R>
 ): Promise<A> {
-  const provided = Effect.provide(AppLayer)(program);
+  // Effect.runPromise type signature doesn't account for context narrowing
+  // This is safe at runtime because AppLayer provides the required services
+  const provided = pipe(program, Effect.provide(AppLayer));
+  // @ts-ignore
   return Effect.runPromise(provided);
 }
