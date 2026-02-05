@@ -4,8 +4,11 @@ import { Card } from '@/components/ui/card';
 import { VisualizationPanel } from '@/components/visualization/VisualizationPanel';
 import { ValidationPanel } from '@/components/validation/ValidationPanel';
 import { TagQueuePanel } from '@/components/queue/TagQueuePanel';
+import { TagSuggestionsPanel } from '@/components/suggestions/TagSuggestionsPanel';
 import type { ValidationResult, ValidationError, FixSuggestion } from '@/lib/validation';
 import type { TagQueueState } from '@/lib/queue/TagQueue';
+import type { Suggestion } from '@/lib/values/Suggestion';
+import type { Selection } from '@/lib/values/Selection';
 
 export interface EditorPanelsProps {
   vizPanelOpen: boolean;
@@ -21,10 +24,14 @@ export interface EditorPanelsProps {
     onClearAll: () => void;
     isApplying: boolean;
   };
+  // Tag suggestions
+  suggestionsPanelOpen?: boolean;
+  suggestions?: Suggestion[];
+  onSuggestionClick?: (suggestion: Suggestion) => void;
 }
 
 /**
- * Side panels for visualization, validation, and tag queue.
+ * Side panels for visualization, validation, tag queue, and suggestions.
  *
  * Toggleable panels that appear on the right side of the editor.
  */
@@ -35,6 +42,9 @@ export function EditorPanels({
   onErrorClick,
   onFixClick,
   queue,
+  suggestionsPanelOpen = false,
+  suggestions = [],
+  onSuggestionClick,
 }: EditorPanelsProps) {
   return (
     <>
@@ -75,6 +85,21 @@ export function EditorPanels({
                 onRemoveTag={queue.onRemoveTag}
                 onClearAll={queue.onClearAll}
                 isApplying={queue.isApplying}
+              />
+            </div>
+          </Card>
+        </>
+      )}
+
+      {/* Tag Suggestions Panel */}
+      {suggestionsPanelOpen && onSuggestionClick && (
+        <>
+          <div className="w-1 bg-border" />
+          <Card className="w-96 m-2 overflow-auto">
+            <div className="p-4">
+              <TagSuggestionsPanel
+                suggestions={suggestions}
+                onSuggestionClick={onSuggestionClick}
               />
             </div>
           </Card>
