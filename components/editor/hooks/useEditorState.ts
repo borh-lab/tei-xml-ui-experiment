@@ -7,6 +7,8 @@ import type { TagInfo } from '@/lib/selection/types';
 import type { TEINode } from '@/lib/tei/types';
 import type { Fix } from '@/lib/validation/types';
 import { toast } from '@/components/ui/use-toast';
+import { TagQueue } from '@/lib/queue/TagQueue';
+import type { QueuedTag, TagQueueState } from '@/lib/queue/TagQueue';
 
 export interface UseEditorStateResult {
   // Document state (from useDocumentService)
@@ -32,6 +34,17 @@ export interface UseEditorStateResult {
   // Helper functions
   getPassageIds: () => string[];
   handleTagAttributeUpdate: (tagName: string, attributes: Record<string, string>) => Promise<void>;
+  // Tag queue
+  queue?: {
+    state: TagQueueState;
+    multiTagMode: boolean;
+    toggleMultiTagMode: () => void;
+    addToQueue: (tag: Omit<QueuedTag, 'id' | 'timestamp'>) => string;
+    removeFromQueue: (id: string) => void;
+    clearQueue: () => void;
+    applyQueue: () => Promise<void>;
+    isApplyingQueue: boolean;
+  };
 }
 
 export interface UseEditorStateOptions {
@@ -63,6 +76,11 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
   const [currentPassageId, setCurrentPassageId] = useState<string>('');
   const [highlightedPassageId, setHighlightedPassageId] = useState<string | null>(null);
+
+  // Tag queue state
+  const [queue, setQueue] = useState<TagQueue>(() => new TagQueue());
+  const [multiTagMode, setMultiTagMode] = useState<boolean>(false);
+  const [isApplyingQueue, setIsApplyingQueue] = useState<boolean>(false);
 
   // Maintain a single SelectionManager instance
   const selectionManager = useRef(new SelectionManager());
@@ -139,6 +157,55 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
     },
     [addTag, showToast]
   );
+
+  // Toggle multi-tag mode
+  const toggleMultiTagMode = useCallback(() => {
+    setMultiTagMode(prev => !prev);
+  }, []);
+
+  // Add tag to queue
+  const addToQueue = useCallback((tag: Omit<QueuedTag, 'id' | 'timestamp'>) => {
+    const id = queue.add(tag);
+    setQueue(new TagQueue(queue.getState())); // Force re-render
+    return id;
+  }, [queue]);
+
+  // Remove tag from queue
+  const removeFromQueue = useCallback((id: string) => {
+    queue.remove(id);
+    setQueue(new TagQueue(queue.getState()));
+  }, [queue]);
+
+  // Clear queue
+  const clearQueue = useCallback(() => {
+    queue.clear();
+    setQueue(new TagQueue(queue.getState()));
+  }, [queue]);
+
+  // Apply all queued tags
+  const applyQueue = useCallback(async () => {
+    setIsApplyingQueue(true);
+    const pending = queue.getPending();
+
+    try {
+      for (const tag of pending) {
+        if (tag.tagType === 'said') {
+          const speakerId = tag.attributes.who?.substring(1) || 'unknown';
+          await addSaidTag(tag.passageId, tag.range, speakerId);
+        } else {
+          await addTag(tag.passageId, tag.range, tag.tagType, tag.attributes);
+        }
+        queue.markApplied(tag.id);
+      }
+    } catch (error) {
+      console.error('Failed to apply queue:', error);
+      // Mark remaining as failed
+      pending.forEach(tag => queue.markFailed(tag.id, String(error)));
+    } finally {
+      setIsApplyingQueue(false);
+      setQueue(new TagQueue(queue.getState()));
+    }
+  }, [queue, addSaidTag, addTag]);
 
   /**
    * Show toast with action buttons for fixes
@@ -253,6 +320,24 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
         showToast(adjustment.reason, 'info');
       }
 
+      // If multi-tag mode is enabled, add to queue instead of applying
+      if (multiTagMode) {
+        const queuedTag: Omit<QueuedTag, 'id' | 'timestamp'> = {
+          tagType: tag,
+          attributes: attrs || {},
+          passageId,
+          range,
+        };
+        addToQueue(queuedTag);
+        const tagDisplay = attrs
+          ? '<' + tag + ' ' + Object.entries(attrs)
+              .map(([k, v]) => k + '="' + v + '"')
+              .join(' ') + '>'
+          : '<' + tag + '>';
+        showToast(`Added ${tagDisplay} to queue (${queue.size} pending)`, 'info');
+        return;
+      }
+
       try {
         // Use value-oriented service methods based on tag type
         if (tag === 'said') {
@@ -282,7 +367,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
         showToast('Failed to apply tag - See console for details', 'error');
       }
     },
-    [document, addSaidTag, addTag, showToast, showToastWithActions]
+    [document, addSaidTag, addTag, showToast, showToastWithActions, multiTagMode, addToQueue, queue]
   );
 
   // Handle tag attribute updates from edit dialog
@@ -341,5 +426,16 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
     // Helper functions
     getPassageIds,
     handleTagAttributeUpdate,
+    // Tag queue
+    queue: {
+      state: queue.getState(),
+      multiTagMode,
+      toggleMultiTagMode,
+      addToQueue,
+      removeFromQueue,
+      clearQueue,
+      applyQueue,
+      isApplyingQueue,
+    },
   };
 }
