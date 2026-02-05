@@ -407,13 +407,6 @@ export function EditorLayout() {
     console.log('Converting selected passages to dialogue');
   };
 
-  const handleValidationErrorClick = (error: ValidationError) => {
-    console.log('Validation error clicked:', error);
-    if (error.line) {
-      editorUI.showToast('Error at line ' + error.line + ': ' + error.message, 'error');
-    }
-  };
-
   const handleValidationFixClick = (suggestion: FixSuggestion) => {
     console.log('Fix suggestion clicked:', suggestion);
     editorUI.showToast('Fix suggestions not yet implemented', 'info');

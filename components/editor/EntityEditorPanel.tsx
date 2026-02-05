@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
     removeCharacter,
     addRelationship,
     removeRelationship,
-  } = useDocumentService();
+  } = useDocumentContext();
   const [showAddCharacter, setShowAddCharacter] = useState(false);
   const [activeTab, setActiveTab] = useState<'characters' | 'relationships' | 'network'>(
     'characters'
