@@ -129,6 +129,30 @@ export function EditorLayout() {
     };
   }, [tagSelection]);
 
+  // Expose app state for E2E tests
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const passageCount = getParagraphs().length;
+    const state = {
+      location: editorState.document ? 'editor' : 'gallery',
+      document: editorState.document ? {
+        loaded: true,
+        title: editorState.document.title || 'Untitled',
+        passageCount,
+      } : null,
+      viewMode: viewMode.viewMode,
+      panels: {
+        validation: editorUI.panelStates.validationPanelOpen,
+        bulk: editorUI.panelStates.bulkPanelOpen,
+        entities: editorUI.panelStates.entityPanelOpen,
+        viz: editorUI.panelStates.vizPanelOpen,
+      },
+    };
+
+    (window as any).__TEI_EDITOR_STATE__ = state;
+  }, [editorState.document, viewMode.viewMode, editorUI.panelStates, getParagraphs]);
+
   // Handle scroll synchronization
   const handleRenderedViewScroll = useCallback(() => {
     if (isScrollingRef.current.code) return;

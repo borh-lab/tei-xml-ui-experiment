@@ -134,6 +134,10 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
   const speakerButtons = document.state.characters.slice(0, 9).map((char, index) => (
     <Button
       key={char.id}
+      data-test-action="apply-tag"
+      data-test-tag="said"
+      data-test-attributes={JSON.stringify(['who'])}
+      data-test-speaker={char.xmlId}
       size="sm"
       variant="outline"
       onClick={() => handleApplyTag('said', { who: `#${char.xmlId}` })}
@@ -146,6 +150,8 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
 
   return (
     <div
+      data-test-panel="tag-toolbar"
+      data-test-state="visible"
       className="fixed z-50 bg-background border border-border rounded-lg shadow-lg p-2 flex gap-2 flex-wrap max-w-md"
       style={{
         left: `${position.x}px`,
@@ -158,6 +164,9 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
       <div className="w-px bg-border mx-1" />
 
       <Button
+        data-test-action="apply-tag"
+        data-test-tag="q"
+        data-test-attributes="[]"
         size="sm"
         variant="outline"
         onClick={() => handleApplyTag('q')}
@@ -168,6 +177,9 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
       </Button>
 
       <Button
+        data-test-action="apply-tag"
+        data-test-tag="persName"
+        data-test-attributes="[]"
         size="sm"
         variant="outline"
         onClick={() => handleApplyTag('persName')}
