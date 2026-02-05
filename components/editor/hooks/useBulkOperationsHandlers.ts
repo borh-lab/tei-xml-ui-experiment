@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+import type { TEIDocument, TEINode } from '@/lib/tei/types';
 
 export interface UseBulkOperationsHandlersResult {
   handleTagAll: (speakerId: string) => Promise<void>;
@@ -12,7 +13,7 @@ export interface UseBulkOperationsHandlersResult {
 }
 
 export interface UseBulkOperationsHandlersOptions {
-  document: any;
+  document: TEIDocument | null;
   updateDocument: (xml: string) => Promise<void>;
   selectedPassages: string[];
   setSelectedPassages: (passages: string[]) => void;
@@ -28,19 +29,32 @@ export function useBulkOperationsHandlers(
 ): UseBulkOperationsHandlersResult {
   const { document, updateDocument, selectedPassages, setSelectedPassages } = options;
 
+  // Helper to get paragraphs from document
+  const getParagraphs = useCallback((): TEINode[] => {
+    if (!document) return [];
+    const tei = document.state.parsed.TEI as TEINode | undefined;
+    const text = tei?.text as TEINode | undefined;
+    const body = text?.body as TEINode | undefined;
+    const p = body?.p;
+    return Array.isArray(p) ? p : p ? [p] : [];
+  }, [document]);
+
   const handleTagAll = useCallback(async (speakerId: string) => {
     if (!document) return;
 
-    const newDoc = { ...document };
-    const paragraphs = (newDoc as any).parsed.TEI.text.body.p;
+    const paragraphs = getParagraphs();
     const passagesToTag = [...selectedPassages];
 
     selectedPassages.forEach((index) => {
-      if (paragraphs[index] && paragraphs[index].said) {
-        paragraphs[index].said = paragraphs[index].said.map((s: Record<string, unknown>) => ({
-          ...s,
-          '@who': speakerId,
-        }));
+      const idx = Number(index);
+      if (paragraphs[idx] && paragraphs[idx].said) {
+        const said = paragraphs[idx].said as TEINode[];
+        if (Array.isArray(said)) {
+          paragraphs[idx].said = said.map((s: TEINode) => ({
+            ...s,
+            '@who': speakerId,
+          }));
+        }
       }
     });
 
@@ -52,23 +66,26 @@ export function useBulkOperationsHandlers(
     // Log to pattern database
     const { db } = await import('@/lib/db/PatternDB');
     await db.logCorrection('bulk_tag', speakerId, passagesToTag, 1.0, 'middle');
-  }, [document, updateDocument, selectedPassages, setSelectedPassages]);
+  }, [document, updateDocument, selectedPassages, setSelectedPassages, getParagraphs]);
 
   const handleSelectAllUntagged = useCallback(() => {
     if (!document) return;
 
     const untaggedIndices = new Set<number>();
-    const paragraphs = (document as any).parsed.TEI.text.body.p;
+    const paragraphs = getParagraphs();
 
-    paragraphs.forEach((para: any, index: number) => {
-      const hasUntagged = para.said?.some((s: Record<string, unknown>) => !s['@who'] || s['@who'] === '');
-      if (hasUntagged) {
-        untaggedIndices.add(index);
+    paragraphs.forEach((para: TEINode, index: number) => {
+      const said = para.said as TEINode[];
+      if (Array.isArray(said)) {
+        const hasUntagged = said.some((s: TEINode) => !s['@who'] || s['@who'] === '');
+        if (hasUntagged) {
+          untaggedIndices.add(index);
+        }
       }
     });
 
     setSelectedPassages(Array.from(untaggedIndices).map(String));
-  }, [document, setSelectedPassages]);
+  }, [document, setSelectedPassages, getParagraphs]);
 
   const handleSelectLowConfidence = useCallback(() => {
     console.log('Selecting low confidence passages');
@@ -77,8 +94,9 @@ export function useBulkOperationsHandlers(
   const handleExportSelection = useCallback(() => {
     if (!document || selectedPassages.length === 0) return;
 
+    const paragraphs = getParagraphs();
     const selectedParagraphs = selectedPassages.map(
-      (index) => (document as any).parsed.TEI.text.body.p[Number(index)]
+      (index) => paragraphs[Number(index)]
     );
 
     const data = JSON.stringify(selectedParagraphs, null, 2);
@@ -91,25 +109,27 @@ export function useBulkOperationsHandlers(
     a.click();
 
     URL.revokeObjectURL(url);
-  }, [document, selectedPassages]);
+  }, [document, selectedPassages, getParagraphs]);
 
   const handleValidateSelection = useCallback(async (): Promise<any[]> => {
     if (!document || selectedPassages.length === 0) return [];
 
     const issues: any[] = [];
-    const paragraphs = (document as any).parsed.TEI.text.body.p;
+    const paragraphs = getParagraphs();
 
     selectedPassages.forEach((indexStr) => {
       const index = Number(indexStr);
       const para = paragraphs[index];
-      if (!para.said) {
+      const said = para.said as TEINode[];
+
+      if (!Array.isArray(said)) {
         issues.push({
           type: 'warning',
           message: 'Paragraph ' + (index + 1) + ': No dialogue found',
           location: { index },
         });
       } else {
-        para.said.forEach((s: Record<string, unknown>, i: number) => {
+        said.forEach((s: TEINode, i: number) => {
           if (!s['@who'] || s['@who'] === '') {
             issues.push({
               type: 'error',
@@ -123,7 +143,7 @@ export function useBulkOperationsHandlers(
 
     console.log('Validation issues:', issues);
     return issues;
-  }, [document, selectedPassages]);
+  }, [document, selectedPassages, getParagraphs]);
 
   const handleConvert = useCallback(() => {
     console.log('Converting selected passages to dialogue');
