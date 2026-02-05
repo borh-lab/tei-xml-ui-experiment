@@ -25,7 +25,7 @@ export function extractContext(
   range: TextRange,
   contextLength: number = 200
 ): string {
-  const start = Math.max(0, range.start - contextLength);
-  const end = Math.min(fullText.length, range.end + contextLength);
-  return fullText.substring(start, end);
+  // For selections, fullText is just the selected text
+  // Return the selected text as context
+  return fullText;
 }
