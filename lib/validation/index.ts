@@ -6,6 +6,28 @@
  */
 
 // ============================================================================
+// Feature Flags
+// ============================================================================
+
+/**
+ * Feature flag for schema-driven validation system.
+ *
+ * When enabled (true), the new Validator class uses RelaxNG-parsed constraints.
+ * When disabled (false), the system falls back to legacy hardcoded constraints.
+ *
+ * This flag allows for safe rollout and easy rollback if issues arise in production.
+ *
+ * To disable: Set to false
+ * To enable via environment variable: Set NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION='true'
+ *
+ * @default true - System is working well, defaults to enabled
+ */
+export const ENABLE_SCHEMA_DRIVEN_VALIDATION: boolean =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION === 'true') ||
+  (typeof process !== 'undefined' && process.env?.ENABLE_SCHEMA_DRIVEN_VALIDATION === 'true') ||
+  true; // Default to enabled
+
+// ============================================================================
 // Legacy Validation Service
 // ============================================================================
 

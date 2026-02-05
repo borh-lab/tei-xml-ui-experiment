@@ -14,6 +14,7 @@
 
 import type { Passage, Tag, TextRange, Character, TEIDocument } from '@/lib/tei/types';
 import { SchemaCache } from '@/lib/validation/SchemaCache';
+import { ENABLE_SCHEMA_DRIVEN_VALIDATION } from '@/lib/validation';
 import { Validator } from '@/lib/validation/Validator';
 import type { ValidationResult, Fix } from '@/lib/validation/types';
 
@@ -483,6 +484,11 @@ export function validateAgainstSchema(
   providedAttrs: Record<string, string> = {},
   document?: { state: { characters?: Character[] } }
 ): SchemaValidationResult {
+  // Check feature flag - if disabled, use legacy validation
+  if (!ENABLE_SCHEMA_DRIVEN_VALIDATION) {
+    return validateAgainstSchemaLegacy(passage, range, tagType, providedAttrs, document);
+  }
+
   // Try to use the new schema-driven validator
   try {
     // Check if document has the required structure for the new Validator

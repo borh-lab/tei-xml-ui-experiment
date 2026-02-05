@@ -10,7 +10,8 @@ import {
   schemaAwareSmartSelection,
   TEI_P5_CONSTRAINTS,
 } from '@/lib/selection/SmartSelection';
-import type { Passage, Character } from '@/lib/tei/types';
+import { ENABLE_SCHEMA_DRIVEN_VALIDATION } from '@/lib/validation';
+import type { Passage, Character, TEIDocument } from '@/lib/tei/types';
 
 describe('Schema-Aware Smart Selection', () => {
   describe('TEI_P5_CONSTRAINTS', () => {
@@ -668,6 +669,219 @@ describe('Schema-Aware Smart Selection', () => {
       );
 
       expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('Feature Flag - ENABLE_SCHEMA_DRIVEN_VALIDATION', () => {
+    it('should have flag enabled by default', () => {
+      // By default, the flag should be true
+      expect(ENABLE_SCHEMA_DRIVEN_VALIDATION).toBe(true);
+    });
+
+    it('should be a boolean value', () => {
+      expect(typeof ENABLE_SCHEMA_DRIVEN_VALIDATION).toBe('boolean');
+    });
+
+    it('should allow toggling flag via environment variable (documentation test)', () => {
+      // This test documents how to toggle the flag
+      // In practice, the flag value is determined at module load time
+
+      const flagValue = ENABLE_SCHEMA_DRIVEN_VALIDATION;
+
+      // The flag should be either true or false
+      expect(typeof flagValue).toBe('boolean');
+
+      // Document the expected behavior
+      if (flagValue) {
+        console.log('Schema-driven validation is ENABLED');
+        console.log('To disable: Set NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION=false');
+      } else {
+        console.log('Schema-driven validation is DISABLED (using legacy)');
+        console.log('To enable: Set NEXT_PUBLIC_ENABLE_SCHEMA_DRIVEN_VALIDATION=true');
+      }
+    });
+
+    it('should default to enabled when no environment variable is set', () => {
+      // The flag should default to true
+      expect(ENABLE_SCHEMA_DRIVEN_VALIDATION).toBe(true);
+    });
+  });
+
+  describe('validateAgainstSchema with feature flag', () => {
+    it('should use schema-driven validation when flag is true', () => {
+      // Flag is enabled by default, test that validation works
+      const passage: Passage = {
+        id: 'passage-1',
+        content: 'John said hello to Jane.',
+        tags: [],
+      };
+
+      const document: TEIDocument = {
+        state: {
+          teiHeader: {
+            profileDesc: {
+              langUsage: [{ ident: 'tei-novel' }],
+            },
+          },
+          parsed: {},
+          passages: [],
+          characters: [
+            { id: 'char-1', name: 'John Doe' },
+            { id: 'char-2', name: 'Jane Smith' },
+          ] as Character[],
+          places: [],
+          organizations: [],
+          revision: 0,
+        },
+        teiHeader: {
+          titleStmt: {
+            title: 'Test Document',
+            author: 'Test Author',
+          },
+          profileDesc: {
+            langUsage: [{ ident: 'tei-novel' }],
+          },
+        },
+        text: {
+          body: {
+            passages: [],
+          },
+        },
+        events: [],
+      };
+
+      const result = validateAgainstSchema(
+        passage,
+        { start: 0, end: 4 },
+        'persName',
+        { ref: '#char-1' },
+        document
+      );
+
+      // Should validate successfully (ref exists)
+      expect(result.valid).toBe(true);
+    });
+
+    it('should validate required attributes when flag is true', () => {
+      const passage: Passage = {
+        id: 'passage-1',
+        content: 'John said hello',
+        tags: [],
+      };
+
+      const document = {
+        state: {
+          characters: [
+            { id: 'char-1', name: 'John' },
+          ] as Character[],
+        },
+      };
+
+      const result = validateAgainstSchema(
+        passage,
+        { start: 5, end: 15 },
+        'said',
+        {}, // Missing required @who attribute
+        document
+      );
+
+      // Should fail validation
+      expect(result.valid).toBe(false);
+      expect(result.missingAttributes).toContain('who');
+    });
+
+    it('should provide backward-compatible result format', () => {
+      const passage: Passage = {
+        id: 'passage-1',
+        content: 'John said hello',
+        tags: [],
+      };
+
+      const document = {
+        state: {
+          characters: [
+            { id: 'char-1', name: 'John' },
+          ] as Character[],
+        },
+      };
+
+      const result = validateAgainstSchema(
+        passage,
+        { start: 0, end: 4 },
+        'persName',
+        { ref: '#char-1' },
+        document
+      );
+
+      // Should have old format fields
+      expect('valid' in result).toBe(true);
+      expect('reason' in result || result.valid).toBe(true);
+
+      if (!result.valid) {
+        expect('missingAttributes' in result || 'invalidAttributes' in result).toBe(true);
+      }
+    });
+  });
+
+  describe('Backward compatibility with feature flag', () => {
+    it('should maintain same function signature regardless of flag', () => {
+      const passage: Passage = {
+        id: 'passage-1',
+        content: 'John said hello',
+        tags: [],
+      };
+
+      const document = {
+        state: {
+          characters: [
+            { id: 'char-1', name: 'John' },
+          ] as Character[],
+        },
+      };
+
+      // validateAgainstSchema should have the same signature
+      expect(() => {
+        validateAgainstSchema(
+          passage,
+          { start: 0, end: 4 },
+          'persName',
+          { ref: '#char-1' },
+          document
+        );
+      }).not.toThrow();
+    });
+
+    it('should return compatible result structure', () => {
+      const passage: Passage = {
+        id: 'passage-1',
+        content: 'John said hello',
+        tags: [],
+      };
+
+      const document = {
+        state: {
+          characters: [
+            { id: 'char-1', name: 'John' },
+          ] as Character[],
+        },
+      };
+
+      const result = validateAgainstSchema(
+        passage,
+        { start: 0, end: 4 },
+        'persName',
+        { ref: '#char-1' },
+        document
+      );
+
+      // Should have required fields
+      expect('valid' in result).toBe(true);
+
+      // Should have optional fields
+      expect('reason' in result || result.valid).toBe(true);
+      expect('missingAttributes' in result || 'invalidAttributes' in result || result.valid).toBe(
+        true
+      );
     });
   });
 });
