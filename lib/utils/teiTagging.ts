@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Utility functions for applying TEI tags to text selections
  */
@@ -100,7 +99,7 @@ export function applyTagToParagraph(
     result.push(taggedElement);
     if (after) result.push(after);
 
-    return result;
+    return result as unknown as TEIParagraph;
   }
 
   // If paragraph is already an object with structure
@@ -146,7 +145,7 @@ export function applyTagToParagraph(
       if (after) content.push(after);
 
       // Set as mixed content (use a key that doesn't conflict with attributes)
-      result['#text'] = content;
+      result['#text'] = content as any; // TODO: proper mixed content type
 
       return result;
     }
@@ -186,7 +185,7 @@ export function applyTagToParagraph(
             replacement.push(taggedElement);
             if (after) replacement.push(after);
 
-            newContent.splice(i, 1, ...replacement);
+            newContent.splice(i, 1, ...replacement as any); // TODO: proper mixed content type
 
             // Return updated paragraph
             const result: TEIParagraph = {};
