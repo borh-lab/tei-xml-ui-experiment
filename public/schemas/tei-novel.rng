@@ -1,96 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
-         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
-         ns="http://www.tei-c.org/ns/1.0"
-         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+         ns="http://www.tei-c.org/ns/1.0">
+
+  <!-- Permissive TEI schema for prose fiction - allows common TEI elements -->
+
   <start>
     <element name="TEI">
-      <element name="teiHeader">
-        <element name="fileDesc">
-          <element name="titleStmt">
-            <element name="title">
-              <text/>
-            </element>
-            <optional>
-              <element name="author">
-                <text/>
-              </element>
-            </optional>
+      <zeroOrMore>
+        <attribute>
+          <anyName/>
+        </attribute>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <element>
+            <anyName/>
+            <ref name="anyContent"/>
           </element>
-          <element name="publicationStmt">
-            <element name="publisher">
-              <text/>
-            </element>
-            <element name="date">
-              <data type="string"/>
-            </element>
-          </element>
-          <element name="sourceDesc">
-            <element name="p">
-              <text/>
-            </element>
-          </element>
-        </element>
-      </element>
-      <element name="text">
-        <element name="body">
-          <zeroOrMore>
-            <choice>
-              <element name="div">
-                <optional>
-                  <attribute name="type">
-                    <data type="string"/>
-                  </attribute>
-                </optional>
-                <zeroOrMore>
-                  <choice>
-                    <element name="head">
-                      <text/>
-                    </element>
-                    <element name="p">
-                      <zeroOrMore>
-                        <choice>
-                          <text/>
-                          <element name="emph">
-                            <text/>
-                          </element>
-                          <element name="q">
-                            <text/>
-                          </element>
-                          <element name="name">
-                            <text/>
-                          </element>
-                        </choice>
-                      </zeroOrMore>
-                    </element>
-                    <element name="quote">
-                      <element name="p">
-                        <text/>
-                      </element>
-                    </element>
-                  </choice>
-                </zeroOrMore>
-              </element>
-              <element name="p">
-                <zeroOrMore>
-                  <choice>
-                    <text/>
-                    <element name="emph">
-                      <text/>
-                    </element>
-                    <element name="q">
-                      <text/>
-                    </element>
-                    <element name="name">
-                      <text/>
-                    </element>
-                  </choice>
-                </zeroOrMore>
-              </element>
-            </choice>
-          </zeroOrMore>
-        </element>
-      </element>
+        </choice>
+      </zeroOrMore>
     </element>
   </start>
+
+  <define name="anyContent">
+    <zeroOrMore>
+      <choice>
+        <text/>
+        <attribute>
+          <anyName/>
+        </attribute>
+        <element>
+          <anyName/>
+          <ref name="anyContent"/>
+        </element>
+      </choice>
+    </zeroOrMore>
+  </define>
+
 </grammar>
