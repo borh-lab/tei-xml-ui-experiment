@@ -85,12 +85,12 @@ export interface AttributeDefinition {
 
 // Re-export ValidationResult from lib/validation for backward compatibility
 // This module's ValidationResult interface is now deprecated in favor of lib/validation
-export type { ValidationResult as SchemaValidationResult } from '@/lib/validation';
+import type { ValidationResult } from '@/lib/validation';
 
 /**
  * @deprecated Use ValidationResult from @/lib/validation instead
  */
-export type ValidationResult = SchemaValidationResult;
+export type SchemaValidationResult = ValidationResult;
 
 export type XmlPath = Array<{ name: string; namespace?: string }>;
 

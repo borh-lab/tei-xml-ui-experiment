@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { CommandPalette } from '@/components/keyboard/CommandPalette';
 import { KeyboardShortcutHelp } from '@/components/keyboard/KeyboardShortcutHelp';
 import { EntityEditorPanel } from './EntityEditorPanel';

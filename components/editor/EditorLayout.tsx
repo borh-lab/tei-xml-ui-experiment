@@ -3,7 +3,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useEditorState, useEditorUI, useAISuggestions, useTagSelection, useViewMode, useBulkOperations, useKeyboardShortcuts } from './hooks';
 import { EditorToolbar, EditorContent, EditorModals, EditorPanels, EditorToast } from './EditorComponents';
-import { SelectionManager } from '@/lib/selection/SelectionManager';
 import type { TEINode } from '@/lib/tei/types';
 import type { ValidationError, FixSuggestion } from '@/lib/validation';
 export interface MonacoEditor {

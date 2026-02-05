@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
-import type { TagInfo, SelectionSnapshot } from '@/lib/selection/types';
+import type { TagInfo } from '@/lib/selection/types';
 import type { TEINode } from '@/lib/tei/types';
 
 export interface UseEditorStateResult {
