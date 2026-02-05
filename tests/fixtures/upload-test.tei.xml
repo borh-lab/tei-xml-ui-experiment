@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Test Document</title></titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p><s who="#speaker1">First passage</s></p>
+      <p><s who="#speaker2">Second passage</s></p>
+      <p><s who="#speaker1">Third passage</s></p>
+    </body>
+  </text>
+</TEI>

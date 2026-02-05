@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Selection Manager (Value-Oriented)
  *

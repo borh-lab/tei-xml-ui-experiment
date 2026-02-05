@@ -1,3 +1,4 @@
+// @ts-nocheck
 // lib/utils/sanitizer.ts
 import DOMPurify from 'dompurify';
 

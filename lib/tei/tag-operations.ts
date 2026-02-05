@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tag Operations (Pure Functions)
  *

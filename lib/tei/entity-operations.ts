@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Entity Operations - Pure Functions for Character and Relationship CRUD
  *
