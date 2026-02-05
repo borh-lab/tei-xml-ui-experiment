@@ -51,7 +51,7 @@ function createMinimalDocument(): TEIDocument {
           ]
         }
       }
-    } as any,
+    } as DocumentState,
     events: []
   }
 }
@@ -125,7 +125,7 @@ function createDocumentWithCharacters(characterCount: number): TEIDocument {
           ]
         }
       }
-    } as any,
+    } as DocumentState,
     events: []
   }
 }
@@ -157,7 +157,7 @@ describe('Validation Performance Tests', () => {
       // First access (cold, should be similar to direct parse)
       const warmFirstStart = performance.now()
       cache.get(schemaPath)
-      const warmFirstTime = performance.now() - warmFirstStart
+      const _warmFirstTime = performance.now() - warmFirstStart
 
       // Second access (warm, should be much faster)
       const warmSecondStart = performance.now()

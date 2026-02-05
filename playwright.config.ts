@@ -41,10 +41,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 }, // Override for better quality
-      },
+      use: { ...devices['Desktop Chrome'] },
       // Standard e2e tests use default webServer config
     },
     {
@@ -54,8 +51,8 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         video: 'on', // Always record videos for doc generation
         baseURL: 'http://localhost:3001', // Use port 3001
-        viewport: { width: 1920, height: 1080 }, // Full HD for better quality
-        deviceScaleFactor: 1, // Force 1:1 pixel mapping for crisp text
+        viewport: { width: 800, height: 450 }, // Match Playwright's native recording size
+        deviceScaleFactor: 1,
       },
       // Isolated server with cache cleaning to avoid Turbopack lock issues
       webServer: {

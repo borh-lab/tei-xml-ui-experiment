@@ -32,9 +32,11 @@ export function getEntities(document: TEIDocument, entityType: EntityType) {
     case 'character':
       return document.state.characters || []
     case 'place':
-      return document.state.places || []
+      // places property doesn't exist in DocumentState yet, return empty array
+      return []
     case 'organization':
-      return document.state.organizations || []
+      // organizations property doesn't exist in DocumentState yet, return empty array
+      return []
     default:
       return []
   }

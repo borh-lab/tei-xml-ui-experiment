@@ -109,7 +109,7 @@ export class TagQueue {
   /**
    * Get all queued tags (immutable copy)
    */
-  getPending(): QueuedTag[] {
+  getPending(): readonly QueuedTag[] {
     // Return frozen array to prevent external mutation
     return Object.freeze([...this.pending]);
   }
@@ -139,9 +139,8 @@ export class TagQueue {
   /**
    * Move a tag from pending to failed
    * @param id - Tag ID to mark as failed
-   * @param _error - Error message (not stored in current implementation)
    */
-  markFailed(id: string, _error: string): void {
+  markFailed(id: string): void {
     const index = this.pending.findIndex((tag) => tag.id === id);
 
     if (index === -1) {
@@ -162,7 +161,7 @@ export class TagQueue {
   /**
    * Get current queue state (immutable snapshot)
    */
-  getState(): TagQueueState {
+  getState(): Readonly<TagQueueState> {
     return Object.freeze({
       pending: Object.freeze([...this.pending]),
       applied: Object.freeze([...this.applied]),

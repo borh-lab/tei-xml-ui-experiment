@@ -142,8 +142,8 @@ export class Validator {
     tagName: string,
     attrName: string,
     document: TEIDocument,
-    passage: Passage,
-    range: TextRange
+    _passage: Passage,
+    _range: TextRange
   ): Fix[] {
     const fixes: Fix[] = []
 
@@ -237,9 +237,9 @@ export class Validator {
     tagName: string,
     attrName: string,
     attrValue: string,
-    document: TEIDocument,
-    passage: Passage,
-    range: TextRange,
+    _document: TEIDocument,
+    _passage: Passage,
+    _range: TextRange,
     errors: ValidationError[],
     fixes: Fix[]
   ): void {
@@ -250,12 +250,12 @@ export class Validator {
 
     // Detect entity type
     const entityType = detectEntityTypeFromAttribute(tagName, attrName)
-    const entities = getEntities(document, entityType)
+    const entities = getEntities(_document, entityType)
 
     // Check if referenced entity exists
     const exists = entities.some(e => {
       // Check both id and xmlId
-      return e.id === referenceId || (e as any).xmlId === referenceId
+      return e.id === referenceId || ('xmlId' in e && e.xmlId === referenceId)
     })
 
     if (!exists) {

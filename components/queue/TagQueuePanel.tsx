@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Trash2, Loader2 } from 'lucide-react';
 import type { TagQueueState, QueuedTag } from '@/lib/queue/TagQueue';

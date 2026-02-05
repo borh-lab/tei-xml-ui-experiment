@@ -11,21 +11,14 @@ import { test, expect } from '@playwright/test';
  */
 
 // Enable video recording for all tests in this file
-// Note: Don't spread devices preset as it overrides viewport
+// Match Playwright's native recording size (800x450) to avoid scaling artifacts
 test.use({
   video: 'on',
-  viewport: { width: 1920, height: 1080 }, // Full HD for crisp text
-  deviceScaleFactor: 1, // 1:1 pixel mapping
-  // Use defaults from Desktop Chrome without spreading the preset
-  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-  locale: 'en-US',
-  timezoneId: 'America/New_York',
+  viewport: { width: 800, height: 450 }, // Match Playwright's native size
+  deviceScaleFactor: 1,
 });
 
-test.beforeEach(async ({ page, context }) => {
-  // Set viewport explicitly for video recording
-  await page.setViewportSize({ width: 1920, height: 1080 });
-
+test.beforeEach(async ({ page }) => {
   // Clear localStorage for fresh state before page loads
   await page.addInitScript(() => {
     localStorage.clear();
