@@ -11,11 +11,6 @@ import { extract, determinePosition } from '@/lib/learning/PatternExtractor';
 import { logger } from '@/lib/utils/logger';
 import { useStorageService } from '@/lib/effect/react/hooks';
 
-// Feature flag for Effect integration
-const EFFECT_ENABLED = typeof window !== 'undefined'
-  ? localStorage.getItem('feature-useEffectAI') === 'true'
-  : false;
-
 export interface InlineSuggestionsProps {
   suggestions: DialogueSpan[];
   onAccept: (suggestion: DialogueSpan) => void;
@@ -31,7 +26,7 @@ export interface InlineSuggestionsProps {
  *
  * Displays AI-detected dialogue with confidence scores and accept/reject actions.
  * Shows suggested text highlighting and provides keyboard shortcuts for quick actions.
- * Uses Effect StorageService when feature flag is enabled, falls back to PatternDB.
+ * Uses Effect StorageService.
  */
 export const InlineSuggestions = React.memo(
   ({
@@ -43,8 +38,8 @@ export const InlineSuggestions = React.memo(
     totalPositions = 1,
     aiMode = 'manual',
   }: InlineSuggestionsProps) => {
-    // Use Effect StorageService when feature flag is enabled
-    const storageService = EFFECT_ENABLED ? useStorageService() : null;
+    // Use Effect StorageService
+    const storageService = useStorageService();
 
     if (suggestions.length === 0) {
       return null;
@@ -58,27 +53,16 @@ export const InlineSuggestions = React.memo(
         // Extract and store patterns
         const patterns = extract(suggestion.text, suggestion.speaker || '', position);
 
-        // Use Effect StorageService or fallback to PatternDB
-        if (EFFECT_ENABLED && storageService) {
-          // Store patterns using Effect StorageService
-          const patternKey = `learned-pattern-${suggestion.speaker || 'unknown'}`;
-          const existingData = await storageService.get<{ patterns: string[]; timestamp: number }[]>(patternKey);
-          const newData = [...(existingData || []), { patterns: Array.from(patterns.phrases), timestamp: Date.now() }];
-          await storageService.set(patternKey, newData);
+        // Store patterns using Effect StorageService
+        const patternKey = `learned-pattern-${suggestion.speaker || 'unknown'}`;
+        const existingData = await storageService.get<{ patterns: string[]; timestamp: number }[]>(patternKey);
+        const newData = [...(existingData || []), { patterns: Array.from(patterns.phrases), timestamp: Date.now() }];
+        await storageService.set(patternKey, newData);
 
-          logger.info('Pattern learned via Effect Storage', {
-            speaker: suggestion.speaker,
-            patternCount: patterns.phrases.size,
-          });
-        } else {
-          // Fallback to PatternDB
-          await db.storeLearnedPattern(suggestion.speaker || '', patterns);
-
-          logger.info('Pattern learned via PatternDB', {
-            speaker: suggestion.speaker,
-            patternCount: patterns.phrases.size,
-          });
-        }
+        logger.info('Pattern learned via Effect Storage', {
+          speaker: suggestion.speaker,
+          patternCount: patterns.phrases.size,
+        });
 
         // Call parent's onAccept handler
         onAccept(suggestion);
@@ -91,46 +75,29 @@ export const InlineSuggestions = React.memo(
 
     const handleReject = async (suggestion: DialogueSpan) => {
       try {
-        // Use Effect StorageService or fallback to PatternDB
-        if (EFFECT_ENABLED && storageService) {
-          // Log rejection using Effect StorageService
-          const rejectionKey = 'rejected-suggestions';
-          const existingRejections = await storageService.get<Array<{
-            text: string;
-            confidence: number;
-            timestamp: number;
-            position: string;
-          }>>(rejectionKey);
-          const newRejections = [
-            ...(existingRejections || []),
-            {
-              text: suggestion.text,
-              confidence: suggestion.confidence,
-              timestamp: Date.now(),
-              position,
-            },
-          ];
-          await storageService.set(rejectionKey, newRejections);
-
-          logger.debug('Suggestion rejected via Effect Storage', {
+        // Log rejection using Effect StorageService
+        const rejectionKey = 'rejected-suggestions';
+        const existingRejections = await storageService.get<Array<{
+          text: string;
+          confidence: number;
+          timestamp: number;
+          position: string;
+        }>>(rejectionKey);
+        const newRejections = [
+          ...(existingRejections || []),
+          {
             text: suggestion.text,
             confidence: suggestion.confidence,
-          });
-        } else {
-          // Fallback to PatternDB
-          await db.logCorrection(
-            suggestion.text,
-            '', // No speaker selected
-            [], // No speaker selected
-            suggestion.confidence,
-            position
-          );
+            timestamp: Date.now(),
+            position,
+          },
+        ];
+        await storageService.set(rejectionKey, newRejections);
 
-          logger.debug('Suggestion rejected via PatternDB', {
-            text: suggestion.text,
-            confidence: suggestion.confidence,
-          });
-        }
+        logger.debug('Suggestion rejected via Effect Storage', {
+          text: suggestion.text,
+          confidence: suggestion.confidence,
+        });
 
         // Call parent's onReject handler
         onReject(suggestion);
@@ -155,11 +122,9 @@ export const InlineSuggestions = React.memo(
 
     return (
       <div className="space-y-2" role="list" aria-label="AI suggestions">
-        {EFFECT_ENABLED && (
-          <div className="flex items-center gap-2 mb-2">
-            <Badge variant="outline" className="text-xs">Effect Storage Enabled</Badge>
-          </div>
-        )}
+        <div className="flex items-center gap-2 mb-2">
+          <Badge variant="outline" className="text-xs">Effect Storage</Badge>
+        </div>
         {suggestions.map((suggestion, index) => (
           <div
             key={`${suggestion.start}-${suggestion.end}-${index}`}

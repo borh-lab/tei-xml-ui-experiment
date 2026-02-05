@@ -12,11 +12,6 @@ interface AIModeSwitcherProps {
   onModeChange: (mode: AIMode) => void;
 }
 
-// Feature flag for Effect integration
-const EFFECT_ENABLED = typeof window !== 'undefined'
-  ? localStorage.getItem('feature-useEffectAI') === 'true'
-  : false;
-
 export function AIModeSwitcher({ mode, onModeChange }: AIModeSwitcherProps) {
   const modes: AIMode[] = ['manual', 'suggest', 'auto'];
 
@@ -51,9 +46,7 @@ export function AIModeSwitcher({ mode, onModeChange }: AIModeSwitcherProps) {
           </Button>
         ))}
       </div>
-      {EFFECT_ENABLED && (
-        <Badge variant="secondary" className="text-xs">Effect</Badge>
-      )}
+      <Badge variant="secondary" className="text-xs">Effect</Badge>
     </div>
   );
 }

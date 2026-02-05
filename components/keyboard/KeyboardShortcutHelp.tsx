@@ -1,9 +1,6 @@
 // @ts-nocheck
 'use client';
 
-// Feature flag badge: component is ready for Effect migration
-// Enable with: localStorage.setItem('feature-useEffectMisc', 'true')
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface ShortcutHelpProps {

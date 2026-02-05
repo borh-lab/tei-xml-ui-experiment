@@ -21,9 +21,6 @@ import {
 import { createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
 import { SchemaInfo } from '@/lib/schema/SchemaResolver';
 
-// Feature flag badge: component is ready for Effect migration
-// Enable with: localStorage.setItem('feature-useEffectMisc', 'true')
-
 interface ValidationPanelProps {
   validationResults: ValidationResult | null;
   onFixClick?: (suggestion: FixSuggestion) => void;
