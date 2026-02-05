@@ -173,6 +173,7 @@ export function TagToolbar({ onClose }: TagToolbarProps) {
   ));
 
   return (
+    <>
     <div
       data-test-panel="tag-toolbar"
       data-test-state="visible"
