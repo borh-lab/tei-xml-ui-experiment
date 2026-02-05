@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, X, Navigation } from 'lucide-react';
 

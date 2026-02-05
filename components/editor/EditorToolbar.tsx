@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { AIModeSwitcher } from '@/components/ai/AIModeSwitcher';
 import { TagToolbar } from './TagToolbar';

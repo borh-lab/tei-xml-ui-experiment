@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { VisualizationPanel } from '@/components/visualization/VisualizationPanel';
 import { ValidationPanel } from '@/components/validation/ValidationPanel';
