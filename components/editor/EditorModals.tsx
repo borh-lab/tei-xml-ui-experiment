@@ -86,12 +86,18 @@ export function EditorModals({
       <EntityEditorPanel open={entityPanelOpen} onClose={onCloseEntityPanel} />
 
       {/* Tag Edit Dialog */}
-      <TagEditDialog
-        isOpen={editDialogOpen}
-        onClose={onCloseEditDialog}
-        tagInfo={tagToEdit as any}
-        onApply={onTagAttributeUpdate}
-      />
+      {tagToEdit && (
+        <TagEditDialog
+          isOpen={editDialogOpen}
+          onClose={onCloseEditDialog}
+          tagInfo={{
+            tagName: tagToEdit.tagName || tagToEdit.type,
+            attributes: { ...tagToEdit.attributes },
+            element: tagToEdit.element || document.createElement('span'),
+          }}
+          onApply={onTagAttributeUpdate}
+        />
+      )}
     </>
   );
 }
