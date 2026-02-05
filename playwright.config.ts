@@ -49,21 +49,14 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         video: 'on', // Always record videos for doc generation
-      },
-      // Use a different port to avoid conflicts
-      webServer: {
-        command: 'npm run dev',
-        url: 'http://localhost:3001',
-        port: 3001,
-        reuseExistingServer: false, // Always start fresh
-        timeout: 120 * 1000,
+        baseURL: 'http://localhost:3001', // Use port 3001
       },
     },
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    command: 'bun run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true, // Always reuse if server is running
     timeout: 120 * 1000,
