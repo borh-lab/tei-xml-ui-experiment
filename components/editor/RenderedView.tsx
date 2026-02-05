@@ -5,8 +5,10 @@ import DOMPurify from 'dompurify';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
+import { useSelection } from '@/hooks/useSelection';
 import type { Tag } from '@/lib/tei/types';
 import type { TagInfo } from '@/lib/selection/types';
+import type { Selection } from '@/lib/values/Selection';
 
 interface Passage {
   id: string;
@@ -32,6 +34,7 @@ interface RenderedViewProps {
   onTagSelect?: (tagInfo: TagInfo) => void;
   onTagDoubleClick?: (tagInfo: TagInfo) => void;
   selectedTag?: TagInfo | null;
+  onTextSelectionChange?: (selection: Selection | null) => void;
 }
 
 export const RenderedView = React.memo(
@@ -44,6 +47,7 @@ export const RenderedView = React.memo(
     onTagSelect,
     onTagDoubleClick,
     selectedTag: _selectedTag,
+    onTextSelectionChange,
   }: RenderedViewProps) => {
     const { document } = useDocumentService();
     const [passages, setPassages] = useState<Passage[]>([]);
@@ -55,6 +59,9 @@ export const RenderedView = React.memo(
     const lastSelectedIndex = useRef<number | null>(null);
     const passageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
     const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Track text selection for real-time hints
+    const textSelection = useSelection();
 
     // DOMPurify configuration to allow only safe tags and attributes for TEI markup
     const purifyConfig = {
@@ -165,6 +172,14 @@ export const RenderedView = React.memo(
           }
         }, 100);
       }
+    }, [highlightedPassageId]);
+
+    // Notify parent of text selection changes
+    useEffect(() => {
+      if (onTextSelectionChange) {
+        onTextSelectionChange(textSelection);
+      }
+    }, [textSelection, onTextSelectionChange]);
     }, [highlightedPassageId]);
 
     // Handle tag click
