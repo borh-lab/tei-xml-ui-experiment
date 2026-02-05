@@ -6,6 +6,7 @@ import { CorpusBrowser as CorpusBrowserService } from '@/lib/effect/services/Cor
 import { FetchCorpusDataSourceLive } from '@/lib/effect/services/FetchCorpusDataSource';
 import { CorpusBrowserLive } from '@/lib/effect/services/CorpusBrowser';
 import type { BrowserState, DocumentViewState } from '@/lib/effect/services/CorpusBrowser';
+import type { CorpusId, DocumentId } from '@/lib/effect/protocols/CorpusDataSource';
 import { CorpusSelector } from './CorpusSelector';
 import { LoadedCorpusView } from './LoadedCorpusView';
 
@@ -37,10 +38,10 @@ export function CorpusBrowser() {
     });
   }, []);
 
-  const loadCorpus = async (corpus: string) => {
+  const loadCorpus = async (corpus: CorpusId) => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(CorpusBrowserService);
-      yield* _(service.loadCorpus(corpus as any));
+      yield* _(service.loadCorpus(corpus));
       const state = yield* _(service.getState());
       return state;
     });
@@ -53,10 +54,10 @@ export function CorpusBrowser() {
     }
   };
 
-  const loadDocument = async (docId: any) => {
+  const loadDocument = async (docId: DocumentId) => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(CorpusBrowserService);
-      yield* _(service.loadDocument(docId as any));
+      yield* _(service.loadDocument(docId));
       const state = yield* _(service.getDocumentState());
       return state;
     });
