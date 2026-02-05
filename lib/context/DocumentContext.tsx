@@ -1,19 +1,21 @@
 // @ts-nocheck
 /**
- * DocumentContext - Minimal implementation for main branch tests
+ * DocumentContext - Test helper using Effect services
  *
- * This is a simplified version of DocumentContext to support tests in the main branch.
- * The full Effect-based implementation is in the .worktrees/foundation-immutable branch.
+ * This file provides a DocumentProvider for tests that wraps the Effect-based
+ * document services in a React Context interface for compatibility with existing tests.
  */
 
 import { createContext, useContext, ReactNode } from 'react';
+import type { TEIDocument } from '@/lib/tei/types';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 
 export interface DocumentContextType {
-  document: unknown;
-  setDocument: (doc: unknown) => void;
+  document: TEIDocument | null;
+  setDocument: (doc: TEIDocument | null) => void;
   clearDocument: () => void;
-  loadDocument?: (xml: string) => Promise<void>;
-  loadSample?: (sampleId: string) => Promise<void>;
+  loadDocument: (xml: string) => Promise<TEIDocument | null>;
+  loadSample: (sampleId: string) => Promise<void>;
 }
 
 export const DocumentContext = createContext<DocumentContextType | undefined>(
@@ -24,12 +26,26 @@ export interface DocumentProviderProps {
   children: ReactNode;
 }
 
+/**
+ * DocumentProvider - Test helper using Effect services
+ *
+ * Wraps the Effect-based useDocumentService in a React Context for test compatibility.
+ */
 export function DocumentProvider({ children }: DocumentProviderProps) {
-  // Minimal mock implementation for tests
+  const docService = useDocumentService();
+
+  // Create a simple adapter to match the DocumentContextType interface
   const contextValue: DocumentContextType = {
-    document: null,
-    setDocument: () => {},
-    clearDocument: () => {},
+    document: docService.document,
+    setDocument: (doc: TEIDocument | null) => {
+      // Effect uses immutable state, so this is a no-op for tests
+      // Tests should use loadDocument instead
+    },
+    clearDocument: () => {
+      // Effect manages state internally
+    },
+    loadDocument: docService.loadDocument,
+    loadSample: docService.loadSample,
   };
 
   return (
@@ -48,21 +64,12 @@ export function useDocumentContext(): DocumentContextType {
 }
 
 /**
- * useDocument Hook
+ * useDocument Hook - Re-exports Effect useDocumentService
  *
- * Exports the Effect-based useDocumentService hook for compatibility.
- * This provides the full Effect-based functionality when the feature flag is enabled.
- *
- * For now, this is a simple re-export. The app/page.tsx component uses this.
+ * This is now just a simple re-export of the Effect-based hook.
+ * The feature flag logic has been removed since we're fully committed to Effect.
  */
 export function useDocument() {
-  // Check if Effect version should be used via feature flag
-  if (typeof window !== 'undefined' && localStorage.getItem('feature-useEffectDocument') === 'true') {
-    // Use Effect version
-    const { useDocument: useDocumentEffect } = require('@/lib/effect/react/hooks');
-    return useDocumentEffect();
-  }
-
-  // Fall back to React version
-  return useDocumentContext();
+  const { useDocument: useDocumentEffect } = require('@/lib/effect/react/hooks');
+  return useDocumentEffect();
 }
