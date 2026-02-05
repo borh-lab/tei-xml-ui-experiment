@@ -141,7 +141,10 @@ export function useDocumentService(): UseDocumentServiceResult {
     }>
   ) => {
     if (mountedRef.current) {
-      if (updates.document !== undefined) setDocument(updates.document);
+      if (updates.document !== undefined) {
+        console.log('[useDocumentService] updateState: document =', updates.document.title || '(no title)', updates.document ? '(set)' : '(cleared)');
+        setDocument(updates.document);
+      }
       if (updates.loading !== undefined) setLoading(updates.loading);
       if (updates.loadingSample !== undefined) setLoadingSample(updates.loadingSample);
       if (updates.loadingProgress !== undefined) setLoadingProgress(updates.loadingProgress);
@@ -525,6 +528,7 @@ export function useDocumentService(): UseDocumentServiceResult {
   }, [updateState]);
 
   const loadSample = useCallback(async (sampleId: string) => {
+    console.log('[useDocumentService] loadSample called:', sampleId);
     setLoadingSample(true);
     setLoadingProgress(0);
     updateState({ error: null });
@@ -539,19 +543,24 @@ export function useDocumentService(): UseDocumentServiceResult {
       const { loadSample: loadSampleOp } = await import('@/lib/samples/sampleLoader');
 
       // Fetch the sample XML content
+      console.log('[useDocumentService] Fetching sample XML...');
       const xml = await loadSampleOp(sampleId);
+      console.log('[useDocumentService] Sample XML fetched, length:', xml.length);
 
       clearInterval(progressInterval);
       setLoadingProgress(100);
 
       // Load the document using the fetched XML
-      await loadDocument(xml);
+      console.log('[useDocumentService] Calling loadDocument...');
+      const doc = await loadDocument(xml);
+      console.log('[useDocumentService] Document loaded:', doc ? doc.title || '(no title)' : 'null');
 
       setTimeout(() => {
         setLoadingSample(false);
         setLoadingProgress(0);
       }, 500);
     } catch (err) {
+      console.error('[useDocumentService] loadSample error:', err);
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       setLoadingSample(false);
