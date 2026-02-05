@@ -10,6 +10,7 @@ import type { AIMode } from '@/components/ai/AIModeSwitcher';
 import { DialogueSpan } from '@/lib/ai/providers';
 import type { TagInfo } from '@/lib/selection/types';
 import type { ViewMode } from './hooks/useViewMode';
+import type { Selection } from '@/lib/values/Selection';
 
 export interface EditorContentProps {
   // View mode
@@ -29,6 +30,7 @@ export interface EditorContentProps {
   onTagSelect: (tagInfo: TagInfo) => void;
   onTagDoubleClick: (tagInfo: TagInfo) => void;
   selectedTag: TagInfo | null;
+  onTextSelectionChange?: (selection: Selection | null) => void;
   // Code editor
   codeContent: string;
   onCodeChange: (code: string) => void;
@@ -62,6 +64,7 @@ export function EditorContent({
   onTagSelect,
   onTagDoubleClick,
   selectedTag,
+  onTextSelectionChange,
   codeContent,
   onCodeChange,
   onCodeEditorMount,
@@ -102,6 +105,7 @@ export function EditorContent({
           onTagSelect={onTagSelect}
           onTagDoubleClick={onTagDoubleClick}
           selectedTag={selectedTag}
+          onTextSelectionChange={onTextSelectionChange}
         />
       </div>
     </Card>
