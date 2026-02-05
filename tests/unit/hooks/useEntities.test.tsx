@@ -40,7 +40,7 @@ describe('useEntities Hook', () => {
       expect(character.name).toBe('Jane Doe');
       expect(character.sex).toBe('F');
       expect(character.age).toBe(30);
-      expect(character.id).toMatch(/^char-jane-doe-/);
+      expect(character.id).toMatch(/^character-jane-doe-/);
       expect(character.xmlId).toBe('jane-doe');
     });
 
@@ -129,7 +129,7 @@ describe('useEntities Hook', () => {
       const org = result.current.entities[0] as Organization;
       expect(org.name).toBe('Acme Corporation');
       expect(org.type).toBe('company');
-      expect(org.id).toMatch(/^org-acme-corporation-/);
+      expect(org.id).toMatch(/^organization-acme-corporation-/);
     });
 
     it('should add delta to history after creating organization', async () => {
@@ -436,7 +436,7 @@ describe('useEntities Hook', () => {
       const { result } = renderHook(() => useEntities());
 
       const character: Character = {
-        id: 'char-test123' as Character['id'],
+        id: 'character-test123' as Character['id'],
         xmlId: 'test123',
         name: 'Test Character',
         sex: 'M',
@@ -457,7 +457,7 @@ describe('useEntities Hook', () => {
 
       // Create entity with duplicate ID
       const character: Character = {
-        id: 'char-duplicate' as Character['id'],
+        id: 'character-duplicate' as Character['id'],
         xmlId: 'duplicate',
         name: 'Duplicate Character',
         sex: 'M',
