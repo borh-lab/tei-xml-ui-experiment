@@ -4,23 +4,14 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { VisualizationPanel } from '@/components/visualization/VisualizationPanel';
 import { ValidationPanel } from '@/components/validation/ValidationPanel';
-
-interface ValidationError {
-  line?: number;
-  message?: string;
-  [key: string]: unknown;
-}
-
-interface FixSuggestion {
-  [key: string]: unknown;
-}
+import type { ValidationResult, ValidationError, FixSuggestion } from '@/lib/validation';
 
 export interface EditorPanelsProps {
   vizPanelOpen: boolean;
   validationPanelOpen: boolean;
-  validationResults: any;
-  onErrorClick: (error: ValidationError) => void;
-  onFixClick: (suggestion: FixSuggestion) => void;
+  validationResults: ValidationResult | null;
+  onErrorClick?: (error: ValidationError) => void;
+  onFixClick?: (suggestion: FixSuggestion) => void;
 }
 
 /**
@@ -52,9 +43,9 @@ export function EditorPanels({
           <Card className="w-96 m-2 overflow-auto">
             <div className="p-4">
               <ValidationPanel
-                validationResults={validationResults as any}
-                onErrorClick={onErrorClick as any}
-                onFixClick={onFixClick as any}
+                validationResults={validationResults}
+                onErrorClick={onErrorClick}
+                onFixClick={onFixClick}
                 visible={validationPanelOpen}
               />
             </div>
