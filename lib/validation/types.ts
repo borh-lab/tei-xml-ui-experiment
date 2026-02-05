@@ -37,6 +37,29 @@ export interface ContentModel {
 // Entity types for IDREF validation
 export type EntityType = 'character' | 'place' | 'organization'
 
+// Entity mapping for IDREF detection
+export interface EntityMapping {
+  tagName?: string
+  attrName: string
+  entityType: EntityType
+}
+
+// Tag queue types
+export interface QueuedTag {
+  readonly id: string
+  readonly tagType: string
+  readonly attributes: Record<string, string>
+  readonly passageId: string
+  readonly range: TextRange
+  readonly timestamp: number
+}
+
+export interface TagQueueState {
+  readonly pending: QueuedTag[]
+  readonly applied: QueuedTag[]
+  readonly failed: QueuedTag[]
+}
+
 // Validation result with fixes
 export interface ValidationResult {
   valid: boolean
@@ -50,6 +73,8 @@ export interface ValidationError {
   attribute?: string
   value?: string
   message: string
+  line?: number
+  column?: number
 }
 
 export interface ValidationWarning {

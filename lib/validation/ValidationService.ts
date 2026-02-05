@@ -5,7 +5,7 @@
  * with detailed error reporting and fix suggestions.
  */
 
-import { SchemaLoader, ValidationError as SchemaValidationError } from '../schema/SchemaLoader';
+import { SchemaLoader } from '../schema/SchemaLoader';
 
 /**
  * Validation error with location and context information
@@ -250,9 +250,7 @@ export class ValidationService {
    * @returns Fix suggestion or null
    */
   private createSuggestionForError(
-    error: ValidationError,
-    xmlContent: string,
-    schemaPath: string
+    error: ValidationError
   ): FixSuggestion | null {
     const message = error.message.toLowerCase();
 

@@ -22,8 +22,7 @@ export class RelaxNGParser {
       ignoreAttributes: false,
       attributeNamePrefix: '$',
       textNodeName: '#text',
-      ignoreDeclaration: true,
-      ignorePi: true
+      ignoreDeclaration: true
     })
   }
 
@@ -56,7 +55,7 @@ export class RelaxNGParser {
   /**
    * Parse a <define> element which contains tag definitions
    */
-  private parseDefine(def: any, constraints: ParsedConstraints): void {
+  private parseDefine(def: Record<string, unknown>, constraints: ParsedConstraints): void {
     const element = def.element
     if (!element) return
 
@@ -144,7 +143,7 @@ export class RelaxNGParser {
   /**
    * Extract data type from attribute definition
    */
-  private extractDataType(attr: any): AttributeType {
+  private extractDataType(attr: Record<string, unknown>): AttributeType {
     const data = attr.data
     if (data && data['$type']) {
       const type = data['$type']
@@ -158,7 +157,7 @@ export class RelaxNGParser {
   /**
    * Extract enumerated values from <choice> element
    */
-  private extractEnumValues(choice: any): string[] {
+  private extractEnumValues(choice: Record<string, unknown>): string[] {
     const values: string[] = []
     const choices = this.ensureArray(choice.value)
     for (const val of choices) {
@@ -172,7 +171,7 @@ export class RelaxNGParser {
   /**
    * Parse content model from element definition
    */
-  private parseContentModel(el: any): ContentModel | null {
+  private parseContentModel(el: Record<string, unknown>): ContentModel | null {
     const model: ContentModel = {
       textOnly: false,
       mixedContent: false,
@@ -251,7 +250,7 @@ export class RelaxNGParser {
   /**
    * Extract child tag names from content model pattern
    */
-  private extractChildTags(pattern: any): string[] {
+  private extractChildTags(pattern: Record<string, unknown>): string[] {
     const children: string[] = []
 
     // Direct ref elements

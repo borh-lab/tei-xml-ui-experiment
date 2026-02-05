@@ -18,28 +18,27 @@ const execAsync = promisify(exec);
 
 /**
  * Video type configuration
- * Target bitrate encoding for consistent quality
- * Higher bitrate = better quality, larger files
+ * High bitrate targeting for 800x450 - VP9 is very efficient
  */
 const videoConfig = {
   highlights: {
     dir: 'docs/videos/highlights',
-    fps: 15, // Sufficient for UI demos, keeps file size down
-    bitrate: '3M', // High bitrate for Full HD with text
-    'cpu-used': 0 // Best quality
+    fps: 15,
+    bitrate: '5M', // Very high bitrate to force quality
+    'cpu-used': 0
   },
   workflows: {
     dir: 'docs/videos/workflows',
-    fps: 15, // 15fps is sufficient for UI interactions
-    bitrate: '4M', // Even higher for longer videos
-    'cpu-used': 0 // Best quality
+    fps: 15,
+    bitrate: '5M',
+    'cpu-used': 0
   }
 } as const;
 
 /**
  * Optimize a video using ffmpeg
- * Scales up from Playwright's 800x450 recording to Full HD 1920x1080
- * Uses quality-based encoding (CRF) for best visual quality
+ * Keeps Playwright's native 800x450 resolution - no upscaling
+ * Uses quality-based encoding for sharp text
  */
 async function optimizeVideo(
   input: string,
@@ -51,11 +50,15 @@ async function optimizeVideo(
   const args = [
     '-i', input,
     '-c:v', 'libvpx-vp9',
-    '-lossless', '1', // Near-lossless encoding
+    '-b:v', config.bitrate, // Target bitrate
     '-r', String(config.fps),
     '-cpu-used', '0',
-    '-vf', 'scale=1920:1080:flags=lanczos',
-    '-pix_fmt', 'yuv444p',
+    // Min/max quantizers to limit compression
+    '-qmin', '0',
+    '-qmax', '10',
+    // No scaling - keep native 800x450 for sharpness
+    '-pix_fmt', 'yuv444p', // 4:4:4 chroma for best text quality
+    '-deadline', 'best',
     '-y',
     output
   ];

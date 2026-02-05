@@ -8,12 +8,12 @@
  * not unit tests that test individual functions in isolation.
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals'
+import { describe, it, expect, beforeEach } from '@jest/globals'
 import { Validator } from '@/lib/validation/Validator'
 import { SchemaCache } from '@/lib/validation/SchemaCache'
 import { TagQueue } from '@/lib/queue/TagQueue'
 import { detectSchemaPath } from '@/lib/validation/schemaDetection'
-import type { TEIDocument, Passage, Character, Place, TextRange } from '@/lib/tei/types'
+import type { TEIDocument, Passage, Character, TextRange } from '@/lib/tei/types'
 
 // ============================================================================
 // Test Helpers
@@ -64,7 +64,7 @@ const mockSchemaXML = `
 /**
  * Mock file reader that returns test schema
  */
-const mockFileReader = (path: string, encoding: string) => {
+const mockFileReader = (path: string, _encoding: string) => {
   if (path.includes('tei-all.rng') || path.includes('tei-novel.rng') || path.includes('tei-minimal.rng')) {
     return mockSchemaXML
   }
@@ -72,22 +72,16 @@ const mockFileReader = (path: string, encoding: string) => {
 }
 
 /**
- * Create a mock TEI document with characters and places
+ * Create a mock TEI document with characters
  */
 function createMockDocument(options?: {
-  profile?: string
   characters?: Array<{ id: string; xmlId: string; name: string }>
-  places?: Array<{ id: string; xmlId: string; name: string }>
   content?: string
 }): TEIDocument {
   const {
-    profile = 'tei-novel',
     characters = [
       { id: 'char-1', xmlId: 'char-1', name: 'John' },
       { id: 'char-2', xmlId: 'char-2', name: 'Jane' },
-    ],
-    places = [
-      { id: 'london-1', xmlId: 'london-1', name: 'London' },
     ],
     content = 'John said hello. Jane went to London.',
   } = options || {}
@@ -109,14 +103,8 @@ function createMockDocument(options?: {
         author: 'Test Author',
         created: new Date(),
       },
-      teiHeader: {
-        profileDesc: {
-          langUsage: [{ ident: profile }],
-        },
-      },
       passages: [passage],
       characters: characters as Character[],
-      places: places as Place[],
       dialogue: [],
       relationships: [],
     },
@@ -125,40 +113,10 @@ function createMockDocument(options?: {
 }
 
 /**
- * Create a mock passage with content
- */
-function createMockPassage(content: string, tags: any[] = []): Passage {
-  return {
-    id: 'passage-1',
-    index: 0,
-    content,
-    tags,
-  }
-}
-
-/**
  * Create a mock text range
  */
 function createMockRange(start: number, end: number): TextRange {
   return { start, end }
-}
-
-/**
- * Mock toast function for testing
- */
-function createMockToast() {
-  const toasts: Array<{ message: string; type: string }> = []
-
-  return {
-    toasts,
-    showToast: jest.fn((message: string, type: 'success' | 'error' | 'info') => {
-      toasts.push({ message, type })
-    }),
-    clear: () => toasts.length = 0,
-    getToastCount: () => toasts.length,
-    getLastToast: () => toasts[toasts.length - 1],
-    hasToastWithMessage: (msg: string) => toasts.some(t => t.message.includes(msg)),
-  }
 }
 
 // ============================================================================
@@ -232,7 +190,7 @@ describe('Schema Validation Flow - Integration Tests', () => {
       // applies all at once
 
       // Setup: Document with characters
-      const document = createMockDocument({
+      const _document = createMockDocument({
         characters: [
           { id: 'char-1', xmlId: 'char-1', name: 'John' },
         ],
@@ -285,7 +243,6 @@ describe('Schema Validation Flow - Integration Tests', () => {
       // Setup: Document with characters
       const document = createMockDocument()
       const passage = document.state.passages[0]
-      const queue = new TagQueue()
 
       // Action: Try to add invalid tag to queue (missing @who)
       const invalidResult = validator.validate(
@@ -314,7 +271,6 @@ describe('Schema Validation Flow - Integration Tests', () => {
 
       // Setup: Create TEIDocument with tei-novel profile
       const document = createMockDocument({
-        profile: 'tei-novel',
         content: 'Test content',
       })
 
@@ -327,7 +283,6 @@ describe('Schema Validation Flow - Integration Tests', () => {
 
     it('should detect tei-minimal profile', () => {
       const document = createMockDocument({
-        profile: 'tei-minimal',
         content: 'Test content',
       })
 
@@ -338,7 +293,6 @@ describe('Schema Validation Flow - Integration Tests', () => {
 
     it('should default to tei-all for unknown profiles', () => {
       const document = createMockDocument({
-        profile: 'unknown-profile',
         content: 'Test content',
       })
 
@@ -349,7 +303,6 @@ describe('Schema Validation Flow - Integration Tests', () => {
 
     it('should cache schema after first detection', () => {
       const document = createMockDocument({
-        profile: 'tei-novel',
         content: 'Test content',
       })
 
@@ -476,7 +429,6 @@ describe('Schema Validation Flow - Integration Tests', () => {
 
       const document = createMockDocument()
       const passage = document.state.passages[0]
-      const schemaPath = detectSchemaPath(document)
 
       // Action: First validation (cold start)
       const start1 = performance.now()

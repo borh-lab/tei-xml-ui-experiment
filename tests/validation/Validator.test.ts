@@ -19,7 +19,7 @@ const mockSchemaXML = `
 `
 
 // Mock file reader that returns test schema
-const mockFileReader = (path: string, encoding: string) => {
+const mockFileReader = (path: string, _encoding: string) => {
   if (path.includes('tei-all.rng') || path.includes('tei-novel.rng')) {
     return mockSchemaXML
   }
