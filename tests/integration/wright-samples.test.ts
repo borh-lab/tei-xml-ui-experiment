@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument } from '@/lib/tei';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -35,11 +35,11 @@ describe('Wright American Fiction Integration', () => {
       const content = readFileSync(filePath, 'utf-8');
 
       expect(() => {
-        const doc = new TEIDocument(content);
-        expect(doc.parsed).toBeDefined();
+        const doc = loadDocument(content);
+        expect(doc.state.parsed).toBeDefined();
 
         // Verify basic structure - parsed document should have TEI root
-        expect(doc.parsed.TEI).toBeDefined();
+        expect(doc.state.parsed.TEI).toBeDefined();
       }).not.toThrow();
     });
 
@@ -56,16 +56,16 @@ describe('Wright American Fiction Integration', () => {
       const filePath = join(samplesDir, sampleFile);
       const content = readFileSync(filePath, 'utf-8');
 
-      const doc = new TEIDocument(content);
+      const doc = loadDocument(content);
 
-      // Use the getDialogue method to extract dialogue
-      const dialogue = doc.getDialogue();
+      // Access dialogue from state
+      const dialogue = doc.state.dialogue;
 
       // Log what we found
       console.log(`Found ${dialogue.length} dialogue elements`);
 
       // Document should be valid even if no dialogue found
-      expect(doc.parsed).toBeDefined();
+      expect(doc.state.parsed).toBeDefined();
       expect(Array.isArray(dialogue)).toBe(true);
     });
 
@@ -82,31 +82,46 @@ describe('Wright American Fiction Integration', () => {
       const filePath = join(samplesDir, sampleFile);
       const content = readFileSync(filePath, 'utf-8');
 
-      const doc = new TEIDocument(content);
+      const doc = loadDocument(content);
 
-      // Check that TEI structure exists
-      expect(doc.parsed.TEI).toBeDefined();
+      // Verify metadata is extracted
+      expect(doc.state.metadata).toBeDefined();
+      expect(typeof doc.state.metadata.title).toBe('string');
+      expect(typeof doc.state.metadata.author).toBe('string');
 
-      // Check for teiHeader
-      const teiHeader = doc.parsed.TEI.teiHeader;
-      if (teiHeader) {
-        console.log('Found teiHeader in document');
+      // Log what we found
+      console.log(`Title: ${doc.state.metadata.title}`);
+      console.log(`Author: ${doc.state.metadata.author}`);
+    });
 
-        // Check for common TEI header elements
-        const fileDesc = teiHeader.fileDesc;
-        if (fileDesc) {
-          const titleStmt = fileDesc.titleStmt;
-          if (titleStmt) {
-            const title = titleStmt.title;
-            expect(title).toBeTruthy();
-          }
-        }
-      } else {
-        console.log('No teiHeader found, but document is still valid');
+    test('should extract passages from real TEI file', () => {
+      const samplesDir = existsSync(wrightDir) ? wrightDir : join(__dirname, '../fixtures');
+      const files = readdirSync(samplesDir).filter((f) => f.endsWith('.xml') || f.endsWith('.tei'));
+
+      if (files.length === 0) {
+        console.log('No sample TEI files found - skipping passages test');
+        return;
       }
 
-      // Document should be parseable regardless
-      expect(doc.parsed).toBeDefined();
+      const sampleFile = files[0];
+      const filePath = join(samplesDir, sampleFile);
+      const content = readFileSync(filePath, 'utf-8');
+
+      const doc = loadDocument(content);
+
+      // Verify passages are extracted
+      expect(Array.isArray(doc.state.passages)).toBe(true);
+      expect(doc.state.passages.length).toBeGreaterThan(0);
+
+      // Each passage should have required properties
+      doc.state.passages.forEach((passage) => {
+        expect(passage.id).toBeDefined();
+        expect(passage.content).toBeDefined();
+        expect(typeof passage.content).toBe('string');
+        expect(Array.isArray(passage.tags)).toBe(true);
+      });
+
+      console.log(`Found ${doc.state.passages.length} passages`);
     });
   });
 });

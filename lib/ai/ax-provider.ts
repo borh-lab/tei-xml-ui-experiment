@@ -5,10 +5,6 @@ import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 import { nlpDetectDialogue } from './nlp-provider';
 import { logger } from '@/lib/utils/logger';
 
-interface LLMInstance {
-  [key: string]: unknown;
-}
-
 interface DetectedPassage {
   passageStartIndex: number;
   passageEndIndex: number;
@@ -20,7 +16,7 @@ interface DetectedPassage {
 export class AxProvider implements AIProvider {
   public providerName: string;
   private apiKey: string;
-  private llm: LLMInstance;
+  private llm: unknown;
   private log;
 
   constructor(providerName: string, apiKey?: string) {
@@ -81,7 +77,7 @@ export class AxProvider implements AIProvider {
         })
       `);
 
-      const analysisResult = await dialogueDetectionSignature.forward(this.llm, {
+      const analysisResult = await dialogueDetectionSignature.forward(this.llm as never, {
         novelText: textToAnalyze,
       });
 
@@ -105,59 +101,60 @@ export class AxProvider implements AIProvider {
     }
   }
 
-  private regexDetectDialogue(text: string): DialogueSpan[] {
-    const spans: DialogueSpan[] = [];
-
-    // Pattern 1: Double-quoted dialogue
-    const quoteRegex = /"([^"]+)"/g;
-    let match;
-    while ((match = quoteRegex.exec(text)) !== null) {
-      spans.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        text: match[1],
-        confidence: 0.7,
-      });
-    }
-
-    // Pattern 2: Em-dash dialogue (common in older literature)
-    const dashRegex = /—([^—]+)—/g;
-    while ((match = dashRegex.exec(text)) !== null) {
-      spans.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        text: match[1].trim(),
-        confidence: 0.6,
-      });
-    }
-
-    // Pattern 3: Single-quoted dialogue
-    const singleQuoteRegex = /'([^']+)'/g;
-    while ((match = singleQuoteRegex.exec(text)) !== null) {
-      // Only if near speech verbs or dialogue indicators
-      const contextStart = Math.max(0, match.index - 20);
-      const contextEnd = Math.min(text.length, match.index + 50);
-      const context = text.substring(contextStart, contextEnd).toLowerCase();
-
-      if (
-        context.includes('said') ||
-        context.includes('asked') ||
-        context.includes('replied') ||
-        context.includes('whispered') ||
-        context.includes('shouted') ||
-        context.includes('murmured')
-      ) {
-        spans.push({
-          start: match.index,
-          end: match.index + match[0].length,
-          text: match[1],
-          confidence: 0.5,
-        });
-      }
-    }
-
-    return spans;
-  }
+  // TODO: Consider using this regex-based fallback in the future
+  // private _regexDetectDialogue(text: string): DialogueSpan[] {
+  //   const spans: DialogueSpan[] = [];
+  //
+  //   // Pattern 1: Double-quoted dialogue
+  //   const quoteRegex = /"([^"]+)"/g;
+  //   let match;
+  //   while ((match = quoteRegex.exec(text)) !== null) {
+  //     spans.push({
+  //       start: match.index,
+  //       end: match.index + match[0].length,
+  //       text: match[1],
+  //       confidence: 0.7,
+  //     });
+  //   }
+  //
+  //   // Pattern 2: Em-dash dialogue (common in older literature)
+  //   const dashRegex = /—([^—]+)—/g;
+  //   while ((match = dashRegex.exec(text)) !== null) {
+  //     spans.push({
+  //       start: match.index,
+  //       end: match.index + match[0].length,
+  //       text: match[1].trim(),
+  //       confidence: 0.6,
+  //     });
+  //   }
+  //
+  //   // Pattern 3: Single-quoted dialogue
+  //   const singleQuoteRegex = /'([^']+)'/g;
+  //   while ((match = singleQuoteRegex.exec(text)) !== null) {
+  //     // Only if near speech verbs or dialogue indicators
+  //     const contextStart = Math.max(0, match.index - 20);
+  //     const contextEnd = Math.min(text.length, match.index + 50);
+  //     const context = text.substring(contextStart, contextEnd).toLowerCase();
+  //
+  //     if (
+  //       context.includes('said') ||
+  //       context.includes('asked') ||
+  //       context.includes('replied') ||
+  //       context.includes('whispered') ||
+  //       context.includes('shouted') ||
+  //       context.includes('murmured')
+  //     ) {
+  //       spans.push({
+  //         start: match.index,
+  //         end: match.index + match[0].length,
+  //         text: match[1],
+  //         confidence: 0.5,
+  //       });
+  //     }
+  //   }
+  //
+  //   return spans;
+  // }
 
   async attributeSpeaker(
     dialoguePassage: string,
@@ -183,7 +180,7 @@ export class AxProvider implements AIProvider {
         attributionReasoning:string
       `);
 
-      const attributionResult = await speakerAttributionSignature.forward(this.llm, {
+      const attributionResult = await speakerAttributionSignature.forward(this.llm as never, {
         dialogueContent: dialoguePassage,
         narrativeContext: dialoguePassage,
         candidateSpeakers: availableCharacters.map((character) => ({
@@ -240,7 +237,6 @@ export class AxProvider implements AIProvider {
 
     for (const character of characters) {
       const name = character.name.toLowerCase();
-      const xmlId = character.xmlId.toLowerCase();
 
       // Look for patterns like "Jane said" or "he said" after character mention
       for (const verb of speechVerbs) {
@@ -294,7 +290,7 @@ export class AxProvider implements AIProvider {
     return characters[0].xmlId;
   }
 
-  async validateConsistency(document: any): Promise<Issue[]> {
+  async validateConsistency(_document: any): Promise<Issue[]> {
     // TODO: Implement with Ax signature
     return [];
   }

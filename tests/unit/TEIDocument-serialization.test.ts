@@ -1,12 +1,12 @@
 // @ts-nocheck
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument, serializeDocument } from '@/lib/tei';
 
 describe('TEIDocument Serialization', () => {
   test('serialize should produce valid XML', () => {
     const tei = `<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><p>Test</p></body></text></TEI>`;
-    const doc = new TEIDocument(tei);
+    const doc = loadDocument(tei);
 
-    const serialized = doc.serialize();
+    const serialized = serializeDocument(doc);
     const parser = new DOMParser();
     const parsed = parser.parseFromString(serialized, 'application/xml');
 
@@ -15,17 +15,17 @@ describe('TEIDocument Serialization', () => {
 
   test('serialize should preserve namespace', () => {
     const tei = `<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><p>Test</p></body></text></TEI>`;
-    const doc = new TEIDocument(tei);
+    const doc = loadDocument(tei);
 
-    const serialized = doc.serialize();
+    const serialized = serializeDocument(doc);
     expect(serialized).toContain('xmlns="http://www.tei-c.org/ns/1.0"');
   });
 
   test('serialize should rebuild XML from parsed structure', () => {
     const tei = `<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><p>Test</p></body></text></TEI>`;
-    const doc = new TEIDocument(tei);
+    const doc = loadDocument(tei);
 
-    const serialized = doc.serialize();
+    const serialized = serializeDocument(doc);
 
     // Verify it's not just returning rawXML
     expect(serialized).not.toBe(tei);

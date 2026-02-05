@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Effect, Layer, pipe } from 'effect';
 import { CorpusBrowser as CorpusBrowserService } from '@/lib/effect/services/CorpusBrowser';
 import { FetchCorpusDataSourceLive } from '@/lib/effect/services/FetchCorpusDataSource';
@@ -41,7 +41,7 @@ export function CorpusBrowser() {
   const loadCorpus = async (corpus: string) => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(CorpusBrowserService);
-      yield* _(service.loadCorpus(corpus));
+      yield* _(service.loadCorpus(corpus as any));
       const state = yield* _(service.getState());
       return state;
     });
@@ -54,10 +54,10 @@ export function CorpusBrowser() {
     }
   };
 
-  const loadDocument = async (docId: string) => {
+  const loadDocument = async (docId: any) => {
     const program = Effect.gen(function* (_) {
       const service = yield* _(CorpusBrowserService);
-      yield* _(service.loadDocument(docId));
+      yield* _(service.loadDocument(docId as any));
       const state = yield* _(service.getDocumentState());
       return state;
     });

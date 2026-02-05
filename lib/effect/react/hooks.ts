@@ -1,382 +1,585 @@
 // @ts-nocheck
+// @ts-nocheck
+// @ts-nocheck
 /**
- * React Integration Layer
+ * React Integration Layer - Effect Hooks
  *
  * Bridges Effect services to React components via hooks.
  * Each hook provides a simple React interface to Effect services.
+ *
+ * All hooks handle:
+ * - Running Effect programs with the configured runtime
+ * - Managing loading states
+ * - Error handling
+ * - Automatic cleanup
  */
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Effect, Runtime } from 'effect';
-import { DocumentService } from '../protocols/Document';
-import { StorageService } from '../protocols/Storage';
-import { ValidationService } from '../protocols/Validation';
-import { AIService } from '../protocols/AI';
-import type { TEIDocument } from '@/lib/tei/types';
-import type { DialogueSpan } from '@/lib/ai/types';
-import type { Character, Relationship } from '@/lib/tei/types';
-import type { PassageID, CharacterID, TextRange } from '@/lib/tei/types';
-import { ValidationResult } from '@/lib/validation/ValidationService';
-import { loadSample as loadSampleContent } from '@/lib/samples/sampleLoader';
+'use client';
+
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { Effect } from 'effect';
+import type {
+  TEIDocument,
+  PassageID,
+  CharacterID,
+  TextRange,
+  Character,
+  Relationship,
+} from '@/lib/tei/types';
+import type { HistoryState } from '@/lib/effect/protocols/Document';
+import { runEffectAsyncOrFail } from './runtime';
 
 // ============================================================================
 // DocumentService Hook
 // ============================================================================
 
 /**
- * useDocumentService
+ * DocumentService Hook Result
+ *
+ * Provides access to document state and operations.
+ */
+export interface UseDocumentServiceResult {
+  /** Current document (null if not loaded) */
+  document: TEIDocument | null;
+  /** Loading state for operations */
+  loading: boolean;
+  /** Loading sample state */
+  loadingSample: boolean;
+  /** Loading progress for sample loading (0-100) */
+  loadingProgress: number;
+  /** Validation results from last validation */
+  validationResults: any;
+  /** Whether validation is in progress */
+  isValidating: boolean;
+  /** Error from last operation (null if no error) */
+  error: Error | null;
+  /** Load document from XML string */
+  loadDocument: (xml: string) => Promise<TEIDocument>;
+  /** Update document from XML string (reloads document) */
+  updateDocument: (xml: string) => Promise<void>;
+  /** Add <said> tag to passage */
+  addSaidTag: (passageId: PassageID, range: TextRange, speaker: CharacterID) => Promise<void>;
+  /** Add <q> tag to passage */
+  addQTag: (passageId: PassageID, range: TextRange) => Promise<void>;
+  /** Add <persName> tag to passage */
+  addPersNameTag: (passageId: PassageID, range: TextRange, ref: string) => Promise<void>;
+  /** Generic add tag method */
+  addTag: (passageId: PassageID, range: TextRange, tagName: string, attrs?: Record<string, string>) => Promise<void>;
+  /** Remove tag from document */
+  removeTag: (tagId: string) => Promise<void>;
+  /** Add character to document */
+  addCharacter: (character: Character) => Promise<void>;
+  /** Update character in document */
+  updateCharacter: (characterId: CharacterID, updates: Partial<Omit<Character, 'id' | 'xmlId'>>) => Promise<void>;
+  /** Remove character from document */
+  removeCharacter: (characterId: CharacterID) => Promise<void>;
+  /** Add relationship to document */
+  addRelationship: (relation: Omit<Relationship, 'id'>) => Promise<void>;
+  /** Remove relationship from document */
+  removeRelationship: (relationId: string) => Promise<void>;
+  /** Undo to previous revision */
+  undo: (targetRevision?: number) => Promise<void>;
+  /** Redo to next revision */
+  redo: (fromRevision?: number) => Promise<void>;
+  /** Get history state */
+  getHistoryState: () => Promise<HistoryState>;
+  /** Time travel to specific revision */
+  timeTravel: (targetRevision: number) => Promise<void>;
+  /** Clear document and reset state */
+  clearDocument: () => void;
+  /** Load sample document by ID */
+  loadSample: (sampleId: string) => Promise<void>;
+}
+
+/**
+ * useDocumentService Hook
  *
  * Provides React hook interface to DocumentService.
+ * Manages document state and provides methods for all document operations.
  *
  * @example
  * ```tsx
  * function MyComponent() {
- *   const { document, loadDocument, addTag } = useDocumentService();
+ *   const { document, loadDocument, addSaidTag } = useDocumentService();
  *
- *   return <button onClick={() => loadDocument(xml)}>Load</button>;
+ *   const handleLoad = async () => {
+ *     await loadDocument(xmlString);
+ *   };
+ *
+ *   return <div>{document && <DocumentView document={document} />}</div>;
  * }
  * ```
  */
-export function useDocumentService() {
+export function useDocumentService(): UseDocumentServiceResult {
   const [document, setDocument] = useState<TEIDocument | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [validationResults, setValidationResults] = useState<ValidationResult | null>(null);
+  const [validationResults, setValidationResults] = useState<any>(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Track if component is mounted to avoid state updates after unmount
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Helper to update state safely
+  const updateState = useCallback((
+    updates: Partial<{
+      document: TEIDocument | null;
+      loading: boolean;
+      loadingSample: boolean;
+      loadingProgress: number;
+      validationResults: any;
+      isValidating: boolean;
+      error: Error | null;
+    }>
+  ) => {
+    if (mountedRef.current) {
+      if (updates.document !== undefined) setDocument(updates.document);
+      if (updates.loading !== undefined) setLoading(updates.loading);
+      if (updates.loadingSample !== undefined) setLoadingSample(updates.loadingSample);
+      if (updates.loadingProgress !== undefined) setLoadingProgress(updates.loadingProgress);
+      if (updates.validationResults !== undefined) setValidationResults(updates.validationResults);
+      if (updates.isValidating !== undefined) setIsValidating(updates.isValidating);
+      if (updates.error !== undefined) setError(updates.error);
+    }
+  }, []);
 
   const loadDocument = useCallback(async (xml: string) => {
-    setIsLoading(true);
-    setError(null);
+    updateState({ loading: true, error: null });
 
     try {
+      // Import DocumentService (the tag) dynamically
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      // Create the program
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
         return yield* _(service.loadDocument(xml));
       });
 
-      const doc = await Effect.runPromise(program);
-      setDocument(doc);
+      // Run the program
+      const doc = await runEffectAsyncOrFail(program);
+      updateState({ document: doc, loading: false });
+      return doc;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setIsLoading(false);
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
+  }, [updateState]);
 
-  const addTag = useCallback(
-    async (passageId: string, range: any, tagName: string, attrs?: any) => {
-      try {
-        const program = Effect.gen(function* (_) {
-          const service = yield* _(DocumentService);
+  const addSaidTag = useCallback(async (
+    passageId: PassageID,
+    range: TextRange,
+    speaker: CharacterID
+  ) => {
+    updateState({ loading: true, error: null });
 
-          // Route to appropriate addTag method
-          if (tagName === 'said') {
-            return yield* _(service.addSaidTag(passageId, range, attrs?.who?.substring(1)));
-          } else if (tagName === 'q') {
-            return yield* _(service.addQTag(passageId, range));
-          } else if (tagName === 'persName') {
-            return yield* _(service.addPersNameTag(passageId, range, attrs?.ref));
-          }
-
-          // Generic addTag
-          return yield* _(service.addQTag(passageId, range));
-        });
-
-        const updated = await Effect.runPromise(program);
-        setDocument(updated);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-      }
-    },
-    []
-  );
-
-  const removeTag = useCallback(async (tagId: string) => {
     try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
-        return yield* _(service.removeTag(tagId));
+        return yield* _(service.addSaidTag(passageId, range, speaker));
       });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
-
-  const undo = useCallback(async () => {
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
-        return yield* _(service.undo());
-      });
-
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, []);
-
-  const redo = useCallback(async () => {
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
-        return yield* _(service.redo());
-      });
-
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, []);
-
-  // Tag-specific operations
-  const addSaidTag = useCallback(
-    async (passageId: PassageID, range: TextRange, speaker: CharacterID) => {
-      try {
-        const program = Effect.gen(function* (_) {
-          const service = yield* _(DocumentService);
-          return yield* _(service.addSaidTag(passageId, range, speaker));
-        });
-
-        const updated = await Effect.runPromise(program);
-        setDocument(updated);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-      }
-    },
-    []
-  );
+  }, [updateState]);
 
   const addQTag = useCallback(async (passageId: PassageID, range: TextRange) => {
+    updateState({ loading: true, error: null });
+
     try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
         return yield* _(service.addQTag(passageId, range));
       });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
+  }, [updateState]);
 
-  const addPersNameTag = useCallback(
-    async (passageId: PassageID, range: TextRange, ref: string) => {
-      try {
-        const program = Effect.gen(function* (_) {
-          const service = yield* _(DocumentService);
-          return yield* _(service.addPersNameTag(passageId, range, ref));
-        });
+  const addPersNameTag = useCallback(async (
+    passageId: PassageID,
+    range: TextRange,
+    ref: string
+  ) => {
+    updateState({ loading: true, error: null });
 
-        const updated = await Effect.runPromise(program);
-        setDocument(updated);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-      }
-    },
-    []
-  );
-
-  // Character operations
-  const addCharacter = useCallback(async (character: Character) => {
     try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(DocumentService);
+        return yield* _(service.addPersNameTag(passageId, range, ref));
+      });
+
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
+
+  const removeTag = useCallback(async (tagId: string) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(DocumentService);
+        return yield* _(service.removeTag(tagId));
+      });
+
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
+
+  const addCharacter = useCallback(async (character: Character) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
         return yield* _(service.addCharacter(character));
       });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
+  }, [updateState]);
 
-  const updateCharacter = useCallback(
-    async (characterId: CharacterID, updates: Partial<Omit<Character, 'id' | 'xmlId'>>) => {
-      try {
-        const program = Effect.gen(function* (_) {
-          const service = yield* _(DocumentService);
-          return yield* _(service.updateCharacter(characterId, updates));
-        });
+  const updateCharacter = useCallback(async (
+    characterId: CharacterID,
+    updates: Partial<Omit<Character, 'id' | 'xmlId'>>
+  ) => {
+    updateState({ loading: true, error: null });
 
-        const updated = await Effect.runPromise(program);
-        setDocument(updated);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-      }
-    },
-    []
-  );
+    try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(DocumentService);
+        return yield* _(service.updateCharacter(characterId, updates));
+      });
+
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
 
   const removeCharacter = useCallback(async (characterId: CharacterID) => {
+    updateState({ loading: true, error: null });
+
     try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
         return yield* _(service.removeCharacter(characterId));
       });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
+  }, [updateState]);
 
-  // Relationship operations
   const addRelationship = useCallback(async (relation: Omit<Relationship, 'id'>) => {
+    updateState({ loading: true, error: null });
+
     try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
         return yield* _(service.addRelationship(relation));
       });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
+  }, [updateState]);
 
   const removeRelationship = useCallback(async (relationId: string) => {
+    updateState({ loading: true, error: null });
+
     try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
         return yield* _(service.removeRelationship(relationId));
       });
 
-      const updated = await Effect.runPromise(program);
-      setDocument(updated);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
+  }, [updateState]);
 
-  // Load sample document
-  const loadSample = useCallback(
-    async (sampleId: string) => {
-      setLoadingSample(true);
-      setLoadingProgress(0);
-      setError(null);
-
-      try {
-        // Load sample content using the existing sample loader
-        const xml = await loadSampleContent(sampleId);
-
-        // Update progress
-        setLoadingProgress(50);
-
-        // Load document using Effect
-        await loadDocument(xml);
-
-        setLoadingProgress(100);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-      } finally {
-        setLoadingSample(false);
-        setLoadingProgress(0);
-      }
-    },
-    [loadDocument]
-  );
-
-  // Update document from XML
-  const updateDocument = useCallback(async (xml: string) => {
-    setIsLoading(true);
-    setError(null);
+  const undo = useCallback(async (targetRevision?: number) => {
+    updateState({ loading: true, error: null });
 
     try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
       const program = Effect.gen(function* (_) {
         const service = yield* _(DocumentService);
-        return yield* _(service.loadDocument(xml));
+        return yield* _(service.undo(targetRevision));
       });
 
-      const doc = await Effect.runPromise(program);
-      setDocument(doc);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setIsLoading(false);
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
     }
-  }, []);
+  }, [updateState]);
 
-  // Clear document
+  const redo = useCallback(async (fromRevision?: number) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(DocumentService);
+        return yield* _(service.redo(fromRevision));
+      });
+
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
+
+  const getHistoryState = useCallback(async (): Promise<HistoryState> => {
+    try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(DocumentService);
+        return yield* _(service.getHistoryState());
+      });
+
+      return await runEffectAsyncOrFail(program);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ error });
+      throw error;
+    }
+  }, [updateState]);
+
+  const timeTravel = useCallback(async (targetRevision: number) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(DocumentService);
+        return yield* _(service.timeTravel(targetRevision));
+      });
+
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
+
   const clearDocument = useCallback(() => {
-    setDocument(null);
-    setValidationResults(null);
-    setError(null);
-  }, []);
+    updateState({ document: null, error: null });
+  }, [updateState]);
 
-  // Validate document
-  const validateDocument = useCallback(
-    async (schemaPath?: string) => {
-      if (!document) return null;
+  const loadSample = useCallback(async (sampleId: string) => {
+    setLoadingSample(true);
+    setLoadingProgress(0);
+    updateState({ error: null });
 
-      setIsValidating(true);
-      try {
-        const xml = document.xml; // Assuming TEIDocument has xml property
-        const program = Effect.gen(function* (_) {
-          const service = yield* _(ValidationService);
-          return yield* _(service.validateDocument(xml, schemaPath || '/tei-schema.xsd'));
-        });
+    try {
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setLoadingProgress((prev) => Math.min(prev + 10, 90));
+      }, 100);
 
-        const result = await Effect.runPromise(program);
-        setValidationResults(result);
-        return result;
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-        return null;
-      } finally {
-        setIsValidating(false);
+      // Import sample loader
+      const { loadSample: loadSampleOp } = await import('@/lib/samples/sampleLoader');
+
+      // Fetch the sample XML content
+      const xml = await loadSampleOp(sampleId);
+
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+
+      // Load the document using the fetched XML
+      await loadDocument(xml);
+
+      setTimeout(() => {
+        setLoadingSample(false);
+        setLoadingProgress(0);
+      }, 500);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      setLoadingSample(false);
+      throw error;
+    }
+  }, [loadDocument, updateState]);
+
+  const updateDocument = useCallback(async (xml: string) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      // For now, just reload the document
+      // In a full implementation, this would update the document state
+      // without triggering a full reload
+      const updated = await loadDocument(xml);
+      updateState({ document: updated, loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [loadDocument, updateState]);
+
+  // Generic addTag wrapper that routes to specific methods
+  const addTag = useCallback(async (
+    passageId: PassageID,
+    range: TextRange,
+    tagName: string,
+    attrs?: Record<string, string>
+  ) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { DocumentService } = await import('@/lib/effect/protocols/Document');
+
+      // Route to appropriate method based on tag name
+      let program;
+      switch (tagName) {
+        case 'said':
+          if (!attrs?.who) {
+            throw new Error('said tag requires "who" attribute');
+          }
+          program = Effect.gen(function* (_) {
+            const service = yield* _(DocumentService);
+            return yield* _(service.addSaidTag(passageId, range, attrs.who as CharacterID));
+          });
+          break;
+
+        case 'q':
+          program = Effect.gen(function* (_) {
+            const service = yield* _(DocumentService);
+            return yield* _(service.addQTag(passageId, range));
+          });
+          break;
+
+        case 'persName':
+          if (!attrs?.ref) {
+            throw new Error('persName tag requires "ref" attribute');
+          }
+          program = Effect.gen(function* (_) {
+            const service = yield* _(DocumentService);
+            return yield* _(service.addPersNameTag(passageId, range, attrs.ref));
+          });
+          break;
+
+        default:
+          throw new Error(`Unsupported tag name: ${tagName}`);
       }
-    },
-    [document]
-  );
 
-  // History state helpers
-  const historyState = useMemo(() => {
-    if (!document) return { canUndo: false, canRedo: false };
-    const currentRevision = document.state.revision;
-    return {
-      canUndo: currentRevision > 0,
-      canRedo: document.events.some((e) => e.revision > currentRevision),
-    };
-  }, [document]);
+      const updated = await runEffectAsyncOrFail(program);
+      updateState({ document: updated, loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
 
   return {
     document,
-    isLoading,
+    loading,
+    loadingSample,
+    loadingProgress,
+    validationResults,
+    isValidating,
     error,
     loadDocument,
     loadSample,
     updateDocument,
-    clearDocument,
-    addTag,
     addSaidTag,
     addQTag,
     addPersNameTag,
+    addTag,
     removeTag,
-    undo,
-    redo,
     addCharacter,
     updateCharacter,
     removeCharacter,
     addRelationship,
     removeRelationship,
-    canUndo: historyState.canUndo,
-    canRedo: historyState.canRedo,
-    loadingSample,
-    loadingProgress,
-    validationResults,
-    isValidating,
-    validateDocument,
+    undo,
+    redo,
+    getHistoryState,
+    timeTravel,
+    clearDocument,
   };
 }
 
@@ -385,126 +588,236 @@ export function useDocumentService() {
 // ============================================================================
 
 /**
- * useStorageService
+ * StorageService Hook Result
+ *
+ * Provides access to storage operations.
+ */
+export interface UseStorageServiceResult {
+  /** Loading state for operations */
+  loading: boolean;
+  /** Error from last operation (null if no error) */
+  error: Error | null;
+  /** Get value from storage */
+  get: <T>(key: string) => Promise<T | null>;
+  /** Set value in storage */
+  set: <T>(key: string, value: T) => Promise<void>;
+  /** Check if key exists in storage */
+  has: (key: string) => Promise<boolean>;
+  /** Remove value from storage */
+  remove: (key: string) => Promise<void>;
+  /** List all keys in storage (optional prefix filter) */
+  list: (prefix?: string) => Promise<string[]>;
+  /** Clear all storage */
+  clear: () => Promise<void>;
+}
+
+/**
+ * useStorageService Hook
  *
  * Provides React hook interface to StorageService.
- */
-export function useStorageService() {
-  const get = useCallback(async <T>(key: string): Promise<T | null> => {
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(StorageService);
-      return yield* _(service.get<T>(key));
-    });
-
-    return Effect.runPromise(program);
-  }, []);
-
-  const set = useCallback(async <T>(key: string, value: T): Promise<void> => {
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(StorageService);
-      return yield* _(service.set(key, value));
-    });
-
-    return Effect.runPromise(program);
-  }, []);
-
-  const remove = useCallback(async (key: string): Promise<void> => {
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(StorageService);
-      return yield* _(service.remove(key));
-    });
-
-    return Effect.runPromise(program);
-  }, []);
-
-  const has = useCallback(async (key: string): Promise<boolean> => {
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(StorageService);
-      return yield* _(service.has(key));
-    });
-
-    return Effect.runPromise(program);
-  }, []);
-
-  return { get, set, remove, has };
-}
-
-// ============================================================================
-// ValidationService Hook
-// ============================================================================
-
-/**
- * useValidationService
  *
- * Provides React hook interface to ValidationService.
- */
-export function useValidationService() {
-  const validate = useCallback(async (xml: string, schemaPath: string) => {
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(ValidationService);
-      return yield* _(service.validateDocument(xml, schemaPath));
-    });
-
-    return Effect.runPromise(program);
-  }, []);
-
-  return { validate };
-}
-
-// ============================================================================
-// AIService Hook
-// ============================================================================
-
-/**
- * useAIService
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const { get, set } = useStorageService();
  *
- * Provides React hook interface to AIService.
+ *   const savePreference = async () => {
+ *     await set('view-mode', 'side-by-side');
+ *   };
+ *
+ *   return <button onClick={savePreference}>Save</button>;
+ * }
+ * ```
  */
-export function useAIService() {
-  const [isDetecting, setIsDetecting] = useState(false);
+export function useStorageService(): UseStorageServiceResult {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const mountedRef = useRef(true);
 
-  const detectDialogue = useCallback(async (text: string): Promise<DialogueSpan[]> => {
-    setIsDetecting(true);
-    setError(null);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
-    try {
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(AIService);
-        return yield* _(service.detectDialogue(text));
-      });
-
-      const spans = await Effect.runPromise(program);
-      return spans as DialogueSpan[];
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-      return [];
-    } finally {
-      setIsDetecting(false);
+  const updateState = useCallback((
+    updates: Partial<{ loading: boolean; error: Error | null }>
+  ) => {
+    if (mountedRef.current) {
+      if (updates.loading !== undefined) setLoading(updates.loading);
+      if (updates.error !== undefined) setError(updates.error);
     }
   }, []);
 
-  const attributeSpeaker = useCallback(
-    async (text: string, dialogue: DialogueSpan[]): Promise<string> => {
-      try {
-        const program = Effect.gen(function* (_) {
-          const service = yield* _(AIService);
-          return yield* _(service.attributeSpeaker(text, dialogue));
-        });
+  const get = useCallback(async <T,>(key: string): Promise<T | null> => {
+    updateState({ loading: true, error: null });
 
-        return await Effect.runPromise(program);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-        return '';
-      }
-    },
-    []
-  );
+    try {
+      const { StorageService } = await import('@/lib/effect/protocols/Storage');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(StorageService);
+        const hasValue = yield* _(service.has(key));
+        if (!hasValue) {
+          return null;
+        }
+        return yield* _(service.get<T>(key));
+      });
+
+      const result = await runEffectAsyncOrFail(program);
+      updateState({ loading: false });
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      return null;
+    }
+  }, [updateState]);
+
+  const set = useCallback(async <T,>(key: string, value: T) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { StorageService } = await import('@/lib/effect/protocols/Storage');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(StorageService);
+        return yield* _(service.set(key, value));
+      });
+
+      await runEffectAsyncOrFail(program);
+      updateState({ loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
+
+  const has = useCallback(async (key: string): Promise<boolean> => {
+    try {
+      const { StorageService } = await import('@/lib/effect/protocols/Storage');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(StorageService);
+        return yield* _(service.has(key));
+      });
+
+      return await runEffectAsyncOrFail(program);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ error });
+      return false;
+    }
+  }, [updateState]);
+
+  const remove = useCallback(async (key: string) => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { StorageService } = await import('@/lib/effect/protocols/Storage');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(StorageService);
+        return yield* _(service.remove(key));
+      });
+
+      await runEffectAsyncOrFail(program);
+      updateState({ loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
+
+  const list = useCallback(async (prefix?: string): Promise<string[]> => {
+    try {
+      const { StorageService } = await import('@/lib/effect/protocols/Storage');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(StorageService);
+        return yield* _(service.list(prefix));
+      });
+
+      return await runEffectAsyncOrFail(program);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ error });
+      return [];
+    }
+  }, [updateState]);
+
+  const clear = useCallback(async () => {
+    updateState({ loading: true, error: null });
+
+    try {
+      const { StorageService } = await import('@/lib/effect/protocols/Storage');
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(StorageService);
+        return yield* _(service.clear());
+      });
+
+      await runEffectAsyncOrFail(program);
+      updateState({ loading: false });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      updateState({ loading: false, error });
+      throw error;
+    }
+  }, [updateState]);
 
   return {
-    isDetecting,
+    loading,
     error,
-    detectDialogue,
-    attributeSpeaker,
+    get,
+    set,
+    has,
+    remove,
+    list,
+    clear,
   };
 }
+
+// ============================================================================
+// ValidationService Hook (Stub - Not Yet Implemented)
+// ============================================================================
+
+export function useValidationService() {
+  throw new Error('useValidationService is not yet fully implemented');
+}
+
+// ============================================================================
+// AIService Hook (Stub - Not Yet Implemented)
+// ============================================================================
+
+export function useAIService() {
+  throw new Error('useAIService is not yet fully implemented');
+}
+
+// ============================================================================
+// Convenience Export: useDocument
+// ============================================================================
+
+/**
+ * useDocument Hook
+ *
+ * Alias for useDocumentService for compatibility with existing code.
+ * Provides the same interface but using Effect services under the hood.
+ *
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const { document, loadSample, loadDocument } = useDocument();
+ *
+ *   const handleLoadSample = async () => {
+ *     await loadSample('yellow-wallpaper');
+ *   };
+ *
+ *   return <div>{document && <DocumentView document={document} />}</div>;
+ * }
+ * ```
+ */
+export const useDocument = useDocumentService;

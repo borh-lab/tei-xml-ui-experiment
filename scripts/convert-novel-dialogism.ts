@@ -311,6 +311,7 @@ ${personElements}
  * - Trailing quotes: [['your ']]
  * - Lone quotes: [["'s", 'Brenda']]
  * - Nested structures: [[['a', 'b'], ['c']]]
+ * - Numbers: [[750, 777]]
  */
 function parsePythonList(field: string): unknown {
   field = field.trim();
@@ -326,13 +327,22 @@ function parsePythonList(field: string): unknown {
     .replace(/\bTrue\b/g, 'true')
     .replace(/\bFalse\b/g, 'false');
 
+  // Helper to convert string to number if it looks like one
+  const toNumber = (s: string): number | string => {
+    if (/^-?\d+$/.test(s)) return parseInt(s, 10);
+    if (/^-?\d+\.\d+$/.test(s)) return parseFloat(s);
+    return s;
+  };
+
   // Use a character-by-character state machine
   const result: unknown[] = [];
   const stack: unknown[] = [];
-  let current: unknown[] | string = [];
+  let current: unknown[] = [];  // Current array being built
+  let pendingItem: string | null = null;  // Pending string/number being accumulated
   let inString = false;
   let stringChar: '"' | "'" | null = null;
   let escapeNext = false;
+  let rootArrayStarted = false;
   let i = 0;
 
   while (i < normalized.length) {
@@ -359,9 +369,9 @@ function parsePythonList(field: string): unknown {
         // Look ahead to see if there's a comma, bracket, or end
         const after = normalized.slice(i + 1).trim();
         if (after.startsWith(',') || after.startsWith(']') || after.startsWith('}') || after === '') {
+          // End of string - don't add the closing quote delimiter
           inString = false;
           stringChar = null;
-          (current as string) += char;
         } else {
           // Not the end - embedded quote like in "it's"
           (current as string) += char;
@@ -377,32 +387,49 @@ function parsePythonList(field: string): unknown {
     if (char === '"' || char === "'") {
       inString = true;
       stringChar = char;
-      current = char;
+      pendingItem = '';  // Start accumulating string content
       i++;
       continue;
     }
 
     // Check for array start
     if (char === '[') {
-      if (Array.isArray(current) && current.length === 0) {
-        // Nested array - push current onto stack and start new
+      if (!rootArrayStarted) {
+        // First '[' - this is the root array
+        rootArrayStarted = true;
+        current = [];
+      } else {
+        // Nested array - push current array to stack, start new one
         stack.push(current);
         current = [];
-      } else if (typeof current === 'string' && current.trim() === '') {
-        current = [];
       }
+      pendingItem = null;
       i++;
       continue;
     }
 
     // Check for array end
     if (char === ']') {
+      // Add any pending item to current array first
+      if (pendingItem !== null) {
+        // Ensure current is an array before pushing
+        if (!Array.isArray(current)) {
+          current = [];
+        }
+        current.push(toNumber(pendingItem));
+        pendingItem = null;
+      }
+
       if (stack.length > 0) {
+        // Nested array closing - add current array to parent
         const parent = stack.pop() as unknown[];
         parent.push(current);
         current = parent;
       } else {
-        result.push(current);
+        // Root array closing - add to result
+        if (Array.isArray(current) && current.length > 0) {
+          result.push(current);
+        }
         current = [];
       }
       i++;
@@ -411,28 +438,39 @@ function parsePythonList(field: string): unknown {
 
     // Check for comma separator
     if (char === ',') {
-      // Skip if we're not building anything
-      if (Array.isArray(current) || typeof current === 'string') {
-        i++;
-        continue;
+      // Add any pending item to current array
+      if (pendingItem !== null) {
+        // Ensure current is an array before pushing
+        if (!Array.isArray(current)) {
+          current = [];
+        }
+        current.push(toNumber(pendingItem));
+        pendingItem = null;
       }
+      i++;
+      continue;
     }
 
-    // Accumulate whitespace and other characters
+    // Accumulate non-whitespace characters
     if (!/\s/.test(char)) {
-      if (typeof current !== 'string') {
-        current = '';
+      if (pendingItem === null) {
+        pendingItem = '';
       }
-      (current as string) += char;
+      pendingItem += char;
     }
     i++;
   }
 
   // Don't forget the last item
+  if (pendingItem !== null) {
+    // Ensure current is an array before pushing
+    if (!Array.isArray(current)) {
+      current = [];
+    }
+    current.push(toNumber(pendingItem));
+  }
   if (Array.isArray(current) && current.length > 0) {
     result.push(current);
-  } else if (typeof current === 'string' && current.trim()) {
-    result.push(current.trim());
   }
 
   // If we have only one result array and it's not nested, return it directly

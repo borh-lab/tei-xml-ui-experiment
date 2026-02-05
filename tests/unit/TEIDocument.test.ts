@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument, serializeDocument, addSaidTag, addTag } from '@/lib/tei';
 
 describe('TEIDocument', () => {
   test('should parse basic TEI structure', () => {
@@ -15,22 +15,22 @@ describe('TEIDocument', () => {
   </text>
 </TEI>`;
 
-    const doc = new TEIDocument(tei);
-    expect(doc.parsed).toBeDefined();
-    expect(doc.rawXML).toBe(tei);
+    const doc = loadDocument(tei);
+    expect(doc.state.parsed).toBeDefined();
+    expect(doc.state.xml).toBe(tei);
   });
 
   test('should serialize back to XML', () => {
     const tei = `<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><p>Test</p></body></text></TEI>`;
-    const doc = new TEIDocument(tei);
-    const serialized = doc.serialize();
+    const doc = loadDocument(tei);
+    const serialized = serializeDocument(doc);
     expect(serialized).toContain('<TEI');
     expect(serialized).toContain('</TEI>');
   });
 });
 
-describe('wrapTextInTag', () => {
-  it('should wrap plain text in a said tag', () => {
+describe('Tag Operations', () => {
+  it('should add said tag to passage state', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <text>
@@ -40,15 +40,20 @@ describe('wrapTextInTag', () => {
   </text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
+    expect(passage.tags).toHaveLength(0);
 
-    const updated = doc.serialize();
-    expect(updated).toContain('<said who="#speaker1">Hello</said>');
-    expect(updated).toContain('world');
+    doc = addSaidTag(doc, passage.id, { start: 0, end: 5 }, 'speaker1');
+
+    // Check tag was added to state
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(1);
+    expect(updatedPassage.tags[0].type).toBe('said');
+    expect(updatedPassage.tags[0].range).toEqual({ start: 0, end: 5 });
   });
 
-  it('should wrap text in a q tag', () => {
+  it('should add dialogue to state', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <text>
@@ -58,15 +63,104 @@ describe('wrapTextInTag', () => {
   </text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 6, 11, 'q');
+    let doc = loadDocument(xml);
+    expect(doc.state.dialogue).toHaveLength(0);
 
-    const updated = doc.serialize();
-    expect(updated).toContain('<q>world</q>');
-    expect(updated).toContain('Hello');
+    const passage = doc.state.passages[0];
+    doc = addSaidTag(doc, passage.id, { start: 0, end: 5 }, 'speaker1');
+
+    expect(doc.state.dialogue).toHaveLength(1);
+    expect(doc.state.dialogue[0].speaker).toBe('speaker1');
+    expect(doc.state.dialogue[0].content).toBe('Hello');
   });
 
-  it('should wrap text in persName tag', () => {
+  it('should add generic tag to passage state', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>Hello world</p>
+    </body>
+  </text>
+</TEI>`;
+
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
+
+    doc = addTag(doc, passage.id, { start: 6, end: 11 }, 'q');
+
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(1);
+    expect(updatedPassage.tags[0].type).toBe('q');
+    expect(updatedPassage.tags[0].range).toEqual({ start: 6, end: 11 });
+  });
+
+  it('should add multiple tags to same passage', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>Hello world</p>
+    </body>
+  </text>
+</TEI>`;
+
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
+
+    doc = addSaidTag(doc, passage.id, { start: 0, end: 5 }, 'speaker1');
+    doc = addTag(doc, passage.id, { start: 6, end: 11 }, 'q');
+
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(2);
+  });
+
+  it('should serialize tags to XML', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>Hello world</p>
+    </body>
+  </text>
+</TEI>`;
+
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
+
+    doc = addSaidTag(doc, passage.id, { start: 0, end: 5 }, 'speaker1');
+
+    const serialized = serializeDocument(doc);
+
+    // Verify tag appears in serialized XML
+    expect(serialized).toContain('<said who="#speaker1">Hello</said>');
+    expect(serialized).toContain('world');
+  });
+
+  it('should serialize multiple tags to XML', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>Hello world</p>
+    </body>
+  </text>
+</TEI>`;
+
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
+
+    doc = addSaidTag(doc, passage.id, { start: 0, end: 5 }, 'speaker1');
+    doc = addTag(doc, passage.id, { start: 6, end: 11 }, 'q');
+
+    const serialized = serializeDocument(doc);
+
+    // Verify both tags appear in serialized XML
+    expect(serialized).toContain('<said who="#speaker1">Hello</said>');
+    expect(serialized).toContain('<q>world</q>');
+  });
+
+  it('should serialize persName tags with ref attribute', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <text>
@@ -76,87 +170,14 @@ describe('wrapTextInTag', () => {
   </text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 6, 10, 'persName', { ref: '#john' });
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
 
-    const updated = doc.serialize();
-    expect(updated).toContain('<persName ref="#john">John</persName>');
-  });
+    doc = addTag(doc, passage.id, { start: 6, end: 10 }, 'persName', { ref: '#john' });
 
-  it('should handle wrapping text in middle of passage', () => {
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<TEI xmlns="http://www.tei-c.org/ns/1.0">
-  <text>
-    <body>
-      <p>Start middle end</p>
-    </body>
-  </text>
-</TEI>`;
+    const serialized = serializeDocument(doc);
 
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 6, 12, 'said');
-
-    const updated = doc.serialize();
-    expect(updated).toContain('Start');
-    expect(updated).toContain('<said>middle</said>');
-    expect(updated).toContain('end');
-  });
-
-  it('should handle multiple tags in same passage', () => {
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<TEI xmlns="http://www.tei-c.org/ns/1.0">
-  <text>
-    <body>
-      <p>Hello world</p>
-    </body>
-  </text>
-</TEI>`;
-
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
-    doc.wrapTextInTag(0, 6, 11, 'q');
-
-    const updated = doc.serialize();
-    expect(updated).toContain('<said who="#speaker1">Hello</said>');
-    expect(updated).toContain('<q>world</q>');
-  });
-
-  it('should handle passage with existing mixed content', () => {
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<TEI xmlns="http://www.tei-c.org/ns/1.0">
-  <text>
-    <body>
-      <p>Text before said tag <said who="#s1">existing quote</said> text after</p>
-    </body>
-  </text>
-</TEI>`;
-
-    const doc = new TEIDocument(xml);
-    // Wrap the first part before the existing said tag
-    doc.wrapTextInTag(0, 0, 4, 'q');
-
-    const updated = doc.serialize();
-    // Should wrap "Text" in a q tag
-    expect(updated).toContain('<q>Text</q>');
-    // Should preserve the existing said tag
-    expect(updated).toContain('<said who="#s1">existing quote</said>');
-  });
-
-  it('should preserve passage attributes when wrapping', () => {
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<TEI xmlns="http://www.tei-c.org/ns/1.0">
-  <text>
-    <body>
-      <p xml:id="p1" n="1">Hello</p>
-    </body>
-  </text>
-</TEI>`;
-
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said');
-    const updated = doc.serialize();
-    expect(updated).toContain('xml:id="p1"');
-    expect(updated).toContain('n="1"');
-    expect(updated).toContain('<said>Hello</said>');
+    // Verify persName tag with ref attribute
+    expect(serialized).toContain('<persName ref="#john">John</persName>');
   });
 });

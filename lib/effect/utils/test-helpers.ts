@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 /**
  * Effect Testing Utilities
  *
@@ -25,10 +26,10 @@ import { Effect, Layer, Context } from 'effect';
  * with mock implementations instead of real browser/services.
  */
 export interface TestContext {
-  readonly storage: TestStorageService;
-  readonly validation: TestValidationService;
+  readonly storage: MockStorageService;
+  readonly validation: MockValidationService;
   readonly ai: MockAIService;
-  readonly document: TestDocumentService;
+  readonly document: MockDocumentService;
 }
 
 // ============================================================================
@@ -41,7 +42,7 @@ export interface TestContext {
  * Simulates localStorage without touching the browser.
  * Each instance is isolated - perfect for test isolation.
  */
-export class TestStorageService {
+export class MockStorageService {
   private store = new Map<string, string>();
 
   /**
@@ -119,7 +120,7 @@ export class TestStorageService {
  * Provides deterministic validation results for testing.
  * Configure specific validation results per test.
  */
-export class TestValidationService {
+export class MockValidationService {
   private validationResults = new Map<string, ValidationResult>();
   private defaultResult: ValidationResult = {
     valid: true,
@@ -226,9 +227,9 @@ export class MockAIService {
  *
  * Provides in-memory document storage for testing document operations.
  */
-export class TestDocumentService {
+export class MockDocumentService {
   private document: TEIDocument | null = null;
-  private events: DocumentEvent[] = [];
+  private events: TestDocumentEvent[] = [];
 
   /**
    * Load document from XML
@@ -364,10 +365,10 @@ export class TestDocumentService {
  */
 export function createTestLayer(): Layer.Layer<never> {
   return Layer.mergeAll(
-    Layer.effectDiscard(Effect.succeed(new TestStorageService())),
-    Layer.effectDiscard(Effect.succeed(new TestValidationService())),
+    Layer.effectDiscard(Effect.succeed(new MockStorageService())),
+    Layer.effectDiscard(Effect.succeed(new MockValidationService())),
     Layer.effectDiscard(Effect.succeed(new MockAIService())),
-    Layer.effectDiscard(Effect.succeed(new TestDocumentService()))
+    Layer.effectDiscard(Effect.succeed(new MockDocumentService()))
   );
 }
 
@@ -404,7 +405,7 @@ export async function runEffectTest<A>(effect: Effect.Effect<A, never, TestConte
  * @example
  * ```ts
  * test('should handle validation errors', async () => {
- *   const validation = new TestValidationService();
+ *   const validation = new MockValidationService();
  *   validation.setValidationResult(hash(xml), {
  *     valid: false,
  *     errors: [new ValidationError('Invalid XML')],
@@ -426,10 +427,10 @@ export async function runEffectTestWithServices<A>(
     Effect.provide(
       effect,
       Layer.mergeAll(
-        Layer.effectDiscard(Effect.succeed(services.storage || new TestStorageService())),
-        Layer.effectDiscard(Effect.succeed(services.validation || new TestValidationService())),
+        Layer.effectDiscard(Effect.succeed(services.storage || new MockStorageService())),
+        Layer.effectDiscard(Effect.succeed(services.validation || new MockValidationService())),
         Layer.effectDiscard(Effect.succeed(services.ai || new MockAIService())),
-        Layer.effectDiscard(Effect.succeed(services.document || new TestDocumentService()))
+        Layer.effectDiscard(Effect.succeed(services.document || new MockDocumentService()))
       )
     )
   );
@@ -566,9 +567,9 @@ export interface Relationship {
 }
 
 /**
- * Document event
+ * Document event (for testing)
  */
-export type DocumentEvent =
+export type TestDocumentEvent =
   | {
       readonly type: 'loaded';
       readonly xml: string;

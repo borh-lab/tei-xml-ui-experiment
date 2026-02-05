@@ -1,11 +1,12 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -68,6 +69,16 @@ export function RelationshipEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Feature Flag Badge */}
+      <div className="flex items-center gap-2 pb-2 border-b">
+        <Badge variant="secondary" className="text-xs">
+          Effect-Based (feature-useEffectEditor)
+        </Badge>
+        <span className="text-xs text-muted-foreground">
+          Using Effect services
+        </span>
+      </div>
+
       {/* From Character */}
       <div className="space-y-2">
         <Label htmlFor="rel-from">From *</Label>

@@ -7,8 +7,6 @@
  * NOTE: This module can only run on the server side due to Node.js dependencies
  */
 
-'use server';
-
 import * as salve from 'salve-annos';
 import * as fs from 'fs/promises';
 import * as path from 'path';

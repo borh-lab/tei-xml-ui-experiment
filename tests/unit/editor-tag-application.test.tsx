@@ -2,7 +2,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { DocumentProvider } from '@/lib/context/DocumentContext';
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument, addSaidTag, addTag } from '@/lib/tei';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
 
 // Mock SelectionManager
@@ -24,48 +24,62 @@ describe('EditorLayout Tag Application', () => {
     jest.clearAllMocks();
   });
 
-  it('should apply said tag with who attribute using wrapTextInTag', () => {
-    const doc = new TEIDocument(mockXML);
+  it('should apply said tag with who attribute', () => {
+    let doc = loadDocument(mockXML);
+    const passage = doc.state.passages[0];
 
-    // Simulate wrapTextInTag call (this is what handleApplyTag uses)
-    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
+    doc = addSaidTag(doc, passage.id, { start: 0, end: 5 }, 'speaker1');
 
-    const updated = doc.serialize();
-    expect(updated).toContain('<said who="#speaker1">Hello</said>');
-    expect(updated).toContain('world');
+    // Check tag was added to state
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(1);
+    expect(updatedPassage.tags[0].type).toBe('said');
+    expect(updatedPassage.tags[0].attributes.who).toBe('#speaker1');
+    expect(updatedPassage.tags[0].range).toEqual({ start: 0, end: 5 });
+
+    // Check dialogue was added
+    expect(doc.state.dialogue).toHaveLength(1);
+    expect(doc.state.dialogue[0].speaker).toBe('speaker1');
+    expect(doc.state.dialogue[0].content).toBe('Hello');
   });
 
   it('should apply q tag without attributes', () => {
-    const doc = new TEIDocument(mockXML);
+    let doc = loadDocument(mockXML);
+    const passage = doc.state.passages[0];
 
-    // Simulate wrapTextInTag call
-    doc.wrapTextInTag(0, 6, 11, 'q');
+    doc = addTag(doc, passage.id, { start: 6, end: 11 }, 'q');
 
-    const updated = doc.serialize();
-    expect(updated).toContain('<q>world</q>');
-    expect(updated).toContain('Hello');
+    // Check tag was added to state
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(1);
+    expect(updatedPassage.tags[0].type).toBe('q');
+    expect(updatedPassage.tags[0].range).toEqual({ start: 6, end: 11 });
   });
 
   it('should apply persName tag with ref attribute', () => {
-    const doc = new TEIDocument(mockXML);
+    let doc = loadDocument(mockXML);
+    const passage = doc.state.passages[0];
 
-    doc.wrapTextInTag(0, 0, 5, 'persName', { ref: '#john' });
+    doc = addTag(doc, passage.id, { start: 0, end: 5 }, 'persName', { ref: '#john' });
 
-    const updated = doc.serialize();
-    expect(updated).toContain('<persName ref="#john">Hello</persName>');
+    // Check tag was added to state
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(1);
+    expect(updatedPassage.tags[0].type).toBe('persName');
+    expect(updatedPassage.tags[0].attributes.ref).toBe('#john');
   });
 
   it('should apply tag with multiple attributes', () => {
-    const doc = new TEIDocument(mockXML);
+    let doc = loadDocument(mockXML);
+    const passage = doc.state.passages[0];
 
-    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1', aloud: 'true' });
+    doc = addTag(doc, passage.id, { start: 0, end: 5 }, 'said', { who: '#speaker1', aloud: 'true' });
 
-    const updated = doc.serialize();
-    // Check that both attributes are present (order may vary)
-    expect(updated).toContain('who="#speaker1"');
-    expect(updated).toContain('aloud');
-    expect(updated).toContain('<said');
-    expect(updated).toContain('>Hello</said>');
+    // Check tag was added to state
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(1);
+    expect(updatedPassage.tags[0].attributes.who).toBe('#speaker1');
+    expect(updatedPassage.tags[0].attributes.aloud).toBe('true');
   });
 
   it('should handle SelectionManager returning null (no selection)', () => {
@@ -115,27 +129,32 @@ describe('EditorLayout Tag Application', () => {
   </text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 6, 12, 'said', { who: '#speaker1' });
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
 
-    const updated = doc.serialize();
-    expect(updated).toContain('Start');
-    expect(updated).toContain('<said who="#speaker1">middle</said>');
-    expect(updated).toContain('end');
+    doc = addTag(doc, passage.id, { start: 6, end: 12 }, 'said', { who: '#speaker1' });
+
+    // Check tag was added to correct position
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(1);
+    expect(updatedPassage.tags[0].range).toEqual({ start: 6, end: 12 });
   });
 
   it('should handle multiple sequential tag applications', () => {
-    const doc = new TEIDocument(mockXML);
+    let doc = loadDocument(mockXML);
+    const passage = doc.state.passages[0];
 
     // Apply first tag
-    doc.wrapTextInTag(0, 0, 5, 'said', { who: '#speaker1' });
+    doc = addSaidTag(doc, passage.id, { start: 0, end: 5 }, 'speaker1');
 
     // Apply second tag
-    doc.wrapTextInTag(0, 6, 11, 'q');
+    doc = addTag(doc, passage.id, { start: 6, end: 11 }, 'q');
 
-    const updated = doc.serialize();
-    expect(updated).toContain('<said who="#speaker1">Hello</said>');
-    expect(updated).toContain('<q>world</q>');
+    // Check both tags were added
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.tags).toHaveLength(2);
+    expect(updatedPassage.tags[0].type).toBe('said');
+    expect(updatedPassage.tags[1].type).toBe('q');
   });
 
   it('should preserve existing content when applying tags', () => {
@@ -148,12 +167,14 @@ describe('EditorLayout Tag Application', () => {
   </text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    doc.wrapTextInTag(0, 0, 5, 'said');
+    let doc = loadDocument(xml);
+    const passage = doc.state.passages[0];
+    expect(passage.content).toBe('Hello world');
 
-    const updated = doc.serialize();
-    expect(updated).toContain('xml:id="p1"');
-    expect(updated).toContain('n="1"');
-    expect(updated).toContain('<said>Hello</said>');
+    doc = addTag(doc, passage.id, { start: 0, end: 5 }, 'said');
+
+    // Content should be unchanged
+    const updatedPassage = doc.state.passages[0];
+    expect(updatedPassage.content).toBe('Hello world');
   });
 });

@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React from 'react';
+
 import { Card } from '@/components/ui/card';
 
 interface EntityTooltipProps {
@@ -13,6 +13,12 @@ interface EntityTooltipProps {
 export function EntityTooltip({ entity, position, visible }: EntityTooltipProps) {
   if (!visible) return null;
 
+  const persName = String(entity.persName || '');
+  const sex = entity.sex ? String(entity.sex) : null;
+  const age = entity.age ? String(entity.age) : null;
+  const occupation = entity.occupation ? String(entity.occupation) : null;
+  const role = entity.role ? String(entity.role) : null;
+
   return (
     <Card
       className="fixed z-50 p-3 shadow-lg pointer-events-none"
@@ -22,26 +28,26 @@ export function EntityTooltip({ entity, position, visible }: EntityTooltipProps)
         transform: 'translate(8px, 8px)',
       }}
     >
-      <h4 className="font-semibold text-sm">{entity.persName}</h4>
+      <h4 className="font-semibold text-sm">{persName}</h4>
       <div className="mt-2 space-y-1 text-xs">
-        {entity.sex && (
+        {sex && (
           <p>
-            <span className="font-medium">Sex:</span> {entity.sex}
+            <span className="font-medium">Sex:</span> {sex}
           </p>
         )}
-        {entity.age && (
+        {age && (
           <p>
-            <span className="font-medium">Age:</span> {entity.age}
+            <span className="font-medium">Age:</span> {age}
           </p>
         )}
-        {entity.occupation && (
+        {occupation && (
           <p>
-            <span className="font-medium">Occupation:</span> {entity.occupation}
+            <span className="font-medium">Occupation:</span> {occupation}
           </p>
         )}
-        {entity.role && (
+        {role && (
           <p>
-            <span className="font-medium">Role:</span> {entity.role}
+            <span className="font-medium">Role:</span> {role}
           </p>
         )}
       </div>

@@ -1,4 +1,6 @@
 // @ts-nocheck
+// @ts-nocheck
+// @ts-nocheck
 /**
  * DocumentService Implementation
  *
@@ -8,10 +10,10 @@
 
 import { Effect, Layer, Context, Ref, Option } from 'effect';
 import {
-  loadDocument,
-  addSaidTag,
-  addTag as addQTag,
-  addPersNameTag,
+  loadDocument as loadDocumentOp,
+  addSaidTag as addSaidTagOp,
+  addTag as addQTagOp,
+  addPersNameTag as addPersNameTagOp,
   removeTag as removeTagOp,
   addCharacter as addCharacterOp,
   updateCharacter as updateCharacterOp,
@@ -61,7 +63,7 @@ const makeDocumentService = Effect.gen(function* (_) {
     Effect.gen(function* (_) {
       try {
         // Load document using existing pure function
-        const doc = loadDocument(xml);
+        const doc = loadDocumentOp(xml);
 
         // Store in ref
         yield* _(Ref.set(documentRef, doc));
@@ -111,7 +113,7 @@ const makeDocumentService = Effect.gen(function* (_) {
 
       try {
         // Add tag using existing pure function
-        const updated = addSaidTag(doc, passageId, range, speaker);
+        const updated = addSaidTagOp(doc, passageId, range, speaker);
 
         // Create event
         const event: DocumentEvent = {
@@ -154,7 +156,7 @@ const makeDocumentService = Effect.gen(function* (_) {
       const doc = yield* _(getDocument());
 
       try {
-        const updated = addQTag(doc, passageId, range);
+        const updated = addQTagOp(doc, passageId, range);
 
         const event: DocumentEvent = {
           type: 'qTagAdded',
@@ -194,7 +196,7 @@ const makeDocumentService = Effect.gen(function* (_) {
       const doc = yield* _(getDocument());
 
       try {
-        const updated = addPersNameTag(doc, passageId, range, ref);
+        const updated = addPersNameTagOp(doc, passageId, range, ref);
 
         const event: DocumentEvent = {
           type: 'persNameTagAdded',
@@ -605,13 +607,13 @@ function applyEvent(doc: TEIDocument, event: DocumentEvent): TEIDocument {
       return doc;
 
     case 'saidTagAdded':
-      return addSaidTag(doc, event.passageId, event.range, event.speaker);
+      return addSaidTagOp(doc, event.passageId, event.range, event.speaker);
 
     case 'qTagAdded':
-      return addQTag(doc, event.passageId, event.range);
+      return addQTagOp(doc, event.passageId, event.range);
 
     case 'persNameTagAdded':
-      return addPersNameTag(doc, event.passageId, event.range, event.ref);
+      return addPersNameTagOp(doc, event.passageId, event.range, event.ref);
 
     case 'tagRemoved':
       return removeTagOp(doc, event.id);
@@ -662,7 +664,7 @@ export const TestDocumentService = {
   loadDocument: (xml: string) =>
     Effect.sync(() => {
       try {
-        return loadDocument(xml);
+        return loadDocumentOp(xml);
       } catch (error) {
         throw new DocumentParseError({
           message: `Parse error: ${error instanceof Error ? error.message : String(error)}`,

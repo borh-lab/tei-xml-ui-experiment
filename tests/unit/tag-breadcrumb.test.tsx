@@ -21,15 +21,9 @@ describe('TagBreadcrumb (Effect-based)', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should render with onTagSelect callback', () => {
-    const mockOnTagSelect = jest.fn();
-    const { container } = render(<TagBreadcrumb onTagSelect={mockOnTagSelect} />);
-    // No tag selected, should render nothing
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('should accept onTagSelect callback as optional', () => {
+  it('should render without props', () => {
     const { container } = render(<TagBreadcrumb />);
+    // No tag selected, should render nothing
     expect(container.firstChild).toBeNull();
   });
 

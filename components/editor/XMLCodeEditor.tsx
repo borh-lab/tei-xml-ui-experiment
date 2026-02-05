@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import type { editor } from 'monaco-editor';
 
@@ -15,7 +15,6 @@ interface XMLCodeEditorProps {
   onMount?: (editor: editor.IStandaloneCodeEditor) => void;
   errors?: Array<{ line: number; message: string }>;
   readOnly?: boolean;
-  height?: string;
 }
 
 export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
@@ -25,7 +24,6 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
   onMount,
   errors = [],
   readOnly = false,
-  height = '100%',
 }) => {
   const [mounted, setMounted] = useState(false);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -111,12 +109,11 @@ export const XMLCodeEditor: React.FC<XMLCodeEditorProps> = ({
 
   // Clear pending change flag after a delay
   useEffect(() => {
-    if (hasPendingChange) {
-      const timer = setTimeout(() => {
-        setHasPendingChange(false);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
+    if (!hasPendingChange) return;
+    const timer = setTimeout(() => {
+      setHasPendingChange(false);
+    }, 300);
+    return () => clearTimeout(timer);
   }, [hasPendingChange]);
 
   if (!mounted) {

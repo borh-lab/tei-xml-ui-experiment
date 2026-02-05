@@ -1,9 +1,10 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState } from 'react';
-import { Menu, Home, FileText, HelpCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Menu, Home, FileText, HelpCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
   SheetContent,
@@ -30,7 +31,13 @@ export function MobileNavigation() {
       </SheetTrigger>
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
         <SheetHeader>
-          <SheetTitle>Navigation</SheetTitle>
+          <div className="flex items-center gap-2">
+            <SheetTitle>Navigation</SheetTitle>
+            <Badge variant="outline" className="text-[10px] flex items-center gap-1">
+              <Info className="h-3 w-3" />
+              feature-useEffectCorpus
+            </Badge>
+          </div>
           <SheetDescription>Quick access to main features</SheetDescription>
         </SheetHeader>
         <nav className="mt-8 flex flex-col gap-4">

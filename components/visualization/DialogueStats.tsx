@@ -1,8 +1,8 @@
 // @ts-nocheck
 'use client';
 
-import React, { useMemo } from 'react';
-import { useDocumentService } from '@/lib/effect';
+import { useMemo } from 'react';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function DialogueStats() {
@@ -11,15 +11,12 @@ export function DialogueStats() {
   const stats = useMemo(() => {
     if (!document) return null;
 
-    const dialogue = document.getDialogue();
-    const divisions = document.getDivisions();
+    const dialogue = document.state.dialogue;
 
     return {
       totalDialogue: dialogue.length,
-      totalChapters: divisions.filter((d) => d.type === 'chapter').length,
-      dialoguePerChapter: divisions.map((div) => {
-        return { name: `${div.type} ${div.n}`, count: 0 }; // Placeholder
-      }),
+      totalChapters: 0, // TODO: Implement divisions extraction
+      dialoguePerChapter: [], // TODO: Implement per-chapter dialogue count
     };
   }, [document]);
 

@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,7 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from 'cmdk';
-import { useDocumentService } from '@/lib/effect';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { downloadFile } from '@/lib/tei/export';
 import { serializeDocument } from '@/lib/tei/operations';
 import { getSamples } from '@/lib/samples/sampleLoader';
@@ -51,7 +51,7 @@ export function CommandPalette({
   isBulkMode = false,
   isVizPanelOpen = false,
 }: CommandPaletteProps) {
-  const { document, loadDocument, loadSample, clearDocument } = useDocumentService();
+  const { document, loadDocument: _loadDocument, loadSample, clearDocument } = useDocumentService();
   const [toast, setToast] = useState<Toast | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 

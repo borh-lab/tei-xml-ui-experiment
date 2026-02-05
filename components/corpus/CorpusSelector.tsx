@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const CORPORA = [
@@ -57,7 +57,12 @@ export function CorpusSelector({ onSelectCorpus }: CorpusSelectorProps) {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">Browse TEI Corpora</h1>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <h1 className="text-4xl font-bold">Browse TEI Corpora</h1>
+          <Badge variant="outline" className="text-xs">
+            feature-useEffectCorpus
+          </Badge>
+        </div>
         <p className="text-muted-foreground">
           Select a corpus to explore its collection of TEI-encoded documents
         </p>

@@ -2,9 +2,10 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { useDocumentService } from '@/lib/effect';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Badge } from '@/components/ui/badge';
 import { EntityTooltip } from './EntityTooltip';
+import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 interface Passage {
   id: string;
@@ -53,9 +54,10 @@ export const RenderedView = React.memo(
     highlightedPassageId,
     onTagSelect,
     onTagDoubleClick,
-    selectedTag,
+    selectedTag: _selectedTag,
   }: RenderedViewProps) => {
     const { document } = useDocumentService();
+    const useEffectEditor = isFeatureEnabled('useEffectEditor');
     const [passages, setPassages] = useState<Passage[]>([]);
     const [activePassageId, setActivePassageId] = useState<string | null>(null);
     const [hoveredEntity, setHoveredEntity] = useState<{
@@ -96,19 +98,20 @@ export const RenderedView = React.memo(
         const after = html.substring(tag.range.end);
 
         // Build data attributes
-        const dataAttrs = [`data-tag="${tag.type}"`, `data-tag-id="${tag.id}"`];
+        const dataAttrs = [`data-tag="${(tag as any).type}"`, `data-tag-id="${(tag as any).id}"`];
 
-        if (tag.type === 'said' && tag.attributes.who) {
+        if ((tag as any).type === 'said' && tag.attributes.who) {
           dataAttrs.push(`data-who="${tag.attributes.who}"`);
         }
 
         // Style classes based on tag type
-        const tagClass = `tei-tag tei-tag-${tag.type} ${
-          tag.type === 'said'
+        const tagType = (tag as any).type || 'q';
+        const tagClass = `tei-tag tei-tag-${tagType} ${
+          tagType === 'said'
             ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
-            : tag.type === 'q'
+            : tagType === 'q'
               ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
-              : tag.type === 'persName'
+              : tagType === 'persName'
                 ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200'
                 : 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200'
         }`;
@@ -130,7 +133,7 @@ export const RenderedView = React.memo(
         const speaker = dialogue?.speaker || undefined;
 
         // Render content with tags
-        const content = renderPassageContent(passage);
+        const content = renderPassageContent(passage as any);
 
         return {
           id: passage.id,
@@ -305,6 +308,13 @@ export const RenderedView = React.memo(
 
     return (
       <div className="flex flex-col h-full">
+        {/* Feature Flag Badge */}
+        <div className="px-4 py-2 border-b bg-muted/30">
+          <Badge variant="outline" className="text-xs">
+            {useEffectEditor ? 'Effect-Based RenderedView' : 'React-Based RenderedView'}
+          </Badge>
+        </div>
+
         {/* Bulk mode controls */}
         {isBulkMode && (
           <div className="flex items-center justify-between p-2 border-b bg-muted/30">
@@ -349,7 +359,7 @@ export const RenderedView = React.memo(
                       );
                       if (character) {
                         setHoveredEntity({
-                          entity: character,
+                          entity: { ...character, type: 'character' } as any,
                           position: { x: e.clientX, y: e.clientY },
                         });
                       }

@@ -8,6 +8,7 @@
 
 import type { TEIDocument } from '@/lib/tei/types';
 import type { DetectionResult, DialogueDetection, SpeakerPattern, TextRange } from './types';
+import type { Character } from './providers';
 
 // ============================================================================
 // Public API
@@ -46,7 +47,7 @@ export function detectSpeaker(
             : null;
 
           results.push({
-            speaker: character?.id || pattern.name,
+            speaker: character?.xmlId || pattern.name,
             confidence: pattern.confidence,
             reason: `Pattern match: "${regex}"`,
           });

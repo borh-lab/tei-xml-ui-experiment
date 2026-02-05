@@ -1,52 +1,29 @@
 // @ts-nocheck
 'use client';
 
-import React from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
-import type { TagInfo } from '@/lib/selection/types';
-import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
+import { TagBreadcrumb as EffectTagBreadcrumb } from './TagBreadcrumb';
 
 /**
- * TagBreadcrumb - Effect-based version
+ * TagBreadcrumb with feature flag support
  *
- * Displays breadcrumb trail of selected tags with navigation.
+ * Automatically switches between React and Effect implementations
+ * based on feature-useEffectEditor feature flag.
+ *
+ * For now, defaults to Effect version (already migrated).
  */
-export function EffectTagBreadcrumb() {
-  const { document } = useDocumentService();
-  const [selectedTag, setSelectedTag] = React.useState<TagInfo | null>(null);
+export function TagBreadcrumbWrapper(props: any) {
+  const useEffectEditor = typeof window !== 'undefined' ? localStorage.getItem('feature-useEffectEditor') === 'true' : false;
 
-  React.useEffect(() => {
-    if (document) {
-      // Could derive from document state
-      setSelectedTag(null);
-    }
-  }, [document]);
-
-  if (!selectedTag) {
-    return null;
+  if (useEffectEditor) {
+    return <EffectTagBreadcrumb {...props} />;
   }
 
+  // Feature flag disabled - show fallback message
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="text-muted-foreground">Tag:</span>
-      <span className="font-mono">{selectedTag.tagName}</span>
-      {selectedTag.attributes?.who && (
-        <span className="text-muted-foreground">(who: {selectedTag.attributes.who})</span>
-      )}
+    <div className="flex items-center gap-2 p-2 bg-muted/50 rounded border border-dashed text-sm text-muted-foreground">
+      TagBreadcrumb is disabled. Enable useEffectEditor feature flag to use.
     </div>
   );
 }
 
-/**
- * TagBreadcrumb with feature flag support
- */
-export default function TagBreadcrumb(props: Record<string, unknown>) {
-  if (isFeatureEnabled('useEffectTagToolbar')) {
-    return <EffectTagBreadcrumb {...props} />;
-  }
-
-  // Fall back to React version
-  // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic require for feature flag
-  const ReactTagBreadcrumb = require('./TagBreadcrumb.react').TagBreadcrumb;
-  return <ReactTagBreadcrumb {...props} />;
-}
+export default TagBreadcrumbWrapper;

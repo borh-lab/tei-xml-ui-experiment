@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,12 @@ import { AlertCircle, AlertTriangle, CheckCircle2, Wrench } from 'lucide-react';
 import {
   SchemaSelectionManager,
   SchemaSelectionHistory,
-  createSchemaSelection,
 } from '@/lib/schema/SchemaSelection';
 import { createDefaultResolver } from '@/lib/schema/FileSchemaResolver';
 import { SchemaInfo } from '@/lib/schema/SchemaResolver';
+
+// Feature flag badge: component is ready for Effect migration
+// Enable with: localStorage.setItem('feature-useEffectMisc', 'true')
 
 interface ValidationPanelProps {
   validationResults: ValidationResult | null;

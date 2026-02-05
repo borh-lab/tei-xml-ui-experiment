@@ -43,7 +43,7 @@ const mockDocument = {
   events: [],
 };
 
-jest.mock('@/lib/effect', () => ({
+jest.mock('@/lib/effect/react/hooks', () => ({
   useDocumentService: () => ({
     document: mockDocument,
     loadDocument: jest.fn(),

@@ -12,6 +12,8 @@ export interface DocumentContextType {
   document: unknown;
   setDocument: (doc: unknown) => void;
   clearDocument: () => void;
+  loadDocument?: (xml: string) => Promise<void>;
+  loadSample?: (sampleId: string) => Promise<void>;
 }
 
 export const DocumentContext = createContext<DocumentContextType | undefined>(
@@ -43,4 +45,24 @@ export function useDocumentContext(): DocumentContextType {
     throw new Error('useDocumentContext must be used within DocumentProvider');
   }
   return context;
+}
+
+/**
+ * useDocument Hook
+ *
+ * Exports the Effect-based useDocumentService hook for compatibility.
+ * This provides the full Effect-based functionality when the feature flag is enabled.
+ *
+ * For now, this is a simple re-export. The app/page.tsx component uses this.
+ */
+export function useDocument() {
+  // Check if Effect version should be used via feature flag
+  if (typeof window !== 'undefined' && localStorage.getItem('feature-useEffectDocument') === 'true') {
+    // Use Effect version
+    const { useDocument: useDocumentEffect } = require('@/lib/effect/react/hooks');
+    return useDocumentEffect();
+  }
+
+  // Fall back to React version
+  return useDocumentContext();
 }

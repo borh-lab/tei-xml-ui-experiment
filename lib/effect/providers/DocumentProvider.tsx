@@ -1,18 +1,41 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Effect, Runtime } from 'effect';
+import React from 'react';
 import type { TEIDocument } from '@/lib/tei/types';
-import { DocumentService } from '@/lib/effect/protocols/Document';
-import { effectRuntime } from '@/lib/effect/layers/Main';
-import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
+import type { PassageID, CharacterID, TextRange } from '@/lib/tei/types';
+import { useDocumentService } from '@/lib/effect/react/hooks';
+import { DocumentContext as ReactDocumentContext } from '@/lib/context/DocumentContext';
+
+/**
+ * DocumentContext Type
+ *
+ * Matches the React DocumentContext interface for compatibility.
+ */
+export interface DocumentContextType {
+  document: TEIDocument | null;
+  loadDocument: (xml: string) => Promise<TEIDocument>;
+  setDocument: (document: TEIDocument) => void;
+  clearDocument: () => void;
+  addTag: (
+    passageId: PassageID,
+    range: TextRange,
+    tagName: string,
+    attrs?: Record<string, string>
+  ) => Promise<void>;
+  removeTag: (tagId: string) => Promise<void>;
+  undo: () => Promise<void>;
+  redo: () => Promise<void>;
+}
+
+// Re-export the original context for compatibility
+export const DocumentContext = ReactDocumentContext;
 
 /**
  * EffectDocumentProvider
  *
  * React context provider that uses Effect for document operations.
- * Replaces the React-based DocumentContext.
+ * Provides the same interface as the React DocumentContext for drop-in compatibility.
  *
  * @example
  * ```tsx
@@ -22,171 +45,45 @@ import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
  * ```
  */
 export function EffectDocumentProvider({ children }: { children: React.ReactNode }) {
-  const [document, setDocument] = useState<TEIDocument | null>(null);
+  const docService = useDocumentService();
 
-  // Load document on mount (if there's a saved document)
-  useEffect(() => {
-    const loadSavedDocument = async () => {
-      try {
-        const storage = effectRuntime.provideService(StorageService, BrowserStorageService);
+  // Adapter to match React DocumentContext interface
+  const contextValue: DocumentContextType = {
+    document: docService.document,
+    loadDocument: docService.loadDocument,
+    setDocument: () => {
+      throw new Error('setDocument is not supported in Effect version. Use loadDocument instead.');
+    },
+    clearDocument: docService.clearDocument,
+    addTag: async (passageId: PassageID, range: TextRange, tagName: string, attrs?: Record<string, string>) => {
+      // Route to appropriate Effect method based on tag name
+      switch (tagName) {
+        case 'said':
+          if (!attrs?.who) {
+            throw new Error('said tag requires "who" attribute');
+          }
+          return await docService.addSaidTag(passageId, range, attrs.who as CharacterID);
 
-        const savedXml = await Effect.runPromise(
-          Effect.gen(function* (_) {
-            const svc = yield* _(StorageService);
-            return yield* _(svc.get<string>('tei-editor-document'));
-          })
-        );
+        case 'q':
+          return await docService.addQTag(passageId, range);
 
-        if (savedXml) {
-          await loadDocument(savedXml);
-        }
-      } catch (error) {
-        console.error('Failed to load saved document:', error);
-      }
-    };
+        case 'persName':
+          if (!attrs?.ref) {
+            throw new Error('persName tag requires "ref" attribute');
+          }
+          return await docService.addPersNameTag(passageId, range, attrs.ref);
 
-    loadSavedDocument();
-  }, []);
-
-  const loadDocument = useCallback(async (xml: string) => {
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(DocumentService);
-      return yield* _(service.loadDocument(xml));
-    });
-
-    try {
-      const doc = await Effect.runPromise(program, {
-        runtime: effectRuntime,
-      });
-
-      setDocument(doc);
-
-      // Save to storage
-      await Effect.runPromise(
-        Effect.gen(function* (_) {
-          const storage = yield* _(
-            effectRuntime.provideService(StorageService, BrowserStorageService)
-          );
-          return yield* _(storage.set('tei-editor-document', xml));
-        })
-      );
-    } catch (error) {
-      console.error('Failed to load document:', error);
-      throw error;
-    }
-  }, []);
-
-  const addTag = useCallback(
-    async (passageId: string, range: any, tagName: string, attrs?: any) => {
-      if (!document) return;
-
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
-
-        if (tagName === 'said') {
-          return yield* _(service.addSaidTag(passageId, range, attrs?.who?.substring(1)));
-        } else if (tagName === 'q') {
-          return yield* _(service.addQTag(passageId, range));
-        } else if (tagName === 'persName') {
-          return yield* _(service.addPersNameTag(passageId, range, attrs?.ref));
-        }
-
-        return yield* _(service.addQTag(passageId, range));
-      });
-
-      try {
-        const updated = await Effect.runPromise(program, {
-          runtime: effectRuntime,
-        });
-
-        setDocument(updated);
-      } catch (error) {
-        console.error('Failed to add tag:', error);
-        throw error;
+        default:
+          throw new Error(`Unsupported tag name: ${tagName}`);
       }
     },
-    [document]
-  );
-
-  const removeTag = useCallback(
-    async (tagId: string) => {
-      if (!document) return;
-
-      const program = Effect.gen(function* (_) {
-        const service = yield* _(DocumentService);
-        return yield* _(service.removeTag(tagId));
-      });
-
-      try {
-        const updated = await Effect.runPromise(program, {
-          runtime: effectRuntime,
-        });
-
-        setDocument(updated);
-      } catch (error) {
-        console.error('Failed to remove tag:', error);
-        throw error;
-      }
-    },
-    [document]
-  );
-
-  const undo = useCallback(async () => {
-    if (!document) return;
-
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(DocumentService);
-      return yield* _(service.undo());
-    });
-
-    try {
-      const updated = await Effect.runPromise(program, {
-        runtime: effectRuntime,
-      });
-
-      setDocument(updated);
-    } catch (error) {
-      console.error('Failed to undo:', error);
-      throw error;
-    }
-  }, [document]);
-
-  const redo = useCallback(async () => {
-    if (!document) return;
-
-    const program = Effect.gen(function* (_) {
-      const service = yield* _(DocumentService);
-      return yield* _(service.redo());
-    });
-
-    try {
-      const updated = await Effect.runPromise(program, {
-        runtime: effectRuntime,
-      });
-
-      setDocument(updated);
-    } catch (error) {
-      console.error('Failed to redo:', error);
-      throw error;
-    }
-  }, [document]);
-
-  // Context value
-  const contextValue = {
-    document,
-    loadDocument,
-    addTag,
-    removeTag,
-    undo,
-    redo,
+    removeTag: docService.removeTag,
+    undo: docService.undo,
+    redo: docService.redo,
   };
 
-  return <DocumentContext.Provider value={contextValue}>{children}</DocumentContext.Provider>;
+  return <ReactDocumentContext.Provider value={contextValue as any}>{children}</ReactDocumentContext.Provider>;
 }
-
-// Import DocumentContext for compatibility
-import { DocumentContext } from '@/lib/context/DocumentContext';
-import { BrowserStorageService } from '@/lib/effect/services/StorageService';
 
 /**
  * EffectDocumentProvider with feature flag support
@@ -195,7 +92,22 @@ import { BrowserStorageService } from '@/lib/effect/services/StorageService';
  * based on useEffectDocument feature flag.
  */
 export default function DocumentProvider({ children }: { children: React.ReactNode }) {
-  if (isFeatureEnabled('useEffectDocument')) {
+  const { useStorageService } = require('@/lib/effect/react/hooks');
+  const storage = useStorageService();
+
+  // Check feature flag
+  const [useEffect, setUseEffect] = React.useState(false);
+
+  React.useEffect(() => {
+    storage.get('useEffectDocument').then((enabled: boolean | null) => {
+      setUseEffect(enabled === true);
+    }).catch(() => {
+      // Default to false if storage check fails
+      setUseEffect(false);
+    });
+  }, [storage]);
+
+  if (useEffect) {
     return <EffectDocumentProvider>{children}</EffectDocumentProvider>;
   }
 

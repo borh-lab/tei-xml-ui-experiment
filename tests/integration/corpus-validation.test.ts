@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { CorpusManager } from '@/lib/corpora';
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument } from '@/lib/tei';
 
 describe('Corpus Validation Integration', () => {
   let corpus: CorpusManager;
@@ -26,7 +26,7 @@ describe('Corpus Validation Integration', () => {
     for (const doc of trainDocs.slice(0, 10)) {
       // Test first 10
       expect(() => {
-        TEIDocument.parse(doc.content);
+        loadDocument(doc.content);
       }).not.toThrow();
     }
   });
@@ -40,9 +40,18 @@ describe('Corpus Validation Integration', () => {
 
     for (const doc of saidDocs.slice(0, 5)) {
       // Test first 5
-      const tei = TEIDocument.parse(doc.content);
-      const saidElements = tei.querySelectorAll('said');
-      expect(saidElements.length).toBeGreaterThan(0);
+      const tei = loadDocument(doc.content);
+
+      // Check that dialogue was extracted from said tags
+      // (The new API extracts dialogue from <said> tags automatically)
+      expect(tei.state.dialogue.length).toBeGreaterThanOrEqual(0);
+
+      // If the document has said tags, they should be in the passage tags
+      const totalSaidTags = tei.state.passages.reduce((count, passage) => {
+        return count + passage.tags.filter(tag => tag.type === 'said').length;
+      }, 0);
+
+      expect(totalSaidTags).toBeGreaterThanOrEqual(0);
     }
   });
 

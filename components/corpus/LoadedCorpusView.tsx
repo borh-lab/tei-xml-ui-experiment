@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Effect, Layer, pipe } from 'effect';
 import { CorpusBrowser as CorpusBrowserService } from '@/lib/effect/services/CorpusBrowser';
 import { CorpusBrowserLive } from '@/lib/effect/services/CorpusBrowser';

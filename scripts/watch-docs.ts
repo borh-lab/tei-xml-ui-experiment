@@ -4,6 +4,7 @@
  *
  * Separate orchestration concern - no recording logic.
  * Watches source files and regenerates videos on change.
+ * Automatically copies and optimizes videos to docs/videos/.
  */
 
 import { watch, type FSWatcher } from 'chokidar';
@@ -14,6 +15,36 @@ import { cwd } from 'node:process';
 let watcher: FSWatcher | null = null;
 let timeout: NodeJS.Timeout | null = null;
 let regenerateCount = 0;
+
+/**
+ * Regenerate videos and optimize them
+ */
+async function regenerateVideos(): Promise<void> {
+  regenerateCount++;
+  console.log(`\n🔄 Regenerating videos (#${regenerateCount})...`);
+
+  exec('bun run docs:videos', (error, stdout, stderr) => {
+    if (error) {
+      console.error('❌ Regeneration failed:', error.message);
+      if (stderr) console.error(stderr);
+      return;
+    }
+
+    console.log(stdout);
+
+    // After successful generation, run optimization
+    console.log('📦 Optimizing and copying videos...');
+    exec('bun run docs:videos:optimize', (optError, optStdout, optStderr) => {
+      if (optError) {
+        console.warn('⚠️  Optimization failed:', optError.message);
+        return;
+      }
+
+      console.log(optStdout);
+      console.log('✅ Regeneration and optimization complete\n');
+    });
+  });
+}
 
 /**
  * Watch source files and regenerate videos on change.
@@ -44,18 +75,7 @@ export async function watchDocs(): Promise<void> {
     }
 
     timeout = setTimeout(() => {
-      regenerateCount++;
-      console.log(`\n🔄 Regenerating videos (#${regenerateCount})...`);
-
-      exec('bun run docs:videos', (error, stdout, stderr) => {
-        if (error) {
-          console.error('❌ Regeneration failed:', error.message);
-          if (stderr) console.error(stderr);
-        } else {
-          console.log(stdout);
-          console.log('✅ Regeneration complete\n');
-        }
-      });
+      regenerateVideos();
     }, 1000); // 1s debounce
   });
 

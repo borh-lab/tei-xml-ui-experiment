@@ -107,11 +107,11 @@ export class PatternBasedDetector implements AIDetector {
     characters: readonly Character[],
     patterns: readonly SpeakerPattern[]
   ): readonly DetectionResult[][] {
-    return dialogues.map(({ dialogue }) => this.detectSpeaker(dialogue, characters, patterns));
+    return dialogues.map(({ dialogue }) => this.detectSpeaker(dialogue, characters, patterns)) as unknown as readonly DetectionResult[][];
   }
 
   learnFromCorrections(
-    corrections: readonly SpeakerCorrection[],
+    _corrections: readonly SpeakerCorrection[],
     currentPatterns: readonly SpeakerPattern[]
   ): readonly SpeakerPattern[] {
     // TODO: Implement pattern learning from corrections

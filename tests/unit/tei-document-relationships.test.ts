@@ -1,20 +1,26 @@
 // @ts-nocheck
-import { TEIDocument } from '@/lib/tei';
+import {
+  loadDocument,
+  serializeDocument,
+  addRelationship,
+  removeRelationship,
+  addCharacter,
+} from '@/lib/tei';
 
 describe('TEIDocument - Relationships', () => {
-  test('getRelationships returns empty array when none exist', () => {
+  test('state.relationships returns empty array when none exist', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <text><body><p>Text</p></body></text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    const relationships = doc.getRelationships();
+    const doc = loadDocument(xml);
+    const relationships = doc.state.relationships;
 
     expect(relationships).toEqual([]);
   });
 
-  test('getRelationships parses existing <listRelation>', () => {
+  test('state.relationships parses existing <listRelation>', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <standOff>
@@ -25,8 +31,8 @@ describe('TEIDocument - Relationships', () => {
   <text><body><p>Text</p></body></text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    const relationships = doc.getRelationships();
+    const doc = loadDocument(xml);
+    const relationships = doc.state.relationships;
 
     expect(relationships).toHaveLength(1);
     expect(relationships[0].type).toBe('romantic');
@@ -34,7 +40,7 @@ describe('TEIDocument - Relationships', () => {
     expect(relationships[0].to).toBe('elizabeth');
   });
 
-  test('addRelation adds relationship to <listRelation>', () => {
+  test('addRelationship adds relationship', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <standOff>
@@ -46,21 +52,26 @@ describe('TEIDocument - Relationships', () => {
   <text><body><p>Text</p></body></text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    doc.addRelation({
-      id: 'rel1',
-      from: 'darcy',
-      to: 'elizabeth',
+    let doc = loadDocument(xml);
+    const darcy = doc.state.characters.find(c => c.xmlId === 'darcy')!;
+    const elizabeth = doc.state.characters.find(c => c.xmlId === 'elizabeth')!;
+
+    doc = addRelationship(doc, {
+      from: darcy.id,
+      to: elizabeth.id,
       type: 'romantic',
       subtype: 'courtship',
+      mutual: false,
     });
 
-    const relationships = doc.getRelationships();
+    const relationships = doc.state.relationships;
     expect(relationships).toHaveLength(1);
     expect(relationships[0].type).toBe('romantic');
+    expect(relationships[0].from).toBe(darcy.id);
+    expect(relationships[0].to).toBe(elizabeth.id);
   });
 
-  test('removeRelation removes relationship', () => {
+  test('removeRelationship removes relationship by ID', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <standOff>
@@ -71,10 +82,40 @@ describe('TEIDocument - Relationships', () => {
   <text><body><p>Text</p></body></text>
 </TEI>`;
 
-    const doc = new TEIDocument(xml);
-    doc.removeRelation('darcy', 'elizabeth', 'romantic');
+    let doc = loadDocument(xml);
+    const relationId = doc.state.relationships[0].id;
+    doc = removeRelationship(doc, relationId);
 
-    const relationships = doc.getRelationships();
+    const relationships = doc.state.relationships;
     expect(relationships).toHaveLength(0);
+  });
+
+  test('mutual relationships create reciprocal entries', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <standOff>
+    <listPerson>
+      <person xml:id="darcy"><persName>Darcy</persName></person>
+      <person xml:id="elizabeth"><persName>Elizabeth</persName></person>
+    </listPerson>
+  </standOff>
+  <text><body><p>Text</p></body></text>
+</TEI>`;
+
+    let doc = loadDocument(xml);
+    const darcy = doc.state.characters.find(c => c.xmlId === 'darcy')!;
+    const elizabeth = doc.state.characters.find(c => c.xmlId === 'elizabeth')!;
+
+    doc = addRelationship(doc, {
+      from: darcy.id,
+      to: elizabeth.id,
+      type: 'romantic',
+      mutual: true,
+    });
+
+    const relationships = doc.state.relationships;
+    expect(relationships).toHaveLength(2);
+    // Both should be marked mutual
+    expect(relationships.every(r => r.mutual)).toBe(true);
   });
 });

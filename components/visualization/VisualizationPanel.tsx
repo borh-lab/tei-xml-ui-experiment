@@ -1,14 +1,16 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CharacterNetwork } from '@/components/visualization/CharacterNetwork';
 import { DialogueStats } from '@/components/visualization/DialogueStats';
 import { DocumentAnalytics } from '@/components/analytics/DocumentAnalytics';
 import { Card } from '@/components/ui/card';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 
 export function VisualizationPanel() {
+  const { document } = useDocumentService();
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
 
   return (
@@ -23,7 +25,7 @@ export function VisualizationPanel() {
         </div>
 
         <TabsContent value="network" className="flex-1 mt-4 px-6 pb-6">
-          <CharacterNetwork onNodeClick={setSelectedCharacter} />
+          {document && <CharacterNetwork document={document} onNodeClick={setSelectedCharacter} />}
           {selectedCharacter && (
             <div className="mt-4 p-4 bg-muted rounded-md">
               <p className="text-sm font-semibold">Selected: {selectedCharacter}</p>

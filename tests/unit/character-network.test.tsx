@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument } from '@/lib/tei';
 
 const mockXML = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
@@ -14,36 +14,37 @@ const mockXML = `<?xml version="1.0" encoding="UTF-8"?>
   </text>
 </TEI>`;
 
-describe('CharacterNetwork', () => {
+describe('CharacterNetwork data extraction', () => {
   test('should extract characters from dialogue', () => {
-    const teiDocument = new TEIDocument(mockXML);
-    const dialogue = teiDocument.getDialogue();
+    const doc = loadDocument(mockXML);
+    const dialogue = doc.state.dialogue;
 
     expect(dialogue).toHaveLength(3);
-    expect(dialogue[0].who).toBe('#jane');
-    expect(dialogue[1].who).toBe('#rochester');
+    expect(dialogue[0].speaker).toBe('jane');
+    expect(dialogue[1].speaker).toBe('rochester');
+    expect(dialogue[2].speaker).toBe('jane');
   });
 
   test('should build correct node count', () => {
-    const teiDocument = new TEIDocument(mockXML);
-    const dialogue = teiDocument.getDialogue();
+    const doc = loadDocument(mockXML);
+    const dialogue = doc.state.dialogue;
     const speakerMap = new Map<string, number>();
 
     dialogue.forEach((d) => {
-      if (d.who) {
-        const count = speakerMap.get(d.who) || 0;
-        speakerMap.set(d.who, count + 1);
+      if (d.speaker) {
+        const count = speakerMap.get(d.speaker) || 0;
+        speakerMap.set(d.speaker, count + 1);
       }
     });
 
     expect(speakerMap.size).toBe(2);
-    expect(speakerMap.get('#jane')).toBe(2);
-    expect(speakerMap.get('#rochester')).toBe(1);
+    expect(speakerMap.get('jane')).toBe(2);
+    expect(speakerMap.get('rochester')).toBe(1);
   });
 
   test('should calculate interaction weights', () => {
-    const teiDocument = new TEIDocument(mockXML);
-    const dialogue = teiDocument.getDialogue();
+    const doc = loadDocument(mockXML);
+    const dialogue = doc.state.dialogue;
     const interactions = new Map<string, number>();
 
     // Track interactions between speakers
@@ -51,15 +52,36 @@ describe('CharacterNetwork', () => {
       const current = dialogue[i];
       const next = dialogue[i + 1];
 
-      if (current.who && next.who && current.who !== next.who) {
-        const key = `${current.who}-${next.who}`;
+      if (current.speaker && next.speaker && current.speaker !== next.speaker) {
+        const key = `${current.speaker}-${next.speaker}`;
         const count = interactions.get(key) || 0;
         interactions.set(key, count + 1);
       }
     }
 
     expect(interactions.size).toBe(2);
-    expect(interactions.get('#jane-#rochester')).toBe(1);
-    expect(interactions.get('#rochester-#jane')).toBe(1);
+    expect(interactions.get('jane-rochester')).toBe(1);
+    expect(interactions.get('rochester-jane')).toBe(1);
+  });
+
+  test('should handle dialogue with missing speaker info', () => {
+    const xmlWithMissingSpeaker = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <body>
+      <p>
+        <said>Hello</said>
+        <said who="#jane">Hi</said>
+      </p>
+    </body>
+  </text>
+</TEI>`;
+
+    const doc = loadDocument(xmlWithMissingSpeaker);
+    const dialogue = doc.state.dialogue;
+
+    expect(dialogue).toHaveLength(2);
+    expect(dialogue[0].speaker).toBeNull();
+    expect(dialogue[1].speaker).toBe('jane');
   });
 });

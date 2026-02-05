@@ -31,7 +31,9 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 // Polyfill for scrollIntoView (required by cmdk)
-Element.prototype.scrollIntoView = jest.fn();
+if (typeof Element !== 'undefined') {
+  Element.prototype.scrollIntoView = jest.fn();
+}
 
 // Polyfill for TransformStream (required by @ax-llm/ax)
 if (typeof global.TransformStream === 'undefined') {

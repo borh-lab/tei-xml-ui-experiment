@@ -26,12 +26,14 @@
     "corpus:setup": "scripts/setup-corpora.sh",
     "corpus:analyze": "bun scripts/analyze-corpora.ts",
     "corpus:split": "bun scripts/generate-splits.ts",
+    "corpus:split:ml": "bun scripts/generate-ml-splits.ts",
     "corpus:convert-novel-dialogism": "bun scripts/convert-novel-dialogism.ts",
-    "corpus:all": "bun run corpus:convert-novel-dialogism && bun run corpus:setup && bun run corpus:analyze && bun run corpus:split",
+    "corpus:all": "bun run corpus:convert-novel-dialogism && bun run corpus:setup && bun run corpus:analyze && bun run corpus:split && bun run corpus:split:ml",
     "docs:videos": "bun run test:e2e --project=doc-videos",
     "docs:videos:watch": "bun scripts/watch-doc-videos.ts",
     "docs:videos:optimize": "bun scripts/optimize-doc-videos.ts",
-    "docs:videos:cli": "bun scripts/generate-doc-videos.ts"
+    "docs:videos:cli": "bun scripts/generate-doc-videos.ts",
+    "prepare": "effect-language-service patch"
   },
   "dependencies": {
     "@ax-llm/ax": "^16.0.10",
@@ -77,6 +79,7 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@effect/language-service": "^0.73.0",
     "@playwright/test": "^1.58.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",

@@ -1,11 +1,11 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState } from 'react';
-import { TEIDocument } from '@/lib/tei';
+import { useState } from 'react';
+import type { TEIDocument } from '@/lib/tei';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, Info } from 'lucide-react';
 
 interface DialogueOutlineProps {
   document: TEIDocument;
@@ -18,135 +18,104 @@ export function DialogueOutline({
   onPassageClick,
   currentPassageId,
 }: DialogueOutlineProps) {
-  const dialogue = document.getDialogue();
-  const divisions = document.getDivisions();
+  const dialogue = document.state.dialogue;
+  const passages = document.state.passages;
 
-  // Group dialogue by chapter/division
-  const byChapter = new Map<string, Array<Record<string, unknown>>>();
-  dialogue.forEach((d, idx) => {
-    // Try to find the chapter/division for this dialogue
-    let chapter = 'unknown';
-
-    // Check if the dialogue element has a parent division
-    if (d.element && typeof d.element === 'object') {
-      // Find closest division with @n attribute
-      const findChapter = (obj: Record<string, unknown>): string => {
-        if (!obj || typeof obj !== 'object') return '';
-
-        if (obj['@_n']) {
-          return String(obj['@_n']);
-        }
-
-        // Check parent references if available
-        return '';
-      };
-
-      chapter = findChapter(d.element) || `section-${idx}`;
-    }
-
-    if (!byChapter.has(chapter)) {
-      byChapter.set(chapter, []);
-    }
-    byChapter.get(chapter)!.push({ ...d, id: `passage-${idx}` });
+  // Group dialogue by passage
+  const byPassage = new Map<string, typeof dialogue>();
+  dialogue.forEach((d) => {
+    const passageId = d.passageId;
+    const existing = byPassage.get(passageId);
+    byPassage.set(passageId, [...(existing || []), d]);
   });
 
-  // State for collapsible chapters
-  const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(new Set());
+  // State for collapsible passages
+  const [collapsedPassages, setCollapsedPassages] = useState<Set<string>>(new Set());
 
-  const toggleChapter = (chapter: string) => {
-    const newCollapsed = new Set(collapsedChapters);
-    if (newCollapsed.has(chapter)) {
-      newCollapsed.delete(chapter);
+  const togglePassage = (passageId: string) => {
+    const newCollapsed = new Set(collapsedPassages);
+    if (newCollapsed.has(passageId)) {
+      newCollapsed.delete(passageId);
     } else {
-      newCollapsed.add(chapter);
+      newCollapsed.add(passageId);
     }
-    setCollapsedChapters(newCollapsed);
+    setCollapsedPassages(newCollapsed);
   };
+
+  if (dialogue.length === 0) {
+    return (
+      <div className="p-4 text-sm text-muted-foreground">No dialogue in document</div>
+    );
+  }
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4">
-        <h3 className="font-semibold mb-4 text-sm">Dialogue Outline</h3>
-
-        {divisions.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-xs font-medium text-muted-foreground mb-2">Document Structure</h4>
-            <div className="space-y-1">
-              {divisions.map((div, idx) => (
-                <div
-                  key={`div-${idx}`}
-                  className="text-xs p-2 text-muted-foreground"
-                  style={{ paddingLeft: `${div.depth * 12}px` }}
-                >
-                  {div.type && (
-                    <Badge variant="outline" className="mr-2 text-[10px]">
-                      {div.type}
-                    </Badge>
-                  )}
-                  {div.n && <span>Section {div.n}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {byChapter.size > 0 ? (
-          <div>
-            <h4 className="text-xs font-medium text-muted-foreground mb-2">
-              Dialogue Passages ({dialogue.length})
+      <div className="p-4 space-y-4">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <h4 className="text-xs font-medium text-muted-foreground">
+              Dialogue Passages ({dialogue.length} in {byPassage.size} passages)
             </h4>
-            {Array.from(byChapter.entries()).map(([chapter, passages]) => {
-              const isCollapsed = collapsedChapters.has(chapter);
-              return (
-                <div key={chapter} className="mb-2">
-                  <div
-                    className="flex items-center gap-1 mb-1 cursor-pointer hover:bg-muted rounded p-1"
-                    onClick={() => toggleChapter(chapter)}
-                  >
-                    {isCollapsed ? (
-                      <ChevronRight className="h-3 w-3" />
-                    ) : (
-                      <ChevronDown className="h-3 w-3" />
-                    )}
-                    <Badge variant="outline" className="text-[10px]">
-                      {chapter}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {passages.length} passages
-                    </span>
-                  </div>
+            <Badge variant="outline" className="text-[10px] flex items-center gap-1">
+              <Info className="h-3 w-3" />
+              feature-useEffectCorpus
+            </Badge>
+          </div>
+          {Array.from(byPassage.entries()).map(([passageId, passageDialogues]) => {
+            const passage = passages.find((p) => p.id === passageId);
+            const passageIndex = passage?.index ?? 0;
+            const isCollapsed = collapsedPassages.has(passageId);
 
-                  {!isCollapsed && (
-                    <div className="space-y-1 ml-4">
-                      {passages.map((p) => {
-                        const isActive = p.id === currentPassageId;
-                        const preview =
-                          typeof p.content === 'string' ? p.content.substring(0, 50) : ' passages';
-
-                        return (
-                          <div
-                            key={p.id}
-                            className={`text-xs p-2 rounded cursor-pointer transition-colors ${
-                              isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                            }`}
-                            onClick={() => onPassageClick(p.id)}
-                          >
-                            {preview}
-                            {typeof p.content === 'string' && p.content.length > 50 && '...'}
-                          </div>
-                        );
-                      })}
-                    </div>
+            return (
+              <div key={passageId} className="mb-2">
+                <div
+                  className="flex items-center gap-1 mb-1 cursor-pointer hover:bg-muted rounded p-1"
+                  onClick={() => togglePassage(passageId)}
+                >
+                  {isCollapsed ? (
+                    <ChevronRight className="h-3 w-3" />
+                  ) : (
+                    <ChevronDown className="h-3 w-3" />
                   )}
+                  <Badge variant="outline" className="text-[10px]">
+                    Passage {passageIndex + 1}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {passageDialogues.length} dialogue
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">
-            No dialogue passages found in document
-          </div>
-        )}
+
+                {!isCollapsed && (
+                  <div className="space-y-1 ml-4">
+                    {passageDialogues.map((d) => {
+                      const isActive = d.id === currentPassageId;
+                      const preview = d.content.substring(0, 50) + (d.content.length > 50 ? '...' : '');
+
+                      return (
+                        <div
+                          key={d.id}
+                          className={`text-xs p-2 rounded cursor-pointer transition-colors ${
+                            isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                          }`}
+                          onClick={() => onPassageClick(d.id)}
+                        >
+                          <div className="flex items-center gap-2">
+                            {d.speaker && (
+                              <Badge variant="secondary" className="text-[10px]">
+                                {d.speaker}
+                              </Badge>
+                            )}
+                            <span className="flex-1">{preview}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </ScrollArea>
   );

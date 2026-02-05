@@ -52,7 +52,7 @@ export class NERAutoTagger {
     ];
   }
 
-  autoApply(document: TEIDocument, minConfidence: number = 0.9): void {
+  autoApply(document: TEIDocument, _minConfidence: number = 0.9): void {
     const result = this.scan(document);
     const highConfidence = this.getHighConfidenceEntities(result);
 

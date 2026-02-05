@@ -1,8 +1,8 @@
 // @ts-nocheck
 'use client';
 
-import React, { useMemo } from 'react';
-import { useDocumentService } from '@/lib/effect';
+import { useMemo } from 'react';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   BarChart,

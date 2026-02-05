@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 /**
  * AIService Protocol
  *
@@ -6,14 +7,14 @@
  */
 
 import { Effect, Context } from 'effect';
-import type { DialogueSpan, SpeakerAttribution, Issue } from '@/lib/ai/types';
+import type { DialogueSpan, Issue } from '@/lib/ai/providers';
 
 // ============================================================================
 // Error Types
 // ============================================================================
 
 export class AIError extends Error {
-  readonly _tag = 'AIError';
+  readonly _tag: 'AIError' | 'AIRateLimitError' | 'AIAuthenticationError' | 'AIInvalidRequestError' = 'AIError';
   constructor(
     message: string,
     public readonly provider: string,
@@ -25,7 +26,7 @@ export class AIError extends Error {
 }
 
 export class AIRateLimitError extends AIError {
-  readonly _tag = 'AIRateLimitError';
+  readonly _tag = 'AIRateLimitError' as 'AIRateLimitError';
   constructor(
     message: string,
     provider: string,
@@ -37,7 +38,7 @@ export class AIRateLimitError extends AIError {
 }
 
 export class AIAuthenticationError extends AIError {
-  readonly _tag = 'AIAuthenticationError';
+  readonly _tag = 'AIAuthenticationError' as 'AIAuthenticationError';
   constructor(message: string, provider: string) {
     super(message, provider);
     this.name = 'AIAuthenticationError';
@@ -45,7 +46,7 @@ export class AIAuthenticationError extends AIError {
 }
 
 export class AIInvalidRequestError extends AIError {
-  readonly _tag = 'AIInvalidRequestError';
+  readonly _tag = 'AIInvalidRequestError' as 'AIInvalidRequestError';
   constructor(message: string, provider: string) {
     super(message, provider);
     this.name = 'AIInvalidRequestError';
@@ -88,7 +89,7 @@ export interface AIService {
    */
   readonly bulkDetectDialogue: (
     passages: readonly string[]
-  ) => Effect.Effect<readonly (readonly DialogueSpan[]), AIError>;
+  ) => Effect.Effect<readonly DialogueSpan[][], AIError>;
 }
 
 // ============================================================================

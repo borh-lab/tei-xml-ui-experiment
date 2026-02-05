@@ -1,4 +1,7 @@
 // @ts-nocheck
+// @ts-nocheck
+// @ts-nocheck
+// @ts-nocheck
 /**
  * AIService Implementation
  *
@@ -6,9 +9,9 @@
  */
 
 import { Effect, Layer } from 'effect';
-import { openaiProvider } from '@/lib/ai/providers';
+import { OpenAIProvider } from '@/lib/ai/openai';
 import { AIService, AIError, AIRateLimitError, AIAuthenticationError } from '../protocols/AI';
-import type { DialogueSpan, Issue } from '@/lib/ai/types';
+import type { DialogueSpan, Issue } from '@/lib/ai/providers';
 
 // ============================================================================
 // Browser Implementation (wraps existing providers)
@@ -17,7 +20,7 @@ import type { DialogueSpan, Issue } from '@/lib/ai/types';
 export const OpenAIService: AIService = {
   detectDialogue: (text: string): Effect.Effect<readonly DialogueSpan[], AIError> =>
     Effect.tryPromise({
-      try: () => openaiProvider.detectDialogue(text),
+      try: () => OpenAIProvider.detectDialogue(text),
       catch: (error) => toAIError(error, 'detectDialogue'),
     }),
 
@@ -26,13 +29,13 @@ export const OpenAIService: AIService = {
     dialogue: readonly DialogueSpan[]
   ): Effect.Effect<string, AIError> =>
     Effect.tryPromise({
-      try: () => openaiProvider.attributeSpeaker(text, [...dialogue] as DialogueSpan[]),
+      try: () => OpenAIProvider.attributeSpeaker(text, [...dialogue] as DialogueSpan[]),
       catch: (error) => toAIError(error, 'attributeSpeaker'),
     }),
 
   validateConsistency: (document: unknown): Effect.Effect<readonly Issue[], AIError> =>
     Effect.tryPromise({
-      try: () => openaiProvider.validateConsistency(document),
+      try: () => OpenAIProvider.validateConsistency(document),
       catch: (error) => toAIError(error, 'validateConsistency'),
     }),
 
@@ -40,7 +43,7 @@ export const OpenAIService: AIService = {
     passages: readonly string[]
   ): Effect.Effect<readonly (readonly DialogueSpan[]), AIError> =>
     Effect.tryPromise({
-      try: () => Promise.all(passages.map((p) => openaiProvider.detectDialogue(p))),
+      try: () => Promise.all(passages.map((p) => OpenAIProvider.detectDialogue(p))),
       catch: (error) => toAIError(error, 'bulkDetectDialogue'),
     }),
 };
@@ -116,7 +119,7 @@ function toAIError(error: unknown, operation: string): AIError {
     if (status === 429) {
       return new AIRateLimitError({
         message: `Rate limited during ${operation}`,
-        provider: 'openai',
+        provider: 'OpenAIProvider',
         cause: error,
       });
     }
@@ -124,7 +127,7 @@ function toAIError(error: unknown, operation: string): AIError {
     if (status === 401 || status === 403) {
       return new AIAuthenticationError({
         message: `Authentication failed during ${operation}`,
-        provider: 'openai',
+        provider: 'OpenAIProvider',
         cause: error,
       });
     }
@@ -132,7 +135,7 @@ function toAIError(error: unknown, operation: string): AIError {
 
   return new AIError({
     message: `${operation} failed: ${message}`,
-    provider: 'openai',
+    provider: 'OpenAIProvider',
     cause: error,
   });
 }
