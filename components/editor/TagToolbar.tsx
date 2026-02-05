@@ -1,9 +1,9 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDocumentService } from '@/lib/effect';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { SelectionManager } from '@/lib/selection';
 import type { SelectionSnapshot } from '@/lib/selection';
 

@@ -1,8 +1,8 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useDocumentService } from '@/lib/effect';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { serializeDocument } from '@/lib/tei/operations';
 import type { TEINode } from '@/lib/tei/types';
 import { Card } from '@/components/ui/card';
@@ -67,6 +67,8 @@ export function EditorLayout() {
     loadingProgress,
     validationResults,
     isValidating,
+    addSaidTag,
+    addTag,
   } = useDocumentService();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [aiMode, setAIMode] = useState<AIMode>('manual');
@@ -84,6 +86,7 @@ export function EditorLayout() {
     type: 'success' | 'error' | 'info';
   } | null>(null);
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
+  const [_currentPassageId, setCurrentPassageId] = useState<string>('');
   const [entityPanelOpen, setEntityPanelOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<TagInfo | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -107,7 +110,6 @@ export function EditorLayout() {
   useEffect(() => {
     const savedMode = localStorage.getItem('tei-editor-view-mode') as ViewMode | null;
     if (savedMode && ['wysiwyg', 'xml', 'split'].includes(savedMode)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Initializing from localStorage on mount
       setViewMode(savedMode);
     }
   }, []);
@@ -120,7 +122,6 @@ export function EditorLayout() {
   // Sync code content with document
   useEffect(() => {
     if (document && !isCodeDirty) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing state with document prop
       setCodeContent(serializeDocument(document));
     }
   }, [document, isCodeDirty]);
@@ -177,14 +178,14 @@ export function EditorLayout() {
   // Helper function to get all passage IDs from the document
   const getPassageIds = () => {
     if (!document) return [];
-    const p = document.parsed.TEI.text.body.p;
+    const p = (document as any).parsed.TEI.text.body.p;
     const paragraphs = Array.isArray(p) ? p : p ? [p] : [];
     return paragraphs.map((_, idx) => `passage-${idx}`);
   };
 
   // Generic handler for applying tags to selected text
   const handleApplyTag = useCallback(
-    (tag: string, attrs?: Record<string, string>) => {
+    async (tag: string, attrs?: Record<string, string>) => {
       if (!document) return;
 
       const selectionManager = selectionManagerRef.current;
@@ -195,26 +196,26 @@ export function EditorLayout() {
         return;
       }
 
-      // Extract passage index from passageId with validation
-      const passageIndex = parseInt(selectionRange.passageId.split('-')[1], 10);
-      if (isNaN(passageIndex)) {
-        showToast('Invalid passage ID', 'error');
-        return;
-      }
+      // Extract passage ID (using the passageId directly from selection)
+      const passageId = selectionRange.passageId;
+      const range: { start: number; end: number } = {
+        start: (selectionRange as any).startOffset,
+        end: (selectionRange as any).endOffset,
+      };
 
       try {
-        // Use the generic wrapTextInTag method
-        document.wrapTextInTag(
-          passageIndex,
-          selectionRange.startOffset,
-          selectionRange.endOffset,
-          tag,
-          attrs
-        );
-
-        // Update document in context
-        const updatedXML = serializeDocument(document);
-        updateDocument(updatedXML);
+        // Use value-oriented service methods based on tag type
+        if (tag === 'said') {
+          const speakerId = attrs?.who?.substring(1) || attrs?.speaker || 'unknown';
+          await addSaidTag(passageId, range, speakerId);
+        } else if (tag === 'q') {
+          await addTag(passageId, range, 'q', attrs);
+        } else if (tag === 'persName') {
+          await addTag(passageId, range, 'persName', attrs);
+        } else {
+          // Generic tag fallback
+          await addTag(passageId, range, tag, attrs);
+        }
 
         // Success message
         const tagDisplay = attrs
@@ -227,9 +228,9 @@ export function EditorLayout() {
         // Wait for React to re-render the updated document before restoring selection
         // This delay ensures the DOM is updated with the new tag
         setTimeout(() => {
-          selectionManager.restoreSelection({
-            start: selectionRange.startOffset,
-            end: selectionRange.endOffset,
+          (selectionManager.restoreSelection as any)({
+            start: (selectionRange as any).startOffset,
+            end: (selectionRange as any).endOffset,
             passageId: selectionRange.passageId,
           });
         }, 100);
@@ -238,7 +239,7 @@ export function EditorLayout() {
         showToast('Failed to apply tag - See console for details', 'error');
       }
     },
-    [document, updateDocument]
+    [document, addSaidTag, addTag, showToast]
   );
 
   // Keyboard shortcut: ? (Shift+/) - Show keyboard shortcuts help
@@ -518,7 +519,7 @@ export function EditorLayout() {
     if (!document) return;
 
     const newDoc = { ...document };
-    const paragraphs = newDoc.parsed.TEI.text.body.p;
+    const paragraphs = (newDoc as any).parsed.TEI.text.body.p;
     const passagesToTag = [...selectedPassages]; // Copy before clearing
 
     selectedPassages.forEach((index) => {
@@ -543,10 +544,10 @@ export function EditorLayout() {
     if (!document) return;
 
     const untaggedIndices = new Set<number>();
-    const paragraphs = document.parsed.TEI.text.body.p;
+    const paragraphs = (document as any).parsed.TEI.text.body.p;
 
     paragraphs.forEach((para: TEINode, index: number) => {
-      const hasUntagged = para.said?.some((s: Record<string, unknown>) => !s['@who'] || s['@who'] === '');
+      const hasUntagged = (para.said as any)?.some((s: Record<string, unknown>) => !s['@who'] || s['@who'] === '');
       if (hasUntagged) {
         untaggedIndices.add(index);
       }
@@ -564,7 +565,7 @@ export function EditorLayout() {
     if (!document || selectedPassages.length === 0) return;
 
     const selectedParagraphs = selectedPassages.map(
-      (index) => document.parsed.TEI.text.body.p[Number(index)]
+      (index) => (document as any).parsed.TEI.text.body.p[Number(index)]
     );
 
     const data = JSON.stringify(selectedParagraphs, null, 2);
@@ -583,7 +584,7 @@ export function EditorLayout() {
     if (!document || selectedPassages.length === 0) return;
 
     const issues: Issue[] = [];
-    const paragraphs = document.parsed.TEI.text.body.p;
+    const paragraphs = (document as any).parsed.TEI.text.body.p;
 
     selectedPassages.forEach((indexStr) => {
       const index = Number(indexStr);
@@ -635,11 +636,11 @@ export function EditorLayout() {
   const handleTagSelect = useCallback(
     (tagInfo: TagInfo) => {
       setSelectedTag(tagInfo);
-      showToast(`Selected tag: <${tagInfo.tagName}>`, 'info');
+      showToast(`Selected tag: <${(tagInfo as any).tagName}>`, 'info');
 
       // Add visual selection indicator to element
-      if (tagInfo.element) {
-        tagInfo.element.setAttribute('data-selected', 'true');
+      if ((tagInfo as any).element) {
+        (tagInfo as any).element.setAttribute('data-selected', 'true');
       }
     },
     [showToast]
@@ -650,7 +651,7 @@ export function EditorLayout() {
     (tagInfo: TagInfo) => {
       setTagToEdit(tagInfo);
       setEditDialogOpen(true);
-      showToast(`Editing tag: <${tagInfo.tagName}>`, 'info');
+      showToast(`Editing tag: <${(tagInfo as any).tagName}>`, 'info');
     },
     [showToast]
   );
@@ -662,7 +663,7 @@ export function EditorLayout() {
 
       try {
         // Find the element and update its attributes
-        const element = tagToEdit.element;
+        const element = (tagToEdit as any).element;
         if (!element) {
           showToast('Element not found', 'error');
           return;
@@ -695,7 +696,7 @@ export function EditorLayout() {
     async function detectDialogue() {
       if (!document || aiMode === 'manual') return;
 
-      const text = document.parsed.TEI.text.body.p || '';
+      const text = (document as any).parsed.TEI.text.body.p || '';
 
       // Simulate AI dialogue detection (placeholder until Task 13)
       const detectedSpans: DialogueSpan[] = [];
@@ -763,6 +764,7 @@ export function EditorLayout() {
     };
 
     updateFromCode();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- updateFromCode captures codeContent, showToast, updateDocument from closure
   }, [debouncedCodeContent]);
 
   // Handle view mode switching
@@ -809,10 +811,13 @@ export function EditorLayout() {
 
       // Sync to code editor (approximate line-based scroll)
       const editor = codeEditorRef.current;
-      if (editor) {
-        const lineCount = editor.getModel()?.getLineCount() || 1;
-        const targetLine = Math.floor(lineCount * scrollPercentage);
-        editor.revealLine(targetLine);
+      if (editor && editor.getModel) {
+        const model = editor.getModel();
+        if (model) {
+          const lineCount = model.getLineCount();
+          const targetLine = Math.floor(lineCount * scrollPercentage);
+          editor.revealLine(targetLine);
+        }
       }
     }
 
@@ -828,17 +833,20 @@ export function EditorLayout() {
 
     if (codeEditorRef.current && renderedViewRef.current) {
       const editor = codeEditorRef.current;
-      const visibleRanges = editor.getVisibleRanges();
-      const lineCount = editor.getModel()?.getLineCount() || 1;
+      if (editor.getVisibleRanges && editor.getModel) {
+        const visibleRanges = editor.getVisibleRanges();
+        const model = editor.getModel();
+        const lineCount = model ? model.getLineCount() : 1;
 
-      if (visibleRanges.length > 0) {
-        const firstVisibleLine = visibleRanges[0].startLineNumber;
-        const scrollPercentage = firstVisibleLine / lineCount;
+        if (visibleRanges.length > 0) {
+          const firstVisibleLine = visibleRanges[0].startLineNumber;
+          const scrollPercentage = firstVisibleLine / lineCount;
 
-        // Sync to rendered view
-        const renderedScrollHeight =
-          renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
-        renderedViewRef.current.scrollTop = scrollPercentage * renderedScrollHeight;
+          // Sync to rendered view
+          const renderedScrollHeight =
+            renderedViewRef.current.scrollHeight - renderedViewRef.current.clientHeight;
+          renderedViewRef.current.scrollTop = scrollPercentage * renderedScrollHeight;
+        }
       }
     }
 
@@ -887,10 +895,10 @@ export function EditorLayout() {
       <TagEditDialog
         isOpen={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        tagInfo={tagToEdit}
+        tagInfo={tagToEdit as any}
         onApply={handleTagAttributeUpdate}
       />
-      <TagBreadcrumb onTagSelect={handleTagSelect} />
+      <TagBreadcrumb />
       <div className="flex items-center gap-2 p-2 border-b">
         <MobileNavigation />
         <AIModeSwitcher mode={aiMode} onModeChange={setAIMode} />
@@ -930,7 +938,7 @@ export function EditorLayout() {
           </div>
         )}
 
-        <TagToolbar onApplyTag={handleApplyTag} />
+        <TagToolbar />
         <Button
           variant={bulkPanelOpen ? 'default' : 'outline'}
           size="sm"
@@ -1022,9 +1030,9 @@ export function EditorLayout() {
                   onSelectionChange={setSelectedPassages}
                   onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
                   highlightedPassageId={highlightedPassageId}
-                  onTagSelect={handleTagSelect}
-                  onTagDoubleClick={handleTagDoubleClick}
-                  selectedTag={selectedTag}
+                  onTagSelect={handleTagSelect as any}
+                  onTagDoubleClick={handleTagDoubleClick as any}
+                  selectedTag={selectedTag as any}
                 />
               </div>
             </Card>
@@ -1058,13 +1066,12 @@ export function EditorLayout() {
                 onChange={handleCodeChange}
                 onMount={handleCodeEditorMount}
                 errors={
-                  validationResults?.errors.map((e) => ({
+                  validationResults?.errors.map((e: any) => ({
                     line: e.line || 1,
                     message: e.message,
                   })) || []
                 }
                 readOnly={false}
-                height="100%"
               />
             </div>
           </Card>
@@ -1103,9 +1110,9 @@ export function EditorLayout() {
                   onSelectionChange={setSelectedPassages}
                   onPassageClick={(passageId) => console.log('Passage clicked:', passageId)}
                   highlightedPassageId={highlightedPassageId}
-                  onTagSelect={handleTagSelect}
-                  onTagDoubleClick={handleTagDoubleClick}
-                  selectedTag={selectedTag}
+                  onTagSelect={handleTagSelect as any}
+                  onTagDoubleClick={handleTagDoubleClick as any}
+                  selectedTag={selectedTag as any}
                 />
               </div>
             </Card>
@@ -1126,13 +1133,12 @@ export function EditorLayout() {
                   onChange={handleCodeChange}
                   onMount={handleCodeEditorMount}
                   errors={
-                    validationResults?.errors.map((e) => ({
+                    validationResults?.errors.map((e: any) => ({
                       line: e.line || 1,
                       message: e.message,
                     })) || []
                   }
                   readOnly={false}
-                  height="100%"
                 />
               </div>
             </Card>
@@ -1154,9 +1160,9 @@ export function EditorLayout() {
             <Card className="w-96 m-2 overflow-auto">
               <div className="p-4">
                 <ValidationPanel
-                  validationResults={validationResults}
-                  onErrorClick={handleValidationErrorClick}
-                  onFixClick={handleValidationFixClick}
+                  validationResults={validationResults as any}
+                  onErrorClick={handleValidationErrorClick as any}
+                  onFixClick={handleValidationFixClick as any}
                   visible={validationPanelOpen}
                 />
               </div>

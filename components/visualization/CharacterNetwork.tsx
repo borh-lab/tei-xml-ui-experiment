@@ -1,8 +1,8 @@
 // @ts-nocheck
 'use client';
 
-import React, { useMemo, useCallback } from 'react';
-import ReactFlow, { Node, Edge, Background, Controls, MiniMap, BackgroundVariant } from 'reactflow';
+import { useMemo, useCallback } from 'react';
+import ReactFlow, { Node, Edge, Background, Controls, MiniMap, BackgroundVariant, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
 import type { TEIDocument } from '@/lib/tei/types';
 import { computeNetworkLayout } from '@/lib/visualization/network-layout';
@@ -84,7 +84,7 @@ export function CharacterNetwork({
         strokeWidth: edge.weight ? Math.min(3, Math.max(1, edge.weight)) : 1,
       },
       markerEnd: {
-        type: 'arrowclosed',
+        type: MarkerType.ArrowClosed,
         color: edge.mutual ? '#10b981' : '#64748b',
       },
     }));

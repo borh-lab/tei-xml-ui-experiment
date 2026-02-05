@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 /**
  * ValidationService Protocol
  *
@@ -12,7 +13,7 @@ import { Effect, Context } from 'effect';
 // ============================================================================
 
 export class ValidationError extends Error {
-  readonly _tag = 'ValidationError';
+  readonly _tag: 'ValidationError' | 'SchemaLoadError' | 'ValidationExecutionError' = 'ValidationError';
   constructor(
     message: string,
     public readonly line?: number,
@@ -25,7 +26,7 @@ export class ValidationError extends Error {
 }
 
 export class SchemaLoadError extends ValidationError {
-  readonly _tag = 'SchemaLoadError';
+  readonly _tag = 'SchemaLoadError' as 'SchemaLoadError';
   constructor(
     message: string,
     public readonly schemaPath: string

@@ -88,7 +88,10 @@ describe('Sample Loader', () => {
       expect(sample.title).toBe('The Yellow Wallpaper');
       expect(sample.author).toBe('Charlotte Perkins Gilman');
       expect(sample.content).toContain('<?xml');
-      expect(sample.document).toBeInstanceOf(TEIDocument);
+      // Check document has required structure (state property)
+      expect(sample.document).toHaveProperty('state');
+      expect(sample.document.state).toHaveProperty('passages');
+      expect(sample.document.state).toHaveProperty('parsed');
     });
   });
 

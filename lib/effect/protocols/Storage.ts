@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 /**
  * StorageService Protocol
  *
@@ -18,7 +19,7 @@ import { Effect, Context } from 'effect';
 // ============================================================================
 
 export class StorageError extends Error {
-  readonly _tag = 'StorageError';
+  readonly _tag: 'StorageError' | 'StorageKeyNotFoundError' | 'StorageParseError' | 'StorageQuotaExceededError' = 'StorageError';
   constructor(
     message: string,
     public readonly key?: string,
@@ -30,15 +31,14 @@ export class StorageError extends Error {
 }
 
 export class StorageKeyNotFoundError extends StorageError {
-  readonly _tag = 'StorageKeyNotFoundError';
+  readonly _tag = 'StorageKeyNotFoundError' as 'StorageKeyNotFoundError';
   constructor(message: string, key: string) {
     super(message, key);
-    this.key = key;
   }
 }
 
 export class StorageQuotaExceededError extends StorageError {
-  readonly _tag = 'StorageQuotaExceededError';
+  readonly _tag = 'StorageQuotaExceededError' as 'StorageQuotaExceededError';
   constructor(
     message: string,
     public readonly quota: number,

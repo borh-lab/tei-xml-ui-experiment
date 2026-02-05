@@ -1,8 +1,8 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { useDocumentService } from '@/lib/effect';
+import { useState, useCallback, useMemo } from 'react';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,11 @@ interface AIAssistantProps {
   onApplySuggestion?: (detection: DialogueDetection, speakerIndex: number) => void;
   onClose?: () => void;
 }
+
+// Feature flag for Effect integration
+const EFFECT_ENABLED = typeof window !== 'undefined'
+  ? localStorage.getItem('feature-useEffectAI') === 'true'
+  : false;
 
 export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
   const { document } = useDocumentService();
@@ -103,6 +108,9 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
           <CardTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5" />
             AI Assistant
+            {EFFECT_ENABLED && (
+              <Badge variant="secondary" className="text-xs">Effect</Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -126,10 +134,13 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
           <CardTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5" />
             AI Assistant
+            {EFFECT_ENABLED && (
+              <Badge variant="secondary" className="text-xs">Effect</Badge>
+            )}
           </CardTitle>
           {onClose && (
             <Button size="sm" variant="ghost" onClick={onClose}>
-              ✕
+              X
             </Button>
           )}
         </div>

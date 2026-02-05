@@ -7,30 +7,34 @@
  * Full GPT-4 integration will be implemented in a future task.
  */
 
-import OpenAI from 'openai';
+// TODO: Uncomment when implementing actual API calls
+// import OpenAI from 'openai';
 import { AIProvider, DialogueSpan, Character, Issue } from './providers';
 
 export class OpenAIProvider implements AIProvider {
-  private client: OpenAI | null = null;
-  private apiKey: string;
+  // TODO: Initialize client when implementing actual API calls
+  // private _client: OpenAI | null = null;
+  // private apiKey: string;
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  constructor(_apiKey: string) {
+    // TODO: Store apiKey for future use
+    // this.apiKey = apiKey;
   }
 
   /**
    * Get the OpenAI client (lazy initialization)
    * Only initialize when actually needed to avoid fetch requirement in tests
+   * TODO: Use this method when implementing actual API calls
    */
-  private getClient(): OpenAI {
-    if (!this.client) {
-      this.client = new OpenAI({
-        apiKey: this.apiKey,
-        dangerouslyAllowBrowser: true,
-      });
-    }
-    return this.client;
-  }
+  // private _getClient(): OpenAI {
+  //   if (!this.client) {
+  //     this.client = new OpenAI({
+  //       apiKey: this.apiKey,
+  //       dangerouslyAllowBrowser: true,
+  //     });
+  //   }
+  //   return this.client;
+  // }
 
   /**
    * Detect dialogue passages in the given text
@@ -64,7 +68,7 @@ export class OpenAIProvider implements AIProvider {
    * @param characters - Array of available characters in the document
    * @returns The xmlId of the attributed character
    */
-  async attributeSpeaker(context: string, characters: Character[]): Promise<string> {
+  async attributeSpeaker(_context: string, characters: Character[]): Promise<string> {
     // TODO: Implement with GPT-4
     // For now, return first character
     return characters[0]?.xmlId || '';
@@ -76,7 +80,7 @@ export class OpenAIProvider implements AIProvider {
    * @param document - The TEI document to validate
    * @returns Array of validation issues
    */
-  async validateConsistency(document: any): Promise<Issue[]> {
+  async validateConsistency(_document: any): Promise<Issue[]> {
     // TODO: Implement validation
     return [];
   }

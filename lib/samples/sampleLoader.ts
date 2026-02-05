@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument } from '@/lib/tei';
 
 export interface SampleMetadata {
   id: string;
@@ -59,7 +59,7 @@ export async function loadSampleWithMetadata(sampleId: string): Promise<Sample> 
   }
 
   const content = await loadSample(sampleId);
-  const document = new TEIDocument(content);
+  const document = loadDocument(content);
 
   return {
     ...metadata,

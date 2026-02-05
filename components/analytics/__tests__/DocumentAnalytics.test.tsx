@@ -39,7 +39,7 @@ const mockDocument: TEIDocument = {
   }
 } as any;
 
-jest.mock('@/lib/effect', () => ({
+jest.mock('@/lib/effect/react/hooks', () => ({
   useDocumentService: () => ({
     document: mockDocument,
     updateDocument: jest.fn(),

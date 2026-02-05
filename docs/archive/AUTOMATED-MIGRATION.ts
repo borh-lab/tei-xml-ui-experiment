@@ -5,8 +5,6 @@
  * Comprehensive migration of all components from React to Effect
  */
 
-import { TaskUpdate } from './Phase3-4-Implementation';
-
 // ============================================================================
 // AUTOMATED MIGRATION PLAN
 // ============================================================================

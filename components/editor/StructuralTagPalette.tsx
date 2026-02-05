@@ -1,15 +1,14 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ValidationService } from '@/lib/validation/ValidationService';
 import { toast } from '@/components/ui/use-toast';
+import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 interface StructuralTagPaletteProps {
   onInsertTag: (tagName: string) => void;
-  validationService?: ValidationService;
   disabled?: boolean;
 }
 
@@ -43,7 +42,6 @@ const STRUCTURAL_TAGS = [
 
 export const StructuralTagPalette: React.FC<StructuralTagPaletteProps> = ({
   onInsertTag,
-  validationService,
   disabled = false,
 }) => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -89,10 +87,17 @@ export const StructuralTagPalette: React.FC<StructuralTagPaletteProps> = ({
     }
   };
 
+  const useEffectEditor = isFeatureEnabled('useEffectEditor');
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Structural Tags</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Structural Tags</h3>
+          <Badge variant="outline" className="text-xs">
+            {useEffectEditor ? 'Effect-Based' : 'React-Based'}
+          </Badge>
+        </div>
         {isValidating && (
           <Badge variant="secondary" className="text-xs">
             Validating...

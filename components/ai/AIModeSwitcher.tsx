@@ -1,8 +1,8 @@
 // @ts-nocheck
 'use client';
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 export type AIMode = 'manual' | 'suggest' | 'auto';
@@ -11,6 +11,11 @@ interface AIModeSwitcherProps {
   mode: AIMode;
   onModeChange: (mode: AIMode) => void;
 }
+
+// Feature flag for Effect integration
+const EFFECT_ENABLED = typeof window !== 'undefined'
+  ? localStorage.getItem('feature-useEffectAI') === 'true'
+  : false;
 
 export function AIModeSwitcher({ mode, onModeChange }: AIModeSwitcherProps) {
   const modes: AIMode[] = ['manual', 'suggest', 'auto'];
@@ -32,18 +37,23 @@ export function AIModeSwitcher({ mode, onModeChange }: AIModeSwitcherProps) {
   });
 
   return (
-    <div className="flex gap-2 bg-muted p-2 rounded-lg">
-      {modes.map((m) => (
-        <Button
-          key={m}
-          variant={mode === m ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => onModeChange(m)}
-          title={`Switch to ${m === 'manual' ? 'Manual' : m === 'suggest' ? 'AI Suggest' : 'AI Auto'} mode (${m === 'manual' ? 'Alt+M' : m === 'suggest' ? 'Alt+S' : 'Alt+A'})`}
-        >
-          {m === 'manual' ? 'Manual' : m === 'suggest' ? 'AI Suggest' : 'AI Auto'}
-        </Button>
-      ))}
+    <div className="flex items-center gap-3 bg-muted p-2 rounded-lg">
+      <div className="flex gap-2">
+        {modes.map((m) => (
+          <Button
+            key={m}
+            variant={mode === m ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => onModeChange(m)}
+            title={`Switch to ${m === 'manual' ? 'Manual' : m === 'suggest' ? 'AI Suggest' : 'AI Auto'} mode (${m === 'manual' ? 'Alt+M' : m === 'suggest' ? 'Alt+S' : 'Alt+A'})`}
+          >
+            {m === 'manual' ? 'Manual' : m === 'suggest' ? 'AI Suggest' : 'AI Auto'}
+          </Button>
+        ))}
+      </div>
+      {EFFECT_ENABLED && (
+        <Badge variant="secondary" className="text-xs">Effect</Badge>
+      )}
     </div>
   );
 }

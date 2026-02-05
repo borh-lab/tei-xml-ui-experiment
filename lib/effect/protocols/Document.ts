@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 /**
  * DocumentService Protocol
  *
@@ -35,7 +36,7 @@ import type {
  * Base error for document operations
  */
 export class DocumentError extends Error {
-  readonly _tag = 'DocumentError';
+  readonly _tag: 'DocumentError' | 'DocumentNotFoundError' | 'DocumentParseError' | 'InvalidOperationError' = 'DocumentError';
   constructor(
     message: string,
     public readonly cause?: unknown
@@ -49,7 +50,7 @@ export class DocumentError extends Error {
  * Document not found error
  */
 export class DocumentNotFoundError extends DocumentError {
-  readonly _tag = 'DocumentNotFoundError';
+  readonly _tag = 'DocumentNotFoundError' as 'DocumentNotFoundError';
   constructor(message: string) {
     super(message);
     this.name = 'DocumentNotFoundError';
@@ -60,7 +61,7 @@ export class DocumentNotFoundError extends DocumentError {
  * Document parse error
  */
 export class DocumentParseError extends DocumentError {
-  readonly _tag = 'DocumentParseError';
+  readonly _tag = 'DocumentParseError' as 'DocumentParseError';
   constructor(
     message: string,
     public readonly xml: string
@@ -74,7 +75,7 @@ export class DocumentParseError extends DocumentError {
  * Invalid operation error
  */
 export class InvalidOperationError extends DocumentError {
-  readonly _tag = 'InvalidOperationError';
+  readonly _tag = 'InvalidOperationError' as 'InvalidOperationError';
   constructor(
     message: string,
     public readonly reason: string

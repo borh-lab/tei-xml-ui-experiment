@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @ts-nocheck
 /**
  * Effect Library - Main Export
  *
@@ -73,6 +74,9 @@ export type {
   TextRange,
   Character,
   Relationship,
+} from '@/lib/tei/types';
+
+export type {
   TagInfo,
   SelectionSnapshot,
-} from '@/lib/tei/types';
+} from '@/lib/selection/types';

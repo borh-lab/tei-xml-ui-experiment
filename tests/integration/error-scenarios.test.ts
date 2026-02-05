@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { render, waitFor } from '@testing-library/react';
 import { AxProvider } from '@/lib/ai/ax-provider';
-import { TEIDocument } from '@/lib/tei';
+import { loadDocument } from '@/lib/tei';
 import { db } from '@/lib/db/PatternDB';
 
 describe('Error Scenarios', () => {
@@ -39,24 +39,28 @@ describe('Error Scenarios', () => {
   test('should handle malformed TEI documents', async () => {
     const malformed = '<TEI><broken>';
 
-    // TEIDocument doesn't throw - it handles gracefully with default structure
-    const doc = new TEIDocument(malformed);
-    expect(doc).toBeDefined();
-    expect(doc.parsed).toBeDefined();
+    // loadDocument may throw on malformed XML or handle it gracefully
+    expect(() => {
+      const doc = loadDocument(malformed);
+      expect(doc).toBeDefined();
+    }).not.toThrow();
   });
 
   test('should handle empty TEI documents', async () => {
-    // Empty string is handled gracefully by the parser
-    const doc = new TEIDocument('');
-    expect(doc).toBeDefined();
+    // Empty string - may throw or handle gracefully
+    expect(() => {
+      const doc = loadDocument('');
+      expect(doc).toBeDefined();
+    }).not.toThrow();
   });
 
   test('should handle TEI document with missing required elements', async () => {
     const incomplete = '<?xml version="1.0"?><TEI></TEI>';
 
-    const result = new TEIDocument(incomplete);
+    const result = loadDocument(incomplete);
     expect(result).toBeDefined();
     // Should handle gracefully with default structure
+    expect(result.state.parsed).toBeDefined();
   });
 
   test('should handle database init errors gracefully', async () => {

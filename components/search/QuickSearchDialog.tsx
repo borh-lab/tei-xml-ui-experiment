@@ -1,11 +1,11 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useDocumentService } from '@/lib/effect';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { QuickSearch, SearchResult, SearchState } from '@/lib/search/QuickSearch';
 import { Search, ChevronUp, ChevronDown, X } from 'lucide-react';
 import { sanitizeHTML } from '@/lib/utils/sanitizer';

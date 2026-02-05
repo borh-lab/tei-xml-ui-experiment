@@ -48,14 +48,18 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            nodejs
-            nodePackages.npm
-            bun
-            git
-            wasm-pack
-            ffmpeg
-          ] ++ pre-commit-check.enabledPackages;
+          buildInputs =
+            with pkgs;
+            [
+              nodejs
+              nodePackages.npm
+              bun
+              git
+              wasm-pack
+              ffmpeg
+              libxml2.bin
+            ]
+            ++ pre-commit-check.enabledPackages;
 
           shellHook = ''
             # Run pre-commit checks

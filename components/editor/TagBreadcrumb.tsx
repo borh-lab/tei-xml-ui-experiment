@@ -2,12 +2,10 @@
 'use client';
 
 import React from 'react';
+import { Badge } from '@/components/ui/badge';
 import { useDocumentService } from '@/lib/effect/react/hooks';
 import type { TagInfo } from '@/lib/selection/types';
-
-interface TagBreadcrumbProps {
-  onTagSelect?: (tag: TagInfo) => void;
-}
+import { isFeatureEnabled } from '@/lib/effect/utils/featureFlags';
 
 /**
  * TagBreadcrumb
@@ -15,9 +13,10 @@ interface TagBreadcrumbProps {
  * Displays breadcrumb trail of selected tags with navigation.
  * Uses Effect-based useDocumentService hook.
  */
-export function TagBreadcrumb({ onTagSelect }: TagBreadcrumbProps) {
+export function TagBreadcrumb() {
   const { document } = useDocumentService();
   const [selectedTag, setSelectedTag] = React.useState<TagInfo | null>(null);
+  const useEffectEditor = isFeatureEnabled('useEffectEditor');
 
   React.useEffect(() => {
     if (document) {
@@ -32,8 +31,11 @@ export function TagBreadcrumb({ onTagSelect }: TagBreadcrumbProps) {
 
   return (
     <div className="flex items-center gap-2 text-sm">
+      <Badge variant="outline" className="text-xs">
+        {useEffectEditor ? 'Effect-Based' : 'React-Based'}
+      </Badge>
       <span className="text-muted-foreground">Tag:</span>
-      <span className="font-mono">{selectedTag.tagName}</span>
+      <span className="font-mono">{selectedTag.type}</span>
       {selectedTag.attributes?.who && (
         <span className="text-muted-foreground">(who: {selectedTag.attributes.who})</span>
       )}

@@ -1,9 +1,9 @@
 // @ts-nocheck
 'use client';
 
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDocumentService } from '@/lib/effect';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { useErrorContext } from '@/lib/context/ErrorContext';
 import { toast } from '@/components/ui/use-toast';
 import { categorizeError } from '@/lib/utils/error-categorization';

@@ -2,13 +2,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useDocumentService } from '@/lib/effect';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { extractQuotes, calculateRankings, buildConversationMatrix, lookupCharacterName } from '@/lib/analytics/document';
 import { groupDialogueBySections, calculateSectionStats, ByPassage } from '@/lib/analytics/sectional';
 import { CharacterRankings } from './CharacterRankings';
 import { ConversationMatrix } from './ConversationMatrix';
 import { SectionalBreakdown } from './SectionalBreakdown';
-import type { CharacterRanking, ConversationMatrix as MatrixType, SectionGroupingStrategy, SectionalBreakdown } from '@/lib/analytics/types';
+import type { CharacterRanking, ConversationMatrix as MatrixType, SectionGroupingStrategy, SectionalBreakdown as SectionalBreakdownData } from '@/lib/analytics/types';
 
 type State =
   | { status: 'idle' }
@@ -16,7 +16,7 @@ type State =
   | { status: 'analyzed';
       rankings: readonly CharacterRanking[];
       matrix: MatrixType;
-      sectionalStats: SectionalBreakdown;
+      sectionalStats: SectionalBreakdownData;
       groupingStrategy: SectionGroupingStrategy;
     }
   | { status: 'error'; error: string };

@@ -11,12 +11,6 @@
 
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 
-// Initialize counters for browser-compatible unique IDs
-if (typeof globalThis.__tagCounter === 'undefined') {
-  globalThis.__tagCounter = 1;
-  globalThis.__passageCounter = 1;
-}
-
 import {
   TEIDocument,
   DocumentState,
@@ -36,6 +30,59 @@ import {
 // ============================================================================
 // Helper Functions
 // ============================================================================
+
+/**
+ * Rebuild passage content with tags embedded
+ * Takes a passage and its tags, and returns a TEINode representing the <p> element
+ * with tags inserted at the correct positions
+ */
+function rebuildPassageWithTags(passage: Passage): TEINode {
+  const { content, tags } = passage;
+
+  // If no tags, return simple text node
+  if (tags.length === 0) {
+    return { '#text': content };
+  }
+
+  // Sort tags by start position
+  const sortedTags = [...tags].sort((a, b) => a.range.start - b.range.start);
+
+  // Build mixed content array (text and tags)
+  const mixedContent: (string | TEINode)[] = [];
+  let lastPos = 0;
+
+  for (const tag of sortedTags) {
+    // Add text before this tag
+    if (tag.range.start > lastPos) {
+      mixedContent.push(content.substring(lastPos, tag.range.start));
+    }
+
+    // Extract tag content
+    const tagContent = content.substring(tag.range.start, tag.range.end);
+
+    // Build tag element with attributes
+    const tagElement: TEINode = {
+      ['#text']: tagContent,
+      ...Object.entries(tag.attributes).reduce((acc, [key, value]) => {
+        // Add @_ prefix for attributes (fast-xml-parser format)
+        acc[`@_${key}`] = value;
+        return acc;
+      }, {} as Record<string, unknown>),
+    };
+
+    // Set tag name as the key
+    mixedContent.push({ [tag.type]: tagElement });
+
+    lastPos = tag.range.end;
+  }
+
+  // Add remaining text after last tag
+  if (lastPos < content.length) {
+    mixedContent.push(content.substring(lastPos));
+  }
+
+  return { p: mixedContent };
+}
 
 /**
  * Generate content-based passage ID
@@ -59,11 +106,53 @@ function generatePassageId(content: string, index: number): PassageID {
 }
 
 /**
+ * Simple hash function for content-based IDs
+ * Returns a hexadecimal string hash of the input
+ */
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(16).padStart(8, '0');
+}
+
+/**
+ * Generate content-based tag ID
+ * Combines passage ID, tag type, content, and index for stable IDs
+ */
+function generateTagId(
+  passageId: PassageID,
+  tagType: Tag['type'],
+  content: string,
+  index: number
+): TagID {
+  // Combine all factors for uniqueness
+  const combined = `${passageId}:${tagType}:${content}:${index}`;
+  const hash = simpleHash(combined);
+  return `tag-${hash}` as TagID;
+}
+
+/**
+ * Generate content-based character ID
+ * Uses xml:id if available, otherwise generates from name
+ */
+function generateCharacterId(xmlId: string | undefined, name: string): CharacterID {
+  if (xmlId) {
+    return `char-${xmlId}` as CharacterID;
+  }
+  // Generate from name if no xml:id
+  const hash = simpleHash(name);
+  return `char-${hash}` as CharacterID;
+}
+
+/**
  * Extract metadata from parsed TEI document
  */
 function extractMetadata(parsed: TEINode): DocumentState['metadata'] {
   const teiHeader = parsed.TEI?.teiHeader;
-  const fileDesc = teiHeader?.fileDesc;
   const titleStmt = teiHeader?.fileDesc?.titleStmt;
 
   return {
@@ -92,13 +181,13 @@ function extractPassages(parsed: TEINode): readonly Passage[] {
     const content = extractPassageText(p);
 
     // Generate stable ID from content
-    const id = generatePassageId(content, index);
+    const passageId = generatePassageId(content, index);
 
     // Extract existing tags from TEI markup
-    const tags = extractTagsFromPassage(p);
+    const tags = extractTagsFromPassage(p, passageId);
 
     return {
-      id,
+      id: passageId,
       index,
       content,
       tags,
@@ -157,7 +246,7 @@ function extractPassageText(passage: TEINode): string {
  * Extract tags from a passage (said, q, persName, etc.)
  * This parses existing TEI markup into Tag[] format
  */
-function extractTagsFromPassage(passage: TEINode): readonly Tag[] {
+function extractTagsFromPassage(passage: TEINode, passageId: PassageID): readonly Tag[] {
   const tags: Tag[] = [];
 
   // Helper to find text position for a tag
@@ -181,7 +270,7 @@ function extractTagsFromPassage(passage: TEINode): readonly Tag[] {
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID,
+        id: generateTagId(passageId, 'said', content, idx),
         type: 'said',
         range,
         attributes: {
@@ -197,13 +286,13 @@ function extractTagsFromPassage(passage: TEINode): readonly Tag[] {
   if (passage.q) {
     const qElements = Array.isArray(passage.q) ? passage.q : [passage.q];
 
-    qElements.forEach((q: TEINode) => {
+    qElements.forEach((q: TEINode, idx: number) => {
       const content = q['#text'] || '';
       const passageText = extractPassageText(passage);
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID,
+        id: generateTagId(passageId, 'q', content, idx),
         type: 'q',
         range,
         attributes: {},
@@ -215,13 +304,13 @@ function extractTagsFromPassage(passage: TEINode): readonly Tag[] {
   if (passage.persName) {
     const persNameElements = Array.isArray(passage.persName) ? passage.persName : [passage.persName];
 
-    persNameElements.forEach((persName: TEINode) => {
+    persNameElements.forEach((persName: TEINode, idx: number) => {
       const content = persName['#text'] || '';
       const passageText = extractPassageText(passage);
       const range = findTagPosition(passageText, content);
 
       tags.push({
-        id: `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID,
+        id: generateTagId(passageId, 'persName', content, idx),
         type: 'persName',
         range,
         attributes: {
@@ -251,13 +340,15 @@ function extractCharacters(parsed: TEINode): readonly Character[] {
 
   const personArray = Array.isArray(persons) ? persons : [persons];
 
-  return personArray.map((person: TEINode) => {
-    const xmlId = person['@_xml:id'] || person['xml:id'] || `char-${`tag-${globalThis.__tagCounter++ || 1}`}`;
+  return personArray.map((person: TEINode, idx: number) => {
+    const xmlId = person['@_xml:id'] || person['xml:id'];
+    const name = person.persName?.['#text'] || person.persName || `Unknown-${idx}`;
+    const charId = generateCharacterId(xmlId, name);
 
     return {
-      id: `char-${xmlId}` as CharacterID,
-      xmlId,
-      name: person.persName?.['#text'] || person.persName || 'Unknown',
+      id: charId,
+      xmlId: xmlId || charId.replace('char-', ''),
+      name,
       sex: person.sex?.['@_value'],
       age: person.age?.['@_value'] ? parseInt(person.age['@_value']) : undefined,
     };
@@ -296,10 +387,28 @@ function extractRelationships(parsed: TEINode): readonly Relationship[] {
 }
 
 /**
- * Extract text content from a tag
+ * Extract dialogue from passages
+ * Builds dialogue array from passages that have <said> tags
  */
-function extractContent(passage: Passage, tag: Tag): string {
-  return passage.content.substring(tag.range.start, tag.range.end);
+function extractDialogue(passages: readonly Passage[]): readonly Dialogue[] {
+  const dialogue: Dialogue[] = [];
+
+  passages.forEach((passage) => {
+    passage.tags.forEach((tag) => {
+      if (tag.type === 'said') {
+        const speaker = tag.attributes.who?.replace('#', '') || null;
+        dialogue.push({
+          id: tag.id,
+          passageId: passage.id,
+          range: tag.range,
+          speaker,
+          content: passage.content.substring(tag.range.start, tag.range.end),
+        });
+      }
+    });
+  });
+
+  return dialogue;
 }
 
 // ============================================================================
@@ -318,13 +427,16 @@ export function loadDocument(xml: string): TEIDocument {
 
   const parsed = parser.parse(xml);
 
+  // Extract passages first (needed for dialogue extraction)
+  const passages = extractPassages(parsed);
+
   const state: DocumentState = {
     xml,
     parsed,
     revision: 0,
     metadata: extractMetadata(parsed),
-    passages: extractPassages(parsed),
-    dialogue: [], // Will be populated from <said> tags
+    passages,
+    dialogue: extractDialogue(passages),
     characters: extractCharacters(parsed),
     relationships: extractRelationships(parsed),
   };
@@ -354,7 +466,9 @@ export function addSaidTag(
     throw new Error(`Passage not found: ${passageId}`);
   }
 
-  const tagId = `tag-${globalThis.__tagCounter++}` as TagID;
+  // Generate content-based tag ID from passage, type, range, and existing tag count
+  const tagContent = passage.content.substring(range.start, range.end);
+  const tagId = generateTagId(passageId, 'said', tagContent, passage.tags.length);
   const newTag: Tag = {
     id: tagId,
     type: 'said',
@@ -448,7 +562,9 @@ export function addTag(
     throw new Error(`Passage not found: ${passageId}`);
   }
 
-  const tagId = `tag-${`tag-${globalThis.__tagCounter++ || 1}`}` as TagID;
+  // Generate content-based tag ID from passage, tag name, content, and existing tag count
+  const tagContent = passage.content.substring(range.start, range.end);
+  const tagId = generateTagId(passageId, tagName as Tag['type'], tagContent, passage.tags.length);
   const newTag: Tag = {
     id: tagId,
     type: tagName as Tag['type'], // Cast to Tag type union
@@ -525,6 +641,9 @@ export function redoFrom(doc: TEIDocument, fromRevision: number): TEIDocument {
  * Serialize document to XML
  * Uses existing XMLBuilder to convert state back to XML
  * Handles both new immutable documents (doc.state.parsed) and old TEIDocument class (doc.parsed)
+ *
+ * IMPORTANT: This function now incorporates tags from state.passages into the serialized output.
+ * Tags added through addSaidTag/addTag will be included in the exported XML.
  */
 export function serializeDocument(doc: TEIDocument | { state?: { parsed?: TEINode }; parsed?: TEINode; serialize?: () => string }): string {
   // For old TEIDocument class, use its serialize method if available
@@ -532,10 +651,30 @@ export function serializeDocument(doc: TEIDocument | { state?: { parsed?: TEINod
     return doc.serialize();
   }
 
-  // For new immutable document model, access via state.parsed
-  const parsed = doc.state?.parsed || doc.parsed;
-  if (!parsed) {
-    throw new Error('Cannot serialize document: no parsed data found');
+  // For new immutable document model
+  const state = doc.state;
+  if (!state) {
+    throw new Error('Cannot serialize document: no state found');
+  }
+
+  // Clone the parsed structure and rebuild passages with tags
+  const parsed = JSON.parse(JSON.stringify(state.parsed));
+  const passages = state.passages;
+
+  // Rebuild passages with tags embedded
+  const rebuiltPassages = passages.map((passage) => rebuildPassageWithTags(passage));
+
+  // Replace body/p with rebuilt passages
+  if (parsed.TEI?.text?.body?.p) {
+    const body = parsed.TEI.text.body;
+
+    // Handle single passage (not an array)
+    if (!Array.isArray(body.p)) {
+      body.p = rebuiltPassages[0];
+    } else {
+      // Handle multiple passages
+      body.p = rebuiltPassages;
+    }
   }
 
   const builder = new XMLBuilder({
@@ -543,6 +682,7 @@ export function serializeDocument(doc: TEIDocument | { state?: { parsed?: TEINod
     attributeNamePrefix: '@_',
     format: true,
   });
+
   return builder.build(parsed);
 }
 
@@ -603,13 +743,16 @@ function loadDocumentInternal(xml: string): DocumentState {
 
   const parsed = parser.parse(xml);
 
+  // Extract passages first (needed for dialogue extraction)
+  const passages = extractPassages(parsed);
+
   return {
     xml,
     parsed,
     revision: 0,
     metadata: extractMetadata(parsed),
-    passages: extractPassages(parsed),
-    dialogue: [],
+    passages,
+    dialogue: extractDialogue(passages),
     characters: extractCharacters(parsed),
     relationships: extractRelationships(parsed),
   };

@@ -11,14 +11,14 @@
  * - Updates return new values instead of mutating
  */
 
-import { XMLParser } from 'fast-xml-parser';
-
 /**
- * Existing TEINode type from parser
- * Re-exported for compatibility
+ * TEINode represents parsed XML elements
+ *
+ * Uses unknown instead of any for type safety.
+ * Access properties with type guards or type assertions.
  */
 export interface TEINode {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

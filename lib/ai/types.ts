@@ -5,8 +5,6 @@
  * Types for speaker attribution and dialogue detection using pattern matching.
  */
 
-import type { Character } from '@/lib/tei/types';
-
 /**
  * Text range within a passage
  * Re-exported from TEI types for convenience

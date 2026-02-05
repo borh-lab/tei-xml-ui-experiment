@@ -1,9 +1,8 @@
 // @ts-nocheck
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { useDocumentService } from '@/lib/effect';
-import { TEIDocumentRepository } from '@/lib/entities/EntityRepository';
+import { useState, useCallback } from 'react';
+import { useDocumentService } from '@/lib/effect/react/hooks';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { CharacterForm } from './CharacterForm';
 import { RelationshipEditor } from './RelationshipEditor';
 import { CharacterNetwork } from '@/components/visualization/CharacterNetwork';
 import { Plus } from 'lucide-react';
-import type { CharacterID, Relationship } from '@/lib/tei/types';
+import type { Character, CharacterID, Relationship } from '@/lib/tei/types';
 import { toast } from '@/components/ui/use-toast';
 
 interface EntityEditorPanelProps {
@@ -23,7 +22,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
   const {
     document,
     addCharacter,
-    updateCharacter,
+    updateCharacter: _updateCharacter,
     removeCharacter,
     addRelationship,
     removeRelationship,
@@ -32,32 +31,25 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
   const [activeTab, setActiveTab] = useState<'characters' | 'relationships' | 'network'>(
     'characters'
   );
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  // Create repository from document
-  const repository = React.useMemo(
-    () => (document ? new TEIDocumentRepository(document) : null),
-    [document]
-  );
-
-  const characters = repository?.getCharacters() || [];
-  const relationships = repository?.getRelationships() || [];
+  // Direct access to state - no repository needed
+  const characters = document?.state.characters || [];
+  const relationships = document?.state.relationships || [];
 
   // Add character handler
   const handleAddCharacter = useCallback(
     async (character: Character) => {
-      if (!repository) return;
+      if (!document) return;
 
-      const validation = repository.validateCharacter(character);
-      if (!validation.valid) {
-        setValidationErrors(validation.errors as string[]);
+      // Basic validation
+      if (!character.name || character.name.trim() === '') {
+        toast.error('Character name is required');
         return;
       }
 
       try {
         await addCharacter(character);
         setShowAddCharacter(false);
-        setValidationErrors([]);
         toast.success('Character added', {
           description: `${character.name} has been added.`,
         });
@@ -68,57 +60,56 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
         });
       }
     },
-    [repository, addCharacter]
+    [document, addCharacter]
   );
 
   // Remove character handler
   const handleRemoveCharacter = useCallback(
     async (id: CharacterID) => {
-      if (!repository) return;
+      if (!document) return;
 
       await removeCharacter(id);
       toast.success('Character removed');
     },
-    [repository, removeCharacter]
+    [document, removeCharacter]
   );
 
   // Add relationship handler
   const handleAddRelation = useCallback(
     async (relation: Omit<Relationship, 'id'>) => {
-      if (!repository) return;
+      if (!document) return;
 
-      const validation = repository.validateRelation(relation as Relationship);
-      if (!validation.valid) {
-        setValidationErrors(validation.errors as string[]);
+      // Basic validation
+      if (relation.from === relation.to) {
+        toast.error('Cannot create relationship with same character');
         return;
       }
 
       try {
         await addRelationship(relation);
-        setValidationErrors([]);
         toast.success('Relationship added');
       } catch (error) {
-        console.error('Failed to add relation:', error);
+        console.error('Failed to add relationship:', error);
         toast.error('Failed to add relationship', {
           description: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     },
-    [repository, addRelationship]
+    [document, addRelationship]
   );
 
   // Remove relationship handler
   const handleRemoveRelation = useCallback(
     async (id: string) => {
-      if (!repository) return;
+      if (!document) return;
 
       await removeRelationship(id);
       toast.success('Relationship removed');
     },
-    [repository, removeRelationship]
+    [document, removeRelationship]
   );
 
-  if (!document || !repository) {
+  if (!document) {
     return null;
   }
 
@@ -161,13 +152,7 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
                   onSave={handleAddCharacter}
                   onCancel={() => {
                     setShowAddCharacter(false);
-                    setValidationErrors([]);
                   }}
-                  validation={
-                    validationErrors.length > 0
-                      ? { valid: false, errors: validationErrors }
-                      : undefined
-                  }
                 />
               </div>
             )}
@@ -216,9 +201,6 @@ export function EntityEditorPanel({ open, onClose }: EntityEditorPanelProps) {
             <RelationshipEditor
               characters={characters}
               onAddRelation={handleAddRelation}
-              validation={
-                validationErrors.length > 0 ? { valid: false, errors: validationErrors } : undefined
-              }
             />
 
             {relationships.length === 0 ? (

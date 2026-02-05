@@ -164,9 +164,55 @@ bun run corpus:all
 bun run corpus:setup    # Clone/update corpus repositories
 bun run corpus:analyze  # Analyze TEI documents
 bun run corpus:split    # Generate train/val/test splits
+bun run corpus:split:ml # Generate ML-compatible splits (optional)
 ```
 
 See [scripts/README.md](./scripts/README.md) for details.
+
+### ML-Ready Dataset Format
+
+For machine learning applications, the corpus includes an ML-compatible split format:
+
+```bash
+bun run corpus:split:ml
+```
+
+This generates `data/splits.json` with:
+- **Flat structure** organized by split (train/validation/test)
+- **Full file paths** from project root
+- **Dataset metadata** (document counts, split ratios, seed)
+- **Split details** with corpus information
+
+**Format** (HuggingFace/Scikit-learn compatible):
+```json
+{
+  "dataset_info": {
+    "name": "tei-dialogue-corpus",
+    "splits": {"train": 7570, "validation": 1620, "test": 1629}
+  },
+  "splits": {
+    "train": ["corpora/wright-american-fiction/VAC5518.xml", ...],
+    "validation": [...],
+    "test": [...]
+  }
+}
+```
+
+**Usage Example** (Python):
+```python
+import json
+from pathlib import Path
+
+# Load splits
+with open('data/splits.json') as f:
+    data = json.load(f)
+
+# Access training files
+train_files = data['splits']['train']
+content = Path(train_files[0]).read_text()
+```
+
+See [examples/load_dataset.py](./examples/load_dataset.py) for complete examples with Pandas, scikit-learn, and HuggingFace datasets.
 
 ### Integrated Corpora
 
