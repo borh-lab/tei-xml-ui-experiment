@@ -1,13 +1,19 @@
 import { XMLParser } from 'fast-xml-parser';
 import { readFileSync, readdirSync, statSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import type { TEIFileInfo, TagAnalysis, CorpusMetadata, SchemaValidationResult, SchemaError } from './types';
 import { SchemaLoader } from '../lib/schema/SchemaLoader';
 
+// Get the directory of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Use absolute paths from the scripts directory
 const SCHEMA_PATHS = {
-  teiAll: '../public/schemas/tei-all.rng',
-  teiNovel: '../public/schemas/tei-novel.rng',
-  teiMinimal: '../public/schemas/tei-minimal.rng',
+  teiAll: join(__dirname, '..', 'public', 'schemas', 'tei-all.rng'),
+  teiNovel: join(__dirname, '..', 'public', 'schemas', 'tei-novel.rng'),
+  teiMinimal: join(__dirname, '..', 'public', 'schemas', 'tei-minimal.rng'),
 } as const;
 
 const parser = new XMLParser({

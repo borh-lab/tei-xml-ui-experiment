@@ -121,7 +121,7 @@ async function analyzeCorpus(
   const teiAllPass = results.filter(r => r.teiAllPass).length;
   const teiNovelPass = results.filter(r => r.teiNovelPass).length;
   const teiMinimalPass = results.filter(r => r.teiMinimalPass).length;
-  const filesWithErrors = results.filter(r => !r.teiAllPass && !r.teiNovelPass && !r.teiMinimalPass).length;
+  const filesWithValidationErrors = results.filter(r => !r.teiAllPass && !r.teiNovelPass && !r.teiMinimalPass).length;
 
   // Collect sample errors (up to MAX_SAMPLE_ERRORS)
   const errorCount = validationErrors.length;
