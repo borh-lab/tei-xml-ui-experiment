@@ -151,6 +151,43 @@ export function useDocumentService(): UseDocumentServiceResult {
     }
   }, []);
 
+  // Helper to validate document after edits
+  const validateDocument = useCallback(async (doc: TEIDocument): Promise<void> => {
+    try {
+      const { ValidationService } = await import('@/lib/effect/protocols/Validation');
+      const { serializeDocument } = await import('@/lib/tei/operations');
+
+      // Serialize document to XML
+      const xml = serializeDocument(doc);
+
+      // Validate against tei-novel schema
+      const schemaPath = '/public/schemas/tei-novel.rng';
+
+      const program = Effect.gen(function* (_) {
+        const service = yield* _(ValidationService);
+        return yield* _(service.validateDocument(xml, schemaPath));
+      });
+
+      const result = await runEffectAsyncOrFail(program);
+      updateState({ validationResults: result });
+    } catch (err) {
+      // Don't fail the edit if validation fails - just log it
+      console.warn('Validation failed:', err);
+      // Set validation results to show the error
+      updateState({
+        validationResults: {
+          valid: false,
+          errors: [{
+            message: err instanceof Error ? err.message : String(err),
+            severity: 'error' as const,
+          }],
+          warnings: [],
+          suggestions: [],
+        }
+      });
+    }
+  }, [updateState]);
+
   const loadDocument = useCallback(async (xml: string) => {
     updateState({ loading: true, error: null });
 
@@ -167,13 +204,17 @@ export function useDocumentService(): UseDocumentServiceResult {
       // Run the program
       const doc = await runEffectAsyncOrFail(program);
       updateState({ document: doc, loading: false });
+
+      // Validate on load
+      await validateDocument(doc);
+
       return doc;
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const addSaidTag = useCallback(async (
     passageId: PassageID,
@@ -192,12 +233,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const addQTag = useCallback(async (passageId: PassageID, range: TextRange) => {
     updateState({ loading: true, error: null });
@@ -212,12 +256,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const addPersNameTag = useCallback(async (
     passageId: PassageID,
@@ -236,12 +283,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const removeTag = useCallback(async (tagId: string) => {
     updateState({ loading: true, error: null });
@@ -256,12 +306,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const addCharacter = useCallback(async (character: Character) => {
     updateState({ loading: true, error: null });
@@ -276,12 +329,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const updateCharacter = useCallback(async (
     characterId: CharacterID,
@@ -299,12 +355,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const removeCharacter = useCallback(async (characterId: CharacterID) => {
     updateState({ loading: true, error: null });
@@ -319,12 +378,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const addRelationship = useCallback(async (relation: Omit<Relationship, 'id'>) => {
     updateState({ loading: true, error: null });
@@ -339,12 +401,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const removeRelationship = useCallback(async (relationId: string) => {
     updateState({ loading: true, error: null });
@@ -359,12 +424,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const undo = useCallback(async (targetRevision?: number) => {
     updateState({ loading: true, error: null });
@@ -379,12 +447,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const redo = useCallback(async (fromRevision?: number) => {
     updateState({ loading: true, error: null });
@@ -399,12 +470,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const getHistoryState = useCallback(async (): Promise<HistoryState> => {
     try {
@@ -436,12 +510,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   const clearDocument = useCallback(() => {
     updateState({ document: null, error: null });
@@ -490,6 +567,7 @@ export function useDocumentService(): UseDocumentServiceResult {
       // In a full implementation, this would update the document state
       // without triggering a full reload
       const updated = await loadDocument(xml);
+      // Validation is already done in loadDocument
       updateState({ document: updated, loading: false });
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
@@ -546,12 +624,15 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       const updated = await runEffectAsyncOrFail(program);
       updateState({ document: updated, loading: false });
+
+      // Validate after edit
+      await validateDocument(updated);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
       throw error;
     }
-  }, [updateState]);
+  }, [updateState, validateDocument]);
 
   return {
     document,
