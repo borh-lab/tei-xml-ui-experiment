@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,22 +14,23 @@ import { Check, X, Wand2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 interface AIAssistantProps {
+  initialState?: DocumentState;
   onApplySuggestion?: (detection: DialogueDetection, speakerIndex: number) => void;
   onClose?: () => void;
 }
 
-export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
-  const { document } = useDocumentService();
+export function AIAssistant({ initialState, onApplySuggestion, onClose }: AIAssistantProps) {
+  const { state } = useDocumentV2(initialState);
   const [suggestions, setSuggestions] = useState<readonly DialogueDetection[]>([]);
   const [scanned, setScanned] = useState(false);
   const [autoApplyThreshold, setAutoApplyThreshold] = useState(0.9);
 
   // Detect dialogue when document changes
   const detections = useMemo(() => {
-    if (!document) return [];
+    if (!state.document) return [];
     const patternDb = createPatternDatabase();
-    return detectDialogueInDocument(document, patternDb.patterns);
-  }, [document]);
+    return detectDialogueInDocument(state.document, patternDb.patterns);
+  }, [state.document]);
 
   // Filter detections to those with speakers
   const speakerDetections = useMemo(() => {
@@ -88,14 +90,14 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
   // Get character name from ID
   const getCharacterName = useCallback(
     (speakerId: string) => {
-      if (!document) return speakerId;
-      const char = document.state.characters.find((c: Character) => c.id === speakerId);
+      if (!state.document) return speakerId;
+      const char = state.document.state.characters.find((c: Character) => c.id === speakerId);
       return char?.name || speakerId;
     },
-    [document]
+    [state.document]
   );
 
-  if (!document) {
+  if (!state.document) {
     return (
       <Card>
         <CardHeader>
