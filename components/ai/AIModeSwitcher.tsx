@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 export type AIMode = 'manual' | 'suggest' | 'auto';
@@ -45,7 +44,6 @@ export function AIModeSwitcher({ mode, onModeChange }: AIModeSwitcherProps) {
           </Button>
         ))}
       </div>
-      <Badge variant="secondary" className="text-xs">Effect</Badge>
     </div>
   );
 }
