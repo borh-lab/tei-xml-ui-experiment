@@ -1,13 +1,12 @@
-// @ts-nocheck
 /**
  * @jest-environment jsdom
  */
 
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { TagBreadcrumb } from '@/components/editor/TagBreadcrumb';
 import { initialState } from '@/lib/values/DocumentState';
 import type { DocumentState } from '@/lib/values/DocumentState';
-import type { TagInfo } from '@/lib/selection/types';
+import type { TEINode } from '@/lib/tei/types';
 
 describe('TagBreadcrumbV2', () => {
   it('should render nothing when no tag is selected', () => {
@@ -55,16 +54,7 @@ describe('TagBreadcrumbV2', () => {
         state: {
           revision: 1,
         },
-      } as any,
-    };
-
-    // Mock TagInfo with a selected tag
-    const mockTag: TagInfo = {
-      type: 'said',
-      element: document.createElement('said'),
-      attributes: {
-        who: '#character1',
-      },
+      } as TEINode,
     };
 
     // We can't directly inject the selected tag, but we can verify
@@ -84,7 +74,7 @@ describe('TagBreadcrumbV2', () => {
         state: {
           revision: 1,
         },
-      } as any,
+      } as TEINode,
     };
 
     const { container } = render(
@@ -102,7 +92,7 @@ describe('TagBreadcrumbV2', () => {
         state: {
           revision: 1,
         },
-      } as any,
+      } as TEINode,
     };
 
     const { container } = render(
@@ -118,7 +108,7 @@ describe('TagBreadcrumbV2', () => {
       status: 'success',
       document: {
         state: { revision: 5 },
-      } as any,
+      } as TEINode,
     };
 
     const { container } = render(

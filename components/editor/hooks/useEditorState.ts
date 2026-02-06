@@ -10,14 +10,16 @@ import { toast } from '@/components/ui/use-toast';
 import { TagQueue } from '@/lib/queue/TagQueue';
 import type { QueuedTag, TagQueueState } from '@/lib/queue/TagQueue';
 import type { DocumentState } from '@/lib/values/DocumentState';
+import type { TEIDocument, PassageID, CharacterID } from '@/lib/tei/types';
+import type { ValidationResult } from '@/lib/validation/types';
 
 export interface UseEditorStateResult {
   // Document state (from useDocumentV2)
-  document: any;
+  document: TEIDocument | null;
   updateDocument: (xml: string) => Promise<void>;
   loadingSample: boolean;
   loadingProgress: number;
-  validationResults: any;
+  validationResults: ValidationResult | null;
   isValidating: boolean;
   addSaidTag: (passageId: string, range: { start: number; end: number }, speakerId: string) => Promise<void>;
   addTag: (passageId: string, range: { start: number; end: number }, tagName: string, attrs?: Record<string, string>) => Promise<void>;
@@ -69,7 +71,6 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
   // Extract state values
   const document = docState.document;
   const loading = docState.status === 'loading';
-  const error = docState.error;
   const validationResults = docState.validation?.results ?? null;
   const isValidating = false; // V2 doesn't have separate isValidating flag
 
@@ -98,7 +99,7 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
     range: { start: number; end: number },
     speakerId: string
   ) => {
-    await operations.addSaidTag(passageId as any, range, speakerId as any);
+    await operations.addSaidTag(passageId as PassageID, range, speakerId as CharacterID);
   }, [operations]);
 
   // V2: Add wrapper for addTag that matches V1 signature
@@ -110,14 +111,14 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
   ) => {
     if (tagName === 'said') {
       const speakerId = attrs?.who?.substring(1) || 'unknown';
-      await operations.addSaidTag(passageId as any, range, speakerId as any);
+      await operations.addSaidTag(passageId as PassageID, range, speakerId as CharacterID);
     } else if (tagName === 'q') {
-      await operations.addQTag(passageId as any, range);
+      await operations.addQTag(passageId as PassageID, range);
     } else if (tagName === 'persName') {
-      await operations.addPersNameTag(passageId as any, range, attrs?.ref || '');
+      await operations.addPersNameTag(passageId as PassageID, range, attrs?.ref || '');
     } else {
       // Generic tag - for now just use addQTag as fallback
-      await operations.addQTag(passageId as any, range);
+      await operations.addQTag(passageId as PassageID, range);
     }
   }, [operations]);
 
