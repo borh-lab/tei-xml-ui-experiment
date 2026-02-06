@@ -4,7 +4,8 @@
 import React from 'react';
 import type { TEIDocument } from '@/lib/tei/types';
 import type { PassageID, CharacterID, TextRange } from '@/lib/tei/types';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import { DocumentContext as ReactDocumentContext } from '@/lib/context/DocumentContext';
 
 /**
@@ -32,9 +33,10 @@ export interface DocumentContextType {
 export const DocumentContext = ReactDocumentContext;
 
 /**
- * EffectDocumentProvider
+ * EffectDocumentProvider (V2)
  *
- * React context provider that uses Effect for document operations.
+ * React context provider that uses V2 state protocol for document operations.
+ * V2 uses immutable state values and pure protocol functions.
  * Provides the same interface as the React DocumentContext for drop-in compatibility.
  *
  * @example
@@ -44,42 +46,48 @@ export const DocumentContext = ReactDocumentContext;
  * </EffectDocumentProvider>
  * ```
  */
-export function EffectDocumentProvider({ children }: { children: React.ReactNode }) {
-  const docService = useDocumentService();
+export function EffectDocumentProvider({ children, initialState }: { children: React.ReactNode; initialState?: DocumentState }) {
+  const { state, operations } = useDocumentV2(initialState);
 
   // Adapter to match React DocumentContext interface
   const contextValue: DocumentContextType = {
-    document: docService.document,
-    loadDocument: docService.loadDocument,
+    document: state.document,
+    loadDocument: operations.loadDocument,
     setDocument: () => {
-      throw new Error('setDocument is not supported in Effect version. Use loadDocument instead.');
+      throw new Error('setDocument is not supported in V2. Use loadDocument instead.');
     },
-    clearDocument: docService.clearDocument,
+    clearDocument: () => {
+      throw new Error('clearDocument not implemented in V2 yet');
+    },
     addTag: async (passageId: PassageID, range: TextRange, tagName: string, attrs?: Record<string, string>) => {
-      // Route to appropriate Effect method based on tag name
+      // Route to appropriate V2 operation based on tag name
       switch (tagName) {
         case 'said':
           if (!attrs?.who) {
             throw new Error('said tag requires "who" attribute');
           }
-          return await docService.addSaidTag(passageId, range, attrs.who as CharacterID);
+          return await operations.addSaidTag(passageId, range, attrs.who as CharacterID);
 
         case 'q':
-          return await docService.addQTag(passageId, range);
+          return await operations.addQTag(passageId, range);
 
         case 'persName':
           if (!attrs?.ref) {
             throw new Error('persName tag requires "ref" attribute');
           }
-          return await docService.addPersNameTag(passageId, range, attrs.ref);
+          return await operations.addPersNameTag(passageId, range, attrs.ref);
 
         default:
           throw new Error(`Unsupported tag name: ${tagName}`);
       }
     },
-    removeTag: docService.removeTag,
-    undo: docService.undo,
-    redo: docService.redo,
+    removeTag: operations.removeTag,
+    undo: () => {
+      throw new Error('undo not implemented in V2 yet');
+    },
+    redo: () => {
+      throw new Error('redo not implemented in V2 yet');
+    },
   };
 
   return <ReactDocumentContext.Provider value={contextValue as any}>{children}</ReactDocumentContext.Provider>;

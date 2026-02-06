@@ -1,9 +1,10 @@
 'use client';
 
 /**
- * DocumentContext - Unified Document State Management
+ * DocumentContext - Unified Document State Management (V2)
  *
- * Provides a single React Context for document operations using Effect services.
+ * Provides a single React Context for document operations using V2 state protocol.
+ * V2 uses immutable state values and pure protocol functions.
  * All components should use this context to access document state and operations.
  *
  * @example
@@ -19,13 +20,14 @@ import { createContext, useContext, ReactNode, useMemo } from 'react';
 import type { TEIDocument } from '@/lib/tei/types';
 import type { PassageID, CharacterID, TextRange } from '@/lib/tei/types';
 import type { ValidationResult } from '@/lib/validation';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 
 /**
- * DocumentContext Type
+ * DocumentContext Type (V2)
  *
- * Complete interface for document operations.
- * All methods are provided by the Effect-based DocumentService.
+ * Complete interface for document operations using V2 state protocol.
+ * V2 provides state and operations as a clean separation.
  */
 export interface DocumentContextType {
   /** Current document (null if not loaded) */
@@ -89,6 +91,8 @@ export interface DocumentContextType {
   getHistoryState: () => Promise<any>;
   /** Time travel to specific revision */
   timeTravel: (targetRevision: number) => Promise<void>;
+  /** Validate document */
+  validate: (schemaPath?: string) => Promise<void>;
 }
 
 export const DocumentContext = createContext<DocumentContextType | undefined>(
@@ -97,12 +101,15 @@ export const DocumentContext = createContext<DocumentContextType | undefined>(
 
 export interface DocumentProviderProps {
   children: ReactNode;
+  /** Optional initial state for testing (enables state injection) */
+  initialState?: DocumentState;
 }
 
 /**
- * DocumentProvider - Unified Document State Management
+ * DocumentProvider - Unified Document State Management (V2)
  *
- * Wraps the Effect-based useDocumentService in a React Context.
+ * Wraps the V2 useDocumentV2 hook in a React Context.
+ * V2 uses immutable state values and pure protocol functions.
  * This is the ONLY DocumentProvider in the app - all components should use it.
  *
  * @example
@@ -111,72 +118,117 @@ export interface DocumentProviderProps {
  *   <App />
  * </DocumentProvider>
  * ```
+ *
+ * @example
+ * With state injection for testing:
+ * ```tsx
+ * const customState = { ...initialState(), status: 'loading' };
+ * <DocumentProvider initialState={customState}>
+ *   <App />
+ * </DocumentProvider>
+ * ```
  */
-export function DocumentProvider({ children }: DocumentProviderProps) {
-  const docService = useDocumentService();
+export function DocumentProvider({ children, initialState: injectedState }: DocumentProviderProps) {
+  const { state, operations } = useDocumentV2(injectedState);
 
   // Memoize context value to prevent unnecessary re-renders
-  // Only depend on state values, functions are assumed to be stable (created with useCallback)
-  const contextValue: DocumentContextType = useMemo(() => ({
-    // State
-    document: docService.document,
-    loading: docService.loading,
-    loadingSample: docService.loadingSample,
-    loadingProgress: docService.loadingProgress,
-    validationResults: docService.validationResults,
-    isValidating: docService.isValidating,
-    lastSavedRevision: docService.lastSavedRevision,
-    lastSavedAt: docService.lastSavedAt,
-    error: docService.error,
+  // Map V2 state structure to V1-compatible interface
+  const contextValue: DocumentContextType = useMemo(() => {
+    // Map V2 status to V1 loading states
+    const loading = state.status === 'loading';
+    const loadingSample = state.status === 'loading'; // V2 doesn't track separately
 
-    // Document operations
-    loadDocument: docService.loadDocument,
-    loadSample: docService.loadSample,
-    updateDocument: docService.updateDocument,
+    return {
+      // State (mapped from V2)
+      document: state.document,
+      loading,
+      loadingSample,
+      loadingProgress: 0, // V2 doesn't track progress
+      validationResults: (state.validation?.results || null) as ValidationResult | null, // Cast to V1 type
+      isValidating: state.status === 'loading', // Approximation
+      lastSavedRevision: state.document?.state.revision || null,
+      lastSavedAt: null, // V2 doesn't track save time
+      error: state.error,
 
-    // State management
-    setDocument: (doc: TEIDocument | null) => {
-      // For Effect, we delegate to the service
-      // This is a no-op since Effect manages state internally
-      // Use loadDocument to change the document
-      if (doc === null) {
-        docService.clearDocument();
-      } else {
-        console.warn('[DocumentContext] setDocument with non-null is not supported. Use loadDocument instead.');
-      }
-    },
-    clearDocument: docService.clearDocument,
+      // Document operations
+      loadDocument: async (xml: string) => {
+        await operations.loadDocument(xml);
+        return state.document!; // Return the loaded document
+      },
+      loadSample: async (sampleId: string) => {
+        // V2 doesn't have loadSample, would need to implement
+        throw new Error('loadSample not implemented in V2 yet');
+      },
+      updateDocument: async (xml: string) => {
+        await operations.loadDocument(xml); // V2 uses loadDocument for updates
+      },
 
-    // Tag operations
-    addSaidTag: docService.addSaidTag,
-    addQTag: docService.addQTag,
-    addPersNameTag: docService.addPersNameTag,
-    addTag: docService.addTag,
-    removeTag: docService.removeTag,
+      // State management
+      setDocument: (doc: TEIDocument | null) => {
+        // V2 manages state internally, use loadDocument instead
+        if (doc === null) {
+          console.warn('[DocumentContext] Clearing document through setDocument is not supported in V2. Use clearDocument operation.');
+        } else {
+          console.warn('[DocumentContext] setDocument with non-null is not supported in V2. Use loadDocument instead.');
+        }
+      },
+      clearDocument: () => {
+        console.warn('[DocumentContext] clearDocument not implemented in V2 yet');
+      },
 
-    // Character and relationship operations
-    addCharacter: docService.addCharacter,
-    updateCharacter: docService.updateCharacter,
-    removeCharacter: docService.removeCharacter,
-    addRelationship: docService.addRelationship,
-    removeRelationship: docService.removeRelationship,
+      // Tag operations
+      addSaidTag: operations.addSaidTag,
+      addQTag: operations.addQTag,
+      addPersNameTag: operations.addPersNameTag,
+      addTag: async (passageId: PassageID, range: TextRange, tagName: string, attrs?: Record<string, string>) => {
+        // Route to appropriate operation
+        switch (tagName) {
+          case 'said':
+            if (!attrs?.who) {
+              throw new Error('said tag requires "who" attribute');
+            }
+            return await operations.addSaidTag(passageId, range, attrs.who as CharacterID);
 
-    // History operations
-    undo: docService.undo,
-    redo: docService.redo,
-    getHistoryState: docService.getHistoryState,
-    timeTravel: docService.timeTravel,
-  }), [
-    docService.document,
-    docService.loading,
-    docService.loadingSample,
-    docService.loadingProgress,
-    docService.validationResults,
-    docService.isValidating,
-    docService.lastSavedRevision,
-    docService.lastSavedAt,
-    docService.error,
-  ]);
+          case 'q':
+            return await operations.addQTag(passageId, range);
+
+          case 'persName':
+            if (!attrs?.ref) {
+              throw new Error('persName tag requires "ref" attribute');
+            }
+            return await operations.addPersNameTag(passageId, range, attrs.ref);
+
+          default:
+            throw new Error(`Unsupported tag name: ${tagName}`);
+        }
+      },
+      removeTag: operations.removeTag,
+
+      // Character and relationship operations
+      addCharacter: operations.addCharacter,
+      updateCharacter: operations.updateCharacter,
+      removeCharacter: operations.removeCharacter,
+      addRelationship: operations.addRelationship,
+      removeRelationship: operations.removeRelationship,
+
+      // History operations (V2 doesn't have these yet)
+      undo: () => {
+        throw new Error('undo not implemented in V2 yet');
+      },
+      redo: () => {
+        throw new Error('redo not implemented in V2 yet');
+      },
+      getHistoryState: () => {
+        throw new Error('getHistoryState not implemented in V2 yet');
+      },
+      timeTravel: (targetRevision: number) => {
+        throw new Error('timeTravel not implemented in V2 yet');
+      },
+
+      // Validation (V2 feature)
+      validate: operations.validate,
+    };
+  }, [state, operations]);
 
   return (
     <DocumentContext.Provider value={contextValue}>
@@ -218,3 +270,11 @@ export function useDocumentContext(): DocumentContextType {
 export function useDocument() {
   return useDocumentContext();
 }
+
+/**
+ * DocumentProviderV2 - Alias for DocumentProvider
+ *
+ * V2 is now the default implementation.
+ * This export is provided for clarity in migration.
+ */
+export const DocumentProviderV2 = DocumentProvider;
