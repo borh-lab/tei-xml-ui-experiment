@@ -6,10 +6,10 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import type {
   Workflow,
-  WorkflowStep,
 } from '@/lib/workflows/definitions';
 import {
   planWorkflow,
@@ -19,7 +19,10 @@ import {
   type PlannedStep,
 } from '@/lib/protocols/workflows';
 import type { PassageID, TextRange, CharacterID } from '@/lib/tei/types';
-import type { Result } from '@/lib/protocols/Result';
+
+interface UseWorkflowOptions {
+  initialState?: DocumentState;
+}
 
 /**
  * Step completion data
@@ -112,8 +115,8 @@ export interface UseWorkflowResult {
  * }
  * ```
  */
-export function useWorkflow(): UseWorkflowResult {
-  const { document, addTag } = useDocumentService();
+export function useWorkflow(options?: UseWorkflowOptions): UseWorkflowResult {
+  const { state, operations } = useDocumentV2(options?.initialState);
 
   const [plan, setPlan] = useState<WorkflowPlan | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -129,7 +132,7 @@ export function useWorkflow(): UseWorkflowResult {
       setError(null);
 
       // Get characters from document
-      const characters = document?.state.characters ?? [];
+      const characters = state.document?.state.characters ?? [];
 
       // Plan the workflow
       const result = planWorkflow({
@@ -149,7 +152,7 @@ export function useWorkflow(): UseWorkflowResult {
       setPlan(result.value);
       return true;
     },
-    [document]
+    [state.document?.state.characters]
   );
 
   /**
@@ -197,7 +200,7 @@ export function useWorkflow(): UseWorkflowResult {
    */
   const completeStep = useCallback(
     async (data: StepCompletionData): Promise<boolean> => {
-      if (!plan || !document) return false;
+      if (!plan || !state.document) return false;
 
       const step = plan.steps[plan.currentStepIndex];
 
@@ -231,13 +234,26 @@ export function useWorkflow(): UseWorkflowResult {
           }
         }
 
-        // Apply the tag
-        await addTag(
-          plan.passageId,
-          plan.range,
-          step.tagName,
-          attributes
-        );
+        // Apply the tag using V2 operations
+        if (step.tagName === 'said') {
+          await operations.addSaidTag(
+            plan.passageId,
+            plan.range,
+            data.selectedEntityId as CharacterID
+          );
+        } else if (step.tagName === 'q') {
+          await operations.addQTag(plan.passageId, plan.range);
+        } else if (step.tagName === 'persName') {
+          await operations.addPersNameTag(
+            plan.passageId,
+            plan.range,
+            attributes.ref || ''
+          );
+        } else {
+          // For other tag types, use generic addTag if available
+          // For now, we'll skip unsupported tag types
+          console.warn(`Unsupported tag type: ${step.tagName}`);
+        }
 
         // Check if this is the final step
         if (plan.currentStepIndex >= plan.totalSteps - 1) {
@@ -267,7 +283,7 @@ export function useWorkflow(): UseWorkflowResult {
         return false;
       }
     },
-    [plan, document, addTag, nextStepCallback]
+    [plan, state.document, operations, nextStepCallback]
   );
 
   /**

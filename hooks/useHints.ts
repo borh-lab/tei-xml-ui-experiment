@@ -9,9 +9,14 @@ import { useEffect, useState } from 'react';
 import { useDebouncedValue } from './useDebouncedValue';
 import { validateSelection } from '@/lib/protocols/validation';
 import { generateHint } from '@/lib/protocols/hints';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import type { Selection } from '@/lib/values/Selection';
 import type { Hint } from '@/lib/values/Hint';
+
+interface UseHintsOptions {
+  initialState?: DocumentState;
+}
 
 /**
  * Hook to validate selection and generate hints
@@ -19,14 +24,16 @@ import type { Hint } from '@/lib/values/Hint';
  * @param selection - Current text selection (or null)
  * @param activeTagType - The tag type currently being applied
  * @param debounceDelay - Delay in ms before validating (default: 500)
+ * @param options - Optional initial state
  * @returns Hint object or null if no hint available
  */
 export function useHints(
   selection: Selection | null,
   activeTagType: string,
-  debounceDelay: number = 500
+  debounceDelay: number = 500,
+  options?: UseHintsOptions
 ): Hint | null {
-  const { document } = useDocumentService();
+  const { state } = useDocumentV2(options?.initialState);
   const [hint, setHint] = useState<Hint | null>(null);
 
   // Debounce selection to avoid excessive validation
@@ -34,7 +41,7 @@ export function useHints(
 
   useEffect(() => {
     // Clear hint when selection is null
-    if (!debouncedSelection || !document) {
+    if (!debouncedSelection || !state.document) {
       setHint(null);
       return;
     }
@@ -44,7 +51,7 @@ export function useHints(
       debouncedSelection,
       activeTagType,
       {}, // No custom attributes yet
-      document
+      state.document
     );
 
     // Generate hint from validation result
@@ -55,7 +62,7 @@ export function useHints(
       // Validation failed - no hint available
       setHint(null);
     }
-  }, [debouncedSelection, activeTagType, document]);
+  }, [debouncedSelection, activeTagType, state.document]);
 
   return hint;
 }
