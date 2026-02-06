@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { DialogueSpan } from '@/lib/ai/providers';
 import { extract, determinePosition } from '@/lib/learning/PatternExtractor';
 import { logger } from '@/lib/utils/logger';
-import { useStorageService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 
 export interface InlineSuggestionsProps {
   suggestions: DialogueSpan[];
@@ -36,8 +36,27 @@ export const InlineSuggestions = React.memo(
     totalPositions = 1,
     aiMode = 'manual',
   }: InlineSuggestionsProps) => {
-    // Use Effect StorageService
-    const storageService = useStorageService();
+    // Use V2 document context for storage
+    const { loadDocument } = useDocumentContext();
+
+    // Simple localStorage wrapper for pattern learning
+    const storage = {
+      get: async <T,>(key: string): Promise<T | null> => {
+        try {
+          const item = localStorage.getItem(key);
+          return item ? JSON.parse(item) : null;
+        } catch {
+          return null;
+        }
+      },
+      set: async (key: string, value: any): Promise<void> => {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+          logger.error('Failed to save to localStorage:', error);
+        }
+      },
+    };
 
     if (suggestions.length === 0) {
       return null;
@@ -51,12 +70,12 @@ export const InlineSuggestions = React.memo(
         // Extract and store patterns
         const patterns = extract(suggestion.text, suggestion.speaker || '', position);
 
-        // Store patterns using Effect StorageService
+        // Store patterns using localStorage
         const patternKey = `learned-pattern-${suggestion.speaker || 'unknown'}`;
-        const existingData = await storageService.get<{ patterns: string[]; timestamp: number }[]>(patternKey);
+        const existingData = await storage.get<{ patterns: string[]; timestamp: number }[]>(patternKey);
         // eslint-disable-next-line react-hooks/purity -- Date.now() is called in async event handler, not during render
         const newData = [...(existingData || []), { patterns: Array.from(patterns.phrases), timestamp: Date.now() }];
-        await storageService.set(patternKey, newData);
+        await storage.set(patternKey, newData);
 
         logger.info('Pattern learned via Effect Storage', {
           speaker: suggestion.speaker,
@@ -74,9 +93,9 @@ export const InlineSuggestions = React.memo(
 
     const handleReject = async (suggestion: DialogueSpan) => {
       try {
-        // Log rejection using Effect StorageService
+        // Log rejection using localStorage
         const rejectionKey = 'rejected-suggestions';
-        const existingRejections = await storageService.get<Array<{
+        const existingRejections = await storage.get<Array<{
           text: string;
           confidence: number;
           timestamp: number;
@@ -92,7 +111,7 @@ export const InlineSuggestions = React.memo(
             position,
           },
         ];
-        await storageService.set(rejectionKey, newRejections);
+        await storage.set(rejectionKey, newRejections);
 
         logger.debug('Suggestion rejected via Effect Storage', {
           text: suggestion.text,

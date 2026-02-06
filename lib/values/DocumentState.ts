@@ -6,7 +6,7 @@
  */
 
 import type { TEIDocument } from '@/lib/tei/types';
-import type { ValidationResult } from '@/lib/effect/protocols/Validation';
+import type { ValidationResult } from '@/lib/validation/types';
 
 /**
  * Document status

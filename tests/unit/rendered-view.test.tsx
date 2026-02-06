@@ -3,6 +3,7 @@
  * @jest-environment jsdom
  */
 
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RenderedView } from '@/components/editor/RenderedView';
@@ -44,12 +45,71 @@ const mockDocument = {
   events: [],
 };
 
-jest.mock('@/lib/effect/react/hooks', () => ({
-  useDocumentService: () => ({
+// Mock V2 document context
+jest.mock('@/lib/context/DocumentContext', () => ({
+  DocumentContext: React.createContext({
     document: mockDocument,
+    loading: false,
+    loadingSample: false,
+    loadingProgress: 0,
+    validationResults: null,
+    isValidating: false,
+    lastSavedRevision: null,
+    lastSavedAt: null,
+    error: null,
     loadDocument: jest.fn(),
-    updateTag: jest.fn(),
+    loadSample: jest.fn(),
+    updateDocument: jest.fn(),
+    setDocument: jest.fn(),
+    clearDocument: jest.fn(),
+    addSaidTag: jest.fn(),
+    addQTag: jest.fn(),
+    addPersNameTag: jest.fn(),
+    addTag: jest.fn(),
+    removeTag: jest.fn(),
+    addCharacter: jest.fn(),
+    updateCharacter: jest.fn(),
+    removeCharacter: jest.fn(),
+    addRelationship: jest.fn(),
+    removeRelationship: jest.fn(),
+    undo: jest.fn(),
+    redo: jest.fn(),
+    getHistoryState: jest.fn(),
+    timeTravel: jest.fn(),
+    validate: jest.fn(),
   }),
+  useDocumentContext: () => ({
+    document: mockDocument,
+    loading: false,
+    loadingSample: false,
+    loadingProgress: 0,
+    validationResults: null,
+    isValidating: false,
+    lastSavedRevision: null,
+    lastSavedAt: null,
+    error: null,
+    loadDocument: jest.fn(),
+    loadSample: jest.fn(),
+    updateDocument: jest.fn(),
+    setDocument: jest.fn(),
+    clearDocument: jest.fn(),
+    addSaidTag: jest.fn(),
+    addQTag: jest.fn(),
+    addPersNameTag: jest.fn(),
+    addTag: jest.fn(),
+    removeTag: jest.fn(),
+    addCharacter: jest.fn(),
+    updateCharacter: jest.fn(),
+    removeCharacter: jest.fn(),
+    addRelationship: jest.fn(),
+    removeRelationship: jest.fn(),
+    undo: jest.fn(),
+    redo: jest.fn(),
+    getHistoryState: jest.fn(),
+    timeTravel: jest.fn(),
+    validate: jest.fn(),
+  }),
+  DocumentProvider: ({ children }: any) => children,
 }));
 
 describe('RenderedView (Effect-based)', () => {

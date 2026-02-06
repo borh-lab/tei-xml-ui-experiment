@@ -94,32 +94,18 @@ export function EffectDocumentProvider({ children, initialState }: { children: R
 }
 
 /**
- * EffectDocumentProvider with feature flag support
+ * DocumentProvider - V2 Only Implementation
  *
- * Automatically switches between React and Effect implementations
- * based on useEffectDocument feature flag.
+ * This is now the default DocumentProvider. V1 has been removed.
+ * All components should use the V2 state protocol.
+ *
+ * @example
+ * ```tsx
+ * <DocumentProvider>
+ *   <App />
+ * </DocumentProvider>
+ * ```
  */
-export default function DocumentProvider({ children }: { children: React.ReactNode }) {
-  const { useStorageService } = require('@/lib/effect/react/hooks');
-  const storage = useStorageService();
-
-  // Check feature flag
-  const [useEffect, setUseEffect] = React.useState(false);
-
-  React.useEffect(() => {
-    storage.get('useEffectDocument').then((enabled: boolean | null) => {
-      setUseEffect(enabled === true);
-    }).catch(() => {
-      // Default to false if storage check fails
-      setUseEffect(false);
-    });
-  }, [storage]);
-
-  if (useEffect) {
-    return <EffectDocumentProvider>{children}</EffectDocumentProvider>;
-  }
-
-  // Fall back to React version
-  const ReactDocumentProvider = require('@/lib/context/DocumentContext').DocumentProvider;
-  return <ReactDocumentProvider>{children}</ReactDocumentProvider>;
+export default function DocumentProvider({ children, initialState }: { children: React.ReactNode; initialState?: DocumentState }) {
+  return <EffectDocumentProvider initialState={initialState}>{children}</EffectDocumentProvider>;
 }

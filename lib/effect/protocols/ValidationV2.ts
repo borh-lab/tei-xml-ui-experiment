@@ -9,7 +9,7 @@
  */
 
 import { Effect, Context } from 'effect';
-import type { ValidationResult, ValidationError } from '@/lib/effect/protocols/Validation';
+import type { ValidationResult, ValidationError } from '@/lib/validation/types';
 import type { DocumentState, ValidationSnapshot } from '@/lib/values/DocumentState';
 import type { ICache } from '@/lib/protocols/cache';
 
@@ -136,6 +136,7 @@ export const ValidationProtocolLive: ValidationProtocol = {
             valid: true,
             errors: [],
             warnings: [],
+            fixes: [],
           },
           revision,
           validatedAt: new Date(),
@@ -175,6 +176,7 @@ export const ValidationProtocolLive: ValidationProtocol = {
           valid: true,
           errors: [],
           warnings: [],
+          fixes: [],
         };
 
         // Cache result

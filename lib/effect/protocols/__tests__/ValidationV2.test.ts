@@ -3,7 +3,7 @@ import { ValidationProtocolLive, NoOpCache } from '../ValidationV2';
 import { initialState } from '@/lib/values/DocumentState';
 import type { ICache } from '@/lib/protocols/cache';
 import type { ValidationCacheKey } from '../ValidationV2';
-import type { ValidationResult } from '@/lib/effect/protocols/Validation';
+import type { ValidationResult } from '@/lib/validation/types';
 
 describe('ValidationProtocol V2', () => {
   describe('validateState with no cache', () => {

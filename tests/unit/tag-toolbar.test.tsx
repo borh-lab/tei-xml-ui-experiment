@@ -53,27 +53,38 @@ jest.mock('@/lib/schema/SchemaLoader', () => ({
   })),
 }));
 
-// Mock useDocumentService and useErrorContext
-jest.mock('@/lib/effect/react/hooks', () => ({
-  useDocumentService: () => ({
+// Mock V2 document context
+jest.mock('@/lib/context/DocumentContext', () => ({
+  useDocumentContext: () => ({
     document: mockDocument,
     addSaidTag: mockAddSaidTag,
     addTag: mockAddGenericTag,
-  }),
-  useStorageService: () => ({
-    get: jest.fn(),
-    set: jest.fn(),
-    remove: jest.fn(),
-    has: jest.fn(),
-  }),
-  useValidationService: () => ({
-    validate: jest.fn(),
-  }),
-  useAIService: () => ({
-    isDetecting: false,
+    loading: false,
+    loadingSample: false,
+    loadingProgress: 0,
+    validationResults: null,
+    isValidating: false,
+    lastSavedRevision: null,
+    lastSavedAt: null,
     error: null,
-    detectDialogue: jest.fn(),
-    attributeSpeaker: jest.fn(),
+    loadDocument: jest.fn(),
+    loadSample: jest.fn(),
+    updateDocument: jest.fn(),
+    setDocument: jest.fn(),
+    clearDocument: jest.fn(),
+    addQTag: jest.fn(),
+    addPersNameTag: jest.fn(),
+    removeTag: jest.fn(),
+    addCharacter: jest.fn(),
+    updateCharacter: jest.fn(),
+    removeCharacter: jest.fn(),
+    addRelationship: jest.fn(),
+    removeRelationship: jest.fn(),
+    undo: jest.fn(),
+    redo: jest.fn(),
+    getHistoryState: jest.fn(),
+    timeTravel: jest.fn(),
+    validate: jest.fn(),
   }),
 }));
 
