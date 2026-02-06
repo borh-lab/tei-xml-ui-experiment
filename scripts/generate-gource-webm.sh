@@ -16,8 +16,8 @@ FPS="30"
 MAX_SECONDS="60"
 
 # Quality settings
-CRF="18"  # Lower = better quality (18-25 is good range, 18 is high quality)
-BITRATE="4M"  # Target bitrate for VP9
+CRF="15"  # Lower = better quality (15-31 is good range, 15 is high quality)
+BITRATE="6M"  # Target bitrate for VP9 (higher = better quality)
 
 echo "╔═══════════════════════════════════════════════════════╗"
 echo "║  Generating Gource WebM Video                         ║"
@@ -51,6 +51,7 @@ nix run nixpkgs#xvfb-run -- \
     --stop-at-time "${MAX_SECONDS}" \
     --output-framerate "${FPS}" \
     --hide-date \
+    --hide usernames \
     --key \
     -o "${TEMP_DIR}/gource.ppm" \
     .

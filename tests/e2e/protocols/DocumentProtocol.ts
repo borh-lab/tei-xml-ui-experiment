@@ -36,6 +36,44 @@ export class DocumentProtocol {
     });
   }
 
+  /**
+   * Load a document directly from XML string (bypasses file input)
+   * This is useful for testing where we want to load documents without going through FileUpload component
+   */
+  async loadFromXml(xml: string, filename = 'test.tei.xml'): Promise<AppState> {
+    // Check if we're in gallery state
+    const currentState = await this.app.getState();
+
+    if (currentState.location === 'gallery') {
+      // Load a sample first to get to editor state
+      const samples = await this.app.samples().list();
+      if (samples.length === 0) {
+        throw new Error('No samples available to load for initial editor state');
+      }
+      await this.app.samples().load(samples[0].id);
+    }
+
+    // Use the loadSample functionality but with our custom XML
+    // This will upload via the file input which triggers FileUpload component
+    const fileInput = this.app.page().locator('input[type="file"]');
+    await fileInput.setInputFiles({
+      name: filename,
+      mimeType: 'text/xml',
+      buffer: Buffer.from(xml, 'utf-8'),
+    });
+
+    // Wait for document to load and UI to render
+    await this.app.waitForState({
+      location: 'editor',
+      document: { loaded: true },
+    }, 15000);
+
+    // Additional wait for UI to render
+    await this.app.page().waitForTimeout(1000);
+
+    return await this.app.getState();
+  }
+
   async getCurrent(): Promise<{ title: string; passageCount: number }> {
     const state = await this.app.getState();
 

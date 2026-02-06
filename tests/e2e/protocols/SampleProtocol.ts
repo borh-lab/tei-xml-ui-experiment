@@ -17,6 +17,9 @@ export class SampleProtocol {
       throw new Error('Not on gallery page. Current location: ' + state.location);
     }
 
+    // Wait for sample cards to be present
+    await this.app.page().waitForSelector('[data-test-sample-card]', { state: 'attached', timeout: 10000 });
+
     return await this.app.page().evaluate(() => {
       const cards = document.querySelectorAll('[data-test-sample-card]');
       return Array.from(cards).map((card) => {
@@ -35,9 +38,11 @@ export class SampleProtocol {
   }
 
   async load(sampleId: string): Promise<AppState> {
-    const button = this.app
-      .page()
-      .locator(`[data-test-action="load-sample"][data-test-sample-id="${sampleId}"]`);
+    const page = this.app.page();
+
+    // Wait for the button to be available
+    const button = page.locator(`[data-test-action="load-sample"][data-test-sample-id="${sampleId}"]`);
+    await button.waitFor({ state: 'visible', timeout: 10000 });
 
     const count = await button.count();
 

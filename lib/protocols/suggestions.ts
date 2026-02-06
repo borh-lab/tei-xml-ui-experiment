@@ -3,14 +3,14 @@
  *
  * Generates smart tag suggestions based on text patterns.
  * Runs all heuristics, filters by confidence, sorts, and returns top N.
- * Includes memoization for performance.
+ * Supports optional memoization via dependency injection.
  */
 
 import type { Selection } from '@/lib/values/Selection';
 import type { Suggestion } from '@/lib/values/Suggestion';
 import { runAllHeuristics } from '@/lib/heuristics/index';
 import { sortByConfidence, filterByConfidence } from '@/lib/values/Suggestion';
-import { LRUCache } from 'lru-cache';
+import type { ICache } from '@/lib/protocols/cache';
 
 /**
  * Options for generating suggestions
@@ -56,45 +56,60 @@ function createCacheKey(
 }
 
 /**
- * Memoization cache for suggestions
- * - 100 cache size
- * - 5 second TTL
- */
-const suggestionCache = new LRUCache<string, Suggestion[]>({
-  max: 100,
-  ttl: 5000, // 5 seconds
-});
-
-/**
  * Generate smart tag suggestions for a selection
  *
  * Process:
- * 1. Check cache for existing results
+ * 1. Check cache for existing results (if cache provided)
  * 2. If cached, return cached results
  * 3. Otherwise, run all heuristics
  * 4. Filter suggestions by minimum confidence
  * 5. Sort by confidence (descending)
  * 6. Return top N suggestions
- * 7. Cache results for future calls
- *
- * Memoization:
- * - Cache key: selection text + timestamp (as revision proxy) + options
- * - Cache size: 100 entries
- * - TTL: 5 seconds
+ * 7. Cache results for future calls (if cache provided)
  *
  * @param selection - The selection to analyze
  * @param options - Optional configuration
+ * @param cache - Optional cache for memoization (defaults to null = no caching)
  * @returns Array of suggestions sorted by confidence
+ *
+ * @example
+ * ```typescript
+ * // Without caching (suitable for one-off calls)
+ * const suggestions = generateSuggestions(selection);
+ *
+ * // With caching (recommended for repeated calls)
+ * import { LRUCache } from 'lru-cache';
+ *
+ * // Wrap LRUCache to conform to ICache interface
+ * const lru = new LRUCache<string, Suggestion[]>({ max: 100, ttl: 5000 });
+ * const cache: ICache<string, Suggestion[]> = {
+ *   get: (key) => lru.get(key) ?? null,
+ *   set: (key, value) => lru.set(key, value),
+ *   clear: () => lru.clear(),
+ * };
+ * const suggestions = generateSuggestions(selection, {}, cache);
+ *
+ * // In tests, use a simple mock:
+ * class MockCache<K, V> implements ICache<K, V> {
+ *   private store = new Map<K, V>();
+ *   get(key: K): V | null { return this.store.get(key) ?? null; }
+ *   set(key: K, value: V): void { this.store.set(key, value); }
+ *   clear(): void { this.store.clear(); }
+ * }
+ * const mockCache = new MockCache<string, Suggestion[]>();
+ * const suggestions = generateSuggestions(selection, {}, mockCache);
+ * ```
  */
 export function generateSuggestions(
   selection: Selection,
-  options: GenerateSuggestionsOptions = {}
+  options: GenerateSuggestionsOptions = {},
+  cache: ICache<string, Suggestion[]> | null = null
 ): Suggestion[] {
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
-  // Check cache
+  // Check cache (if provided)
   const cacheKey = createCacheKey(selection, opts);
-  const cached = suggestionCache.get(cacheKey);
+  const cached = cache?.get(cacheKey);
   if (cached) {
     return cached;
   }
@@ -111,25 +126,52 @@ export function generateSuggestions(
   // Step 4: Return top N suggestions
   const result = sorted.slice(0, opts.maxSuggestions);
 
-  // Cache the result
-  suggestionCache.set(cacheKey, result);
+  // Cache the result (if cache provided)
+  cache?.set(cacheKey, result);
 
   return result;
 }
 
 /**
- * Clear the suggestion cache
- * Useful for testing or forcing re-computation
+ * @deprecated This function has been removed.
+ * Use cache.clear() on your injected cache instance instead.
+ * This function is kept for backward compatibility but does nothing.
+ *
+ * @example
+ * ```typescript
+ * // Old way (deprecated)
+ * clearSuggestionCache();
+ *
+ * // New way
+ * const cache = createLRUCache<string, Suggestion[]>();
+ * // ... use cache ...
+ * cache.clear(); // Clear the cache when needed
+ * ```
  */
 export function clearSuggestionCache(): void {
-  suggestionCache.clear();
+  // No-op - global cache has been removed
+  // Users should manage their own cache instances
 }
 
 /**
- * Get cache statistics for debugging
+ * @deprecated This function has been removed.
+ * Use cache.getStats() on your injected cache instance instead.
+ * This function is kept for backward compatibility but always returns size 0.
+ *
+ * @example
+ * ```typescript
+ * // Old way (deprecated)
+ * const stats = getSuggestionCacheStats();
+ *
+ * // New way
+ * const cache = createLRUCache<string, Suggestion[]>();
+ * // ... use cache ...
+ * const stats = cache.getStats();
+ * ```
  */
 export function getSuggestionCacheStats(): { size: number } {
+  // Return empty stats - global cache has been removed
   return {
-    size: suggestionCache.size,
+    size: 0,
   };
 }

@@ -3,43 +3,124 @@
  * E2E Tests for Document Validation Integration
  *
  * Tests the integration of ValidationService with DocumentContext and EditorLayout
+ * Using protocol-based testing approach
  *
  * Phase 2, Task 5
  */
 
 import { test, expect } from '@playwright/test';
-import { EditorPage } from './pages/EditorPage';
-import { uploadTestDocument } from './fixtures/test-helpers';
+import { TEIEditorApp } from './protocol/TEIEditorApp';
+
+/**
+ * Helper function to wait for document state AND UI rendering
+ */
+async function waitForDocumentReady(app: TEIEditorApp, page: any): Promise<void> {
+  await app.waitForState({
+    location: 'editor',
+    document: { loaded: true },
+  });
+  // Give React time to render the UI components
+  await page.waitForTimeout(500);
+}
+
+/**
+ * Helper function to load a valid test document and wait for UI to render
+ */
+async function loadValidTestDocument(app: TEIEditorApp, page: any): Promise<void> {
+  const validXml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test Document</title>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Test</publisher>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Test</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p xml:id="p1">This is a test paragraph.</p>
+      <p xml:id="p2">This is another test paragraph.</p>
+    </body>
+  </text>
+</TEI>`;
+
+  // Load using DocumentProtocol which handles gallery→editor transition
+  await app.editor().loadFromXml(validXml, 'test-valid.tei.xml');
+}
 
 test.describe('Document Validation Integration', () => {
-  let editorPage: EditorPage;
-
-  test.beforeEach(async ({ page }) => {
-    editorPage = new EditorPage(page);
-    await editorPage.goto();
-    // Document should auto-load on first visit
-    await editorPage.waitForDocumentLoaded();
-  });
-
   test('should show validation panel when button is clicked', async ({ page }) => {
-    // Click the Validation button
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    const app = await TEIEditorApp.create(page);
 
-    // Validation panel should be visible within the Card
-    await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
+    // Create a valid TEI document
+    const validXml = `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test Document</title>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Test</publisher>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Test</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p xml:id="p1">This is a test paragraph.</p>
+      <p xml:id="p2">This is another test paragraph.</p>
+    </body>
+  </text>
+</TEI>`;
+
+    // Upload the document using protocol
+    await app.files().uploadRaw(validXml, 'test-valid.tei.xml');
+
+    // Wait for editor state with document loaded
+    await app.waitForState({
+      location: 'editor',
+      document: { loaded: true },
+    });
+
+    // Give React time to render the UI
+    await page.waitForTimeout(500);
+
+    // Click the Validation button using protocol
+    await app.validation().openPanel();
+
+    // Verify validation panel is visible in DOM
+    // The panel shows "Document Validation" heading when open
+    await expect(page.getByRole('heading', { name: 'Document Validation' })).toBeVisible();
   });
 
   test('should display validation results for valid document', async ({ page }) => {
-    // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    const app = await TEIEditorApp.create(page);
 
-    // Should show document is valid (the default sample should be valid)
-    await expect(page.getByText(/document is valid/i)).toBeVisible();
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
+    // Open validation panel
+    await app.validation().openPanel();
+
+    // Should show document is valid (health score and no issues)
+    await expect(page.getByText(/HEALTHY|No issues found/i)).toBeVisible();
   });
 
   test('should block invalid edit and show error message', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // Create invalid XML (missing closing tag)
     const invalidXml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
@@ -60,41 +141,41 @@ test.describe('Document Validation Integration', () => {
     <body>
       <p>Test paragraph with <said>unclosed tag`;
 
-    // Upload the invalid document
-    await uploadTestDocument(page, {
-      name: 'invalid-test.tei.xml',
-      content: invalidXml,
-    });
+    // Upload the invalid document using protocol
+    await app.files().uploadRaw(invalidXml, 'invalid-test.tei.xml');
 
     // Wait for validation to complete
-    await page.waitForTimeout(1000);
+    await app.validation().waitForValidation();
 
     // Should show validation error toast or message
-    const hasError = await page.getByText(/validation failed|error/i).count();
-    expect(hasError).toBeGreaterThan(0);
+    const hasErrors = await app.validation().hasErrors();
+    expect(hasErrors).toBe(true);
 
     // Open validation panel to see errors
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Validation panel should be visible
     await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
   });
 
   test('should allow valid edit and update validation results', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // Open validation panel first
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Document should be valid initially
     await expect(page.getByText(/document is valid/i)).toBeVisible();
 
-    // Make a valid edit (select text)
+    // Make a valid edit (select text - click on first passage)
     const passage = page.locator('[id^="passage-"]').first();
     await passage.click();
     await page.waitForTimeout(100);
 
-    // The toolbar should appear
+    // The toolbar might appear
     const toolbarVisible = (await page.locator('.fixed.z-50.bg-background.border').count()) > 0;
     // Toolbar might not be visible if no text selected, that's ok
 
@@ -103,6 +184,11 @@ test.describe('Document Validation Integration', () => {
   });
 
   test('should show error count on validation button when invalid', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // Create invalid XML with multiple errors
     const invalidXml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
@@ -123,31 +209,31 @@ test.describe('Document Validation Integration', () => {
     <body>
       <p>Test with <unknownTag>invalid tag</said>`;
 
-    // Upload the invalid document
-    await uploadTestDocument(page, {
-      name: 'invalid-multiple-errors.tei.xml',
-      content: invalidXml,
-    });
+    // Upload the invalid document using protocol
+    await app.files().uploadRaw(invalidXml, 'invalid-multiple-errors.tei.xml');
 
     // Wait for validation
-    await page.waitForTimeout(1000);
+    await app.validation().waitForValidation();
 
     // Validation button should exist
     const validationButton = page.getByRole('button', { name: 'Validation' });
     await expect(validationButton).toBeVisible();
 
     // Click to open validation panel
-    await validationButton.click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Validation panel should be visible
     await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
   });
 
   test('should show validating state during validation', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Verify validation panel is visible
     await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
@@ -160,6 +246,11 @@ test.describe('Document Validation Integration', () => {
   });
 
   test('should allow clicking on validation errors', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // Create invalid XML
     const invalidXml = `<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
@@ -180,18 +271,14 @@ test.describe('Document Validation Integration', () => {
     <body>
       <p>Test with <unknownTag>invalid content</unknownTag></p>`;
 
-    // Upload the invalid document
-    await uploadTestDocument(page, {
-      name: 'invalid-with-location.tei.xml',
-      content: invalidXml,
-    });
+    // Upload the invalid document using protocol
+    await app.files().uploadRaw(invalidXml, 'invalid-with-location.tei.xml');
 
     // Wait for validation
-    await page.waitForTimeout(1000);
+    await app.validation().waitForValidation();
 
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Verify validation panel is visible
     await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
@@ -203,10 +290,14 @@ test.describe('Document Validation Integration', () => {
   });
 
   test('should filter validation errors by severity', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // For this test, just verify the validation panel works
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Verify validation panel is visible
     await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
@@ -216,9 +307,13 @@ test.describe('Document Validation Integration', () => {
   });
 
   test('should maintain valid state after valid edit', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Should be valid initially (or at least show validation panel)
     await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
@@ -232,14 +327,17 @@ test.describe('Document Validation Integration', () => {
   });
 
   test('should close validation panel when button is clicked again', async ({ page }) => {
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
     await expect(page.locator('[role="region"][aria-label="Validation Results"]')).toBeVisible();
 
     // Close validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().closePanel();
 
     // Panel should be hidden (visible prop set to false)
     const panelCount = await page
@@ -252,13 +350,13 @@ test.describe('Document Validation Integration', () => {
 
 test.describe('Schema Selection', () => {
   test('should load and display schema selector', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.waitForDocumentLoaded();
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
 
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Verify schema selector exists
     await expect(page.getByText('Validation Schema')).toBeVisible();
@@ -266,38 +364,38 @@ test.describe('Schema Selection', () => {
   });
 
   test('should switch schemas and re-validate', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.waitForDocumentLoaded();
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
 
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
-    // Get initial schema value
-    const initialValue = await page.locator('#schema-select').inputValue();
+    // Get initial schema value using protocol
+    const initialValue = await app.validation().getSchema();
 
-    // Select different schema (if available)
-    const schemaSelect = page.locator('#schema-select');
-    const availableOptions = await schemaSelect.locator('option').count();
+    // Get available schemas
+    const availableSchemas = await app.validation().getAvailableSchemas();
 
-    if (availableOptions > 1) {
-      await schemaSelect.selectOption({ index: 1 });
+    if (availableSchemas.length > 1) {
+      // Select different schema (if available)
+      await app.validation().setSchema(availableSchemas[1]);
 
       // Verify selection changed
-      const newValue = await page.locator('#schema-select').inputValue();
+      const newValue = await app.validation().getSchema();
       expect(newValue).not.toBe(initialValue);
     }
   });
 
   test('should display schema description and tags', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.waitForDocumentLoaded();
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
 
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
     // Verify schema selector exists
     await expect(page.getByText('Validation Schema')).toBeVisible();
@@ -308,36 +406,53 @@ test.describe('Schema Selection', () => {
   });
 
   test('should persist schema selection across sessions', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.waitForDocumentLoaded();
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
 
     // Open validation panel
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    await app.validation().openPanel();
 
-    // Get initial schema
-    const initialSchema = await page.locator('#schema-select').inputValue();
+    // Get initial schema using protocol
+    const initialSchema = await app.validation().getSchema();
 
     // Reload page
     await page.reload();
     await page.waitForTimeout(500);
 
-    // Open validation panel again
-    await page.getByRole('button', { name: 'Validation' }).click();
-    await page.waitForTimeout(300);
+    // Need to wait for gallery state after reload
+    await app.waitForState({ location: 'gallery' });
 
-    // Verify selection persisted (or at least the selector still exists)
+    // Load sample again using DOM approach
+    await page.getByRole('button', { name: 'Load Sample' }).first().click();
+
+    // Wait for editor state
+    await app.waitForState({
+      location: 'editor',
+      document: { loaded: true },
+    });
+
+    // Wait for editor state with document loaded
+    await app.waitForState({
+      location: 'editor',
+      document: { loaded: true },
+    });
+
+    // Open validation panel again
+    await app.validation().openPanel();
+
+    // Verify selector still exists
     await expect(page.locator('#schema-select')).toBeVisible();
   });
 });
 
 test.describe('Document Validation - Error Scenarios', () => {
   test('should handle malformed XML gracefully', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.loadSample('gift-of-the-magi');
-    await editorPage.waitForDocumentLoaded();
+    const app = await TEIEditorApp.create(page);
+
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
 
     // Create malformed XML
     const malformedXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -359,39 +474,33 @@ test.describe('Document Validation - Error Scenarios', () => {
     <body>
       <p>This is <<<< malformed > XML >`;
 
-    // Upload the malformed document
-    await uploadTestDocument(page, {
-      name: 'malformed-test.tei.xml',
-      content: malformedXml,
-    });
+    // Upload the malformed document using protocol
+    await app.files().uploadRaw(malformedXml, 'malformed-test.tei.xml');
 
     // Wait for validation
-    await page.waitForTimeout(500);
+    await app.validation().waitForValidation();
 
     // Should show validation error
     await expect(page.getByText(/validation failed/i)).toBeVisible();
 
     // Open validation panel
-    await page.getByRole('button', { name: /validation/i }).click();
+    await app.validation().openPanel();
 
     // Should show errors
     await expect(page.locator('[role="alert"]').filter({ hasText: /error/i })).toBeVisible();
   });
 
   test('should handle empty document', async ({ page }) => {
-    const editorPage = new EditorPage(page);
-    await editorPage.goto();
-    await editorPage.loadSample('gift-of-the-magi');
-    await editorPage.waitForDocumentLoaded();
+    const app = await TEIEditorApp.create(page);
 
-    // Upload empty document
-    await uploadTestDocument(page, {
-      name: 'empty-test.tei.xml',
-      content: '',
-    });
+    // Load a valid test document
+    await loadValidTestDocument(app, page);
+
+    // Upload empty document using protocol
+    await app.files().uploadRaw('', 'empty-test.tei.xml');
 
     // Wait for validation
-    await page.waitForTimeout(500);
+    await app.validation().waitForValidation();
 
     // Should show validation error
     await expect(page.getByText(/validation failed/i)).toBeVisible();

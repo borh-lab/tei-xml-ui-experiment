@@ -17,10 +17,16 @@ export class FileProtocol {
     const fileInput = this.app.page().locator('input[type="file"]');
     await fileInput.setInputFiles(options);
 
-    // Wait a moment for processing
-    await this.app.page().waitForTimeout(500);
+    // Wait for document to actually load in the state
+    // The file input triggers upload, but we need to wait for state to update
+    await this.app.waitForState({
+      location: 'editor',
+      document: { loaded: true },
+    }, 10000); // 10 second timeout
 
-    // Check current state - may or may not have loaded successfully
+    // Wait a bit more for UI to render
+    await this.app.page().waitForTimeout(1000);
+
     return await this.app.getState();
   }
 

@@ -4,6 +4,7 @@ import { SampleProtocol } from '../protocols/SampleProtocol';
 import { DocumentProtocol } from '../protocols/DocumentProtocol';
 import { TagProtocol } from '../protocols/TagProtocol';
 import { FileProtocol } from '../protocols/FileProtocol';
+import { ValidationProtocol } from '../protocols/ValidationProtocol';
 
 export class TEIEditorApp {
   private monitor: StateMonitor;
@@ -11,6 +12,7 @@ export class TEIEditorApp {
   private _editor?: DocumentProtocol;
   private _tags?: TagProtocol;
   private _files?: FileProtocol;
+  private _validation?: ValidationProtocol;
 
   private constructor(private _page: Page, monitor: StateMonitor) {
     this.monitor = monitor;
@@ -64,6 +66,13 @@ export class TEIEditorApp {
       this._files = new FileProtocol(this);
     }
     return this._files;
+  }
+
+  validation(): ValidationProtocol {
+    if (!this._validation) {
+      this._validation = new ValidationProtocol(this);
+    }
+    return this._validation;
   }
 
   page(): Page {
