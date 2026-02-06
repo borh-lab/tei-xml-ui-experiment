@@ -18,15 +18,14 @@ import {
   generateEntityId,
   generateXmlId,
 } from '@/lib/protocols/entities';
-import type { EntityDelta } from '@/lib/values/EntityDelta';
 import { createCreateDelta, createUpdateDelta, createDeleteDelta } from '@/lib/values/EntityDelta';
 import { isSuccess, isFailure } from '@/lib/protocols/Result';
-import type { Character, Place, Organization } from '@/lib/tei/types';
+import type { Character, Place, Organization, Entity } from '@/lib/tei/types';
 
 describe('Entity Management Protocol', () => {
   describe('applyEntityDelta - Create Operation', () => {
     const mockCharacter: Character = {
-      id: 'char-1',
+      id: 'character-1',
       xmlId: 'john-doe',
       name: 'John Doe',
       sex: 'M',
@@ -64,8 +63,8 @@ describe('Entity Management Protocol', () => {
 
     it('should append multiple entities', () => {
       const entities: Entity[] = [];
-      const char1: Character = { id: 'char-1', xmlId: 'john', name: 'John', sex: 'M' as const } as Character;
-      const char2: Character = { id: 'char-2', xmlId: 'jane', name: 'Jane', sex: 'F' as const } as Character;
+      const char1: Character = { id: 'character-1', xmlId: 'john', name: 'John', sex: 'M' as const } as Character;
+      const char2: Character = { id: 'character-2', xmlId: 'jane', name: 'Jane', sex: 'F' as const } as Character;
 
       const delta1 = createCreateDelta('character', char1);
       const delta2 = createCreateDelta('character', char2);
@@ -84,7 +83,7 @@ describe('Entity Management Protocol', () => {
 
   describe('applyEntityDelta - Update Operation', () => {
     const mockCharacter: Character = {
-      id: 'char-1',
+      id: 'character-1',
       xmlId: 'john-doe',
       name: 'John Doe',
       sex: 'M',
@@ -101,13 +100,13 @@ describe('Entity Management Protocol', () => {
       if (isSuccess(result)) {
         expect(result.value).toHaveLength(1);
         expect(result.value[0].name).toBe('John Smith');
-        expect(result.value[0].id).toBe('char-1');
+        expect(result.value[0].id).toBe('character-1');
       }
     });
 
     it('should fail if entity ID not found', () => {
       const entities: Entity[] = [mockCharacter];
-      const notFound = { id: 'char-999', xmlId: 'ghost', name: 'Ghost', sex: 'M' as const } as Character;
+      const notFound = { id: 'character-999', xmlId: 'ghost', name: 'Ghost', sex: 'M' as const } as Character;
       const delta = createUpdateDelta('character', notFound);
 
       const result = applyEntityDelta(entities, delta);
@@ -119,9 +118,9 @@ describe('Entity Management Protocol', () => {
     });
 
     it('should preserve collection order on update', () => {
-      const char1: Character = { id: 'char-1', xmlId: 'john', name: 'John', sex: 'M' as const } as Character;
-      const char2: Character = { id: 'char-2', xmlId: 'jane', name: 'Jane', sex: 'F' as const } as Character;
-      const char3: Character = { id: 'char-3', xmlId: 'bob', name: 'Bob', sex: 'M' as const } as Character;
+      const char1: Character = { id: 'character-1', xmlId: 'john', name: 'John', sex: 'M' as const } as Character;
+      const char2: Character = { id: 'character-2', xmlId: 'jane', name: 'Jane', sex: 'F' as const } as Character;
+      const char3: Character = { id: 'character-3', xmlId: 'bob', name: 'Bob', sex: 'M' as const } as Character;
 
       const entities: Entity[] = [char1, char2, char3];
       const updated = { ...char2, name: 'Jane Smith' };
@@ -131,17 +130,17 @@ describe('Entity Management Protocol', () => {
 
       expect(isSuccess(result)).toBe(true);
       if (isSuccess(result)) {
-        expect(result.value[0].id).toBe('char-1');
-        expect(result.value[1].id).toBe('char-2');
+        expect(result.value[0].id).toBe('character-1');
+        expect(result.value[1].id).toBe('character-2');
         expect(result.value[1].name).toBe('Jane Smith');
-        expect(result.value[2].id).toBe('char-3');
+        expect(result.value[2].id).toBe('character-3');
       }
     });
   });
 
   describe('applyEntityDelta - Delete Operation', () => {
     const mockCharacter: Character = {
-      id: 'char-1',
+      id: 'character-1',
       xmlId: 'john-doe',
       name: 'John Doe',
       sex: 'M',
@@ -161,7 +160,7 @@ describe('Entity Management Protocol', () => {
 
     it('should fail if entity ID not found', () => {
       const entities: Entity[] = [mockCharacter];
-      const notFound = { id: 'char-999', xmlId: 'ghost', name: 'Ghost', sex: 'M' as const } as Character;
+      const notFound = { id: 'character-999', xmlId: 'ghost', name: 'Ghost', sex: 'M' as const } as Character;
       const delta = createDeleteDelta('character', notFound);
 
       const result = applyEntityDelta(entities, delta);
@@ -173,9 +172,9 @@ describe('Entity Management Protocol', () => {
     });
 
     it('should preserve other entities on delete', () => {
-      const char1: Character = { id: 'char-1', xmlId: 'john', name: 'John', sex: 'M' as const } as Character;
-      const char2: Character = { id: 'char-2', xmlId: 'jane', name: 'Jane', sex: 'F' as const } as Character;
-      const char3: Character = { id: 'char-3', xmlId: 'bob', name: 'Bob', sex: 'M' as const } as Character;
+      const char1: Character = { id: 'character-1', xmlId: 'john', name: 'John', sex: 'M' as const } as Character;
+      const char2: Character = { id: 'character-2', xmlId: 'jane', name: 'Jane', sex: 'F' as const } as Character;
+      const char3: Character = { id: 'character-3', xmlId: 'bob', name: 'Bob', sex: 'M' as const } as Character;
 
       const entities: Entity[] = [char1, char2, char3];
       const delta = createDeleteDelta('character', char2);
@@ -185,15 +184,15 @@ describe('Entity Management Protocol', () => {
       expect(isSuccess(result)).toBe(true);
       if (isSuccess(result)) {
         expect(result.value).toHaveLength(2);
-        expect(result.value[0].id).toBe('char-1');
-        expect(result.value[1].id).toBe('char-3');
+        expect(result.value[0].id).toBe('character-1');
+        expect(result.value[1].id).toBe('character-3');
       }
     });
   });
 
   describe('Entity Type Validation', () => {
     const mockCharacter: Character = {
-      id: 'char-1',
+      id: 'character-1',
       xmlId: 'john-doe',
       name: 'John Doe',
       sex: 'M',
@@ -211,7 +210,7 @@ describe('Entity Management Protocol', () => {
     } as Place;
 
     const mockOrganization: Organization = {
-      id: 'org-1',
+      id: 'organization-1',
       xmlId: 'acme-corp',
       name: 'Acme Corporation',
       type: 'company',
@@ -251,7 +250,7 @@ describe('Entity Management Protocol', () => {
 
   describe('Helper Functions', () => {
     const mockCharacter: Character = {
-      id: 'char-1',
+      id: 'character-1',
       xmlId: 'john-doe',
       name: 'John Doe',
       sex: 'M',
@@ -271,13 +270,13 @@ describe('Entity Management Protocol', () => {
     describe('getEntityById', () => {
       it('should return entity if found', () => {
         const entities: Entity[] = [mockCharacter, mockPlace];
-        const result = getEntityById(entities, 'char-1');
+        const result = getEntityById(entities, 'character-1');
         expect(result).toEqual(mockCharacter);
       });
 
       it('should return undefined if not found', () => {
         const entities: Entity[] = [mockCharacter, mockPlace];
-        const result = getEntityById(entities, 'char-999');
+        const result = getEntityById(entities, 'character-999');
         expect(result).toBeUndefined();
       });
     });
@@ -292,7 +291,7 @@ describe('Entity Management Protocol', () => {
 
       it('should return empty array for unknown type', () => {
         const entities: Entity[] = [mockCharacter, mockPlace];
-        const result = getEntitiesByType(entities, 'organization' as any);
+        const result = getEntitiesByType(entities, 'organization' as EntityType);
         expect(result).toHaveLength(0);
       });
     });

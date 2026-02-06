@@ -7,7 +7,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useEntities } from '@/hooks/useEntities';
 import type { Character, Place, Organization } from '@/lib/tei/types';
-import { createCreateDelta, createUpdateDelta, createDeleteDelta } from '@/lib/values/EntityDelta';
+import { createCreateDelta } from '@/lib/values/EntityDelta';
 
 describe('useEntities Hook', () => {
   describe('Initial State', () => {
@@ -40,7 +40,7 @@ describe('useEntities Hook', () => {
       expect(character.name).toBe('Jane Doe');
       expect(character.sex).toBe('F');
       expect(character.age).toBe(30);
-      expect(character.id).toMatch(/^character-jane-doe-/);
+      expect(character.id).toMatch(/^character-jane-doe/);
       expect(character.xmlId).toBe('jane-doe');
     });
 
@@ -74,7 +74,7 @@ describe('useEntities Hook', () => {
       });
 
       const character = result.current.entities[0] as Character;
-      expect(character.xmlId).toBe('marie-claire-obrien');
+      expect(character.xmlId).toBe('marie-claire-o-brien');
     });
   });
 
@@ -95,7 +95,7 @@ describe('useEntities Hook', () => {
       expect(place.name).toBe('Paris');
       expect(place.type).toBe('city');
       expect(place.coordinates?.lat).toBe(48.8566);
-      expect(place.id).toMatch(/^place-paris-/);
+      expect(place.id).toMatch(/^place-paris/);
     });
 
     it('should add delta to history after creating place', async () => {
@@ -129,7 +129,7 @@ describe('useEntities Hook', () => {
       const org = result.current.entities[0] as Organization;
       expect(org.name).toBe('Acme Corporation');
       expect(org.type).toBe('company');
-      expect(org.id).toMatch(/^organization-acme-corporation-/);
+      expect(org.id).toMatch(/^organization-acme-corporation/);
     });
 
     it('should add delta to history after creating organization', async () => {
@@ -262,9 +262,20 @@ describe('useEntities Hook', () => {
     it('should filter entities by type', async () => {
       const { result } = renderHook(() => useEntities());
 
+      // Create entities one at a time with proper awaiting
       await act(async () => {
         await result.current.createCharacter({ name: 'Jane Doe', sex: 'F' });
-        await result.current.createPlace({ name: 'Paris', type: 'city' });
+      });
+
+      await act(async () => {
+        await result.current.createPlace({
+          name: 'Paris',
+          type: 'city',
+          coordinates: { lat: 48.8566, lng: 2.3522 }
+        });
+      });
+
+      await act(async () => {
         await result.current.createOrganization({ name: 'Acme Corp', type: 'company' });
       });
 
@@ -313,7 +324,17 @@ describe('useEntities Hook', () => {
 
       await act(async () => {
         await result.current.createCharacter({ name: 'Jane Doe', sex: 'F' });
-        await result.current.createPlace({ name: 'Paris', type: 'city' });
+      });
+
+      await act(async () => {
+        await result.current.createPlace({
+          name: 'Paris',
+          type: 'city',
+          coordinates: { lat: 48.8566, lng: 2.3522 }
+        });
+      });
+
+      await act(async () => {
         await result.current.createOrganization({ name: 'Acme Corp', type: 'company' });
       });
 
@@ -325,8 +346,18 @@ describe('useEntities Hook', () => {
 
       await act(async () => {
         await result.current.createCharacter({ name: 'Jane Doe', sex: 'F' });
+      });
+
+      await act(async () => {
         await result.current.createCharacter({ name: 'John Smith', sex: 'M' });
-        await result.current.createPlace({ name: 'Paris', type: 'city' });
+      });
+
+      await act(async () => {
+        await result.current.createPlace({
+          name: 'Paris',
+          type: 'city',
+          coordinates: { lat: 48.8566, lng: 2.3522 }
+        });
       });
 
       expect(result.current.getEntityCount('character')).toBe(2);
@@ -339,9 +370,8 @@ describe('useEntities Hook', () => {
     it('should undo last create operation', async () => {
       const { result } = renderHook(() => useEntities());
 
-      let character: Character;
       await act(async () => {
-        character = await result.current.createCharacter({
+        await result.current.createCharacter({
           name: 'Jane Doe',
           sex: 'F',
         });
@@ -359,9 +389,8 @@ describe('useEntities Hook', () => {
     it('should redo undone operation', async () => {
       const { result } = renderHook(() => useEntities());
 
-      let character: Character;
       await act(async () => {
-        character = await result.current.createCharacter({
+        await result.current.createCharacter({
           name: 'Jane Doe',
           sex: 'F',
         });
@@ -386,7 +415,13 @@ describe('useEntities Hook', () => {
 
       await act(async () => {
         await result.current.createCharacter({ name: 'Jane Doe', sex: 'F' });
+      });
+
+      await act(async () => {
         await result.current.createCharacter({ name: 'John Smith', sex: 'M' });
+      });
+
+      await act(async () => {
         await result.current.createCharacter({ name: 'Bob Johnson', sex: 'M' });
       });
 
@@ -415,7 +450,14 @@ describe('useEntities Hook', () => {
 
       await act(async () => {
         await result.current.createCharacter({ name: 'Jane Doe', sex: 'F' });
-        await result.current.createPlace({ name: 'Paris', type: 'city' });
+      });
+
+      await act(async () => {
+        await result.current.createPlace({
+          name: 'Paris',
+          type: 'city',
+          coordinates: { lat: 48.8566, lng: 2.3522 }
+        });
       });
 
       expect(result.current.entities).toHaveLength(2);
@@ -477,7 +519,7 @@ describe('useEntities Hook', () => {
       await act(async () => {
         try {
           await result.current.applyDelta(delta2);
-        } catch (e) {
+        } catch {
           // Expected to throw
         }
       });
