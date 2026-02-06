@@ -85,6 +85,7 @@ jest.mock('@/lib/context/ErrorContext', () => ({
 
 import { render, screen } from '@testing-library/react';
 import { TagToolbar } from '@/components/editor/TagToolbar';
+import { DocumentProvider } from '@/lib/context/DocumentContext';
 
 describe('TagToolbar', () => {
   beforeAll(() => {
@@ -112,20 +113,32 @@ describe('TagToolbar', () => {
   it('should not render when no selection exists', () => {
     mockGetSelection.mockReturnValue(null);
 
-    const { container } = render(<TagToolbar />);
+    const { container } = render(
+      <DocumentProvider document={mockDocument}>
+        <TagToolbar />
+      </DocumentProvider>
+    );
 
     expect(container.firstChild).toBeNull();
   });
 
   it('should set up event listeners on mount', () => {
-    render(<TagToolbar />);
+    render(
+      <DocumentProvider document={mockDocument}>
+        <TagToolbar />
+      </DocumentProvider>
+    );
 
     // Verify the component renders without crashing
     expect(screen.queryByText(/Speaker/)).not.toBeInTheDocument();
   });
 
   it('should clean up event listeners on unmount', () => {
-    const { unmount } = render(<TagToolbar />);
+    const { unmount } = render(
+      <DocumentProvider document={mockDocument}>
+        <TagToolbar />
+      </DocumentProvider>
+    );
 
     // Verify unmounting doesn't crash
     expect(() => unmount()).not.toThrow();

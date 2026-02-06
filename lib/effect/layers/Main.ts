@@ -19,9 +19,10 @@ import {
   BrowserValidationService,
   TestValidationService,
 } from '../services/ValidationService';
-import {
-  EntityRepositoryLive,
-} from '../services/EntityRepository';
+// EntityRepository is server-only - not included in MainLayer
+// import {
+//   EntityRepositoryLive,
+// } from '../services/EntityRepository';
 // TODO: Fix AIService provider implementation
 // import { AIService, AIServiceLive, OpenAIService, TestAIService } from '../services/AIService';
 
@@ -30,12 +31,16 @@ import {
  *
  * Provides all Effect services to the application.
  * Use this to provide the Effect runtime to your application.
+ *
+ * NOTE: EntityRepositoryLive is NOT included here because it uses
+ * Node.js-only FileSystem APIs. It must be provided separately on
+ * the server side.
  */
 export const MainLayer = Layer.mergeAll(
   DocumentServiceLive,
   StorageServiceLive,
-  ValidationServiceLive,
-  EntityRepositoryLive
+  ValidationServiceLive
+  // EntityRepositoryLive - server only, uses Node.js FileSystem
 );
 
 // Re-export service implementations
