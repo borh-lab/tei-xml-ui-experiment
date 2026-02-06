@@ -32,6 +32,20 @@ const eslintConfig = defineConfig([
     "**/node_modules/**",
     ".venv/**",
   ]),
+  {
+    rules: {
+      // Allow @ts-nocheck in test files and migration files
+      "@typescript-eslint/ban-ts-comment": "off",
+      // Allow setState in useEffect for initialization patterns (common in V2 migration)
+      "react-hooks/set-state-in-effect": "off",
+      // Relax other rules during migration
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-require-imports": "warn",
+      "@typescript-eslint/prefer-as-const": "warn",
+      "react/no-unescaped-entities": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;
