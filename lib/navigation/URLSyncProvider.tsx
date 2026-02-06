@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { parseDocId, buildDocUrl } from './urlUtils';
@@ -8,6 +8,21 @@ import { parseDocId, buildDocUrl } from './urlUtils';
 interface URLSyncProviderProps {
   children: React.ReactNode;
   searchParams: ReadonlyURLSearchParams | URLSearchParams;
+}
+
+// Create NavigationContext for error state
+const NavigationContext = createContext<{
+  loadError: Error | null;
+}>({
+  loadError: null,
+});
+
+export function useNavigation() {
+  const context = useContext(NavigationContext);
+  if (!context) {
+    throw new Error('useNavigation must be used within URLSyncProvider');
+  }
+  return context;
 }
 
 /**
@@ -93,14 +108,11 @@ export default function URLSyncProvider({ children, searchParams }: URLSyncProvi
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  if (loadError) {
-    return (
-      <>
-        {/* DocumentLoadError component will be rendered here */}
-        {children}
-      </>
-    );
-  }
+  const navigationValue = { loadError };
 
-  return <>{children}</>;
+  return (
+    <NavigationContext.Provider value={navigationValue}>
+      {children}
+    </NavigationContext.Provider>
+  );
 }
