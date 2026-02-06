@@ -16,8 +16,7 @@ class TrainedModel(Protocol):
     """
 
     def prepare_training_data(
-        self,
-        data: List[Dict[str, Any]]
+        self, data: List[Dict[str, Any]]
     ) -> Tuple[List[List[Dict[str, Any]]], List[List[str]]]:
         """Prepare training data from tokenized paragraphs.
 
@@ -32,9 +31,7 @@ class TrainedModel(Protocol):
         ...
 
     def train(
-        self,
-        train_data: List[Dict[str, Any]],
-        val_data: Optional[List[Dict[str, Any]]] = None
+        self, train_data: List[Dict[str, Any]], val_data: Optional[List[Dict[str, Any]]] = None
     ) -> None:
         """Train the model on provided data.
 
@@ -44,10 +41,7 @@ class TrainedModel(Protocol):
         """
         ...
 
-    def predict_paragraphs(
-        self,
-        data: List[Dict[str, Any]]
-    ) -> List['ModelPrediction']:
+    def predict_paragraphs(self, data: List[Dict[str, Any]]) -> List["ModelPrediction"]:
         """Predict speech labels for paragraphs.
 
         Args:
@@ -70,6 +64,7 @@ class ModelPrediction:
         predicted_bio_labels: Predicted BIO labels (one per token)
         text: Original paragraph text
     """
+
     doc_id: str
     para_id: str
     tokens: List[str]
@@ -92,6 +87,7 @@ class CRFConfig:
         use_speech_verbs: Whether to include speech verb features
         use_orthographic: Whether to include orthographic features
     """
+
     c1: float = 0.5
     c2: float = 0.5
     max_iterations: int = 100
@@ -118,6 +114,7 @@ class TransformerConfig:
         bf16: Whether to use BFloat16 mixed precision
         gradient_accumulation_steps: Number of gradient accumulation steps
     """
+
     model_name: str
     max_length: int
     num_labels: int
@@ -168,6 +165,7 @@ class QuoteBaselineConfig:
         handle_multi_paragraph: Whether to detect multi-paragraph quotes
         handle_nested: Whether to detect nested quotes
     """
-    speech_label: str = 'DIRECT'
+
+    speech_label: str = "DIRECT"
     handle_multi_paragraph: bool = True
     handle_nested: bool = True

@@ -28,7 +28,7 @@ from ...models.protocols import (
 # Pre-compiled regex for fast quote detection in paragraphs
 # Matches any quote character in the text
 QUOTE_CHARS = r'"\'\u201c\u201d\u2018\u2019\u00ab\u00bb\u201e\u201c'
-QUOTE_PATTERN = re.compile(f'[{QUOTE_CHARS}]')
+QUOTE_PATTERN = re.compile(f"[{QUOTE_CHARS}]")
 
 # Quote character sets
 # Using Unicode escapes for smart quotes to avoid encoding issues
@@ -36,32 +36,36 @@ STRAIGHT_DOUBLE_QUOTE = '"'
 STRAIGHT_SINGLE_QUOTE = "'"
 
 # Smart quotes (Unicode)
-LEFT_DOUBLE_QUOTE = '\u201c'  # "
-RIGHT_DOUBLE_QUOTE = '\u201d'  # "
-LEFT_SINGLE_QUOTE = '\u2018'  # '
-RIGHT_SINGLE_QUOTE = '\u2019'  # '
+LEFT_DOUBLE_QUOTE = "\u201c"  # "
+RIGHT_DOUBLE_QUOTE = "\u201d"  # "
+LEFT_SINGLE_QUOTE = "\u2018"  # '
+RIGHT_SINGLE_QUOTE = "\u2019"  # '
 
 # Guillemets (French quotes)
-LEFT_GUILLEMET = '\u00ab'  # «
-RIGHT_GUILLEMET = '\u00bb'  # »
+LEFT_GUILLEMET = "\u00ab"  # «
+RIGHT_GUILLEMET = "\u00bb"  # »
 
 # Opening quote characters
-OPENING_QUOTES = frozenset([
-    STRAIGHT_DOUBLE_QUOTE,  # Straight double quote
-    LEFT_DOUBLE_QUOTE,      # Left double smart quote
-    STRAIGHT_SINGLE_QUOTE,  # Straight single quote
-    LEFT_GUILLEMET,         # Left guillemet
-    LEFT_SINGLE_QUOTE,      # Left single smart quote
-])
+OPENING_QUOTES = frozenset(
+    [
+        STRAIGHT_DOUBLE_QUOTE,  # Straight double quote
+        LEFT_DOUBLE_QUOTE,  # Left double smart quote
+        STRAIGHT_SINGLE_QUOTE,  # Straight single quote
+        LEFT_GUILLEMET,  # Left guillemet
+        LEFT_SINGLE_QUOTE,  # Left single smart quote
+    ]
+)
 
 # Closing quote characters
-CLOSING_QUOTES = frozenset([
-    STRAIGHT_DOUBLE_QUOTE,  # Straight double quote
-    RIGHT_DOUBLE_QUOTE,     # Right double smart quote
-    STRAIGHT_SINGLE_QUOTE,  # Straight single quote
-    RIGHT_GUILLEMET,        # Right guillemet
-    RIGHT_SINGLE_QUOTE,     # Right single smart quote
-])
+CLOSING_QUOTES = frozenset(
+    [
+        STRAIGHT_DOUBLE_QUOTE,  # Straight double quote
+        RIGHT_DOUBLE_QUOTE,  # Right double smart quote
+        STRAIGHT_SINGLE_QUOTE,  # Straight single quote
+        RIGHT_GUILLEMET,  # Right guillemet
+        RIGHT_SINGLE_QUOTE,  # Right single smart quote
+    ]
+)
 
 # All quote characters
 ALL_QUOTES = OPENING_QUOTES | CLOSING_QUOTES
@@ -104,8 +108,7 @@ class QuoteBaselineModel:
         self.config = config or QuoteBaselineConfig()
 
     def prepare_training_data(
-        self,
-        data: List[Dict[str, Any]]
+        self, data: List[Dict[str, Any]]
     ) -> Tuple[List[List[Dict[str, Any]]], List[List[str]]]:
         """Prepare training data (no-op for baseline model).
 
@@ -121,9 +124,7 @@ class QuoteBaselineModel:
         return [], []
 
     def train(
-        self,
-        train_data: List[Dict[str, Any]],
-        val_data: List[Dict[str, Any]] | None = None
+        self, train_data: List[Dict[str, Any]], val_data: List[Dict[str, Any]] | None = None
     ) -> None:
         """Train the model (no-op for baseline model).
 
@@ -135,10 +136,7 @@ class QuoteBaselineModel:
         """
         pass
 
-    def predict_paragraphs(
-        self,
-        data: List[Dict[str, Any]]
-    ) -> List[ModelPrediction]:
+    def predict_paragraphs(self, data: List[Dict[str, Any]]) -> List[ModelPrediction]:
         """Predict speech labels for paragraphs.
 
         Args:
@@ -169,11 +167,11 @@ class QuoteBaselineModel:
         for para, labels in zip(data, predicted_labels, strict=True):
             predictions.append(
                 ModelPrediction(
-                    doc_id=para.get('doc_id', 'unknown'),
-                    para_id=para.get('para_id', 'unknown'),
-                    tokens=para['tokens'],
+                    doc_id=para.get("doc_id", "unknown"),
+                    para_id=para.get("para_id", "unknown"),
+                    tokens=para["tokens"],
                     predicted_bio_labels=labels,
-                    text=para['text'],
+                    text=para["text"],
                 )
             )
 
@@ -221,7 +219,7 @@ class QuoteBaselineModel:
             if token.startswith(char) and len(token) > 2:
                 # 'word - might be starting quote, check if rest is word
                 rest = token[1:]
-                if rest.isalpha() or rest.replace('-', '').isalpha():
+                if rest.isalpha() or rest.replace("-", "").isalpha():
                     return False  # This is 'word, likely a quote
             elif token.endswith(char) and len(token) > 2:
                 # word' - likely apostrophe at end
@@ -238,9 +236,9 @@ class QuoteBaselineModel:
             next_char = text[char_idx + 1]
 
             # Pattern like s' (Cameron's) or 't (don't) without spaces = apostrophe
-            if prev_char.isalpha() and (next_char.isalpha() or next_char == 's'):
+            if prev_char.isalpha() and (next_char.isalpha() or next_char == "s"):
                 return True
-            if prev_char == 's' and next_char.isalpha():
+            if prev_char == "s" and next_char.isalpha():
                 return True
 
         return False
@@ -280,8 +278,8 @@ class QuoteBaselineModel:
         quote_stack: List[Tuple[int, int, str]] = []  # (para_idx, token_idx, quote_char)
 
         for para_idx, para in enumerate(paragraphs):
-            text = para['text']
-            tokens = para['tokens']
+            text = para["text"]
+            tokens = para["tokens"]
 
             # FAST PATH: If paragraph has no quotes at all, skip it entirely
             # This regex check is O(n) but much faster than token iteration
@@ -294,8 +292,7 @@ class QuoteBaselineModel:
                 if token in ALL_QUOTES:
                     # Direct processing, no offset lookup needed!
                     self._process_quote_token(
-                        token, token_idx, para_idx, text, tokens,
-                        quote_stack, spans
+                        token, token_idx, para_idx, text, tokens, quote_stack, spans
                     )
                     continue
 
@@ -307,16 +304,21 @@ class QuoteBaselineModel:
                         # Find all quote characters in this token
                         for quote_char in self._extract_quotes_from_token(token):
                             # For single quotes, check if it's an apostrophe
-                            if quote_char in [STRAIGHT_SINGLE_QUOTE, RIGHT_SINGLE_QUOTE, LEFT_SINGLE_QUOTE]:
+                            if quote_char in [
+                                STRAIGHT_SINGLE_QUOTE,
+                                RIGHT_SINGLE_QUOTE,
+                                LEFT_SINGLE_QUOTE,
+                            ]:
                                 # Find character position for apostrophe check
                                 char_idx = text.find(quote_char)
-                                if char_idx != -1 and self._is_apostrophe(quote_char, char_idx, text, token_idx, tokens):
+                                if char_idx != -1 and self._is_apostrophe(
+                                    quote_char, char_idx, text, token_idx, tokens
+                                ):
                                     continue  # Skip apostrophes
 
                             # Process this quote
                             self._process_quote_token(
-                                quote_char, token_idx, para_idx, text, tokens,
-                                quote_stack, spans
+                                quote_char, token_idx, para_idx, text, tokens, quote_stack, spans
                             )
 
         # Handle unclosed quotes (multi-paragraph quotes)
@@ -450,7 +452,7 @@ class QuoteBaselineModel:
             # to find the next token
             while text_pos < len(text) and text_pos == token_start + len(token):
                 # Check if there's a separator
-                if text_pos < len(text) and text[text_pos] in ' \t\n\r':
+                if text_pos < len(text) and text[text_pos] in " \t\n\r":
                     text_pos += 1
                 else:
                     break
@@ -511,7 +513,9 @@ class QuoteBaselineModel:
         from collections import defaultdict
 
         # Group spans by starting paragraph (O(m) instead of O(n×m))
-        spans_by_para: Dict[int, List[Tuple[int, int, int, int, str, bool, int]]] = defaultdict(list)
+        spans_by_para: Dict[int, List[Tuple[int, int, int, int, str, bool, int]]] = defaultdict(
+            list
+        )
         for span in quote_spans:
             start_para = span[0]
             spans_by_para[start_para].append(span)
@@ -519,8 +523,8 @@ class QuoteBaselineModel:
         all_bio_labels: List[List[str]] = []
 
         for para_idx, para in enumerate(paragraphs):
-            tokens = para['tokens']
-            bio_labels = ['O'] * len(tokens)
+            tokens = para["tokens"]
+            bio_labels = ["O"] * len(tokens)
 
             # Get spans that start in this paragraph (O(1) lookup)
             para_spans = spans_by_para.get(para_idx, [])
@@ -550,10 +554,10 @@ class QuoteBaselineModel:
 
                     # Mark as speech
                     if first_content_token:
-                        bio_labels[token_idx] = f'B-{self.config.speech_label}'
+                        bio_labels[token_idx] = f"B-{self.config.speech_label}"
                         first_content_token = False
                     else:
-                        bio_labels[token_idx] = f'I-{self.config.speech_label}'
+                        bio_labels[token_idx] = f"I-{self.config.speech_label}"
 
             all_bio_labels.append(bio_labels)
 

@@ -24,7 +24,7 @@ def get_files_for_split(
     split: str,
     splits_path: str = "../datasets/splits.json",
     base_dir: str = "..",
-    corpora: Optional[List[str]] = None
+    corpora: Optional[List[str]] = None,
 ) -> List[Tuple[str, str]]:
     """Get file paths for a specific split.
 
@@ -76,7 +76,7 @@ def load_split_data(
     base_dir: str = "..",
     max_docs: Optional[int] = None,
     parser: Optional[TEIParser] = None,
-    corpora: Optional[List[str]] = None
+    corpora: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """Load and parse data for a specific split.
 
@@ -112,8 +112,7 @@ def load_split_data(
 
 
 def get_split_info(
-    splits_path: str = "../datasets/splits.json",
-    corpora: Optional[List[str]] = None
+    splits_path: str = "../datasets/splits.json", corpora: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """Get information about splits.
 
@@ -126,13 +125,7 @@ def get_split_info(
     """
     splits = load_splits(splits_path)
 
-    info: Dict[str, Any] = {
-        "train": 0,
-        "validation": 0,
-        "test": 0,
-        "total": 0,
-        "corpora": {}
-    }
+    info: Dict[str, Any] = {"train": 0, "validation": 0, "test": 0, "total": 0, "corpora": {}}
 
     for corpus_name, corpus_splits in splits["corpora"].items():
         if corpora and corpus_name not in corpora:
@@ -146,7 +139,7 @@ def get_split_info(
             "train": train_count,
             "validation": val_count,
             "test": test_count,
-            "total": train_count + val_count + test_count
+            "total": train_count + val_count + test_count,
         }
 
         info["corpora"][corpus_name] = corpus_info

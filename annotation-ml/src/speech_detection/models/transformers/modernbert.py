@@ -46,24 +46,19 @@ class ModernBERTModel:
         # Initialize tokenizer with critical fix for token alignment
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name,
-            add_prefix_space=True  # Essential for correct subword alignment
+            add_prefix_space=True,  # Essential for correct subword alignment
         )
 
         # Initialize model
         self.model = AutoModelForTokenClassification.from_pretrained(
-            self.model_name,
-            num_labels=self.config.num_labels,
-            ignore_mismatched_sizes=True
+            self.model_name, num_labels=self.config.num_labels, ignore_mismatched_sizes=True
         ).to(self.device)
 
         print(f"Device: {self.device}")
         print(f"Max length: {self.max_length}")
         print(f"Parameters: {sum(p.numel() for p in self.model.parameters()):,}")
 
-    def prepare_training_data(
-        self,
-        data: List[Dict[str, Any]]
-    ) -> tuple:
+    def prepare_training_data(self, data: List[Dict[str, Any]]) -> tuple:
         """Prepare training data (not used by transformer models).
 
         This method is kept for protocol compatibility but transformers
@@ -79,9 +74,7 @@ class ModernBERTModel:
         return ([], [])
 
     def train(
-        self,
-        train_data: List[Dict[str, Any]],
-        val_data: Optional[List[Dict[str, Any]]] = None
+        self, train_data: List[Dict[str, Any]], val_data: Optional[List[Dict[str, Any]]] = None
     ) -> None:
         """Train the model using Hugging Face Trainer.
 
@@ -91,20 +84,16 @@ class ModernBERTModel:
         """
         # Create datasets
         train_dataset = SpeechDataset(
-
-
             train_data,
             cast(Any, self.tokenizer),  # type: ignore[arg-type]
-            self.max_length
+            self.max_length,
         )
         val_dataset = None
         if val_data:
             val_dataset = SpeechDataset(
-
-
                 val_data,
                 cast(Any, self.tokenizer),  # type: ignore[arg-type]
-                self.max_length
+                self.max_length,
             )
 
         # Store reference for later use in prediction
@@ -112,25 +101,23 @@ class ModernBERTModel:
 
         # Data collator for dynamic padding
         data_collator = DataCollatorForTokenClassification(
-            tokenizer=self.tokenizer,
-            padding=True,
-            pad_to_multiple_of=None
+            tokenizer=self.tokenizer, padding=True, pad_to_multiple_of=None
         )
 
         # Training arguments with optimizations
         training_args = TrainingArguments(
-            output_dir='./modernbert_results',
+            output_dir="./modernbert_results",
             num_train_epochs=self.config.epochs,
             per_device_train_batch_size=self.config.batch_size,
-            per_device_eval_batch_size=self.config.batch_size * 2 if val_dataset else self.config.batch_size,
+            per_device_eval_batch_size=self.config.batch_size * 2
+            if val_dataset
+            else self.config.batch_size,
             gradient_accumulation_steps=self.config.gradient_accumulation_steps,
-
             # Optimizations
             bf16=self.config.bf16,
             gradient_checkpointing=False,
             dataloader_num_workers=4,
             dataloader_pin_memory=True,
-
             # Logging and evaluation
             logging_steps=100,
             eval_strategy="epoch" if val_dataset else "no",  # Fixed: use eval_strategy
@@ -139,10 +126,8 @@ class ModernBERTModel:
             learning_rate=self.config.learning_rate,
             warmup_steps=self.config.warmup_steps,
             weight_decay=0.01,
-
             # Performance
             max_grad_norm=1.0,
-
             load_best_model_at_end=False,
             metric_for_best_model="f1",
         )
@@ -182,12 +167,7 @@ class ModernBERTModel:
             print(f"  Precision: {metrics.get('eval_precision', 0):.4f}")
             print(f"  Recall:    {metrics.get('eval_recall', 0):.4f}")
 
-    def predict(
-        self,
-        text: str,
-        window_size: int = 4096,
-        stride: int = 3072
-    ) -> Dict[str, Any]:
+    def predict(self, text: str, window_size: int = 4096, stride: int = 3072) -> Dict[str, Any]:
         """Predict speech labels for a text using overlapping windows.
 
         Args:
@@ -200,15 +180,12 @@ class ModernBERTModel:
         """
         # Tokenize the text
         tokens = self.tokenizer(
-            text,
-            return_tensors='pt',
-            return_offsets_mapping=True,
-            return_attention_mask=True
+            text, return_tensors="pt", return_offsets_mapping=True, return_attention_mask=True
         )
 
-        input_ids = tokens['input_ids'].squeeze().tolist()
-        attention_mask = tokens['attention_mask'].squeeze().tolist()
-        offsets = tokens['offset_mapping'].squeeze().tolist()
+        input_ids = tokens["input_ids"].squeeze().tolist()
+        attention_mask = tokens["attention_mask"].squeeze().tolist()
+        offsets = tokens["offset_mapping"].squeeze().tolist()
 
         # If text is short enough, predict directly
         if len(input_ids) <= window_size:
@@ -220,10 +197,7 @@ class ModernBERTModel:
         )
 
     def _predict_single_window(
-        self,
-        input_ids: List[int],
-        attention_mask: List[int],
-        offsets: List[Tuple[int, int]]
+        self, input_ids: List[int], attention_mask: List[int], offsets: List[Tuple[int, int]]
     ) -> Dict[str, Any]:
         """Predict labels for a single window.
 
@@ -242,10 +216,7 @@ class ModernBERTModel:
         # Predict
         self.model.eval()
         with torch.no_grad():
-            outputs = self.model(
-                input_ids=input_ids_tensor,
-                attention_mask=attention_mask_tensor
-            )
+            outputs = self.model(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
 
         # Get predictions
         logits = outputs.logits
@@ -260,7 +231,7 @@ class ModernBERTModel:
             if pred_id == -100:  # Skip special tokens
                 continue
 
-            label = LABEL_DECODING.get(pred_id, 'O')
+            label = LABEL_DECODING.get(pred_id, "O")
             token_text = self.tokenizer.decode(input_ids[i])
 
             # Get confidence (softmax probability)
@@ -272,10 +243,10 @@ class ModernBERTModel:
             confidences.append(confidence)
 
         return {
-            'tokens': token_texts,
-            'labels': labels,
-            'confidences': confidences,
-            'text': self.tokenizer.decode(input_ids)
+            "tokens": token_texts,
+            "labels": labels,
+            "confidences": confidences,
+            "text": self.tokenizer.decode(input_ids),
         }
 
     def _predict_with_overlapping_windows(
@@ -284,7 +255,7 @@ class ModernBERTModel:
         attention_mask: List[int],
         offsets: List[Tuple[int, int]],
         window_size: int,
-        stride: int
+        stride: int,
     ) -> Dict[str, Any]:
         """Predict labels using overlapping windows for long texts.
 
@@ -330,9 +301,9 @@ class ModernBERTModel:
             )
 
             # Store window position
-            result['window_start'] = start
-            result['window_end'] = end
-            result['window_idx'] = window_idx
+            result["window_start"] = start
+            result["window_end"] = end
+            result["window_idx"] = window_idx
 
             window_predictions.append(result)
 
@@ -342,25 +313,23 @@ class ModernBERTModel:
         all_confidences = []
 
         for window_pred in window_predictions:
-            window_start = window_pred['window_start']
+            window_start = window_pred["window_start"]
 
             # Get the original offsets for this window
-            original_window_offsets = offsets[
-                window_start:window_pred['window_end']
-            ]
+            original_window_offsets = offsets[window_start : window_pred["window_end"]]
 
             # Filter out padding and special tokens
             valid_predictions = []
-            for i, (label, token, confidence) in enumerate(zip(
-                window_pred['labels'],
-                window_pred['tokens'],
-                window_pred['confidences'],
-                strict=True
-            )):
+            for i, (label, token, confidence) in enumerate(
+                zip(
+                    window_pred["labels"],
+                    window_pred["tokens"],
+                    window_pred["confidences"],
+                    strict=True,
+                )
+            ):
                 if i < len(original_window_offsets):
-                    valid_predictions.append(
-                        (label, token, confidence, original_window_offsets[i])
-                    )
+                    valid_predictions.append((label, token, confidence, original_window_offsets[i]))
 
             # Add valid predictions
             for label, token, confidence, (_char_start, _char_end) in valid_predictions:
@@ -369,18 +338,15 @@ class ModernBERTModel:
                 all_confidences.append(confidence)
 
         return {
-            'tokens': all_tokens,
-            'labels': all_labels,
-            'confidences': all_confidences,
-            'text': self.tokenizer.decode(input_ids),
-            'num_windows': len(windows)
+            "tokens": all_tokens,
+            "labels": all_labels,
+            "confidences": all_confidences,
+            "text": self.tokenizer.decode(input_ids),
+            "num_windows": len(windows),
         }
 
     def predict_paragraphs(
-        self,
-        data: List[Dict[str, Any]],
-        window_size: int = 4096,
-        stride: int = 3072
+        self, data: List[Dict[str, Any]], window_size: int = 4096, stride: int = 3072
     ) -> List[ModelPrediction]:
         """Predict speech labels for multiple paragraphs.
 
@@ -395,18 +361,18 @@ class ModernBERTModel:
         predictions = []
 
         for para in tqdm(data, desc="Predicting paragraphs"):
-            text = para['text']
+            text = para["text"]
 
             # Predict using overlapping windows
             result = self.predict(text, window_size=window_size, stride=stride)
 
             # Create ModelPrediction object
             prediction = ModelPrediction(
-                doc_id=para.get('doc_id', 'unknown'),
-                para_id=para.get('para_id', 'unknown'),
-                tokens=result['tokens'],
-                predicted_bio_labels=result['labels'],
-                text=text
+                doc_id=para.get("doc_id", "unknown"),
+                para_id=para.get("para_id", "unknown"),
+                tokens=result["tokens"],
+                predicted_bio_labels=result["labels"],
+                text=text,
             )
 
             predictions.append(prediction)
@@ -430,17 +396,22 @@ class ModernBERTModel:
 
         # Save config
         import json
+
         config_path = model_dir / "config.json"
-        with open(config_path, 'w') as f:
-            json.dump({
-                'model_name': self.model_name,
-                'max_length': self.max_length,
-                'num_labels': self.config.num_labels,
-                'batch_size': self.config.batch_size,
-                'epochs': self.config.epochs,
-                'learning_rate': self.config.learning_rate,
-                'bf16': self.config.bf16,
-            }, f, indent=2)
+        with open(config_path, "w") as f:
+            json.dump(
+                {
+                    "model_name": self.model_name,
+                    "max_length": self.max_length,
+                    "num_labels": self.config.num_labels,
+                    "batch_size": self.config.batch_size,
+                    "epochs": self.config.epochs,
+                    "learning_rate": self.config.learning_rate,
+                    "bf16": self.config.bf16,
+                },
+                f,
+                indent=2,
+            )
 
         print(f"Model saved to {model_dir}")
 
@@ -462,7 +433,7 @@ class ModernBERTModel:
         # Load config
         config_path = model_dir / "config.json"
         if config_path.exists():
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 config_dict = json.load(f)
             config = ModernBERTConfig(**config_dict)
         else:
@@ -474,7 +445,7 @@ class ModernBERTModel:
         # Load trained weights and tokenizer
         instance.model = AutoModelForTokenClassification.from_pretrained(
             model_dir,
-            ignore_mismatched_sizes=True  # Handle vocab size mismatch
+            ignore_mismatched_sizes=True,  # Handle vocab size mismatch
         ).to(instance.device)
         instance.tokenizer = AutoTokenizer.from_pretrained(model_dir)
 

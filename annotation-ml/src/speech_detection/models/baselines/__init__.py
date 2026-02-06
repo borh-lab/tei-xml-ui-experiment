@@ -6,4 +6,4 @@ serving as strong references for model comparison.
 
 from .quote_baseline import QuoteBaselineModel
 
-__all__ = ['QuoteBaselineModel']
+__all__ = ["QuoteBaselineModel"]

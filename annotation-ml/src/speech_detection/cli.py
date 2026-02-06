@@ -15,7 +15,9 @@ from speech_detection.data import TEIParser
 # Lazy imports for heavy dependencies (torch/transformers only when needed)
 def get_crf_model():
     from speech_detection.models import CRFConfig, CRFModel
+
     return CRFModel, CRFConfig
+
 
 def get_transformer_models():
     from speech_detection.models import (
@@ -24,7 +26,9 @@ def get_transformer_models():
         ModernBERTConfig,
         ModernBERTModel,
     )
+
     return DistilBERTModel, DistilBERTConfig, ModernBERTModel, ModernBERTConfig
+
 
 def get_evaluation():
     from speech_detection.evaluation import (
@@ -32,6 +36,7 @@ def get_evaluation():
         evaluate_model_with_cv,
         format_results,
     )
+
     return EvaluationConfig, evaluate_model_with_cv, format_results
 
 
@@ -63,12 +68,12 @@ def load_config(config_path: str) -> Dict[str, Any]:
     Returns:
         Configuration dictionary
     """
-    with open(config_path, 'r') as f:
+    with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
 
 @click.group()
-@click.version_option(version='0.1.0')
+@click.version_option(version="0.1.0")
 def cli():
     """Speech detection in TEI XML documents.
 
@@ -78,41 +83,51 @@ def cli():
 
 
 @cli.command()
-@click.option('--config', type=click.Path(exists=True), required=True,
-              help='Path to YAML configuration file')
-@click.option('--jobs', type=int, default=None,
-              help='Number of parallel jobs (overrides config)')
-@click.option('--folds', type=int, default=None,
-              help='Number of CV folds (overrides config)')
-@click.option('--bootstrap', type=int, default=None,
-              help='Number of bootstrap samples (overrides config)')
-@click.option('--use-splits', is_flag=True,
-              help='Use splits.json for train/validation/test splits')
-@click.option('--splits-path', type=str, default='../datasets/splits.json',
-              help='Path to splits.json file')
-@click.option('--save-model', type=str, default=None,
-              help='Path to save trained model (e.g., models/crf_model.pkl)')
-def train_crf(config: str, jobs: Optional[int], folds: Optional[int],
-              bootstrap: Optional[int], use_splits: bool, splits_path: str,
-              save_model: Optional[str]):
+@click.option(
+    "--config", type=click.Path(exists=True), required=True, help="Path to YAML configuration file"
+)
+@click.option("--jobs", type=int, default=None, help="Number of parallel jobs (overrides config)")
+@click.option("--folds", type=int, default=None, help="Number of CV folds (overrides config)")
+@click.option(
+    "--bootstrap", type=int, default=None, help="Number of bootstrap samples (overrides config)"
+)
+@click.option("--use-splits", is_flag=True, help="Use splits.json for train/validation/test splits")
+@click.option(
+    "--splits-path", type=str, default="../datasets/splits.json", help="Path to splits.json file"
+)
+@click.option(
+    "--save-model",
+    type=str,
+    default=None,
+    help="Path to save trained model (e.g., models/crf_model.pkl)",
+)
+def train_crf(
+    config: str,
+    jobs: Optional[int],
+    folds: Optional[int],
+    bootstrap: Optional[int],
+    use_splits: bool,
+    splits_path: str,
+    save_model: Optional[str],
+):
     """Train CRF model with cross-validation."""
     click.echo("Loading configuration...")
     cfg = load_config(config)
 
     # Apply CLI overrides
-    if 'training' not in cfg:
-        cfg['training'] = {}
+    if "training" not in cfg:
+        cfg["training"] = {}
     if jobs is not None:
-        cfg['training']['n_jobs'] = jobs
+        cfg["training"]["n_jobs"] = jobs
     if folds is not None:
-        cfg['training']['n_folds'] = folds
+        cfg["training"]["n_folds"] = folds
     if bootstrap is not None:
-        cfg['training']['n_bootstrap'] = bootstrap
+        cfg["training"]["n_bootstrap"] = bootstrap
 
     # Initialize model
     click.echo("Initializing CRF model...")
     crf_model_class, crf_config_class = get_crf_model()
-    model_config = crf_config_class(**cfg.get('model', {}))
+    model_config = crf_config_class(**cfg.get("model", {}))
     model = crf_model_class(model_config)
 
     # Load data
@@ -123,21 +138,25 @@ def train_crf(config: str, jobs: Optional[int], folds: Optional[int],
         split_info = get_split_info(splits_path)
         click.echo(f"Split info: {split_info}")
 
-        max_docs = cfg['data'].get('max_docs')
+        max_docs = cfg["data"].get("max_docs")
 
         # Load training data from splits
         parser = TEIParser()
-        data = load_split_data('train', splits_path, '..', max_docs, parser)
+        data = load_split_data("train", splits_path, "..", max_docs, parser)
         click.echo(f"Loaded {len(data)} paragraphs from train split")
     else:
         click.echo(f"Loading corpus from {cfg['data']['corpus_dir']}...")
-        corpus_dir = cfg['data']['corpus_dir']
-        max_docs = cfg['data'].get('max_docs')
+        corpus_dir = cfg["data"]["corpus_dir"]
+        max_docs = cfg["data"].get("max_docs")
 
         # Load TEI files
         parser = TEIParser()
         corpus_path = Path(corpus_dir)
-        tei_files = list(corpus_path.glob('*.xml'))[:max_docs] if max_docs else list(corpus_path.glob('*.xml'))
+        tei_files = (
+            list(corpus_path.glob("*.xml"))[:max_docs]
+            if max_docs
+            else list(corpus_path.glob("*.xml"))
+        )
 
         if not tei_files:
             click.echo(f"Error: No TEI files found in {corpus_dir}", err=True)
@@ -159,10 +178,10 @@ def train_crf(config: str, jobs: Optional[int], folds: Optional[int],
     # Evaluation config
     evaluation_config_class, evaluate_model_with_cv, format_results = get_evaluation()
     eval_config = evaluation_config_class(
-        n_folds=cfg['training'].get('n_folds', 5),
-        n_bootstrap=cfg['training'].get('n_bootstrap', 2000),
-        n_jobs=cfg['training'].get('n_jobs', 2),
-        random_state=cfg['training'].get('random_state', 42),
+        n_folds=cfg["training"].get("n_folds", 5),
+        n_bootstrap=cfg["training"].get("n_bootstrap", 2000),
+        n_jobs=cfg["training"].get("n_jobs", 2),
+        random_state=cfg["training"].get("random_state", 42),
     )
 
     # Evaluate with CV
@@ -173,29 +192,29 @@ def train_crf(config: str, jobs: Optional[int], folds: Optional[int],
     results = evaluate_model_with_cv(model, data, eval_config)
 
     # Display results
-    click.echo("\n" + "="*60)
+    click.echo("\n" + "=" * 60)
     click.echo("RESULTS")
-    click.echo("="*60)
+    click.echo("=" * 60)
     click.echo(format_results(results, "CRF"))
 
     # Save results
-    output_dir = Path(cfg.get('output', {}).get('results_dir', 'results'))
+    output_dir = Path(cfg.get("output", {}).get("results_dir", "results"))
     output_dir.mkdir(parents=True, exist_ok=True)
-    results_file = output_dir / 'crf_results.json'
+    results_file = output_dir / "crf_results.json"
 
     # Convert StatisticalResult objects to dicts for JSON serialization
     results_dict = {
         metric: {
-            'estimate': r.estimate,
-            'ci_lower': r.ci_lower,
-            'ci_upper': r.ci_upper,
-            'se': r.se,
-            'fold_scores': list(r.fold_scores) if r.fold_scores else [],
+            "estimate": r.estimate,
+            "ci_lower": r.ci_lower,
+            "ci_upper": r.ci_upper,
+            "se": r.se,
+            "fold_scores": list(r.fold_scores) if r.fold_scores else [],
         }
         for metric, r in results.items()
     }
 
-    with open(results_file, 'w') as f:
+    with open(results_file, "w") as f:
         json.dump(results_dict, f, indent=2)
 
     click.echo(f"\nResults saved to {results_file}")
@@ -214,43 +233,59 @@ def train_crf(config: str, jobs: Optional[int], folds: Optional[int],
 
 
 @cli.command()
-@click.option('--config', type=click.Path(exists=True), required=True,
-              help='Path to YAML configuration file')
-@click.option('--model', type=str, default=None,
-              help='Model name (overrides config): distilbert or modernbert')
-@click.option('--batch-size', type=int, default=None,
-              help='Batch size (overrides config)')
-@click.option('--epochs', type=int, default=None,
-              help='Number of epochs (overrides config)')
-@click.option('--lr', type=float, default=None,
-              help='Learning rate (overrides config)')
-@click.option('--save-model', type=str, default=None,
-              help='Path to save trained model (e.g., models/distilbert)')
-def train_transformer(config: str, model: Optional[str], batch_size: Optional[int],
-                      epochs: Optional[int], lr: Optional[float],
-                      save_model: Optional[str]):
+@click.option(
+    "--config", type=click.Path(exists=True), required=True, help="Path to YAML configuration file"
+)
+@click.option(
+    "--model",
+    type=str,
+    default=None,
+    help="Model name (overrides config): distilbert or modernbert",
+)
+@click.option("--batch-size", type=int, default=None, help="Batch size (overrides config)")
+@click.option("--epochs", type=int, default=None, help="Number of epochs (overrides config)")
+@click.option("--lr", type=float, default=None, help="Learning rate (overrides config)")
+@click.option(
+    "--save-model",
+    type=str,
+    default=None,
+    help="Path to save trained model (e.g., models/distilbert)",
+)
+def train_transformer(
+    config: str,
+    model: Optional[str],
+    batch_size: Optional[int],
+    epochs: Optional[int],
+    lr: Optional[float],
+    save_model: Optional[str],
+):
     """Train transformer model with train/val/test split."""
     click.echo("Loading configuration...")
     cfg = load_config(config)
 
     # Apply CLI overrides
     if model is not None:
-        cfg['model']['model_name'] = model
+        cfg["model"]["model_name"] = model
     if batch_size is not None:
-        cfg['model']['batch_size'] = batch_size
+        cfg["model"]["batch_size"] = batch_size
     if epochs is not None:
-        cfg['model']['epochs'] = epochs
+        cfg["model"]["epochs"] = epochs
     if lr is not None:
-        cfg['model']['learning_rate'] = lr
+        cfg["model"]["learning_rate"] = lr
 
     # Determine model type
-    distilbert_model_class, distilbert_config_class, modernbert_model_class, modernbert_config_class = get_transformer_models()
-    model_name = cfg['model']['model_name']
-    if 'distilbert' in model_name.lower():
+    (
+        distilbert_model_class,
+        distilbert_config_class,
+        modernbert_model_class,
+        modernbert_config_class,
+    ) = get_transformer_models()
+    model_name = cfg["model"]["model_name"]
+    if "distilbert" in model_name.lower():
         model_class = distilbert_model_class
         config_class = distilbert_config_class
         click.echo("Using DistilBERT model")
-    elif 'modernbert' in model_name.lower():
+    elif "modernbert" in model_name.lower():
         model_class = modernbert_model_class
         config_class = modernbert_config_class
         click.echo("Using ModernBERT model")
@@ -260,18 +295,20 @@ def train_transformer(config: str, model: Optional[str], batch_size: Optional[in
 
     # Initialize model
     click.echo("Initializing model...")
-    model_config = config_class(**cfg['model'])
+    model_config = config_class(**cfg["model"])
     model = model_class(model_config)
 
     # Load data
     click.echo(f"Loading corpus from {cfg['data']['corpus_dir']}...")
-    corpus_dir = cfg['data']['corpus_dir']
-    max_docs = cfg['data'].get('max_docs')
+    corpus_dir = cfg["data"]["corpus_dir"]
+    max_docs = cfg["data"].get("max_docs")
 
     # Load and split data
     parser = TEIParser()
     corpus_path = Path(corpus_dir)
-    tei_files = list(corpus_path.glob('*.xml'))[:max_docs] if max_docs else list(corpus_path.glob('*.xml'))
+    tei_files = (
+        list(corpus_path.glob("*.xml"))[:max_docs] if max_docs else list(corpus_path.glob("*.xml"))
+    )
 
     if not tei_files:
         click.echo(f"Error: No TEI files found in {corpus_dir}", err=True)
@@ -291,15 +328,15 @@ def train_transformer(config: str, model: Optional[str], batch_size: Optional[in
     click.echo(f"Total paragraphs: {len(all_data)}")
 
     # Train/val/test split
-    train_split = cfg['data'].get('train_split', 0.7)
-    val_split = cfg['data'].get('val_split', 0.15)
+    train_split = cfg["data"].get("train_split", 0.7)
+    val_split = cfg["data"].get("val_split", 0.15)
 
     n_train = int(len(all_data) * train_split)
     n_val = int(len(all_data) * val_split)
 
     train_data = all_data[:n_train]
-    val_data = all_data[n_train:n_train + n_val]
-    test_data = all_data[n_train + n_val:]
+    val_data = all_data[n_train : n_train + n_val]
+    test_data = all_data[n_train + n_val :]
 
     click.echo("\nData split:")
     click.echo(f"  Train: {len(train_data)} paragraphs")
@@ -313,7 +350,7 @@ def train_transformer(config: str, model: Optional[str], batch_size: Optional[in
     click.echo(f"  Mixed precision (BF16): {model_config.bf16}")
 
     # Call train method
-    if hasattr(model, 'train'):
+    if hasattr(model, "train"):
         model.train(train_data, val_data)  # type: ignore[arg-type]
     else:
         raise TypeError(f"Model {type(model).__name__} does not have a train method")
@@ -333,20 +370,35 @@ def train_transformer(config: str, model: Optional[str], batch_size: Optional[in
 
 
 @cli.command()
-@click.option('--model-type', type=click.Choice(['crf', 'distilbert', 'modernbert', 'baseline'], case_sensitive=False),
-              required=True, help='Type of model to load')
-@click.option('--model-path', type=click.Path(exists=True), required=True,
-              help='Path to saved model (directory for transformers, .pkl for CRF)')
-@click.option('--corpus', type=click.Path(exists=True), required=True,
-              help='Path to corpus directory with TEI XML files')
-@click.option('--max-docs', type=int, default=None,
-              help='Maximum number of documents to process')
-@click.option('--output', type=str, default=None,
-              help='Output file for predictions (JSON format)')
-@click.option('--verbose', is_flag=True,
-              help='Show detailed predictions')
-def predict(model_type: str, model_path: str, corpus: str, max_docs: Optional[int],
-             output: Optional[str], verbose: bool):
+@click.option(
+    "--model-type",
+    type=click.Choice(["crf", "distilbert", "modernbert", "baseline"], case_sensitive=False),
+    required=True,
+    help="Type of model to load",
+)
+@click.option(
+    "--model-path",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to saved model (directory for transformers, .pkl for CRF)",
+)
+@click.option(
+    "--corpus",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to corpus directory with TEI XML files",
+)
+@click.option("--max-docs", type=int, default=None, help="Maximum number of documents to process")
+@click.option("--output", type=str, default=None, help="Output file for predictions (JSON format)")
+@click.option("--verbose", is_flag=True, help="Show detailed predictions")
+def predict(
+    model_type: str,
+    model_path: str,
+    corpus: str,
+    max_docs: Optional[int],
+    output: Optional[str],
+    verbose: bool,
+):
     """Load a trained model and predict speech labels for new data.
 
     Examples:
@@ -366,20 +418,24 @@ def predict(model_type: str, model_path: str, corpus: str, max_docs: Optional[in
     click.echo(f"Loading {model_type.upper()} model from {model_path}...")
 
     # Load the appropriate model
-    if model_type == 'crf':
+    if model_type == "crf":
         from speech_detection.models import CRFConfig, CRFModel
+
         # CRF load_model is an instance method, need to create instance first
         config = CRFConfig()  # Will be loaded from saved model
         model = CRFModel(config)
         model.load_model(model_path)  # type: ignore[arg-type]
-    elif model_type == 'distilbert':
+    elif model_type == "distilbert":
         from speech_detection.models import DistilBERTModel
+
         model = DistilBERTModel.load_model(model_path)
-    elif model_type == 'modernbert':
+    elif model_type == "modernbert":
         from speech_detection.models import ModernBERTModel
+
         model = ModernBERTModel.load_model(model_path)
-    elif model_type == 'baseline':
+    elif model_type == "baseline":
         from speech_detection.models import QuoteBaselineConfig, QuoteBaselineModel
+
         # Baseline doesn't need loading, just initialize
         model = QuoteBaselineModel(QuoteBaselineConfig())  # type: ignore[assignment]
         click.echo("Note: Baseline is rule-based, no model loaded")
@@ -390,7 +446,9 @@ def predict(model_type: str, model_path: str, corpus: str, max_docs: Optional[in
     click.echo(f"\nLoading data from {corpus}...")
     parser = TEIParser()
     corpus_path = Path(corpus)
-    tei_files = list(corpus_path.glob('*.xml'))[:max_docs] if max_docs else list(corpus_path.glob('*.xml'))
+    tei_files = (
+        list(corpus_path.glob("*.xml"))[:max_docs] if max_docs else list(corpus_path.glob("*.xml"))
+    )
 
     if not tei_files:
         click.echo(f"Error: No TEI files found in {corpus}", err=True)
@@ -414,10 +472,11 @@ def predict(model_type: str, model_path: str, corpus: str, max_docs: Optional[in
     predictions = model.predict_paragraphs(all_data)
 
     # Calculate statistics
-    speech_paras = sum(1 for p in predictions if any(label != 'O' for label in p.predicted_bio_labels))
+    speech_paras = sum(
+        1 for p in predictions if any(label != "O" for label in p.predicted_bio_labels)
+    )
     total_speech_tokens = sum(
-        sum(1 for label in p.predicted_bio_labels if label != 'O')
-        for p in predictions
+        sum(1 for label in p.predicted_bio_labels if label != "O") for p in predictions
     )
     total_tokens = sum(len(p.tokens) for p in predictions)
 
@@ -439,7 +498,13 @@ def predict(model_type: str, model_path: str, corpus: str, max_docs: Optional[in
 
         count = 0
         for pred in predictions:
-            speech_tokens = [(i, t, label) for i, (t, label) in enumerate(zip(pred.tokens, pred.predicted_bio_labels, strict=True)) if label != 'O']
+            speech_tokens = [
+                (i, t, label)
+                for i, (t, label) in enumerate(
+                    zip(pred.tokens, pred.predicted_bio_labels, strict=True)
+                )
+                if label != "O"
+            ]
 
             if speech_tokens:
                 if count >= 10:
@@ -449,7 +514,7 @@ def predict(model_type: str, model_path: str, corpus: str, max_docs: Optional[in
                 click.echo(f"  Text: {pred.text[:100]}...")
                 click.echo(f"  Speech tokens ({len(speech_tokens)}):")
                 for i, token, label in speech_tokens[:20]:
-                    marker = "★" if label.startswith('B-') else ""
+                    marker = "★" if label.startswith("B-") else ""
                     click.echo(f"    [{i:2d}] {token:30s} {label}{marker}")
 
                 count += 1
@@ -464,33 +529,35 @@ def predict(model_type: str, model_path: str, corpus: str, max_docs: Optional[in
         # Convert predictions to serializable format
         predictions_data = [
             {
-                'doc_id': p.doc_id,
-                'para_id': p.para_id,
-                'tokens': p.tokens,
-                'predicted_bio_labels': p.predicted_bio_labels,
-                'text': p.text,
+                "doc_id": p.doc_id,
+                "para_id": p.para_id,
+                "tokens": p.tokens,
+                "predicted_bio_labels": p.predicted_bio_labels,
+                "text": p.text,
             }
             for p in predictions
         ]
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(predictions_data, f, indent=2)
 
         click.echo(f"\nPredictions saved to {output_path}")
 
 
 @cli.command()
-@click.option('--corpus', type=click.Path(exists=True), required=True,
-              help='Path to corpus directory')
-@click.option('--max-docs', type=int, default=None,
-              help='Maximum number of documents to load')
+@click.option(
+    "--corpus", type=click.Path(exists=True), required=True, help="Path to corpus directory"
+)
+@click.option("--max-docs", type=int, default=None, help="Maximum number of documents to load")
 def data_info(corpus: str, max_docs: Optional[int]):
     """Display information about TEI corpus."""
     click.echo(f"Loading corpus from {corpus}...")
 
     parser = TEIParser()
     corpus_path = Path(corpus)
-    tei_files = list(corpus_path.glob('*.xml'))[:max_docs] if max_docs else list(corpus_path.glob('*.xml'))
+    tei_files = (
+        list(corpus_path.glob("*.xml"))[:max_docs] if max_docs else list(corpus_path.glob("*.xml"))
+    )
 
     if not tei_files:
         click.echo(f"Error: No TEI files found in {corpus}", err=True)
@@ -506,11 +573,8 @@ def data_info(corpus: str, max_docs: Optional[int]):
         doc = parser.parse_tei_file(str(tei_file), tei_file.stem)
         paras = parser.create_tokenized_paragraphs(doc)
 
-        n_tokens = sum(len(p.get('tokens', [])) for p in paras)
-        n_speech = sum(
-            sum(1 for label in p.get('bio_labels', []) if label != 'O')
-            for p in paras
-        )
+        n_tokens = sum(len(p.get("tokens", [])) for p in paras)
+        n_speech = sum(sum(1 for label in p.get("bio_labels", []) if label != "O") for p in paras)
 
         total_paras += len(paras)
         total_tokens += n_tokens
@@ -530,18 +594,30 @@ def data_info(corpus: str, max_docs: Optional[int]):
 
 
 @cli.command()
-@click.option('--corpus', type=click.Path(exists=True), required=False,
-              help='Path to corpus directory (only used if --splits-path not found)')
-@click.option('--splits-path', type=str, default='../datasets/splits.json',
-              help='Path to splits.json file')
-@click.option('--split', type=click.Choice(['train', 'validation', 'test'], case_sensitive=False),
-              default='test', help='Which split to evaluate on')
-@click.option('--max-docs', type=int, default=None,
-              help='Maximum number of documents to process')
-@click.option('--output', type=str, default=None,
-              help='Output file for results (JSON format)')
-def evaluate_baseline(corpus: Optional[str], splits_path: str, split: str, max_docs: Optional[int],
-                     output: Optional[str]):
+@click.option(
+    "--corpus",
+    type=click.Path(exists=True),
+    required=False,
+    help="Path to corpus directory (only used if --splits-path not found)",
+)
+@click.option(
+    "--splits-path", type=str, default="../datasets/splits.json", help="Path to splits.json file"
+)
+@click.option(
+    "--split",
+    type=click.Choice(["train", "validation", "test"], case_sensitive=False),
+    default="test",
+    help="Which split to evaluate on",
+)
+@click.option("--max-docs", type=int, default=None, help="Maximum number of documents to process")
+@click.option("--output", type=str, default=None, help="Output file for results (JSON format)")
+def evaluate_baseline(
+    corpus: Optional[str],
+    splits_path: str,
+    split: str,
+    max_docs: Optional[int],
+    output: Optional[str],
+):
     """Evaluate quote baseline on corpus with ground truth labels.
 
     Examples:
@@ -568,7 +644,7 @@ def evaluate_baseline(corpus: Optional[str], splits_path: str, split: str, max_d
         from speech_detection.data.splits import load_split_data
 
         parser = TEIParser()
-        data = load_split_data(split, splits_path, '..', max_docs, parser)
+        data = load_split_data(split, splits_path, "..", max_docs, parser)
     else:
         if not corpus:
             click.echo("Error: --corpus is required when --splits-path file not found", err=True)
@@ -576,7 +652,11 @@ def evaluate_baseline(corpus: Optional[str], splits_path: str, split: str, max_d
 
         click.echo(f"Loading corpus from {corpus}...")
         corpus_path = Path(corpus)
-        tei_files = list(corpus_path.glob('*.xml'))[:max_docs] if max_docs else list(corpus_path.glob('*.xml'))
+        tei_files = (
+            list(corpus_path.glob("*.xml"))[:max_docs]
+            if max_docs
+            else list(corpus_path.glob("*.xml"))
+        )
 
         if not tei_files:
             click.echo(f"Error: No TEI files found in {corpus}", err=True)
@@ -604,7 +684,7 @@ def evaluate_baseline(corpus: Optional[str], splits_path: str, split: str, max_d
 
     # Compute metrics
     click.echo("Computing metrics...")
-    true_labels = [p['bio_labels'] for p in data]
+    true_labels = [p["bio_labels"] for p in data]
     pred_labels = [pred.predicted_bio_labels for pred in predictions]
 
     f1 = compute_f1(true_labels, pred_labels)
@@ -627,17 +707,17 @@ def evaluate_baseline(corpus: Optional[str], splits_path: str, split: str, max_d
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         results_dict = {
-            'f1': f1,
-            'precision': precision,
-            'recall': recall,
-            'n_predictions': len(predictions),
+            "f1": f1,
+            "precision": precision,
+            "recall": recall,
+            "n_predictions": len(predictions),
         }
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(results_dict, f, indent=2)
 
         click.echo(f"\nResults saved to {output_path}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

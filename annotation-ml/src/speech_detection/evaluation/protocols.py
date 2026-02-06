@@ -25,6 +25,7 @@ class EvaluationConfig:
         >>> config.n_folds
         5
     """
+
     n_folds: int = 5
     n_bootstrap: int = 2000
     n_jobs: int = 2  # For parallel CRF
@@ -52,6 +53,7 @@ class StatisticalResult:
         >>> print(result)
         0.500, 95% CI [0.300, 0.700], SE: 0.100
     """
+
     estimate: float
     ci_lower: float
     ci_upper: float

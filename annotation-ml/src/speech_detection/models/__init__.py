@@ -18,15 +18,15 @@ from .protocols import (
 from .transformers import DistilBERTModel, ModernBERTModel
 
 __all__ = [
-    'TrainedModel',
-    'ModelPrediction',
-    'CRFConfig',
-    'TransformerConfig',
-    'DistilBERTConfig',
-    'ModernBERTConfig',
-    'QuoteBaselineConfig',
-    'CRFModel',
-    'DistilBERTModel',
-    'ModernBERTModel',
-    'QuoteBaselineModel',
+    "TrainedModel",
+    "ModelPrediction",
+    "CRFConfig",
+    "TransformerConfig",
+    "DistilBERTConfig",
+    "ModernBERTConfig",
+    "QuoteBaselineConfig",
+    "CRFModel",
+    "DistilBERTModel",
+    "ModernBERTModel",
+    "QuoteBaselineModel",
 ]

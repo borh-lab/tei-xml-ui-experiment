@@ -15,10 +15,7 @@ from speech_detection.evaluation.split import create_document_folds
 
 
 def bootstrap_metric(
-    scores: List[float],
-    n_bootstrap: int,
-    ci_width: float,
-    random_state: int
+    scores: List[float], n_bootstrap: int, ci_width: float, random_state: int
 ) -> StatisticalResult:
     """Calculate bootstrap confidence interval for a metric.
 
@@ -75,14 +72,12 @@ def bootstrap_metric(
         ci_upper=ci_upper,
         se=se,
         fold_scores=tuple(scores),
-        n_samples=len(scores)
+        n_samples=len(scores),
     )
 
 
 def evaluate_model_with_cv(
-    model: Any,
-    data: List[Dict[str, Any]],
-    config: EvaluationConfig
+    model: Any, data: List[Dict[str, Any]], config: EvaluationConfig
 ) -> Dict[str, StatisticalResult]:
     """Evaluate a model with document-level cross-validation.
 
@@ -123,22 +118,18 @@ def evaluate_model_with_cv(
         True
     """
     # Create document-level folds
-    folds = create_document_folds(
-        data,
-        n_folds=config.n_folds,
-        random_state=config.random_state
-    )
+    folds = create_document_folds(data, n_folds=config.n_folds, random_state=config.random_state)
 
     # Storage for fold-wise scores
-    fold_scores: Dict[str, List[float]] = {'f1': [], 'precision': [], 'recall': []}
+    fold_scores: Dict[str, List[float]] = {"f1": [], "precision": [], "recall": []}
 
     # Get model class for instantiation
     model_class = type(model)
 
     # Evaluate each fold
     for fold in folds:
-        train_idx = fold['train_indices']
-        test_idx = fold['test_indices']
+        train_idx = fold["train_indices"]
+        test_idx = fold["test_indices"]
 
         train_data = [data[i] for i in train_idx]
         test_data = [data[i] for i in test_idx]
@@ -147,20 +138,18 @@ def evaluate_model_with_cv(
         fold_model = model_class()
 
         # Train model
-        if hasattr(fold_model, 'train'):
+        if hasattr(fold_model, "train"):
             fold_model.train(train_data)
         else:
-            raise ValueError(
-                f"Model {model.__class__.__name__} must have a train() method"
-            )
+            raise ValueError(f"Model {model.__class__.__name__} must have a train() method")
 
         # Get true labels
-        y_true = [item['bio_labels'] for item in test_data]
+        y_true = [item["bio_labels"] for item in test_data]
 
         # Get predictions
-        if hasattr(fold_model, 'predict'):
+        if hasattr(fold_model, "predict"):
             # For CRF-style models
-            if hasattr(fold_model, 'prepare_training_data'):
+            if hasattr(fold_model, "prepare_training_data"):
                 X_test, _ = fold_model.prepare_training_data(test_data)
                 y_pred_raw = fold_model.predict(X_test)
 
@@ -171,7 +160,7 @@ def evaluate_model_with_cv(
                     y_pred = [list(pred) for pred in y_pred_raw]
             else:
                 y_pred = fold_model.predict(test_data)
-        elif hasattr(fold_model, 'predict_paragraphs'):
+        elif hasattr(fold_model, "predict_paragraphs"):
             # For protocol-based models (returns ModelPrediction objects)
             predictions = fold_model.predict_paragraphs(test_data)
             y_pred = [pred.predicted_bio_labels for pred in predictions]
@@ -183,9 +172,9 @@ def evaluate_model_with_cv(
 
         # Calculate metrics
         metrics = compute_metrics(y_true, y_pred)
-        fold_scores['f1'].append(metrics['f1'])
-        fold_scores['precision'].append(metrics['precision'])
-        fold_scores['recall'].append(metrics['recall'])
+        fold_scores["f1"].append(metrics["f1"])
+        fold_scores["precision"].append(metrics["precision"])
+        fold_scores["recall"].append(metrics["recall"])
 
     # Calculate results with CIs
     results = {}
@@ -194,7 +183,7 @@ def evaluate_model_with_cv(
             scores,
             n_bootstrap=config.n_bootstrap,
             ci_width=config.ci_width,
-            random_state=config.random_state
+            random_state=config.random_state,
         )
 
     return results
@@ -203,7 +192,7 @@ def evaluate_model_with_cv(
 def compare_models(
     model1_results: Dict[str, StatisticalResult],
     model2_results: Dict[str, StatisticalResult],
-    alpha: float = 0.05
+    alpha: float = 0.05,
 ) -> Dict[str, Dict[str, Any]]:
     """Compare two models using paired fold scores.
 
@@ -236,7 +225,7 @@ def compare_models(
 
     comparison = {}
 
-    for metric_name in ['f1', 'precision', 'recall']:
+    for metric_name in ["f1", "precision", "recall"]:
         if metric_name not in model1_results or metric_name not in model2_results:
             continue
 
@@ -265,12 +254,12 @@ def compare_models(
             interpretation = "large"
 
         comparison[metric_name] = {
-            'statistic': float(statistic),
-            'p_value': float(p_value),
-            'significant': p_value < alpha,
-            'cohens_d': float(cohens_d),
-            'mean_diff': float(mean_diff),
-            'interpretation': interpretation
+            "statistic": float(statistic),
+            "p_value": float(p_value),
+            "significant": p_value < alpha,
+            "cohens_d": float(cohens_d),
+            "mean_diff": float(mean_diff),
+            "interpretation": interpretation,
         }
 
     return comparison

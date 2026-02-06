@@ -13,9 +13,7 @@ from sklearn.model_selection import GroupKFold
 
 
 def split_documents_by_id(
-    data: List[Dict[str, Any]],
-    n_folds: int,
-    random_state: int
+    data: List[Dict[str, Any]], n_folds: int, random_state: int
 ) -> List[Tuple[List[int], List[int]]]:
     """Create document-level cross-validation folds.
 
@@ -50,7 +48,7 @@ def split_documents_by_id(
         0
     """
     # Extract document IDs
-    doc_ids = np.array([item.get('doc_id', f'doc_{i}') for i, item in enumerate(data)])
+    doc_ids = np.array([item.get("doc_id", f"doc_{i}") for i, item in enumerate(data)])
     unique_docs = np.unique(doc_ids)
 
     # Validate n_folds
@@ -71,9 +69,7 @@ def split_documents_by_id(
 
 
 def create_document_folds(
-    data: List[Dict[str, Any]],
-    n_folds: int,
-    random_state: int
+    data: List[Dict[str, Any]], n_folds: int, random_state: int
 ) -> List[Dict[str, Any]]:
     """Create detailed document-level folds with metadata.
 
@@ -104,7 +100,7 @@ def create_document_folds(
     fold_indices = split_documents_by_id(data, n_folds, random_state)
 
     # Extract document IDs
-    doc_ids = [item.get('doc_id', f'doc_{i}') for i, item in enumerate(data)]
+    doc_ids = [item.get("doc_id", f"doc_{i}") for i, item in enumerate(data)]
 
     # Create detailed folds
     detailed_folds = []
@@ -115,35 +111,36 @@ def create_document_folds(
         test_docs = set(doc_ids[i] for i in test_idx)
 
         # Calculate speech ratio (proportion of paragraphs with speech)
-        train_speech_ratio = np.mean([
-            any(label != 'O' for label in data[i]['bio_labels'])
-            for i in train_idx
-        ]) if train_idx else 0.0
+        train_speech_ratio = (
+            np.mean([any(label != "O" for label in data[i]["bio_labels"]) for i in train_idx])
+            if train_idx
+            else 0.0
+        )
 
-        test_speech_ratio = np.mean([
-            any(label != 'O' for label in data[i]['bio_labels'])
-            for i in test_idx
-        ]) if test_idx else 0.0
+        test_speech_ratio = (
+            np.mean([any(label != "O" for label in data[i]["bio_labels"]) for i in test_idx])
+            if test_idx
+            else 0.0
+        )
 
-        detailed_folds.append({
-            'fold': fold_idx,
-            'train_indices': train_idx,
-            'test_indices': test_idx,
-            'train_docs': len(train_docs),
-            'test_docs': len(test_docs),
-            'train_speech_ratio': float(train_speech_ratio),
-            'test_speech_ratio': float(test_speech_ratio),
-            'train_size': len(train_idx),
-            'test_size': len(test_idx)
-        })
+        detailed_folds.append(
+            {
+                "fold": fold_idx,
+                "train_indices": train_idx,
+                "test_indices": test_idx,
+                "train_docs": len(train_docs),
+                "test_docs": len(test_docs),
+                "train_speech_ratio": float(train_speech_ratio),
+                "test_speech_ratio": float(test_speech_ratio),
+                "train_size": len(train_idx),
+                "test_size": len(test_idx),
+            }
+        )
 
     return detailed_folds
 
 
-def verify_no_leakage(
-    train_data: List[Dict[str, Any]],
-    test_data: List[Dict[str, Any]]
-) -> bool:
+def verify_no_leakage(train_data: List[Dict[str, Any]], test_data: List[Dict[str, Any]]) -> bool:
     """Verify that no document appears in both train and test sets.
 
     This validation function ensures data integrity by checking for
@@ -172,14 +169,8 @@ def verify_no_leakage(
         False
     """
     # Extract document IDs
-    train_docs: Set[str] = set(
-        item.get('doc_id', f'doc_{i}')
-        for i, item in enumerate(train_data)
-    )
-    test_docs: Set[str] = set(
-        item.get('doc_id', f'doc_{i}')
-        for i, item in enumerate(test_data)
-    )
+    train_docs: Set[str] = set(item.get("doc_id", f"doc_{i}") for i, item in enumerate(train_data))
+    test_docs: Set[str] = set(item.get("doc_id", f"doc_{i}") for i, item in enumerate(test_data))
 
     # Check for intersection
     leakage = train_docs.intersection(test_docs)

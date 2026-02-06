@@ -11,10 +11,7 @@ from typing import Dict, List
 from seqeval.metrics import f1_score, precision_score, recall_score
 
 
-def compute_f1(
-    true_labels: List[List[str]],
-    pred_labels: List[List[str]]
-) -> float:
+def compute_f1(true_labels: List[List[str]], pred_labels: List[List[str]]) -> float:
     """Compute F1 score for BIO-tagged sequences.
 
     Args:
@@ -41,17 +38,13 @@ def compute_f1(
     # Validate input
     if len(true_labels) != len(pred_labels):
         raise ValueError(
-            f"Number of sequences must match: "
-            f"{len(true_labels)} != {len(pred_labels)}"
+            f"Number of sequences must match: {len(true_labels)} != {len(pred_labels)}"
         )
 
     return float(f1_score(true_labels, pred_labels))
 
 
-def compute_precision(
-    true_labels: List[List[str]],
-    pred_labels: List[List[str]]
-) -> float:
+def compute_precision(true_labels: List[List[str]], pred_labels: List[List[str]]) -> float:
     """Compute precision for BIO-tagged sequences.
 
     Args:
@@ -74,17 +67,13 @@ def compute_precision(
     # Validate input
     if len(true_labels) != len(pred_labels):
         raise ValueError(
-            f"Number of sequences must match: "
-            f"{len(true_labels)} != {len(pred_labels)}"
+            f"Number of sequences must match: {len(true_labels)} != {len(pred_labels)}"
         )
 
     return float(precision_score(true_labels, pred_labels))
 
 
-def compute_recall(
-    true_labels: List[List[str]],
-    pred_labels: List[List[str]]
-) -> float:
+def compute_recall(true_labels: List[List[str]], pred_labels: List[List[str]]) -> float:
     """Compute recall for BIO-tagged sequences.
 
     Args:
@@ -107,17 +96,13 @@ def compute_recall(
     # Validate input
     if len(true_labels) != len(pred_labels):
         raise ValueError(
-            f"Number of sequences must match: "
-            f"{len(true_labels)} != {len(pred_labels)}"
+            f"Number of sequences must match: {len(true_labels)} != {len(pred_labels)}"
         )
 
     return float(recall_score(true_labels, pred_labels))
 
 
-def compute_metrics(
-    true_labels: List[List[str]],
-    pred_labels: List[List[str]]
-) -> Dict[str, float]:
+def compute_metrics(true_labels: List[List[str]], pred_labels: List[List[str]]) -> Dict[str, float]:
     """Compute all metrics (F1, precision, recall) for BIO-tagged sequences.
 
     Args:
@@ -146,12 +131,11 @@ def compute_metrics(
     # Validate input
     if len(true_labels) != len(pred_labels):
         raise ValueError(
-            f"Number of sequences must match: "
-            f"{len(true_labels)} != {len(pred_labels)}"
+            f"Number of sequences must match: {len(true_labels)} != {len(pred_labels)}"
         )
 
     return {
-        'f1': float(f1_score(true_labels, pred_labels)),
-        'precision': float(precision_score(true_labels, pred_labels)),
-        'recall': float(recall_score(true_labels, pred_labels))
+        "f1": float(f1_score(true_labels, pred_labels)),
+        "precision": float(precision_score(true_labels, pred_labels)),
+        "recall": float(recall_score(true_labels, pred_labels)),
     }

@@ -4,8 +4,8 @@ This module provides functionality to detect dialogue speech by identifying
 text between quotation marks, as opposed to TEI annotation-based detection.
 """
 
-import re
-from typing import List, Tuple, Dict, Any
+from typing import Any, Dict, List, Tuple
+
 from lxml import etree
 
 
@@ -24,8 +24,8 @@ class QuoteBasedSpeechExtractor:
     """
 
     # Quote characters (using Unicode escapes for smart quotes)
-    OPENING_QUOTES = {'"', '\u201c', '\u2018', '`'}
-    CLOSING_QUOTES = {'"', '\u201d', '\u2019', '`'}
+    OPENING_QUOTES = {'"', "\u201c", "\u2018", "`"}
+    CLOSING_QUOTES = {'"', "\u201d", "\u2019", "`"}
 
     def __init__(self, include_speaker_tags: bool = False):
         """Initialize the quote-based extractor.
@@ -35,10 +35,7 @@ class QuoteBasedSpeechExtractor:
         """
         self.include_speaker_tags = include_speaker_tags
 
-    def extract_speech_from_text(
-        self,
-        text: str
-    ) -> List[Tuple[int, int, str]]:
+    def extract_speech_from_text(self, text: str) -> List[Tuple[int, int, str]]:
         """Extract speech spans from text by finding quoted passages.
 
         Args:
@@ -65,7 +62,7 @@ class QuoteBasedSpeechExtractor:
                     quote_char = char
                 elif char == quote_char:
                     # End of quoted speech
-                    spans.append((quote_start, i, 'DIRECT'))
+                    spans.append((quote_start, i, "DIRECT"))
                     in_quote = False
                     quote_char = None
 
@@ -90,7 +87,7 @@ class QuoteBasedSpeechExtractor:
             return False
 
         char = text[pos]
-        if char not in {"'", '\u2019'}:
+        if char not in {"'", "\u2019"}:
             return False
 
         # Check if surrounded by letters (apostrophe pattern)
@@ -99,16 +96,13 @@ class QuoteBasedSpeechExtractor:
             next_char = text[pos + 1]
 
             # Pattern like s' (John's) or 't (don't)
-            if prev_char.isalpha() and (next_char.isalpha() or next_char == 's'):
+            if prev_char.isalpha() and (next_char.isalpha() or next_char == "s"):
                 return True
 
         return False
 
     def create_bio_labels(
-        self,
-        text: str,
-        tokens: List[str],
-        speech_spans: List[Tuple[int, int, str]] = None
+        self, text: str, tokens: List[str], speech_spans: List[Tuple[int, int, str]] | None = None
     ) -> List[str]:
         """Create BIO labels for tokens based on quote-based speech detection.
 
@@ -140,7 +134,7 @@ class QuoteBasedSpeechExtractor:
             current_offset = token_end + 1  # +1 for space
 
         # Initialize all labels as O
-        bio_labels = ['O'] * len(tokens)
+        bio_labels = ["O"] * len(tokens)
 
         # Apply BIO labels based on speech spans
         for span_start, span_end, label in speech_spans:
@@ -155,17 +149,16 @@ class QuoteBasedSpeechExtractor:
                         continue
 
                     if first_content:
-                        bio_labels[token_idx] = f'B-{label}'
+                        bio_labels[token_idx] = f"B-{label}"
                         first_content = False
                     else:
-                        bio_labels[token_idx] = f'I-{label}'
+                        bio_labels[token_idx] = f"I-{label}"
 
         return bio_labels
 
 
 def extract_quote_speech_from_tei(
-    tei_file: str,
-    extractor: QuoteBasedSpeechExtractor = None
+    tei_file: str, extractor: QuoteBasedSpeechExtractor | None = None
 ) -> List[Dict[str, Any]]:
     """Extract quote-based speech annotations from a TEI XML file.
 
@@ -184,14 +177,14 @@ def extract_quote_speech_from_tei(
     root = tree.getroot()
 
     # Namespace
-    ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
+    ns = {"tei": "http://www.tei-c.org/ns/1.0"}
 
-    paragraphs = []
+    paragraphs: List[Dict[str, Any]] = []
 
     # Find all paragraph elements
-    for p_elem in root.findall('.//tei:p', ns):
+    for p_elem in root.findall(".//tei:p", ns):
         # Get text content
-        text = etree.tostring(p_elem, encoding='unicode', method='text')
+        text = etree.tostring(p_elem, encoding="unicode", method="text")
 
         if not text or not text.strip():
             continue
@@ -204,14 +197,17 @@ def extract_quote_speech_from_tei(
 
         # Get doc_id from filename
         import os
+
         doc_id = os.path.splitext(os.path.basename(tei_file))[0]
 
-        paragraphs.append({
-            'doc_id': doc_id,
-            'para_id': f"{doc_id}_para{len(paragraphs)}",
-            'text': text,
-            'tokens': tokens,
-            'bio_labels': bio_labels,
-        })
+        paragraphs.append(
+            {
+                "doc_id": doc_id,
+                "para_id": f"{doc_id}_para{len(paragraphs)}",
+                "text": text,
+                "tokens": tokens,
+                "bio_labels": bio_labels,
+            }
+        )
 
     return paragraphs

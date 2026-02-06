@@ -49,19 +49,14 @@ class DistilBERTModel:
 
         # Initialize model
         self.model = AutoModelForTokenClassification.from_pretrained(
-            self.model_name,
-            num_labels=self.config.num_labels,
-            ignore_mismatched_sizes=True
+            self.model_name, num_labels=self.config.num_labels, ignore_mismatched_sizes=True
         ).to(self.device)
 
         print(f"Device: {self.device}")
         print(f"Max length: {self.max_length}")
         print(f"Parameters: {sum(p.numel() for p in self.model.parameters()):,}")
 
-    def prepare_training_data(
-        self,
-        data: List[Dict[str, Any]]
-    ) -> tuple:
+    def prepare_training_data(self, data: List[Dict[str, Any]]) -> tuple:
         """Prepare training data (not used by transformer models).
 
         This method is kept for protocol compatibility but transformers
@@ -77,9 +72,7 @@ class DistilBERTModel:
         return ([], [])
 
     def train(
-        self,
-        train_data: List[Dict[str, Any]],
-        val_data: Optional[List[Dict[str, Any]]] = None
+        self, train_data: List[Dict[str, Any]], val_data: Optional[List[Dict[str, Any]]] = None
     ) -> None:
         """Train the model using Hugging Face Trainer.
 
@@ -91,14 +84,14 @@ class DistilBERTModel:
         train_dataset = SpeechDataset(
             train_data,
             cast(Any, self.tokenizer),  # type: ignore[arg-type]  # type: ignore[arg-type]
-            self.max_length
+            self.max_length,
         )
         val_dataset = None
         if val_data:
             val_dataset = SpeechDataset(
                 val_data,
                 cast(Any, self.tokenizer),  # type: ignore[arg-type]
-                self.max_length
+                self.max_length,
             )
 
         # Store reference for later use in prediction
@@ -108,23 +101,23 @@ class DistilBERTModel:
         data_collator = DataCollatorForTokenClassification(
             tokenizer=self.tokenizer,  # type: ignore[call-arg]
             padding=True,  # Dynamic padding (pad to longest in batch)
-            pad_to_multiple_of=None
+            pad_to_multiple_of=None,
         )
 
         # Training arguments with optimizations
         training_args = TrainingArguments(
-            output_dir='./distilbert_results',
+            output_dir="./distilbert_results",
             num_train_epochs=self.config.epochs,
             per_device_train_batch_size=self.config.batch_size,
-            per_device_eval_batch_size=self.config.batch_size * 2 if val_dataset else self.config.batch_size,
+            per_device_eval_batch_size=self.config.batch_size * 2
+            if val_dataset
+            else self.config.batch_size,
             gradient_accumulation_steps=self.config.gradient_accumulation_steps,
-
             # Optimizations
             bf16=self.config.bf16,
             gradient_checkpointing=False,
             dataloader_num_workers=4,
             dataloader_pin_memory=True,
-
             # Logging and evaluation
             logging_steps=100,
             eval_strategy="epoch" if val_dataset else "no",  # Fixed: use eval_strategy
@@ -133,10 +126,8 @@ class DistilBERTModel:
             learning_rate=self.config.learning_rate,
             warmup_steps=self.config.warmup_steps,
             weight_decay=0.01,
-
             # Performance
             max_grad_norm=1.0,
-
             load_best_model_at_end=False,
             metric_for_best_model="f1",
         )
@@ -176,10 +167,7 @@ class DistilBERTModel:
             print(f"  Precision: {metrics.get('eval_precision', 0):.4f}")
             print(f"  Recall:    {metrics.get('eval_recall', 0):.4f}")
 
-    def predict_paragraphs(
-        self,
-        data: List[Dict[str, Any]]
-    ) -> List[ModelPrediction]:
+    def predict_paragraphs(self, data: List[Dict[str, Any]]) -> List[ModelPrediction]:
         """Predict speech labels for paragraphs.
 
         Args:
@@ -193,10 +181,7 @@ class DistilBERTModel:
         dataset = SpeechDataset(data, self.tokenizer, self.max_length)  # type: ignore[arg-type]
 
         # Data collator for dynamic padding
-        data_collator = DataCollatorForTokenClassification(
-            tokenizer=self.tokenizer,
-            padding=True
-        )
+        data_collator = DataCollatorForTokenClassification(tokenizer=self.tokenizer, padding=True)
 
         loader = DataLoader(
             dataset,
@@ -204,15 +189,15 @@ class DistilBERTModel:
             shuffle=False,
             collate_fn=data_collator,
             num_workers=4,
-            pin_memory=True
+            pin_memory=True,
         )
 
         predictions: List[ModelPrediction] = []
 
         with torch.no_grad():
             for batch in tqdm(loader, desc="Predicting"):
-                input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
+                input_ids = batch["input_ids"].to(self.device)
+                attention_mask = batch["attention_mask"].to(self.device)
 
                 outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
                 logits = outputs.logits
@@ -221,14 +206,14 @@ class DistilBERTModel:
                 batch_predictions = torch.argmax(logits, dim=-1)
 
                 # Convert to labels for each sample in batch
-                for i in range(len(batch['input_ids'])):
+                for i in range(len(batch["input_ids"])):
                     # Get metadata from cache
                     sample_idx = len(predictions)
                     metadata = dataset._metadata[sample_idx]
-                    text = metadata['text']
-                    original_labels = metadata['original_labels']
-                    doc_id = metadata['doc_id']
-                    para_id = metadata['para_id']
+                    text = metadata["text"]
+                    original_labels = metadata["original_labels"]
+                    doc_id = metadata["doc_id"]
+                    para_id = metadata["para_id"]
 
                     # Tokenize again to get word_ids
                     encoding = self.tokenizer(text, return_offsets_mapping=False)
@@ -239,7 +224,7 @@ class DistilBERTModel:
                     predicted_bio_labels = []
                     seen_word_indices = set()
 
-                    for word_idx, pred_label in zip(word_ids, batch_predictions[i]):
+                    for word_idx, pred_label in zip(word_ids, batch_predictions[i], strict=True):
                         if word_idx is None:
                             continue  # Skip special tokens
                         elif word_idx < len(original_labels):
@@ -247,20 +232,22 @@ class DistilBERTModel:
                             if word_idx not in seen_word_indices:
                                 seen_word_indices.add(word_idx)
                                 label_int = pred_label.item()
-                                label_str = LABEL_DECODING.get(label_int, 'O')
+                                label_str = LABEL_DECODING.get(label_int, "O")
                                 predicted_bio_labels.append(label_str)
 
                     # Pad if needed (shouldn't happen, but just in case)
                     while len(predicted_bio_labels) < len(original_labels):
-                        predicted_bio_labels.append('O')
+                        predicted_bio_labels.append("O")
 
-                    predictions.append(ModelPrediction(
-                        doc_id=doc_id,
-                        para_id=para_id,
-                        tokens=data[len(predictions)]['tokens'],
-                        predicted_bio_labels=predicted_bio_labels,
-                        text=text
-                    ))
+                    predictions.append(
+                        ModelPrediction(
+                            doc_id=doc_id,
+                            para_id=para_id,
+                            tokens=data[len(predictions)]["tokens"],
+                            predicted_bio_labels=predicted_bio_labels,
+                            text=text,
+                        )
+                    )
 
         return predictions
 
@@ -281,17 +268,22 @@ class DistilBERTModel:
 
         # Save config
         import json
+
         config_path = model_dir / "config.json"
-        with open(config_path, 'w') as f:
-            json.dump({
-                'model_name': self.model_name,
-                'max_length': self.max_length,
-                'num_labels': self.config.num_labels,
-                'batch_size': self.config.batch_size,
-                'epochs': self.config.epochs,
-                'learning_rate': self.config.learning_rate,
-                'bf16': self.config.bf16,
-            }, f, indent=2)
+        with open(config_path, "w") as f:
+            json.dump(
+                {
+                    "model_name": self.model_name,
+                    "max_length": self.max_length,
+                    "num_labels": self.config.num_labels,
+                    "batch_size": self.config.batch_size,
+                    "epochs": self.config.epochs,
+                    "learning_rate": self.config.learning_rate,
+                    "bf16": self.config.bf16,
+                },
+                f,
+                indent=2,
+            )
 
         print(f"Model saved to {model_dir}")
 
@@ -313,7 +305,7 @@ class DistilBERTModel:
         # Load config
         config_path = model_dir / "config.json"
         if config_path.exists():
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 config_dict = json.load(f)
             config = DistilBERTConfig(**config_dict)
         else:
@@ -325,7 +317,7 @@ class DistilBERTModel:
         # Load trained weights and tokenizer
         instance.model = AutoModelForTokenClassification.from_pretrained(
             model_dir,
-            ignore_mismatched_sizes=True  # Handle vocab size mismatch
+            ignore_mismatched_sizes=True,  # Handle vocab size mismatch
         ).to(instance.device)
         instance.tokenizer = AutoTokenizer.from_pretrained(model_dir)
 

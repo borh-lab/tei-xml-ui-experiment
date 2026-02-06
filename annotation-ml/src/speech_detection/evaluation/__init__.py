@@ -23,9 +23,15 @@ from speech_detection.evaluation.statistical import (
 )
 
 __all__ = [
-    'EvaluationConfig', 'StatisticalResult',
-    'split_documents_by_id', 'verify_no_leakage',
-    'compute_f1', 'compute_precision', 'compute_recall', 'compute_metrics',
-    'bootstrap_metric', 'evaluate_model_with_cv',
-    'format_results',
+    "EvaluationConfig",
+    "StatisticalResult",
+    "split_documents_by_id",
+    "verify_no_leakage",
+    "compute_f1",
+    "compute_precision",
+    "compute_recall",
+    "compute_metrics",
+    "bootstrap_metric",
+    "evaluate_model_with_cv",
+    "format_results",
 ]

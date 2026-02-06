@@ -5,15 +5,14 @@ correct BIO labels for quoted speech, avoiding the complexities of
 implementing custom quote parsing.
 """
 
-from typing import List, Dict, Any, Optional
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from speech_detection.models.baselines.quote_baseline import QuoteBaselineModel
 from speech_detection.models.protocols import QuoteBaselineConfig
 
 
-def generate_quote_based_labels(
-    paragraphs: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+def generate_quote_based_labels(paragraphs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Generate quote-based speech labels using Quote Baseline.
 
     Uses the Quote Baseline's proven quote detection to identify quoted
@@ -39,17 +38,15 @@ def generate_quote_based_labels(
 
     # Add bio_labels to paragraphs
     result = []
-    for para, pred in zip(paragraphs, predictions):
+    for para, pred in zip(paragraphs, predictions, strict=True):
         para_with_labels = para.copy()
-        para_with_labels['bio_labels'] = pred.predicted_bio_labels
+        para_with_labels["bio_labels"] = pred.predicted_bio_labels
         result.append(para_with_labels)
 
     return result
 
 
-def extract_quote_speech_from_tei(
-    tei_file: str
-) -> List[Dict[str, Any]]:
+def extract_quote_speech_from_tei(tei_file: str) -> List[Dict[str, Any]]:
     """Extract quote-based speech annotations from TEI XML file.
 
     Args:
@@ -58,23 +55,24 @@ def extract_quote_speech_from_tei(
     Returns:
         List of paragraph dictionaries with quote-based BIO labels
     """
-    from lxml import etree
     import os
+
+    from lxml import etree
 
     # Parse TEI file
     tree = etree.parse(tei_file)
     root = tree.getroot()
 
     # Namespace
-    ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
+    ns = {"tei": "http://www.tei-c.org/ns/1.0"}
 
     # Build paragraphs from <p> elements
     paragraphs = []
     doc_id = os.path.splitext(os.path.basename(tei_file))[0]
 
-    for para_idx, p_elem in enumerate(root.findall('.//tei:p', ns)):
+    for para_idx, p_elem in enumerate(root.findall(".//tei:p", ns)):
         # Get text content
-        text = etree.tostring(p_elem, encoding='unicode', method='text')
+        text = etree.tostring(p_elem, encoding="unicode", method="text")
 
         if not text or not text.strip():
             continue
@@ -82,12 +80,14 @@ def extract_quote_speech_from_tei(
         # Tokenize (simple whitespace split)
         tokens = text.split()
 
-        paragraphs.append({
-            'doc_id': doc_id,
-            'para_id': f"{doc_id}_para{para_idx}",
-            'text': text,
-            'tokens': tokens,
-        })
+        paragraphs.append(
+            {
+                "doc_id": doc_id,
+                "para_id": f"{doc_id}_para{para_idx}",
+                "text": text,
+                "tokens": tokens,
+            }
+        )
 
     # Generate quote-based labels using Quote Baseline
     labeled_paragraphs = generate_quote_based_labels(paragraphs)
@@ -134,13 +134,13 @@ class QuoteBasedSpeechExtractor:
         root = tree.getroot()
 
         # Namespace
-        ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
+        ns = {"tei": "http://www.tei-c.org/ns/1.0"}
 
         # Build paragraphs from <p> elements
         paragraphs = []
-        for p_elem in root.findall('.//tei:p', ns):
+        for p_elem in root.findall(".//tei:p", ns):
             # Get text content
-            text = etree.tostring(p_elem, encoding='unicode', method='text')
+            text = etree.tostring(p_elem, encoding="unicode", method="text")
 
             if not text or not text.strip():
                 continue
@@ -148,15 +148,14 @@ class QuoteBasedSpeechExtractor:
             # Tokenize (simple whitespace split)
             tokens = text.split()
 
-            paragraphs.append({
-                'text': text,
-                'tokens': tokens,
-            })
+            paragraphs.append(
+                {
+                    "text": text,
+                    "tokens": tokens,
+                }
+            )
 
-        return {
-            'doc_id': doc_id,
-            'paragraphs': paragraphs
-        }
+        return {"doc_id": doc_id, "paragraphs": paragraphs}
 
     def create_tokenized_paragraphs(self, doc) -> List[Dict[str, Any]]:
         """Create tokenized paragraphs with quote-based speech labels.
@@ -169,13 +168,15 @@ class QuoteBasedSpeechExtractor:
         """
         # Prepare paragraphs for baseline
         paragraphs_for_baseline = []
-        for i, para in enumerate(doc['paragraphs']):
-            paragraphs_for_baseline.append({
-                'doc_id': doc['doc_id'],
-                'para_id': f"{doc['doc_id']}_para{i}",
-                'text': para['text'],
-                'tokens': para['tokens'],
-            })
+        for i, para in enumerate(doc["paragraphs"]):
+            paragraphs_for_baseline.append(
+                {
+                    "doc_id": doc["doc_id"],
+                    "para_id": f"{doc['doc_id']}_para{i}",
+                    "text": para["text"],
+                    "tokens": para["tokens"],
+                }
+            )
 
         # Generate quote-based labels using baseline
         labeled_paragraphs = generate_quote_based_labels(paragraphs_for_baseline)

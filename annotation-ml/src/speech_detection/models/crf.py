@@ -19,25 +19,69 @@ from .protocols import CRFConfig, ModelPrediction
 
 # Label encoding constants
 LABEL_ENCODING = {
-    'O': 0,
-    'B-DIRECT': 1,
-    'I-DIRECT': 2,
-    'B-INDIRECT': 3,
-    'I-INDIRECT': 4,
+    "O": 0,
+    "B-DIRECT": 1,
+    "I-DIRECT": 2,
+    "B-INDIRECT": 3,
+    "I-INDIRECT": 4,
 }
 LABEL_DECODING = {v: k for k, v in LABEL_ENCODING.items()}
 
 
 # Speech verbs as immutable frozenset
-SPEECH_VERBS = frozenset([
-    'say', 'said', 'tell', 'told', 'ask', 'asked', 'reply', 'replied',
-    'answer', 'answered', 'exclaim', 'exclaimed', 'whisper', 'whispered',
-    'shout', 'shouted', 'mutter', 'muttered', 'cry', 'cried', 'scream', 'screamed',
-    'speak', 'spoke', 'spoken', 'talk', 'talked', 'utter', 'uttered',
-    'declare', 'declared', 'state', 'stated', 'mention', 'mentioned',
-    'add', 'added', 'continue', 'continued', 'begin', 'began', 'go', 'went',
-    'respond', 'responded', 'rejoin', 'rejoined', 'interrupt', 'interrupted'
-])
+SPEECH_VERBS = frozenset(
+    [
+        "say",
+        "said",
+        "tell",
+        "told",
+        "ask",
+        "asked",
+        "reply",
+        "replied",
+        "answer",
+        "answered",
+        "exclaim",
+        "exclaimed",
+        "whisper",
+        "whispered",
+        "shout",
+        "shouted",
+        "mutter",
+        "muttered",
+        "cry",
+        "cried",
+        "scream",
+        "screamed",
+        "speak",
+        "spoke",
+        "spoken",
+        "talk",
+        "talked",
+        "utter",
+        "uttered",
+        "declare",
+        "declared",
+        "state",
+        "stated",
+        "mention",
+        "mentioned",
+        "add",
+        "added",
+        "continue",
+        "continued",
+        "begin",
+        "began",
+        "go",
+        "went",
+        "respond",
+        "responded",
+        "rejoin",
+        "rejoined",
+        "interrupt",
+        "interrupted",
+    ]
+)
 
 
 def extract_character_ngrams(word: str, n: int) -> List[str]:
@@ -55,7 +99,7 @@ def extract_character_ngrams(word: str, n: int) -> List[str]:
 
     ngrams = []
     for i in range(len(word) - n + 1):
-        ngram = word[i:i+n]
+        ngram = word[i : i + n]
         ngrams.append(ngram)
 
     return ngrams
@@ -71,26 +115,26 @@ def get_word_shape(word: str) -> str:
         String representing the word shape pattern
     """
     if not word:
-        return 'X'
+        return "X"
 
     shape = []
     for char in word:
         if char.isupper():
-            shape.append('X')
+            shape.append("X")
         elif char.islower():
-            shape.append('x')
+            shape.append("x")
         elif char.isdigit():
-            shape.append('d')
+            shape.append("d")
         elif char.isspace():
-            shape.append('s')
+            shape.append("s")
         else:
             # Punctuation - normalize quote-like characters
-            if char in ['"', "'", '`', '"', '"', '', '']:
-                shape.append('Q')
+            if char in ['"', "'", "`", '"', '"', "", ""]:
+                shape.append("Q")
             else:
-                shape.append('p')
+                shape.append("p")
 
-    return ''.join(shape)
+    return "".join(shape)
 
 
 def is_speech_verb(word: str) -> bool:
@@ -109,17 +153,14 @@ def is_speech_verb(word: str) -> bool:
         return True
 
     # Fuzzy match for common OCR errors
-    if word_lower in {'sa1d', 'sald', 'sad', 'tel1', 'te11'}:
+    if word_lower in {"sa1d", "sald", "sad", "tel1", "te11"}:
         return True
 
     return False
 
 
 def extract_token_features(
-    tokens: List[str],
-    token_idx: int,
-    config: CRFConfig,
-    prev_para_speech_rate: float = 0.0
+    tokens: List[str], token_idx: int, config: CRFConfig, prev_para_speech_rate: float = 0.0
 ) -> Dict[str, Any]:
     """Extract features for a single token at position token_idx.
 
@@ -136,7 +177,7 @@ def extract_token_features(
     features = {}
 
     # Add bias term
-    features['bias'] = 'true'
+    features["bias"] = "true"
 
     # Character n-gram features (OCR robust)
     if config.use_speech_verbs:
@@ -144,87 +185,89 @@ def extract_token_features(
             ngrams = extract_character_ngrams(token, n)
             for i, ngram in enumerate(ngrams):
                 if i == 0:
-                    features[f'ngram{n}_start'] = ngram
+                    features[f"ngram{n}_start"] = ngram
                 if i == len(ngrams) - 1:
-                    features[f'ngram{n}_end'] = ngram
+                    features[f"ngram{n}_end"] = ngram
 
     # Word shape features
     if config.use_orthographic:
         shape = get_word_shape(token)
-        features['shape'] = shape
+        features["shape"] = shape
 
         # Shape prefixes and suffixes
         if len(shape) >= 2:
-            features['shape_prefix2'] = shape[:2]
-            features['shape_suffix2'] = shape[-2:]
+            features["shape_prefix2"] = shape[:2]
+            features["shape_suffix2"] = shape[-2:]
         if len(shape) >= 3:
-            features['shape_prefix3'] = shape[:3]
-            features['shape_suffix3'] = shape[-3:]
+            features["shape_prefix3"] = shape[:3]
+            features["shape_suffix3"] = shape[-3:]
 
     # Lexical features
     if config.use_speech_verbs:
-        features['word_lower'] = token.lower()
-        features['word_len'] = f"len_{min(len(token), 20)}"
-        features['is_speech_verb'] = 'true' if is_speech_verb(token) else 'false'
+        features["word_lower"] = token.lower()
+        features["word_len"] = f"len_{min(len(token), 20)}"
+        features["is_speech_verb"] = "true" if is_speech_verb(token) else "false"
 
         # Quote-like character detection
-        features['contains_quote'] = 'true' if any(
-            char in ['"', "'", '`', '"', '"', '', '', '~', '^', '*', '_']
-            for char in token
-        ) else 'false'
+        features["contains_quote"] = (
+            "true"
+            if any(char in ['"', "'", "`", '"', '"', "", "", "~", "^", "*", "_"] for char in token)
+            else "false"
+        )
 
         # Punctuation features
-        features['ends_with_punct'] = 'true' if (token and token[-1] in ['.,;:!?']) else 'false'
-        features['starts_with_quote'] = 'true' if (
-            token and token[0] in ['"', "'", '`', '"', '', '~', '^', '*', '_']
-        ) else 'false'
-        features['ends_with_quote'] = 'true' if (
-            token and token[-1] in ['"', "'", '`', '"', '', '~', '^', '*', '_']
-        ) else 'false'
+        features["ends_with_punct"] = "true" if (token and token[-1] in [".,;:!?"]) else "false"
+        features["starts_with_quote"] = (
+            "true"
+            if (token and token[0] in ['"', "'", "`", '"', "", "~", "^", "*", "_"])
+            else "false"
+        )
+        features["ends_with_quote"] = (
+            "true"
+            if (token and token[-1] in ['"', "'", "`", '"', "", "~", "^", "*", "_"])
+            else "false"
+        )
 
     # Context window features
     for i in range(1, config.context_window + 1):
         if token_idx - i >= 0:
             prev_token = tokens[token_idx - i]
             prev_shape = get_word_shape(prev_token)
-            features[f'prev{i}_shape'] = prev_shape
-            features[f'prev{i}_word_lower'] = prev_token.lower()
+            features[f"prev{i}_shape"] = prev_shape
+            features[f"prev{i}_word_lower"] = prev_token.lower()
 
             # Previous token n-grams
             for n in range(2, 4):  # Just 2-3 grams for context
                 prev_ngrams = extract_character_ngrams(prev_token, n)
                 if prev_ngrams:
-                    features[f'prev{i}_ngram{n}_end'] = prev_ngrams[-1]
+                    features[f"prev{i}_ngram{n}_end"] = prev_ngrams[-1]
 
         if token_idx + i < len(tokens):
             next_token = tokens[token_idx + i]
             next_shape = get_word_shape(next_token)
-            features[f'next{i}_shape'] = next_shape
-            features[f'next{i}_word_lower'] = next_token.lower()
+            features[f"next{i}_shape"] = next_shape
+            features[f"next{i}_word_lower"] = next_token.lower()
 
             # Next token n-grams
             for n in range(2, 4):  # Just 2-3 grams for context
                 next_ngrams = extract_character_ngrams(next_token, n)
                 if next_ngrams:
-                    features[f'next{i}_ngram{n}_start'] = next_ngrams[0]
+                    features[f"next{i}_ngram{n}_start"] = next_ngrams[0]
 
     # Paragraph boundary features
     speech_rate_bin = int(prev_para_speech_rate * 5)  # Convert to 0-5 bins
-    features['prev_para_speech_rate'] = f"speech_rate_{speech_rate_bin}"
+    features["prev_para_speech_rate"] = f"speech_rate_{speech_rate_bin}"
 
     # Position features
-    features['token_position'] = f"pos_{min(token_idx, 20)}"
-    features['is_first_token'] = 'true' if token_idx == 0 else 'false'
-    features['is_last_token'] = 'true' if token_idx == len(tokens) - 1 else 'false'
+    features["token_position"] = f"pos_{min(token_idx, 20)}"
+    features["is_first_token"] = "true" if token_idx == 0 else "false"
+    features["is_last_token"] = "true" if token_idx == len(tokens) - 1 else "false"
 
     return features
 
 
 def create_feature_matrix(
-    tokens: List[str],
-    bio_labels: List[str],
-    config: CRFConfig,
-    prev_para_speech_rate: float = 0.0
+    tokens: List[str], bio_labels: List[str], config: CRFConfig, prev_para_speech_rate: float = 0.0
 ) -> Tuple[List[Dict[str, Any]], List[str]]:
     """Extract features for all tokens in a paragraph.
 
@@ -258,17 +301,16 @@ def calculate_paragraph_speech_rate(bio_labels: List[str]) -> float:
         Fraction of tokens that are speech labels
     """
     # Handle numpy arrays
-    if hasattr(bio_labels, 'tolist'):
+    if hasattr(bio_labels, "tolist"):
         bio_labels = list(bio_labels)
-    elif hasattr(bio_labels, 'shape'):
+    elif hasattr(bio_labels, "shape"):
         bio_labels = list(bio_labels)
 
     if not bio_labels or len(bio_labels) == 0:
         return 0.0
 
     speech_tokens = sum(
-        1 for label in bio_labels
-        if label in ('B-DIRECT', 'I-DIRECT', 'B-INDIRECT', 'I-INDIRECT')
+        1 for label in bio_labels if label in ("B-DIRECT", "I-DIRECT", "B-INDIRECT", "I-INDIRECT")
     )
     return speech_tokens / len(bio_labels)
 
@@ -287,8 +329,7 @@ class CRFModel:
         self.nlp = spacy.load("en_core_web_sm")
 
     def prepare_training_data(
-        self,
-        data: List[Dict[str, Any]]
+        self, data: List[Dict[str, Any]]
     ) -> Tuple[List[List[Dict[str, Any]]], List[List[str]]]:
         """Prepare training data from tokenized paragraphs.
 
@@ -306,8 +347,8 @@ class CRFModel:
         prev_para_speech_rate = 0.0
 
         for para in tqdm(data, desc="Preparing training data"):
-            tokens = para['tokens']
-            bio_labels = para['bio_labels']
+            tokens = para["tokens"]
+            bio_labels = para["bio_labels"]
 
             # Calculate speech rate for this paragraph
             current_speech_rate = calculate_paragraph_speech_rate(bio_labels)
@@ -327,9 +368,7 @@ class CRFModel:
         return all_X, all_y
 
     def train(
-        self,
-        train_data: List[Dict[str, Any]],
-        val_data: Optional[List[Dict[str, Any]]] = None
+        self, train_data: List[Dict[str, Any]], val_data: Optional[List[Dict[str, Any]]] = None
     ) -> None:
         """Train the CRF model.
 
@@ -342,23 +381,20 @@ class CRFModel:
 
         # Initialize CRF model
         crf = sklearn_crfsuite.CRF(
-            algorithm='lbfgs',
+            algorithm="lbfgs",
             c1=self.config.c1,
             c2=self.config.c2,
             max_iterations=self.config.max_iterations,
             all_possible_transitions=self.config.all_possible_transitions,
             all_possible_states=self.config.all_possible_states,
-            verbose=False
+            verbose=False,
         )
 
         # Train model
         crf.fit(X_train, y_train)
         self.crf_model = crf
 
-    def predict_paragraphs(
-        self,
-        data: List[Dict[str, Any]]
-    ) -> List[ModelPrediction]:
+    def predict_paragraphs(self, data: List[Dict[str, Any]]) -> List[ModelPrediction]:
         """Predict speech labels for paragraphs.
 
         Args:
@@ -374,18 +410,18 @@ class CRFModel:
         prev_para_speech_rate = 0.0
 
         for para in data:
-            tokens = para['tokens']
+            tokens = para["tokens"]
 
             # Extract features for this paragraph
             X_para, _ = create_feature_matrix(
-                tokens, ['O'] * len(tokens), self.config, prev_para_speech_rate
+                tokens, ["O"] * len(tokens), self.config, prev_para_speech_rate
             )
 
             # Predict labels
             bio_labels = self.crf_model.predict([X_para])[0]
 
             # Ensure it's a Python list (not numpy array)
-            if hasattr(bio_labels, 'tolist'):
+            if hasattr(bio_labels, "tolist"):
                 bio_labels = list(bio_labels)
             elif not isinstance(bio_labels, list):
                 bio_labels = list(bio_labels)
@@ -396,11 +432,11 @@ class CRFModel:
 
             # Create prediction result
             prediction = ModelPrediction(
-                doc_id=para.get('doc_id', 'unknown'),
-                para_id=para.get('para_id', 'unknown'),
+                doc_id=para.get("doc_id", "unknown"),
+                para_id=para.get("para_id", "unknown"),
                 tokens=tokens,
                 predicted_bio_labels=bio_labels,
-                text=para.get('text', '')
+                text=para.get("text", ""),
             )
 
             predictions.append(prediction)
@@ -408,9 +444,7 @@ class CRFModel:
         return predictions
 
     def evaluate(
-        self,
-        X_test: List[List[Dict[str, Any]]],
-        y_test: List[List[str]]
+        self, X_test: List[List[Dict[str, Any]]], y_test: List[List[str]]
     ) -> Dict[str, Any]:
         """Evaluate the CRF model.
 
@@ -440,7 +474,7 @@ class CRFModel:
             y_test_encoded,
             y_pred_encoded,
             target_names=list(LABEL_ENCODING.keys()),
-            output_dict=True
+            output_dict=True,
         )
 
         # Calculate CRF-specific metrics
@@ -449,10 +483,7 @@ class CRFModel:
             y_test, y_pred, labels=sorted_labels, digits=4
         )
 
-        return {
-            'classification_report': report,
-            'crf_metrics': crf_metrics
-        }
+        return {"classification_report": report, "crf_metrics": crf_metrics}
 
     def save_model(self, file_path: str) -> None:
         """Save the trained CRF model to file.
@@ -468,10 +499,7 @@ class CRFModel:
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         # Save model and config
-        model_data = {
-            'crf_model': self.crf_model,
-            'config': self.config
-        }
+        model_data = {"crf_model": self.crf_model, "config": self.config}
 
         joblib.dump(model_data, file_path)
 
@@ -483,14 +511,11 @@ class CRFModel:
         """
         model_data = joblib.load(file_path)
 
-        self.crf_model = model_data['crf_model']
-        if 'config' in model_data:
-            self.config = model_data['config']
+        self.crf_model = model_data["crf_model"]
+        if "config" in model_data:
+            self.config = model_data["config"]
 
-    def get_feature_importance(
-        self,
-        top_n: int = 20
-    ) -> List[Tuple[str, float]]:
+    def get_feature_importance(self, top_n: int = 20) -> List[Tuple[str, float]]:
         """Get the most important features from the trained model.
 
         Args:
@@ -506,10 +531,8 @@ class CRFModel:
         state_features = self.crf_model.state_features_
 
         # Sort by absolute weight
-        sorted_features = sorted(
-            state_features.items(),
-            key=lambda x: abs(x[1]),
-            reverse=True
-        )[:top_n]
+        sorted_features = sorted(state_features.items(), key=lambda x: abs(x[1]), reverse=True)[
+            :top_n
+        ]
 
         return sorted_features

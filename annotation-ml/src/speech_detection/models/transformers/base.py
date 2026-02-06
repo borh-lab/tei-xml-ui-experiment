@@ -12,11 +12,11 @@ from transformers import PreTrainedTokenizer
 
 # Label encoding constants (shared across all models)
 LABEL_ENCODING = {
-    'O': 0,
-    'B-DIRECT': 1,
-    'I-DIRECT': 2,
-    'B-INDIRECT': 3,
-    'I-INDIRECT': 4,
+    "O": 0,
+    "B-DIRECT": 1,
+    "I-DIRECT": 2,
+    "B-INDIRECT": 3,
+    "I-INDIRECT": 4,
 }
 LABEL_DECODING = {v: k for k, v in LABEL_ENCODING.items()}
 
@@ -45,8 +45,8 @@ def compute_metrics(eval_preds: Tuple[np.ndarray, np.ndarray]) -> Dict[str, floa
 
         for pred, label in zip(pred_row, label_row, strict=True):
             if label != -100:
-                true_seq.append(LABEL_DECODING.get(label, 'O'))
-                pred_seq.append(LABEL_DECODING.get(pred, 'O'))
+                true_seq.append(LABEL_DECODING.get(label, "O"))
+                pred_seq.append(LABEL_DECODING.get(pred, "O"))
 
         if true_seq:  # Only add non-empty sequences
             true_labels.append(true_seq)
@@ -57,17 +57,10 @@ def compute_metrics(eval_preds: Tuple[np.ndarray, np.ndarray]) -> Dict[str, floa
     precision = precision_score(true_labels, pred_labels)
     recall = recall_score(true_labels, pred_labels)
 
-    return {
-        'f1': f1,
-        'precision': precision,
-        'recall': recall
-    }
+    return {"f1": f1, "precision": precision, "recall": recall}
 
 
-def align_bio_labels(
-    word_ids: List[Optional[int]],
-    bio_labels: List[str]
-) -> List[int]:
+def align_bio_labels(word_ids: List[Optional[int]], bio_labels: List[str]) -> List[int]:
     """Align BIO labels with tokenizer output word_ids.
 
     This function handles the alignment between word-level BIO labels and
@@ -89,11 +82,11 @@ def align_bio_labels(
             label_ids.append(-100)
         elif word_idx >= len(bio_labels):
             # Token out of bounds (shouldn't happen with truncation)
-            label_ids.append(LABEL_ENCODING['O'])
+            label_ids.append(LABEL_ENCODING["O"])
         else:
             # Use the label for this word
             label = bio_labels[word_idx]
-            label_ids.append(LABEL_ENCODING.get(label, LABEL_ENCODING['O']))
+            label_ids.append(LABEL_ENCODING.get(label, LABEL_ENCODING["O"]))
 
     return label_ids
 
@@ -110,7 +103,7 @@ class SpeechDataset(Dataset):
         self,
         tokenized_data: List[Dict[str, Any]],
         tokenizer: PreTrainedTokenizer,
-        max_length: int = 512
+        max_length: int = 512,
     ):
         """Initialize the dataset.
 
@@ -126,10 +119,10 @@ class SpeechDataset(Dataset):
         # Store metadata separately to avoid collation issues
         self._metadata = [
             {
-                'text': p['text'],
-                'original_labels': p['bio_labels'],
-                'doc_id': p.get('doc_id', 'unknown'),
-                'para_id': p.get('para_id', 'unknown')
+                "text": p["text"],
+                "original_labels": p["bio_labels"],
+                "doc_id": p.get("doc_id", "unknown"),
+                "para_id": p.get("para_id", "unknown"),
             }
             for p in tokenized_data
         ]
@@ -148,8 +141,8 @@ class SpeechDataset(Dataset):
             Dictionary with input_ids and labels (no padding)
         """
         para = self.tokenized_data[idx]
-        text = para['text']
-        bio_labels = para['bio_labels']
+        text = para["text"]
+        bio_labels = para["bio_labels"]
 
         # Tokenize WITHOUT padding (will pad dynamically in batch)
         encoding = self.tokenizer(
@@ -159,7 +152,7 @@ class SpeechDataset(Dataset):
             padding=False,  # Dynamic padding!
             return_tensors=None,  # Return lists, not tensors
             return_offsets_mapping=False,
-            return_attention_mask=False
+            return_attention_mask=False,
         )
 
         # Align BIO labels with tokenizer output
@@ -168,6 +161,6 @@ class SpeechDataset(Dataset):
 
         # Return only tokenization outputs for batching (no metadata!)
         return {
-            'input_ids': encoding['input_ids'],
-            'labels': label_ids,
+            "input_ids": encoding["input_ids"],
+            "labels": label_ids,
         }

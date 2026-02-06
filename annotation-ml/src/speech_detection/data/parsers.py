@@ -15,12 +15,12 @@ class TEIParser:
     # Speech tags to look for in TEI
     # Based on ../docs/corpus-reference.md
     SPEECH_TAGS = {
-        "q",        # Quotation marks (universal across most corpora)
-        "quote",    # Generic quotation
-        "said",     # Direct speech with speaker attribution
-        "sp",       # Speech sections in drama
-        "s",        # Sub-quotations (Novel Dialogism custom schema)
-        "speech",   # Generic speech tag (not common in our corpora)
+        "q",  # Quotation marks (universal across most corpora)
+        "quote",  # Generic quotation
+        "said",  # Direct speech with speaker attribution
+        "sp",  # Speech sections in drama
+        "s",  # Sub-quotations (Novel Dialogism custom schema)
+        "speech",  # Generic speech tag (not common in our corpora)
     }
 
     # Paragraph-like tags
@@ -32,9 +32,7 @@ class TEIParser:
         "xml": "http://www.w3.org/XML/1998/namespace",
     }
 
-    def __init__(
-        self, remove_spaces: bool = True, strip_namespaces: bool = True
-    ) -> None:
+    def __init__(self, remove_spaces: bool = True, strip_namespaces: bool = True) -> None:
         """
         Initialize the parser.
 
@@ -84,9 +82,7 @@ class TEIParser:
             root = etree.fromstring(raw_xml.encode("utf-8"), self.parser)
         except etree.XMLSyntaxError:
             # Try with recovery
-            root = etree.fromstring(
-                raw_xml.encode("utf-8"), etree.XMLParser(recover=True)
-            )
+            root = etree.fromstring(raw_xml.encode("utf-8"), etree.XMLParser(recover=True))
 
         # Extract metadata
         metadata = self._extract_metadata(root, file_path)
@@ -122,9 +118,7 @@ class TEIParser:
 
         return metadata
 
-    def _build_paragraphs(
-        self, root: etree._Element, doc_id: str
-    ) -> List[TEIParagraph]:
+    def _build_paragraphs(self, root: etree._Element, doc_id: str) -> List[TEIParagraph]:
         """
         Build paragraph objects from TEI document.
 
@@ -204,7 +198,7 @@ class TEIParser:
 
     def _extract_speech_from_adjacent_quotes(
         self, para_element: etree._Element, para_text: str
-    ) -> Tuple[List[Tuple[int, int, str]], str]:
+    ) -> Tuple[List[Tuple[int, int, str]], str | None]:
         """
         Extract speech from adjacent <quote> elements (novel-dialogism format).
 
@@ -222,7 +216,7 @@ class TEIParser:
             - gold_spans: List of (start_char, end_char, label) tuples
             - extended_text: Paragraph text with speech appended, or None if no speech found
         """
-        gold_spans = []
+        gold_spans: List[Tuple[int, int, str]] = []
         extended_text = para_text
 
         # Get the parent of this paragraph element
@@ -449,9 +443,7 @@ def parse_tei_file(file_path: str, doc_id: Optional[str] = None) -> TEIDocument:
     return parser.parse_tei_file(file_path, doc_id)
 
 
-def load_corpus(
-    file_paths: List[str], doc_ids: Optional[List[str]] = None
-) -> List[TEIDocument]:
+def load_corpus(file_paths: List[str], doc_ids: Optional[List[str]] = None) -> List[TEIDocument]:
     """
     Load multiple TEI files into a corpus (pure function wrapper).
 
@@ -463,9 +455,7 @@ def load_corpus(
         List of TEIDocument objects
     """
     if doc_ids is not None and len(doc_ids) != len(file_paths):
-        raise ValueError(
-            f"doc_ids length {len(doc_ids)} != file_paths length {len(file_paths)}"
-        )
+        raise ValueError(f"doc_ids length {len(doc_ids)} != file_paths length {len(file_paths)}")
 
     parser = TEIParser()
     documents = []
