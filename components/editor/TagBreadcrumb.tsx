@@ -1,25 +1,31 @@
 'use client';
 
 import React from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import type { TagInfo } from '@/lib/selection/types';
 
 /**
  * TagBreadcrumb
  *
  * Displays breadcrumb trail of selected tags with navigation.
- * Uses Effect-based useDocumentService hook.
+ * V2: Uses useDocumentV2 with explicit state protocol.
  */
-export function TagBreadcrumb() {
-  const { document } = useDocumentContext();
+export interface TagBreadcrumbProps {
+  /** Initial document state for testing (enables state injection) */
+  initialState?: DocumentState;
+}
+
+export function TagBreadcrumb(props: TagBreadcrumbProps) {
+  const { state } = useDocumentV2(props.initialState);
   const [selectedTag, setSelectedTag] = React.useState<TagInfo | null>(null);
 
   React.useEffect(() => {
-    if (document) {
+    if (state.document) {
       // Could derive from document state
       setSelectedTag(null);
     }
-  }, [document]);
+  }, [state.document]);
 
   if (!selectedTag) {
     return null;

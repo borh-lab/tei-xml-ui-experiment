@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
 import type { TagInfo } from '@/lib/selection/types';
 import type { TEINode } from '@/lib/tei/types';
@@ -9,9 +9,10 @@ import type { Fix } from '@/lib/validation/types';
 import { toast } from '@/components/ui/use-toast';
 import { TagQueue } from '@/lib/queue/TagQueue';
 import type { QueuedTag, TagQueueState } from '@/lib/queue/TagQueue';
+import type { DocumentState } from '@/lib/values/DocumentState';
 
 export interface UseEditorStateResult {
-  // Document state (from useDocumentService)
+  // Document state (from useDocumentV2)
   document: any;
   updateDocument: (xml: string) => Promise<void>;
   loadingSample: boolean;
@@ -50,29 +51,27 @@ export interface UseEditorStateResult {
 export interface UseEditorStateOptions {
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
   tagToEdit: TagInfo | null;
+  initialState?: DocumentState;
 }
 
 /**
  * Manages core editor state including document operations and passage navigation.
  *
- * This hook wraps useDocumentService and adds editor-specific operations.
+ * V2: Wraps useDocumentV2 and adds editor-specific operations.
+ * Uses explicit state protocol instead of hidden Ref-based state.
  */
 export function useEditorState(options: UseEditorStateOptions): UseEditorStateResult {
-  const { showToast, tagToEdit } = options;
+  const { showToast, tagToEdit, initialState: initialDocState } = options;
 
-  // Get document state from shared DocumentContext
-  const {
-    document,
-    updateDocument,
-    loadingSample,
-    loadingProgress,
-    validationResults,
-    isValidating,
-    addSaidTag,
-    addTag,
-    loading,
-    error,
-  } = useDocumentContext();
+  // Get document state from useDocumentV2 (not useDocumentContext)
+  const { state: docState, operations } = useDocumentV2(initialDocState);
+
+  // Extract state values
+  const document = docState.document;
+  const loading = docState.status === 'loading';
+  const error = docState.error;
+  const validationResults = docState.validation?.results ?? null;
+  const isValidating = false; // V2 doesn't have separate isValidating flag
 
   // Passage navigation state
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
@@ -87,6 +86,44 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
 
   // Maintain a single SelectionManager instance
   const selectionManager = useRef(new SelectionManager());
+
+  // V2: Create updateDocument from operations
+  const updateDocument = useCallback(async (xml: string) => {
+    await operations.loadDocument(xml);
+  }, [operations]);
+
+  // V2: Add wrapper for addSaidTag that matches V1 signature
+  const addSaidTag = useCallback(async (
+    passageId: string,
+    range: { start: number; end: number },
+    speakerId: string
+  ) => {
+    await operations.addSaidTag(passageId as any, range, speakerId as any);
+  }, [operations]);
+
+  // V2: Add wrapper for addTag that matches V1 signature
+  const addTag = useCallback(async (
+    passageId: string,
+    range: { start: number; end: number },
+    tagName: string,
+    attrs?: Record<string, string>
+  ) => {
+    if (tagName === 'said') {
+      const speakerId = attrs?.who?.substring(1) || 'unknown';
+      await operations.addSaidTag(passageId as any, range, speakerId as any);
+    } else if (tagName === 'q') {
+      await operations.addQTag(passageId as any, range);
+    } else if (tagName === 'persName') {
+      await operations.addPersNameTag(passageId as any, range, attrs?.ref || '');
+    } else {
+      // Generic tag - for now just use addQTag as fallback
+      await operations.addQTag(passageId as any, range);
+    }
+  }, [operations]);
+
+  // V2: Mock loadingSample and loadingProgress (V2 doesn't track these separately)
+  const loadingSample = loading;
+  const loadingProgress = 0;
 
   // Helper to update queue state
   const updateQueueState = useCallback(() => {
