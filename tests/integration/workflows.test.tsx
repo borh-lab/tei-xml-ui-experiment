@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 import { loadDocument } from '@/lib/tei/operations';
 import { SimpleQuote, CharacterIntroduction } from '@/lib/workflows/definitions';
 import { TagToolbar } from '@/components/editor/TagToolbar';
+import { DocumentProvider } from '@/lib/context/DocumentContext';
 
 describe('Workflow Integration Tests', () => {
   const sampleTEI = `<?xml version="1.0" encoding="UTF-8"?>
@@ -34,9 +35,11 @@ describe('Workflow Integration Tests', () => {
     const passage = doc.state.passages[0];
     const range = { start: 0, end: 5 };
 
-    // Render toolbar with selection
+    // Render toolbar with selection, wrapped in DocumentProvider
     const { getByText, queryByText } = render(
-      <TagToolbar />
+      <DocumentProvider document={doc}>
+        <TagToolbar />
+      </DocumentProvider>
     );
 
     // Note: This is a simplified integration test

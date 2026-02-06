@@ -6,6 +6,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RenderedView } from '@/components/editor/RenderedView';
+import { DocumentProvider } from '@/lib/context/DocumentContext';
 
 // Create mock passage IDs
 const mockPassageId1 = 'passage-abc123';
@@ -64,7 +65,11 @@ describe('RenderedView (Effect-based)', () => {
   });
 
   test('should show selection controls in bulk mode', () => {
-    render(<RenderedView {...mockProps} isBulkMode={true} />);
+    render(
+      <DocumentProvider document={mockDocument}>
+        <RenderedView {...mockProps} isBulkMode={true} />
+      </DocumentProvider>
+    );
 
     expect(screen.getByText('Select All')).toBeInTheDocument();
     expect(screen.getByText('Deselect All')).toBeInTheDocument();
@@ -74,11 +79,13 @@ describe('RenderedView (Effect-based)', () => {
     const user = userEvent.setup();
 
     render(
-      <RenderedView
-        {...mockProps}
-        isBulkMode={true}
-        selectedPassages={[mockPassageId1, mockPassageId2]}
-      />
+      <DocumentProvider document={mockDocument}>
+        <RenderedView
+          {...mockProps}
+          isBulkMode={true}
+          selectedPassages={[mockPassageId1, mockPassageId2]}
+        />
+      </DocumentProvider>
     );
 
     const deselectAllButton = screen.getByText('Deselect All');
@@ -88,7 +95,11 @@ describe('RenderedView (Effect-based)', () => {
   });
 
   test('should render passages with IDs', () => {
-    render(<RenderedView {...mockProps} />);
+    render(
+      <DocumentProvider document={mockDocument}>
+        <RenderedView {...mockProps} />
+      </DocumentProvider>
+    );
 
     expect(screen.getByText(`ID: ${mockPassageId1}`)).toBeInTheDocument();
     expect(screen.getByText(`ID: ${mockPassageId2}`)).toBeInTheDocument();
@@ -96,7 +107,11 @@ describe('RenderedView (Effect-based)', () => {
   });
 
   test('should show selection count in bulk mode', () => {
-    render(<RenderedView {...mockProps} isBulkMode={true} selectedPassages={[mockPassageId1, mockPassageId2]} />);
+    render(
+      <DocumentProvider document={mockDocument}>
+        <RenderedView {...mockProps} isBulkMode={true} selectedPassages={[mockPassageId1, mockPassageId2]} />
+      </DocumentProvider>
+    );
 
     expect(screen.getByText('2 selected')).toBeInTheDocument();
     expect(screen.getByText('3 total passages')).toBeInTheDocument();
