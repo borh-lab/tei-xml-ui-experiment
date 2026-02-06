@@ -10,7 +10,8 @@ import {
   CommandItem,
   CommandList,
 } from 'cmdk';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import { downloadFile } from '@/lib/tei/export';
 import { serializeDocument } from '@/lib/tei/operations';
 import { getSamples } from '@/lib/samples/sampleLoader';
@@ -26,7 +27,8 @@ import {
   XCircle,
 } from 'lucide-react';
 
-interface CommandPaletteProps {
+export interface CommandPaletteProps {
+  initialState?: DocumentState;
   open: boolean;
   onClose: () => void;
   onToggleBulkMode?: () => void;
@@ -44,6 +46,7 @@ interface Toast {
 }
 
 export function CommandPalette({
+  initialState,
   open,
   onClose,
   onToggleBulkMode,
@@ -51,7 +54,7 @@ export function CommandPalette({
   isBulkMode = false,
   isVizPanelOpen = false,
 }: CommandPaletteProps) {
-  const { document, loadDocument: _loadDocument, loadSample, clearDocument } = useDocumentService();
+  const { state, operations } = useDocumentV2(initialState);
   const [toast, setToast] = useState<Toast | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,14 +64,14 @@ export function CommandPalette({
   };
 
   const handleSaveDocument = () => {
-    if (!document) {
+    if (!state.document) {
       showToast('error', 'No document to save. Please load a document first.');
       onClose();
       return;
     }
 
     try {
-      const xml = serializeDocument(document);
+      const xml = serializeDocument(state.document);
       const timestamp = new Date().toISOString().slice(0, 10);
       downloadFile(xml, `tei-document-${timestamp}.xml`, 'application/xml');
       showToast('success', 'Document saved successfully!');
@@ -81,14 +84,14 @@ export function CommandPalette({
   };
 
   const handleExportTEI = () => {
-    if (!document) {
+    if (!state.document) {
       showToast('error', 'No document to export. Please load a document first.');
       onClose();
       return;
     }
 
     try {
-      const xml = serializeDocument(document);
+      const xml = serializeDocument(state.document);
       downloadFile(xml, 'document.xml', 'application/xml');
       showToast('success', 'TEI XML exported successfully!');
       onClose();
@@ -100,14 +103,14 @@ export function CommandPalette({
   };
 
   const handleExportHTML = () => {
-    if (!document) {
+    if (!state.document) {
       showToast('error', 'No document to export. Please load a document first.');
       onClose();
       return;
     }
 
     try {
-      const xml = serializeDocument(document);
+      const xml = serializeDocument(state.document);
 
       // Simplified HTML conversion
       const html = `<!DOCTYPE html>
@@ -137,7 +140,9 @@ export function CommandPalette({
   const handleLoadSample = async (sampleId: string) => {
     setIsLoading(true);
     try {
-      await loadSample(sampleId);
+      const { loadSample: loadSampleOp } = await import('@/lib/samples/sampleLoader');
+      const xml = await loadSampleOp(sampleId);
+      await operations.loadDocument(xml);
       showToast('success', `Loaded sample: ${sampleId.replace(/-/g, ' ')}`);
       onClose();
     } catch (error) {
@@ -150,19 +155,20 @@ export function CommandPalette({
   };
 
   const handleClearDocument = () => {
-    if (!document) {
+    if (!state.document) {
       showToast('info', 'No document to clear.');
       onClose();
       return;
     }
 
-    clearDocument();
+    // Clear document by reloading the page (temporary)
+    window.location.reload();
     showToast('success', 'Document cleared successfully.');
     onClose();
   };
 
   const handleToggleBulkMode = () => {
-    if (!document) {
+    if (!state.document) {
       showToast('error', 'Please load a document first.');
       onClose();
       return;
@@ -174,7 +180,7 @@ export function CommandPalette({
   };
 
   const handleToggleVisualizations = () => {
-    if (!document) {
+    if (!state.document) {
       showToast('error', 'Please load a document first.');
       onClose();
       return;
@@ -196,35 +202,35 @@ export function CommandPalette({
 
           {/* Document Actions */}
           <CommandGroup heading="Document Actions">
-            <CommandItem onSelect={handleSaveDocument} disabled={!document || isLoading}>
+            <CommandItem onSelect={handleSaveDocument} disabled={!state.document || isLoading}>
               <FileDown className="mr-2 h-4 w-4" />
               <span>Save document</span>
-              {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
+              {!state.document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
               <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘S</kbd>
             </CommandItem>
-            <CommandItem onSelect={handleExportTEI} disabled={!document || isLoading}>
+            <CommandItem onSelect={handleExportTEI} disabled={!state.document || isLoading}>
               <FileText className="mr-2 h-4 w-4" />
               <span>Export TEI XML</span>
-              {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
+              {!state.document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
             </CommandItem>
-            <CommandItem onSelect={handleExportHTML} disabled={!document || isLoading}>
+            <CommandItem onSelect={handleExportHTML} disabled={!state.document || isLoading}>
               <FileDown className="mr-2 h-4 w-4" />
               <span>Export HTML</span>
-              {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
+              {!state.document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
             </CommandItem>
-            <CommandItem onSelect={handleClearDocument} disabled={!document || isLoading}>
+            <CommandItem onSelect={handleClearDocument} disabled={!state.document || isLoading}>
               <Trash2 className="mr-2 h-4 w-4" />
               <span>Clear document</span>
-              {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
+              {!state.document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
             </CommandItem>
           </CommandGroup>
 
           {/* View Options */}
           <CommandGroup heading="View Options">
-            <CommandItem onSelect={handleToggleBulkMode} disabled={!document || isLoading}>
+            <CommandItem onSelect={handleToggleBulkMode} disabled={!state.document || isLoading}>
               <Layers className="mr-2 h-4 w-4" />
               <span>Toggle bulk mode</span>
-              {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
+              {!state.document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
               {isBulkMode && (
                 <span className="ml-auto text-xs bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
                   Active
@@ -232,10 +238,10 @@ export function CommandPalette({
               )}
               <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘B</kbd>
             </CommandItem>
-            <CommandItem onSelect={handleToggleVisualizations} disabled={!document || isLoading}>
+            <CommandItem onSelect={handleToggleVisualizations} disabled={!state.document || isLoading}>
               <Eye className="mr-2 h-4 w-4" />
               <span>Toggle visualizations</span>
-              {!document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
+              {!state.document && <span className="ml-auto text-xs text-muted-foreground">(No doc)</span>}
               {isVizPanelOpen && (
                 <span className="ml-auto text-xs bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
                   Visible

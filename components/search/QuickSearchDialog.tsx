@@ -5,19 +5,21 @@ import { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import { QuickSearch, SearchResult, SearchState } from '@/lib/search/QuickSearch';
 import { Search, ChevronUp, ChevronDown, X } from 'lucide-react';
 import { sanitizeHTML } from '@/lib/utils/sanitizer';
 
-interface QuickSearchDialogProps {
+export interface QuickSearchDialogProps {
+  initialState?: DocumentState;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onResultClick?: (result: SearchResult) => void;
 }
 
-export function QuickSearchDialog({ open, onOpenChange, onResultClick }: QuickSearchDialogProps) {
-  const { document } = useDocumentService();
+export function QuickSearchDialog({ initialState, open, onOpenChange, onResultClick }: QuickSearchDialogProps) {
+  const { state } = useDocumentV2(initialState);
   const [search] = useState(() => new QuickSearch());
   const [query, setQuery] = useState('');
   const [searchState, setSearchState] = useState<SearchState>({
@@ -29,8 +31,8 @@ export function QuickSearchDialog({ open, onOpenChange, onResultClick }: QuickSe
 
   // Update search instance when document changes
   useEffect(() => {
-    search.setDocument(document);
-  }, [document, search]);
+    search.setDocument(state.document);
+  }, [state.document, search]);
 
   // Perform search when query changes
   useEffect(() => {

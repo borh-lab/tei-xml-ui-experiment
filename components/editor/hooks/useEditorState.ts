@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
 import type { TagInfo } from '@/lib/selection/types';
 import type { TEINode } from '@/lib/tei/types';
@@ -9,17 +9,14 @@ import type { Fix } from '@/lib/validation/types';
 import { toast } from '@/components/ui/use-toast';
 import { TagQueue } from '@/lib/queue/TagQueue';
 import type { QueuedTag, TagQueueState } from '@/lib/queue/TagQueue';
-import type { DocumentState } from '@/lib/values/DocumentState';
-import type { TEIDocument, PassageID, CharacterID } from '@/lib/tei/types';
-import type { ValidationResult } from '@/lib/validation/types';
 
 export interface UseEditorStateResult {
-  // Document state (from useDocumentV2)
-  document: TEIDocument | null;
+  // Document state (from useDocumentService)
+  document: any;
   updateDocument: (xml: string) => Promise<void>;
   loadingSample: boolean;
   loadingProgress: number;
-  validationResults: ValidationResult | null;
+  validationResults: any;
   isValidating: boolean;
   addSaidTag: (passageId: string, range: { start: number; end: number }, speakerId: string) => Promise<void>;
   addTag: (passageId: string, range: { start: number; end: number }, tagName: string, attrs?: Record<string, string>) => Promise<void>;
@@ -53,26 +50,29 @@ export interface UseEditorStateResult {
 export interface UseEditorStateOptions {
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
   tagToEdit: TagInfo | null;
-  initialState?: DocumentState;
 }
 
 /**
  * Manages core editor state including document operations and passage navigation.
  *
- * V2: Wraps useDocumentV2 and adds editor-specific operations.
- * Uses explicit state protocol instead of hidden Ref-based state.
+ * This hook wraps useDocumentService and adds editor-specific operations.
  */
 export function useEditorState(options: UseEditorStateOptions): UseEditorStateResult {
-  const { showToast, tagToEdit, initialState: initialDocState } = options;
+  const { showToast, tagToEdit } = options;
 
-  // Get document state from useDocumentV2 (not useDocumentContext)
-  const { state: docState, operations } = useDocumentV2(initialDocState);
-
-  // Extract state values
-  const document = docState.document;
-  const loading = docState.status === 'loading';
-  const validationResults = docState.validation?.results ?? null;
-  const isValidating = false; // V2 doesn't have separate isValidating flag
+  // Get document state from shared DocumentContext
+  const {
+    document,
+    updateDocument,
+    loadingSample,
+    loadingProgress,
+    validationResults,
+    isValidating,
+    addSaidTag,
+    addTag,
+    loading,
+    error,
+  } = useDocumentContext();
 
   // Passage navigation state
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);
@@ -87,44 +87,6 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
 
   // Maintain a single SelectionManager instance
   const selectionManager = useRef(new SelectionManager());
-
-  // V2: Create updateDocument from operations
-  const updateDocument = useCallback(async (xml: string) => {
-    await operations.loadDocument(xml);
-  }, [operations]);
-
-  // V2: Add wrapper for addSaidTag that matches V1 signature
-  const addSaidTag = useCallback(async (
-    passageId: string,
-    range: { start: number; end: number },
-    speakerId: string
-  ) => {
-    await operations.addSaidTag(passageId as PassageID, range, speakerId as CharacterID);
-  }, [operations]);
-
-  // V2: Add wrapper for addTag that matches V1 signature
-  const addTag = useCallback(async (
-    passageId: string,
-    range: { start: number; end: number },
-    tagName: string,
-    attrs?: Record<string, string>
-  ) => {
-    if (tagName === 'said') {
-      const speakerId = attrs?.who?.substring(1) || 'unknown';
-      await operations.addSaidTag(passageId as PassageID, range, speakerId as CharacterID);
-    } else if (tagName === 'q') {
-      await operations.addQTag(passageId as PassageID, range);
-    } else if (tagName === 'persName') {
-      await operations.addPersNameTag(passageId as PassageID, range, attrs?.ref || '');
-    } else {
-      // Generic tag - for now just use addQTag as fallback
-      await operations.addQTag(passageId as PassageID, range);
-    }
-  }, [operations]);
-
-  // V2: Mock loadingSample and loadingProgress (V2 doesn't track these separately)
-  const loadingSample = loading;
-  const loadingProgress = 0;
 
   // Helper to update queue state
   const updateQueueState = useCallback(() => {

@@ -60,7 +60,6 @@ jest.mock('react-hotkeys-hook', () => ({
   useHotkeys: jest.fn(),
 }));
 
-
 // Mock fetch for sample files
 global.fetch = jest.fn(async (url) => {
   // Mock sample file responses
