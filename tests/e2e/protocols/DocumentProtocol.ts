@@ -66,7 +66,7 @@ export class DocumentProtocol {
     await this.app.waitForState({
       location: 'editor',
       document: { loaded: true },
-    }, 15000);
+    });
 
     // Additional wait for UI to render
     await this.app.page().waitForTimeout(1000);
