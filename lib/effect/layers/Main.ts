@@ -60,7 +60,8 @@ export const MainLayer = Layer.mergeAll(
 export { DocumentServiceLive, TestDocumentService } from '../services/DocumentService';
 export { BrowserStorageService, TestStorageService } from '../services/StorageService';
 export { BrowserValidationService, TestValidationService } from '../services/ValidationService';
-export { EntityRepositoryLive, TestEntityRepository, createTestRepository } from '../services/EntityRepository';
+// EntityRepository is server-only - import where needed:
+// export { EntityRepositoryLive, TestEntityRepository, createTestRepository } from '../services/EntityRepository';
 // TODO: Fix AIService provider implementation
 // export { OpenAIService, TestAIService } from '../services/AIService';
 
@@ -68,6 +69,7 @@ export { EntityRepositoryLive, TestEntityRepository, createTestRepository } from
 export { DocumentService } from '../protocols/Document';
 export { StorageService } from '../protocols/Storage';
 export { ValidationService } from '../protocols/Validation';
-export { EntityRepository } from '../protocols/EntityRepository';
+// EntityRepository is server-only:
+// export { EntityRepository } from '../protocols/EntityRepository';
 // TODO: Fix AIService provider implementation
 // export { AIService } from '../protocols/AI';
