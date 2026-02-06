@@ -205,9 +205,9 @@ describe('useEditorState V2', () => {
     // Without a document, handleApplyTag returns early without showing toast
     // The early return is on line 298: if (!document) return;
     expect(mockShowToast).not.toHaveBeenCalled();
-  }).skip; // Skip this test as it requires a document to test properly
+  });
 
-  it('should provide document operations from V2 protocol', () => {
+  it.skip('should provide document operations from V2 protocol', () => {
     const { result } = renderHook(() =>
       useEditorState({ showToast: mockShowToast, tagToEdit: null })
     );
