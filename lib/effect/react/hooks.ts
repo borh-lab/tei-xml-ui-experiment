@@ -52,6 +52,10 @@ export interface UseDocumentServiceResult {
   isValidating: boolean;
   /** Error from last operation (null if no error) */
   error: Error | null;
+  /** Last successfully saved revision (null if never saved) */
+  lastSavedRevision: number | null;
+  /** Timestamp of last save (null if never saved) */
+  lastSavedAt: Date | null;
   /** Load document from XML string */
   loadDocument: (xml: string) => Promise<TEIDocument>;
   /** Update document from XML string (reloads document) */
@@ -117,6 +121,8 @@ export function useDocumentService(): UseDocumentServiceResult {
   const [validationResults, setValidationResults] = useState<ValidationResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [lastSavedRevision, setLastSavedRevision] = useState<number | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   // Track if component is mounted to avoid state updates after unmount
   const mountedRef = useRef(true);
@@ -138,6 +144,8 @@ export function useDocumentService(): UseDocumentServiceResult {
       validationResults: ValidationResult;
       isValidating: boolean;
       error: Error | null;
+      lastSavedRevision: number | null;
+      lastSavedAt: Date | null;
     }>
   ) => {
     if (mountedRef.current) {
@@ -150,6 +158,8 @@ export function useDocumentService(): UseDocumentServiceResult {
       if (updates.validationResults !== undefined) setValidationResults(updates.validationResults);
       if (updates.isValidating !== undefined) setIsValidating(updates.isValidating);
       if (updates.error !== undefined) setError(updates.error);
+      if (updates.lastSavedRevision !== undefined) setLastSavedRevision(updates.lastSavedRevision);
+      if (updates.lastSavedAt !== undefined) setLastSavedAt(updates.lastSavedAt);
     }
   }, []);
 
@@ -205,7 +215,13 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       // Run the program
       const doc = await runEffectAsyncOrFail(program);
-      updateState({ document: doc, loading: false });
+      // Reset save state on new document load
+      updateState({
+        document: doc,
+        loading: false,
+        lastSavedRevision: null,
+        lastSavedAt: null
+      });
 
       // Validate on load
       await validateDocument(doc);
@@ -523,7 +539,12 @@ export function useDocumentService(): UseDocumentServiceResult {
   }, [updateState, validateDocument]);
 
   const clearDocument = useCallback(() => {
-    updateState({ document: null, error: null });
+    updateState({
+      document: null,
+      error: null,
+      lastSavedRevision: null,
+      lastSavedAt: null
+    });
   }, [updateState]);
 
   const loadSample = useCallback(async (sampleId: string) => {
@@ -569,8 +590,16 @@ export function useDocumentService(): UseDocumentServiceResult {
       // In a full implementation, this would update the document state
       // without triggering a full reload
       const updated = await loadDocument(xml);
-      // Validation is already done in loadDocument
-      updateState({ document: updated, loading: false });
+
+      // Update save state after successful save
+      if (updated && updated.state) {
+        updateState({
+          document: updated,
+          loading: false,
+          lastSavedRevision: updated.state.revision,
+          lastSavedAt: new Date()
+        });
+      }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       updateState({ loading: false, error });
@@ -646,6 +675,8 @@ export function useDocumentService(): UseDocumentServiceResult {
     validationResults,
     isValidating,
     error,
+    lastSavedRevision,
+    lastSavedAt,
     loadDocument,
     loadSample,
     updateDocument,
@@ -672,6 +703,8 @@ export function useDocumentService(): UseDocumentServiceResult {
     validationResults,
     isValidating,
     error,
+    lastSavedRevision,
+    lastSavedAt,
   ]);
 }
 

@@ -40,6 +40,10 @@ export interface DocumentContextType {
   validationResults: ValidationResult | null;
   /** Whether validation is in progress */
   isValidating: boolean;
+  /** Last successfully saved revision (null if never saved) */
+  lastSavedRevision: number | null;
+  /** Timestamp of last save (null if never saved) */
+  lastSavedAt: Date | null;
   /** Error from last operation (null if no error) */
   error: Error | null;
   /** Load document from XML string */
@@ -121,6 +125,8 @@ export function DocumentProvider({ children }: DocumentProviderProps) {
     loadingProgress: docService.loadingProgress,
     validationResults: docService.validationResults,
     isValidating: docService.isValidating,
+    lastSavedRevision: docService.lastSavedRevision,
+    lastSavedAt: docService.lastSavedAt,
     error: docService.error,
 
     // Document operations
@@ -167,6 +173,8 @@ export function DocumentProvider({ children }: DocumentProviderProps) {
     docService.loadingProgress,
     docService.validationResults,
     docService.isValidating,
+    docService.lastSavedRevision,
+    docService.lastSavedAt,
     docService.error,
   ]);
 
