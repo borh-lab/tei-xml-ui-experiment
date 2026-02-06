@@ -1,3 +1,16 @@
+> [!NOTE]
+> # Disclaimer
+>
+> This repo was an experiment borne out of a graduate seminar to see if useful, but technically relatively complex, tools could be made with coding agents in Feb. 2026 (GLM-4.7 with Claude Code).
+> The results of this are in this repo.
+> Since the goal was to show how far one can go with just text prompting (albeit at a high technical level) without even opening the browser or reading any of the code, the results are decidedly mixed.
+>
+> Some ideas, like parinfer-for-TEI (XML) seem genuinely interesting and merit further investigation as neat UI/UX improvements.
+> The corpoa uncovered during the construction and related baseline, CRF, and DistilBERT models were also interesting, but unfinished work.
+> Other methodological issues with maintaining and growing a codebase of this size are also unsolved (some analysis of git commit history was conducted in the Gource video and cloc-based visualization).
+> However, the goal of this was not necessarily to make a finished tool, but explore and assess.
+> With that, I am closing this repo.
+
 # TEI Dialogue Editor
 
 <img src="docs/screenshots/welcome-screen.png" alt="Welcome Screen" width="800">
