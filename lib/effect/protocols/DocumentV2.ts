@@ -230,12 +230,14 @@ export const DocumentProtocolLive: DocumentProtocol = {
         ),
     }),
 
-  addPersNameTag: (state: DocumentState, passageId: PassageID, range: TextRange, _ref: string) =>
+  addPersNameTag: (state: DocumentState, passageId: PassageID, range: TextRange, ref: string) =>
     Effect.try({
       try: () => {
         if (!state.document) {
           throw new Error('No document loaded');
         }
+        // ref parameter accepted for interface compatibility, not currently used
+        void ref;
         const updated = addPersNameTagOp(state.document, passageId, range);
         return {
           ...state,

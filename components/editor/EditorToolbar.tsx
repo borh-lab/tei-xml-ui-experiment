@@ -20,19 +20,15 @@ export interface EditorToolbarProps {
   // Panels
   bulkPanelOpen: boolean;
   onToggleBulkPanel: () => void;
-  isBulkMode: boolean;
-  setIsBulkMode: (mode: boolean) => void;
   selectedPassages: string[];
   vizPanelOpen: boolean;
   onToggleVizPanel: () => void;
   validationPanelOpen: boolean;
   onToggleValidationPanel: () => void;
-  validationResults: any;
+  validationResults?: { errors: number; warnings: number };
   isValidating: boolean;
   entityPanelOpen: boolean;
   onToggleEntityPanel: () => void;
-  shortcutHelpOpen: boolean;
-  onToggleShortcutHelp: () => void;
   onInsertStructuralTag: (tagName: string) => void;
   // Loading state
   loadingSample: boolean;
@@ -56,8 +52,6 @@ export function EditorToolbar({
   onViewModeChange,
   bulkPanelOpen,
   onToggleBulkPanel,
-  isBulkMode,
-  setIsBulkMode,
   selectedPassages,
   vizPanelOpen,
   onToggleVizPanel,
@@ -67,8 +61,6 @@ export function EditorToolbar({
   isValidating,
   entityPanelOpen,
   onToggleEntityPanel,
-  shortcutHelpOpen,
-  onToggleShortcutHelp,
   onInsertStructuralTag,
   loadingSample,
   loadingProgress,
