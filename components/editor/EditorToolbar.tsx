@@ -29,6 +29,7 @@ export interface EditorToolbarProps {
   isValidating: boolean;
   entityPanelOpen: boolean;
   onToggleEntityPanel: () => void;
+  onToggleShortcutHelp: () => void;
   onInsertStructuralTag: (tagName: string) => void;
   // Loading state
   loadingSample: boolean;
@@ -61,6 +62,7 @@ export function EditorToolbar({
   isValidating,
   entityPanelOpen,
   onToggleEntityPanel,
+  onToggleShortcutHelp,
   onInsertStructuralTag,
   loadingSample,
   loadingProgress,
@@ -119,10 +121,7 @@ export function EditorToolbar({
       <Button
         variant={bulkPanelOpen ? 'default' : 'outline'}
         size="sm"
-        onClick={() => {
-          onToggleBulkPanel();
-          setIsBulkMode(!bulkPanelOpen);
-        }}
+        onClick={onToggleBulkPanel}
         title="Bulk Operations - Tag multiple passages at once (⌘B)"
       >
         Bulk Operations ({selectedPassages.length})
@@ -141,19 +140,19 @@ export function EditorToolbar({
         size="sm"
         onClick={onToggleValidationPanel}
         title={
-          validationResults && !validationResults.valid
-            ? `Validation - ${validationResults.errors.length} errors found`
+          validationResults && validationResults.errors > 0
+            ? `Validation - ${validationResults.errors} errors found`
             : 'Validation - Check document for issues'
         }
         className={
-          validationResults && !validationResults.valid ? 'border-red-500 text-red-600' : ''
+          validationResults && validationResults.errors > 0 ? 'border-red-500 text-red-600' : ''
         }
       >
         Validation
         {isValidating && <span className="ml-2 text-xs">Validating...</span>}
-        {validationResults && !validationResults.valid && (
+        {validationResults && validationResults.errors > 0 && (
           <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">
-            {validationResults.errors.length} errors
+            {validationResults.errors} errors
           </span>
         )}
       </Button>

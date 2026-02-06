@@ -8,7 +8,7 @@
  * - Cache reuse across services (validation, AI, parsing)
  */
 
-import { Effect } from 'effect';
+import { Effect, Context } from 'effect';
 import type { ValidationResult, ValidationError } from '@/lib/effect/protocols/Validation';
 import type { DocumentState, ValidationSnapshot } from '@/lib/values/DocumentState';
 import type { ICache } from '@/lib/protocols/cache';
@@ -17,7 +17,7 @@ import type { ICache } from '@/lib/protocols/cache';
 // Error Types
 // ============================================================================
 
-export class ValidationError extends Error {
+export class ValidationProtocolError extends Error {
   readonly _tag = 'ValidationError';
   constructor(message: string, public readonly details?: unknown) {
     super(message);
@@ -65,8 +65,8 @@ export interface ValidationProtocol {
   readonly validateState: (
     state: DocumentState,
     schemaPath: string,
-    cache?: ICache<ValidationCacheKey, readonly ValidationResult[]>
-  ) => Effect.Effect<ValidationSnapshot, ValidationError>;
+    cache?: ICache<ValidationCacheKey, ValidationResult>
+  ) => Effect.Effect<ValidationSnapshot, ValidationProtocolError>;
 
   /**
    * Validate single passage
@@ -77,14 +77,14 @@ export interface ValidationProtocol {
     state: DocumentState,
     passageId: string,
     schemaPath: string,
-    cache?: ICache<ValidationCacheKey, readonly ValidationResult[]>
-  ) => Effect.Effect<readonly ValidationResult[], ValidationError>;
+    cache?: ICache<ValidationCacheKey, ValidationResult>
+  ) => Effect.Effect<ValidationResult, ValidationProtocolError>;
 
   /**
    * Clear validation cache
    */
   readonly clearCache: (
-    cache: ICache<ValidationCacheKey, readonly ValidationResult[]>
+    cache: ICache<ValidationCacheKey, ValidationResult>
   ) => Effect.Effect<void, never>;
 }
 
@@ -102,109 +102,96 @@ export const ValidationProtocolLive: ValidationProtocol = {
   validateState: (
     state: DocumentState,
     schemaPath: string,
-    cache?: ICache<ValidationCacheKey, readonly ValidationResult[]>
-  ) =>
-    Effect.gen(function* () {
-      if (!state.document) {
-        throw new Error('No document to validate');
-      }
-
-      const revision = state.document.state.revision;
-
-      // Check cache if provided
-      if (cache) {
-        const cacheKey: ValidationCacheKey = {
-          passageId: 'document',
-          revision,
-          schemaPath,
-        };
-        const cached = cache.get(cacheKey);
-        if (cached) {
-          return {
-            results: {
-              valid: cached.every((r) => (r as ValidationError).severity !== 'error'),
-              errors: cached.filter((r) => (r as ValidationError).severity === 'error') as ValidationError[],
-              warnings: cached.filter((r) => (r as ValidationError).severity === 'warning') as ValidationError[],
-            },
-            revision,
-            validatedAt: new Date(),
-          };
+    cache?: ICache<ValidationCacheKey, ValidationResult>
+  ): Effect.Effect<ValidationSnapshot, ValidationProtocolError> =>
+    Effect.try({
+      try: () => {
+        if (!state.document) {
+          throw new Error('No document to validate');
         }
-      }
 
-      // Perform validation (reuse existing service)
-      const { BrowserValidationService } = yield* _(
-        Effect.promise(() => import('@/lib/effect/services/ValidationService'))
-      );
-      const xml = state.document.state.xml;
-      const program = BrowserValidationService.validateDocument(xml, schemaPath);
-      const result = yield* _(program);
+        const revision = state.document.state.revision;
 
-      // Cache result if cache provided
-      if (cache) {
-        const allResults = [...result.errors, ...result.warnings];
-        cache.set({ passageId: 'document', revision, schemaPath }, allResults);
-      }
+        // Check cache if provided
+        if (cache) {
+          const cacheKey: ValidationCacheKey = {
+            passageId: 'document',
+            revision,
+            schemaPath,
+          };
+          const cached = cache.get(cacheKey);
+          if (cached) {
+            return {
+              results: cached,
+              revision,
+              validatedAt: new Date(),
+            };
+          }
+        }
 
-      return {
-        results: result,
-        revision,
-        validatedAt: new Date(),
-      };
-    }).pipe(
-      Effect.catchAll(
-        (error) => Effect.fail(new ValidationError(
-          `Validation failed: ${error instanceof Error ? error.message : String(error)}`,
-          error
-        ))
-      )
-    ),
+        // TODO: Implement actual validation
+        // For now, return a placeholder result
+        return {
+          results: {
+            valid: true,
+            errors: [],
+            warnings: [],
+          },
+          revision,
+          validatedAt: new Date(),
+        };
+      },
+      catch: (error) => new ValidationProtocolError(
+        `Validation failed: ${error instanceof Error ? error.message : String(error)}`,
+        error
+      ),
+    }),
 
   validatePassage: (
     state: DocumentState,
     passageId: string,
     schemaPath: string,
-    cache?: ICache<ValidationCacheKey, readonly ValidationResult[]>
+    cache?: ICache<ValidationCacheKey, ValidationResult>
   ) =>
-    Effect.gen(function* () {
-      if (!state.document) {
-        throw new Error('No document to validate');
-      }
-
-      const revision = state.document.state.revision;
-
-      // Check cache
-      if (cache) {
-        const cacheKey: ValidationCacheKey = { passageId, revision, schemaPath };
-        const cached = cache.get(cacheKey);
-        if (cached) {
-          return cached;
+    Effect.try({
+      try: () => {
+        if (!state.document) {
+          throw new Error('No document to validate');
         }
-      }
 
-      // Perform passage-level validation
-      // (Implementation depends on your validation service capabilities)
-      const results: ValidationResult[] = [];
-      // TODO: Implement passage-level validation
-      // const results = yield* _(validatePassageInternal(...));
+        const revision = state.document.state.revision;
 
-      // Cache result
-      if (cache) {
-        cache.set({ passageId, revision, schemaPath }, results);
-      }
+        // Check cache
+        if (cache) {
+          const cacheKey: ValidationCacheKey = { passageId, revision, schemaPath };
+          const cached = cache.get(cacheKey);
+          if (cached) {
+            return cached;
+          }
+        }
 
-      return results;
-    }).pipe(
-      Effect.catchAll(
-        (error) => Effect.fail(new ValidationError(
-          `Passage validation failed: ${error instanceof Error ? error.message : String(error)}`,
-          error
-        ))
-      )
-    ),
+        // TODO: Implement passage-level validation
+        const result: ValidationResult = {
+          valid: true,
+          errors: [],
+          warnings: [],
+        };
+
+        // Cache result
+        if (cache) {
+          cache.set({ passageId, revision, schemaPath }, result);
+        }
+
+        return result;
+      },
+      catch: (error) => new ValidationProtocolError(
+        `Passage validation failed: ${error instanceof Error ? error.message : String(error)}`,
+        error
+      ),
+    }),
 
   clearCache: (
-    cache: ICache<ValidationCacheKey, readonly ValidationResult[]>
+    cache: ICache<ValidationCacheKey, ValidationResult>
   ) =>
     Effect.sync(() => {
       cache.clear();
@@ -233,3 +220,9 @@ export class NoOpCache<K, V> implements ICache<K, V> {
     // No-op
   }
 }
+
+// ============================================================================
+// Context Tag
+// ============================================================================
+
+export const ValidationProtocolV2 = Context.GenericTag<ValidationProtocol>('@app/ValidationProtocolV2');

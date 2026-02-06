@@ -11,7 +11,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { Effect } from 'effect';
+import { Effect, pipe } from 'effect';
 import type {
   TEIDocument,
   PassageID,
@@ -84,12 +84,21 @@ export function useDocumentV2(
   const setStateFromEffect = useCallback(<E,>(
     effect: Effect.Effect<DocumentState, E>
   ): Promise<void> => {
-    return Effect.runPromise(
-      Effect.tap(effect, setState),
-      Effect.catchAll((error) =>
-        Effect.sync(() => setState(prev => ({ ...prev, error: error as Error })))
-      )
+    const program = pipe(
+      effect,
+      Effect.match({
+        onSuccess: (value) => {
+          setState(value);
+          return undefined;
+        },
+        onFailure: (error) => {
+          setState(prev => ({ ...prev, error: error as Error }));
+          return undefined;
+        }
+      })
     );
+
+    return Effect.runPromise(program) as Promise<void>;
   }, []);
 
   // Memoize operations (only recreate when state changes)

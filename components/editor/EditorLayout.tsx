@@ -473,8 +473,6 @@ export function EditorLayout() {
         onViewModeChange={handleViewModeChange}
         bulkPanelOpen={editorUI.panelStates.bulkPanelOpen}
         onToggleBulkPanel={editorUI.toggleBulkPanel}
-        isBulkMode={bulkOps.isBulkMode}
-        setIsBulkMode={bulkOps.setIsBulkMode}
         selectedPassages={bulkOps.selectedPassages}
         vizPanelOpen={editorUI.panelStates.vizPanelOpen}
         onToggleVizPanel={editorUI.toggleVizPanel}
@@ -484,7 +482,6 @@ export function EditorLayout() {
         isValidating={editorState.isValidating}
         entityPanelOpen={editorUI.panelStates.entityPanelOpen}
         onToggleEntityPanel={editorUI.toggleEntityPanel}
-        shortcutHelpOpen={editorUI.panelStates.shortcutHelpOpen}
         onToggleShortcutHelp={editorUI.toggleShortcutHelp}
         onInsertStructuralTag={handleInsertStructuralTag}
         loadingSample={editorState.loadingSample}
