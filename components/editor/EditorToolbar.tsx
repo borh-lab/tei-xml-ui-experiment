@@ -85,7 +85,7 @@ export function EditorToolbar({
           variant={viewMode === 'wysiwyg' ? 'default' : 'outline'}
           size="sm"
           onClick={() => onViewModeChange('wysiwyg')}
-          title="WYSIWYG View"
+          title="WYSIWYG View - Rendered document view"
         >
           WYSIWYG
         </Button>
@@ -93,7 +93,7 @@ export function EditorToolbar({
           variant={viewMode === 'xml' ? 'default' : 'outline'}
           size="sm"
           onClick={() => onViewModeChange('xml')}
-          title="XML Code View"
+          title="XML Code View - Source code view"
         >
           XML
         </Button>
@@ -101,7 +101,7 @@ export function EditorToolbar({
           variant={viewMode === 'split' ? 'default' : 'outline'}
           size="sm"
           onClick={() => onViewModeChange('split')}
-          title="Split View"
+          title="Split View - Side-by-side rendered and source"
         >
           Split
         </Button>
@@ -119,7 +119,7 @@ export function EditorToolbar({
         variant={queue?.multiTagMode ? 'default' : 'outline'}
         size="sm"
         onClick={queue?.toggleMultiTagMode}
-        title={queue?.multiTagMode ? 'Multi-tag mode ON - tags are queued' : 'Multi-tag mode OFF - tags applied immediately'}
+        title={queue?.multiTagMode ? 'Multi-tag mode ON - Tags queued for batch application' : 'Multi-tag mode OFF - Tags applied immediately'}
         className={queue?.multiTagMode ? 'bg-primary text-primary-foreground' : ''}
       >
         {queue?.multiTagMode ? '✓ Multi-Tag' : 'Multi-Tag'}
@@ -131,6 +131,7 @@ export function EditorToolbar({
           onToggleBulkPanel();
           setIsBulkMode(!bulkPanelOpen);
         }}
+        title="Bulk Operations - Tag multiple passages at once (⌘B)"
       >
         Bulk Operations ({selectedPassages.length})
         <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘B</kbd>
@@ -139,6 +140,7 @@ export function EditorToolbar({
         variant={vizPanelOpen ? 'default' : 'outline'}
         size="sm"
         onClick={onToggleVizPanel}
+        title="Visualizations - View character networks and dialogue statistics"
       >
         Visualizations
       </Button>
@@ -146,6 +148,11 @@ export function EditorToolbar({
         variant={validationPanelOpen ? 'default' : 'outline'}
         size="sm"
         onClick={onToggleValidationPanel}
+        title={
+          validationResults && !validationResults.valid
+            ? `Validation - ${validationResults.errors.length} errors found`
+            : 'Validation - Check document for issues'
+        }
         className={
           validationResults && !validationResults.valid ? 'border-red-500 text-red-600' : ''
         }
@@ -163,6 +170,7 @@ export function EditorToolbar({
         variant={entityPanelOpen ? 'default' : 'outline'}
         size="sm"
         onClick={onToggleEntityPanel}
+        title="Entities - Manage characters and relationships (⌘E)"
       >
         Entities
         <kbd className="ml-2 text-xs bg-muted px-2 py-1 rounded">⌘E</kbd>

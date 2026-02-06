@@ -10,7 +10,6 @@
 
 import { Effect, Context } from 'effect';
 import type {
-  TEIDocument,
   PassageID,
   CharacterID,
   TextRange,
@@ -19,7 +18,6 @@ import type {
 } from '@/lib/tei/types';
 import type {
   DocumentState,
-  ValidationSnapshot,
 } from '@/lib/values/DocumentState';
 import {
   loadDocument as loadDocumentOp,
@@ -49,7 +47,6 @@ export class DocumentError extends Error {
 }
 
 export class DocumentParseError extends DocumentError {
-  readonly _tag = 'DocumentParseError';
   constructor(message: string, public readonly xml: string, cause?: unknown) {
     super(message, cause);
     this.name = 'DocumentParseError';
@@ -57,7 +54,6 @@ export class DocumentParseError extends DocumentError {
 }
 
 export class InvalidOperationError extends DocumentError {
-  readonly _tag = 'InvalidOperationError';
   constructor(message: string, public readonly reason: string) {
     super(message);
     this.name = 'InvalidOperationError';
@@ -234,7 +230,7 @@ export const DocumentProtocolLive: DocumentProtocol = {
         ),
     }),
 
-  addPersNameTag: (state: DocumentState, passageId: PassageID, range: TextRange, ref: string) =>
+  addPersNameTag: (state: DocumentState, passageId: PassageID, range: TextRange, _ref: string) =>
     Effect.try({
       try: () => {
         if (!state.document) {

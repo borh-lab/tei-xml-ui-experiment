@@ -287,6 +287,79 @@ export class PassageValidationCache implements ICache<CacheKey, readonly Validat
  */
 
 /**
+ * Generic LRU Cache
+ *
+ * A generic LRU cache implementation that works with any key and value types.
+ * Uses JSON.stringify for key serialization to support complex key types.
+ */
+export class LRUCache<K, V> implements ICache<K, V> {
+  private cache: Map<string, { value: V; timestamp: number }>;
+  private config: CacheConfig;
+
+  constructor(config: Partial<CacheConfig> = {}) {
+    this.cache = new Map();
+    this.config = {
+      maxSize: config.maxSize ?? 100,
+      ttl: config.ttl ?? 300000,
+    };
+  }
+
+  private makeKey(key: K): string {
+    // For primitive keys, use them directly
+    // For object keys, stringify them
+    if (typeof key === 'string' || typeof key === 'number') {
+      return String(key);
+    }
+    return JSON.stringify(key);
+  }
+
+  private isExpired(entry: { value: V; timestamp: number }): boolean {
+    const now = Date.now();
+    return now - entry.timestamp > this.config.ttl;
+  }
+
+  get(key: K): V | null {
+    const cacheKey = this.makeKey(key);
+    const entry = this.cache.get(cacheKey);
+
+    if (!entry) {
+      return null;
+    }
+
+    // Check if expired
+    if (this.isExpired(entry)) {
+      this.cache.delete(cacheKey);
+      return null;
+    }
+
+    // Move to end (most recently used)
+    this.cache.delete(cacheKey);
+    this.cache.set(cacheKey, entry);
+
+    return entry.value;
+  }
+
+  set(key: K, value: V): void {
+    const cacheKey = this.makeKey(key);
+    const entry = { value, timestamp: Date.now() };
+
+    // Evict oldest entry if at capacity
+    if (this.cache.size >= this.config.maxSize && !this.cache.has(cacheKey)) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) {
+        this.cache.delete(firstKey);
+      }
+    }
+
+    this.cache.set(cacheKey, entry);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+}
+
+/**
  * Create a new LRU cache instance
  *
  * Factory function that creates a new cache instance with the specified configuration.
@@ -295,10 +368,16 @@ export class PassageValidationCache implements ICache<CacheKey, readonly Validat
  *
  * Usage Example:
  * ```typescript
- * // In production code
+ * // For passage validation
  * const cache = createLRUCache<CacheKey, ValidationResult[]>({
  *   maxSize: 100,
  *   ttl: 300000 // 5 minutes
+ * });
+ *
+ * // For suggestions (generic key)
+ * const suggestionsCache = createLRUCache<string, Suggestion[]>({
+ *   maxSize: 100,
+ *   ttl: 5000 // 5 seconds
  * });
  *
  * // Inject cache into function via parameter
@@ -311,17 +390,13 @@ export class PassageValidationCache implements ICache<CacheKey, readonly Validat
  *   cache.set(key, results);
  *   return results;
  * }
- *
- * // In tests
- * const mockCache = createMockCache<CacheKey, ValidationResult[]>();
- * const results = validatePassage(testPassage, mockCache);
  * ```
  *
  * @param config - Cache configuration including maxSize and TTL
- * @returns A new PassageValidationCache instance implementing ICache
+ * @returns A new LRUCache instance implementing ICache
  */
-export function createLRUCache<K extends CacheKey, V extends readonly ValidationResult[]>(
+export function createLRUCache<K, V>(
   config: Partial<CacheConfig> = {}
-): PassageValidationCache {
-  return new PassageValidationCache(config);
+): LRUCache<K, V> {
+  return new LRUCache<K, V>(config);
 }
