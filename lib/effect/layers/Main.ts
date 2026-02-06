@@ -19,6 +19,9 @@ import {
   BrowserValidationService,
   TestValidationService,
 } from '../services/ValidationService';
+import {
+  EntityRepositoryLive,
+} from '../services/EntityRepository';
 // TODO: Fix AIService provider implementation
 // import { AIService, AIServiceLive, OpenAIService, TestAIService } from '../services/AIService';
 
@@ -31,13 +34,15 @@ import {
 export const MainLayer = Layer.mergeAll(
   DocumentServiceLive,
   StorageServiceLive,
-  ValidationServiceLive
+  ValidationServiceLive,
+  EntityRepositoryLive
 );
 
 // Re-export service implementations
 export { DocumentServiceLive, TestDocumentService } from '../services/DocumentService';
 export { BrowserStorageService, TestStorageService } from '../services/StorageService';
 export { BrowserValidationService, TestValidationService } from '../services/ValidationService';
+export { EntityRepositoryLive, TestEntityRepository, createTestRepository } from '../services/EntityRepository';
 // TODO: Fix AIService provider implementation
 // export { OpenAIService, TestAIService } from '../services/AIService';
 
@@ -45,5 +50,6 @@ export { BrowserValidationService, TestValidationService } from '../services/Val
 export { DocumentService } from '../protocols/Document';
 export { StorageService } from '../protocols/Storage';
 export { ValidationService } from '../protocols/Validation';
+export { EntityRepository } from '../protocols/EntityRepository';
 // TODO: Fix AIService provider implementation
 // export { AIService } from '../protocols/AI';
