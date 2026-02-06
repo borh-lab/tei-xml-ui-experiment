@@ -7,10 +7,15 @@ import { CharacterNetwork } from '@/components/visualization/CharacterNetwork';
 import { DialogueStats } from '@/components/visualization/DialogueStats';
 import { DocumentAnalytics } from '@/components/analytics/DocumentAnalytics';
 import { Card } from '@/components/ui/card';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 
-export function VisualizationPanel() {
-  const { document } = useDocumentService();
+interface VisualizationPanelProps {
+  initialState?: DocumentState;
+}
+
+export function VisualizationPanel({ initialState }: VisualizationPanelProps) {
+  const { state } = useDocumentV2(initialState);
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
 
   return (
@@ -25,7 +30,7 @@ export function VisualizationPanel() {
         </div>
 
         <TabsContent value="network" className="flex-1 mt-4 px-6 pb-6">
-          {document && <CharacterNetwork document={document} onNodeClick={setSelectedCharacter} />}
+          {state.document && <CharacterNetwork document={state.document} onNodeClick={setSelectedCharacter} />}
           {selectedCharacter && (
             <div className="mt-4 p-4 bg-muted rounded-md">
               <p className="text-sm font-semibold">Selected: {selectedCharacter}</p>
@@ -37,11 +42,11 @@ export function VisualizationPanel() {
         </TabsContent>
 
         <TabsContent value="stats" className="flex-1 mt-4 px-6 pb-6">
-          <DialogueStats />
+          <DialogueStats initialState={state} />
         </TabsContent>
 
         <TabsContent value="analytics" className="flex-1 mt-4 px-6 pb-6">
-          <DocumentAnalytics />
+          <DocumentAnalytics initialState={state} />
         </TabsContent>
       </Tabs>
     </Card>

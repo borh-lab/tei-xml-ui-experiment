@@ -2,16 +2,21 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export function DialogueStats() {
-  const { document } = useDocumentService();
+interface DialogueStatsProps {
+  initialState?: DocumentState;
+}
+
+export function DialogueStats({ initialState }: DialogueStatsProps) {
+  const { state } = useDocumentV2(initialState);
 
   const stats = useMemo(() => {
-    if (!document) return null;
+    if (!state.document) return null;
 
-    const dialogue = document.state.dialogue;
+    const dialogue = state.document.state.dialogue;
 
     return {
       totalDialogue: dialogue.length,

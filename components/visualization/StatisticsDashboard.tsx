@@ -2,7 +2,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   BarChart,
@@ -31,16 +32,20 @@ interface CharacterDialogueData {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-export function StatisticsDashboard() {
-  const { document } = useDocumentService();
+interface StatisticsDashboardProps {
+  initialState?: DocumentState;
+}
+
+export function StatisticsDashboard({ initialState }: StatisticsDashboardProps) {
+  const { state } = useDocumentV2(initialState);
 
   const stats = useMemo(() => {
-    if (!document) return null;
+    if (!state.document) return null;
 
-    const dialogue = document.state.dialogue;
-    const passages = document.state.passages;
-    const characters = document.state.characters;
-    const relationships = document.state.relationships;
+    const dialogue = state.document.state.dialogue;
+    const passages = state.document.state.passages;
+    const characters = state.document.state.characters;
+    const relationships = state.document.state.relationships;
 
     // Dialogue per passage
     const dialoguePerPassage: ChartData[] = passages.map((passage) => ({
