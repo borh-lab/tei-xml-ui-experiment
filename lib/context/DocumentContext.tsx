@@ -85,6 +85,8 @@ export interface DocumentContextType {
   getHistoryState: () => Promise<any>;
   /** Time travel to specific revision */
   timeTravel: (targetRevision: number) => Promise<void>;
+  /** Current document ID for URL synchronization */
+  readonly currentDocId: string | null;
 }
 
 export const DocumentContext = createContext<DocumentContextType | undefined>(
@@ -122,6 +124,7 @@ export function DocumentProvider({ children }: DocumentProviderProps) {
     validationResults: docService.validationResults,
     isValidating: docService.isValidating,
     error: docService.error,
+    currentDocId: docService.currentDocId,
 
     // Document operations
     loadDocument: docService.loadDocument,
@@ -168,6 +171,7 @@ export function DocumentProvider({ children }: DocumentProviderProps) {
     docService.validationResults,
     docService.isValidating,
     docService.error,
+    docService.currentDocId,
   ]);
 
   return (

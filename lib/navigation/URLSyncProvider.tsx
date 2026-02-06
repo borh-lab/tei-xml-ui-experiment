@@ -21,7 +21,7 @@ interface URLSyncProviderProps {
 export default function URLSyncProvider({ children, searchParams }: URLSyncProviderProps) {
   const router = useRouter();
   const documentService = useDocumentContext();
-  const { document, loadSample, loadDocument } = documentService;
+  const { document, loadSample, loadDocument, currentDocId } = documentService;
 
   const [loadError, setLoadError] = useState<Error | null>(null);
   const isSyncingRef = useRef(false);
@@ -68,28 +68,19 @@ export default function URLSyncProvider({ children, searchParams }: URLSyncProvi
   }, [searchParams, loadSample, loadDocument]);
 
   // Update URL when document loads successfully
-  // NOTE: This is a placeholder - currentDocId will be added in Task 4
   useEffect(() => {
     if (isSyncingRef.current) return;
 
-    if (!document) {
-      lastDocIdRef.current = null;
-      return;
-    }
-
-    // Placeholder - will be fixed in Task 4 when currentDocId is added to DocumentContext
-    let docId: string | null = null;
-
-    if (!docId || docId === lastDocIdRef.current) {
+    if (!currentDocId || currentDocId === lastDocIdRef.current) {
       return;
     }
 
     isSyncingRef.current = true;
-    lastDocIdRef.current = docId;
+    lastDocIdRef.current = currentDocId;
 
-    router.push(buildDocUrl(docId));
+    router.push(buildDocUrl(currentDocId));
     isSyncingRef.current = false;
-  }, [document, router]);
+  }, [currentDocId, router]);
 
   // Handle browser back/forward
   useEffect(() => {

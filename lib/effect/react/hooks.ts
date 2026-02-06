@@ -88,6 +88,8 @@ export interface UseDocumentServiceResult {
   clearDocument: () => void;
   /** Load sample document by ID */
   loadSample: (sampleId: string) => Promise<void>;
+  /** Current document ID for URL synchronization */
+  currentDocId: string | null;
 }
 
 /**
@@ -117,6 +119,7 @@ export function useDocumentService(): UseDocumentServiceResult {
   const [validationResults, setValidationResults] = useState<ValidationResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [currentDocId, setCurrentDocId] = useState<string | null>(null);
 
   // Track if component is mounted to avoid state updates after unmount
   const mountedRef = useRef(true);
@@ -206,6 +209,10 @@ export function useDocumentService(): UseDocumentServiceResult {
       // Run the program
       const doc = await runEffectAsyncOrFail(program);
       updateState({ document: doc, loading: false });
+
+      // Set document ID for uploaded files
+      const uploadedDocId = `uploaded-${Date.now().toString(36)}`;
+      setCurrentDocId(uploadedDocId);
 
       // Validate on load
       await validateDocument(doc);
@@ -524,6 +531,7 @@ export function useDocumentService(): UseDocumentServiceResult {
 
   const clearDocument = useCallback(() => {
     updateState({ document: null, error: null });
+    setCurrentDocId(null);
   }, [updateState]);
 
   const loadSample = useCallback(async (sampleId: string) => {
@@ -548,6 +556,9 @@ export function useDocumentService(): UseDocumentServiceResult {
 
       // Load the document using the fetched XML
       await loadDocument(xml);
+
+      // Set document ID for samples
+      setCurrentDocId(`sample-${sampleId}`);
 
       setTimeout(() => {
         setLoadingSample(false);
@@ -664,6 +675,7 @@ export function useDocumentService(): UseDocumentServiceResult {
     getHistoryState,
     timeTravel,
     clearDocument,
+    currentDocId,
   }), [
     document,
     loading,
@@ -672,6 +684,7 @@ export function useDocumentService(): UseDocumentServiceResult {
     validationResults,
     isValidating,
     error,
+    currentDocId,
   ]);
 }
 
