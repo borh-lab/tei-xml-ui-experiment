@@ -73,7 +73,7 @@ describe('useHints', () => {
     };
 
     (validateSelection as jest.Mock).mockReturnValue({
-      isSuccess: true,
+      success: true,
       value: mockValidationResult,
     });
 
@@ -116,7 +116,7 @@ describe('useHints', () => {
     };
 
     (validateSelection as jest.Mock).mockReturnValue({
-      isSuccess: true,
+      success: true,
       value: mockValidationResult,
     });
 
@@ -181,10 +181,11 @@ describe('useHints', () => {
     );
 
     (validateSelection as jest.Mock).mockReturnValue({
-      isSuccess: false,
+      success: false,
       error: {
         code: 'VALIDATION_ERROR',
         message: 'Passage not found',
+        recoverable: true,
       },
     });
 
@@ -226,7 +227,7 @@ describe('useHints', () => {
     };
 
     (validateSelection as jest.Mock).mockReturnValue({
-      isSuccess: true,
+      success: true,
       value: mockValidationResult,
     });
 
@@ -287,7 +288,7 @@ describe('useHints', () => {
     };
 
     (validateSelection as jest.Mock).mockReturnValue({
-      isSuccess: true,
+      success: true,
       value: mockValidationResult,
     });
 
