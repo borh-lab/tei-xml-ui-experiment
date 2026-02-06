@@ -8,7 +8,6 @@ import type { AIMode } from '@/components/ai/AIModeSwitcher';
 export interface StatusBarProps {
   // Document info
   documentName?: string;
-  documentPath?: string;
   hasUnsavedChanges: boolean;
 
   // AI mode
@@ -38,7 +37,6 @@ export interface StatusBarProps {
  */
 export function StatusBar({
   documentName,
-  documentPath,
   hasUnsavedChanges,
   aiMode,
   selectedPassagesCount,
