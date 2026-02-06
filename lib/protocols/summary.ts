@@ -16,6 +16,7 @@ import {
   createValidationIssue,
   createTagStats,
 } from '@/lib/values/ValidationSummary';
+import type { ICache } from './cache';
 import {
   PassageValidationCache,
   type CacheKey,
@@ -33,10 +34,12 @@ import type { ValidationResult } from '@/lib/validation/types';
  *
  * Optimized with LRU cache for passage-level validation results.
  * Only re-validates passages that have changed (O(1) for unchanged passages).
+ *
+ * @param cache - Optional cache for memoization (defaults to null = no caching)
  */
 export function summarizeValidation(
   document: TEIDocument,
-  cache?: PassageValidationCache
+  cache?: ICache<CacheKey, readonly ValidationResult[]> | null
 ): Result<ValidationSummary> {
   try {
     if (!document || !document.state) {
