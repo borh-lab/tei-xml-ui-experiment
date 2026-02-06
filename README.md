@@ -159,6 +159,68 @@ See the TEI Dialogue Editor in action with short video demonstrations:
 
 All videos are WebM format (VP9 codec), optimized for web delivery. Total size: ~1.5MB.
 
+## Git History Visualizations
+
+This repository includes tools for visualizing development patterns and code growth over time.
+
+### Gource Video (Git History Animation)
+
+An animated 3D visualization of the repository's development history, showing file edits and commit activity over time.
+
+**Generate the video:**
+```bash
+./scripts/generate-gource-webm.sh
+```
+
+This creates `gource-visualization.webm` (1920x1080, 30fps, ~50MB) showing:
+- Real-time code editing activity
+- File type organization with color coding
+- Development patterns and bursts of activity
+- Complete git history condensed into ~60 seconds
+
+**Features:**
+- High-quality WebM format (VP9 codec)
+- File extension legend for code type identification
+- Optimized for presentation/demonstration purposes
+
+For details, see [scripts/README-gource.md](./scripts/README-gource.md)
+
+### SLOC Visualization (Code Growth Analysis)
+
+A publication-quality SVG visualization showing Source Lines of Code (SLOC) growth and commit activity patterns.
+
+**Generate the visualization:**
+```bash
+./scripts/generate-sloc-viz.sh
+```
+
+This creates `sloc-visualization.svg` with three panels:
+
+1. **SLOC Growth** - Multi-line chart showing code growth by file type (TypeScript, React, Markdown, Tests, Config)
+2. **Commit Activity** - Stacked area chart showing cumulative commits by type (feat, fix, docs, test, refactor, chore)
+3. **Code Churn** - Lines added vs removed with 7-commit moving average smoothing
+
+**Key features:**
+- Theme-agnostic (transparent background, works on light/dark themes)
+- Commit-by-commit granularity (captures parallel agent development)
+- Fast generation (~4.5 minutes for 100 commits)
+- Scalable SVG output (conference-ready)
+- Configurable sample size: `-n 200` for more commits, `-n 0` for all history
+
+**Sample output:**
+```bash
+# Default (100 commits)
+./scripts/generate-sloc-viz.sh
+
+# Custom output file
+./scripts/generate-sloc-viz.sh docs/images/sloc-growth.svg
+
+# Process 200 commits
+./scripts/generate-sloc-viz.sh -n 200
+```
+
+For details, see [scripts/README-sloc-viz.md](./scripts/README-sloc-viz.md)
+
 ## Testing
 
 The project uses Jest with React Testing Library.
