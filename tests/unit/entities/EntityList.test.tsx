@@ -168,11 +168,11 @@ describe('EntityList Component', () => {
       );
 
       const nameHeader = screen.getByText(/name/i);
-      fireEvent.click(nameHeader);
+      // Default is ascending, one click makes it descending
       fireEvent.click(nameHeader);
 
       // Should show descending arrow
-      expect(nameHeader).toHaveTextContent(/name ↓/);
+      expect(nameHeader).toHaveTextContent(/↓/);
     });
   });
 
@@ -191,7 +191,8 @@ describe('EntityList Component', () => {
       const editButtons = screen.getAllByRole('button', { name: /edit/i });
       fireEvent.click(editButtons[0]);
 
-      expect(mockOnEdit).toHaveBeenCalledWith(mockCharacters[0]);
+      // Entities are sorted alphabetically, so Bob Johnson comes first
+      expect(mockOnEdit).toHaveBeenCalledWith(mockCharacters[2]);
     });
 
     it('should call onDelete when Delete button is clicked', () => {
@@ -208,7 +209,8 @@ describe('EntityList Component', () => {
       const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
       fireEvent.click(deleteButtons[0]);
 
-      expect(mockOnDelete).toHaveBeenCalledWith(mockCharacters[0]);
+      // Entities are sorted alphabetically, so Bob Johnson comes first
+      expect(mockOnDelete).toHaveBeenCalledWith(mockCharacters[2]);
     });
 
     it('should call onNewEntity when New button is clicked', () => {

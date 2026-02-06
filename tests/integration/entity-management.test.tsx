@@ -4,7 +4,7 @@
  * Comprehensive integration tests for entity management.
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useEntities } from '@/hooks/useEntities';
 import type { Character } from '@/lib/tei/types';
 
@@ -138,6 +138,9 @@ describe('Entity Management Integration', () => {
       // Create entities
       await act(async () => {
         await result.current.createCharacter({ name: 'Jane Doe', sex: 'F' });
+      });
+
+      await act(async () => {
         await result.current.createCharacter({ name: 'John Smith', sex: 'M' });
       });
 
@@ -166,9 +169,12 @@ describe('Entity Management Integration', () => {
       // Create entities of different types
       await act(async () => {
         await result.current.createCharacter({ name: 'Jane Doe', sex: 'F' });
+      });
+
+      await act(async () => {
         try {
           await result.current.createPlace({ name: 'Paris', type: 'city' });
-        } catch (e) {
+        } catch {
           // Expected to fail due to type guards
         }
       });

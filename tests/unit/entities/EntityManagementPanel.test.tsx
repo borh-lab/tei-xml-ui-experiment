@@ -40,7 +40,8 @@ describe('EntityManagementPanel Component', () => {
       />
     );
 
-    expect(screen.getByText(/characters/i)).toBeInTheDocument();
+    // Use getAllByText since "characters" appears in both the switcher and entity count
+    expect(screen.getAllByText(/characters/i)).toHaveLength(2);
     expect(screen.getByText(/places/i)).toBeInTheDocument();
     expect(screen.getByText(/organizations/i)).toBeInTheDocument();
   });
