@@ -5,10 +5,10 @@
 > The results of this are in this repo.
 > Since the goal was to show how far one can go with just text prompting (albeit at a high technical level) without even opening the browser or reading any of the code, the results are decidedly mixed.
 >
-> Some ideas, like parinfer-for-TEI (XML) seem genuinely interesting and merit further investigation as neat UI/UX improvements.
-> The corpoa uncovered during the construction and related baseline, CRF, and DistilBERT models were also interesting, but unfinished work.
+> Some ideas, like parinfer-for-TEI (XML), seem genuinely interesting and merit further investigation as neat UI/UX improvements.
+> The corpora uncovered during the construction and related baseline, CRF, and DistilBERT models were also interesting, but unfinished work.
 > Other methodological issues with maintaining and growing a codebase of this size are also unsolved (some analysis of git commit history was conducted in the Gource video and cloc-based visualization).
-> However, the goal of this was not necessarily to make a finished tool, but explore and assess.
+> However, the goal of this was not necessarily to make a finished tool, but to explore and assess.
 > With that, I am closing this repo.
 
 # TEI Dialogue Editor
