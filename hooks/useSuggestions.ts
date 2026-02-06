@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 import type { Selection } from '@/lib/values/Selection';
 import type { Suggestion } from '@/lib/values/Suggestion';
 import { generateSuggestions } from '@/lib/protocols/suggestions';
+import { createLRUCache } from '@/lib/protocols/cache';
 
 /**
  * Hook options for generating suggestions
@@ -37,6 +38,12 @@ export function useSuggestions(
 ): Suggestion[] {
   const { minConfidence, maxSuggestions } = options;
 
+  // Create cache instance once and reuse across renders
+  const cache = useMemo(
+    () => createLRUCache<string, Suggestion[]>({ maxSize: 100, ttl: 5000 }),
+    []
+  );
+
   return useMemo(() => {
     // Return empty array for no selection
     if (!selection) {
@@ -44,9 +51,13 @@ export function useSuggestions(
     }
 
     // Generate suggestions (memoized in protocol)
-    return generateSuggestions(selection, {
-      minConfidence,
-      maxSuggestions,
-    });
-  }, [selection, minConfidence, maxSuggestions]);
+    return generateSuggestions(
+      selection,
+      {
+        minConfidence,
+        maxSuggestions,
+      },
+      cache
+    );
+  }, [selection, minConfidence, maxSuggestions, cache]);
 }
