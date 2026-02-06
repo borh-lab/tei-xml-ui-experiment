@@ -1,8 +1,11 @@
 /**
  * Tests for PassageValidationCache
+ *
+ * Tests the cache instance functionality after refactoring to remove global state.
+ * Caches are now created per-instance and can be injected via protocols.
  */
 
-import { PassageValidationCache, resetGlobalCache, getGlobalCache } from '@/lib/protocols/cache';
+import { PassageValidationCache } from '@/lib/protocols/cache';
 import type { ValidationResult } from '@/lib/validation/types';
 
 describe('PassageValidationCache', () => {
@@ -33,8 +36,8 @@ describe('PassageValidationCache', () => {
   ];
 
   beforeEach(() => {
+    // Create a fresh cache instance for each test
     cache = new PassageValidationCache({ maxSize: 3, ttl: 1000 });
-    resetGlobalCache();
   });
 
   describe('basic operations', () => {
@@ -260,30 +263,48 @@ describe('PassageValidationCache', () => {
     });
   });
 
-  describe('global cache', () => {
-    it('should return same instance on multiple calls', () => {
-      const cache1 = getGlobalCache();
-      const cache2 = getGlobalCache();
+  describe('cache injection', () => {
+    it('should create independent cache instances', () => {
+      const cache1 = new PassageValidationCache({ maxSize: 3, ttl: 1000 });
+      const cache2 = new PassageValidationCache({ maxSize: 5, ttl: 2000 });
 
-      expect(cache1).toBe(cache2);
+      const key = { passageId: 'passage-1', revision: 1 };
+
+      // Set value in cache1 only
+      cache1.set(key, mockResults);
+
+      // cache1 should have the value
+      expect(cache1.get(key)).toEqual(mockResults);
+      expect(cache1.getStats().size).toBe(1);
+
+      // cache2 should be empty
+      expect(cache2.get(key)).toBeNull();
+      expect(cache2.getStats().size).toBe(0);
     });
 
-    it('should allow custom config on first call', () => {
-      resetGlobalCache();
-
-      const cache = getGlobalCache({ maxSize: 50, ttl: 60000 });
+    it('should allow custom configuration per instance', () => {
+      const cache = new PassageValidationCache({ maxSize: 50, ttl: 60000 });
       const stats = cache.getStats();
 
       expect(stats.maxSize).toBe(50);
       expect(stats.ttl).toBe(60000);
     });
 
-    it('should reset global cache', () => {
-      const cache1 = getGlobalCache();
-      resetGlobalCache();
-      const cache2 = getGlobalCache();
+    it('should not share state between instances', () => {
+      const cache1 = new PassageValidationCache({ maxSize: 3, ttl: 1000 });
+      const cache2 = new PassageValidationCache({ maxSize: 3, ttl: 1000 });
 
-      expect(cache1).not.toBe(cache2);
+      const key = { passageId: 'passage-1', revision: 1 };
+
+      cache1.set(key, mockResults);
+      cache1.clear();
+
+      // cache2 should not be affected by cache1.clear()
+      cache2.set(key, mockResults);
+
+      expect(cache1.getStats().size).toBe(0);
+      expect(cache2.getStats().size).toBe(1);
+      expect(cache2.get(key)).toEqual(mockResults);
     });
   });
 });
