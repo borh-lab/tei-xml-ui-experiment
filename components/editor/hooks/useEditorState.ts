@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentContext } from '@/lib/context/DocumentContext';
 import { SelectionManager } from '@/lib/selection/SelectionManager';
 import type { TagInfo } from '@/lib/selection/types';
 import type { TEINode } from '@/lib/tei/types';
@@ -60,7 +60,7 @@ export interface UseEditorStateOptions {
 export function useEditorState(options: UseEditorStateOptions): UseEditorStateResult {
   const { showToast, tagToEdit } = options;
 
-  // Get document state from Effect service
+  // Get document state from shared DocumentContext
   const {
     document,
     updateDocument,
@@ -70,7 +70,9 @@ export function useEditorState(options: UseEditorStateOptions): UseEditorStateRe
     isValidating,
     addSaidTag,
     addTag,
-  } = useDocumentService();
+    loading,
+    error,
+  } = useDocumentContext();
 
   // Passage navigation state
   const [activePassageIndex, setActivePassageIndex] = useState<number>(-1);

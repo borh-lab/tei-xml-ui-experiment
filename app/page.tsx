@@ -35,7 +35,12 @@ function HomeContent() {
 
   // Show welcome screen with sample gallery when no document is loaded
   if (!document) {
-    return <SampleGallery onLoadSample={documentService.loadSample} onSelect={() => {}} />;
+    return (
+      <>
+        <FileUpload />
+        <SampleGallery onLoadSample={documentService.loadSample} onSelect={() => {}} />
+      </>
+    );
   }
 
   // Show editor when document is loaded

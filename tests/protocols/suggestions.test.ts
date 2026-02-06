@@ -4,11 +4,37 @@
 
 import { generateSuggestions, clearSuggestionCache, getSuggestionCacheStats } from '@/lib/protocols/suggestions';
 import type { Selection } from '@/lib/values/Selection';
+import type { ICache } from '@/lib/protocols/cache';
+
+/**
+ * Simple in-memory cache for testing
+ */
+class TestCache<K, V> implements ICache<K, V> {
+  private store = new Map<K, V>();
+
+  get(key: K): V | null {
+    return this.store.get(key) ?? null;
+  }
+
+  set(key: K, value: V): void {
+    this.store.set(key, value);
+  }
+
+  clear(): void {
+    this.store.clear();
+  }
+
+  get size(): number {
+    return this.store.size;
+  }
+}
 
 describe('generateSuggestions protocol', () => {
+  let cache: TestCache<string, any>;
+
   beforeEach(() => {
-    // Clear cache before each test
-    clearSuggestionCache();
+    // Create fresh cache for each test
+    cache = new TestCache<string, any>();
   });
   it('should run all heuristics on selection', () => {
     const selection: Selection = {
@@ -144,22 +170,20 @@ describe('generateSuggestions protocol', () => {
       timestamp: Date.now()
     };
 
-    // First call
-    const results1 = generateSuggestions(selection);
+    // First call with cache
+    const results1 = generateSuggestions(selection, {}, cache);
 
     // Check cache size
-    const stats1 = getSuggestionCacheStats();
-    expect(stats1.size).toBe(1);
+    expect(cache.size).toBe(1);
 
-    // Second call with same selection
-    const results2 = generateSuggestions(selection);
+    // Second call with same selection and cache
+    const results2 = generateSuggestions(selection, {}, cache);
 
     // Should return same results from cache
     expect(results2).toEqual(results1);
 
     // Cache size should still be 1 (not incremented)
-    const stats2 = getSuggestionCacheStats();
-    expect(stats2.size).toBe(1);
+    expect(cache.size).toBe(1);
   });
 
   it('should handle different options as different cache entries', () => {
@@ -172,12 +196,11 @@ describe('generateSuggestions protocol', () => {
     };
 
     // Call with different options
-    generateSuggestions(selection, { minConfidence: 0.3 });
-    generateSuggestions(selection, { minConfidence: 0.8 });
+    generateSuggestions(selection, { minConfidence: 0.3 }, cache);
+    generateSuggestions(selection, { minConfidence: 0.8 }, cache);
 
     // Should have 2 cache entries
-    const stats = getSuggestionCacheStats();
-    expect(stats.size).toBe(2);
+    expect(cache.size).toBe(2);
   });
 
   it('should clear cache when clearSuggestionCache is called', () => {
@@ -190,17 +213,15 @@ describe('generateSuggestions protocol', () => {
     };
 
     // Generate some suggestions
-    generateSuggestions(selection);
+    generateSuggestions(selection, {}, cache);
 
     // Verify cache has entries
-    const stats1 = getSuggestionCacheStats();
-    expect(stats1.size).toBeGreaterThan(0);
+    expect(cache.size).toBeGreaterThan(0);
 
     // Clear cache
-    clearSuggestionCache();
+    cache.clear();
 
     // Verify cache is empty
-    const stats2 = getSuggestionCacheStats();
-    expect(stats2.size).toBe(0);
+    expect(cache.size).toBe(0);
   });
 });

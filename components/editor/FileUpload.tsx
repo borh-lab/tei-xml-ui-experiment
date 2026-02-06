@@ -48,7 +48,7 @@ export function FileUpload() {
 
     try {
       const text = await file.text();
-      loadDocument(text);
+      await loadDocument(text);
       toast.success('Document uploaded successfully');
     } catch (error) {
       logError(error as Error, 'FileUpload', {
