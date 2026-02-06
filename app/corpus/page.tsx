@@ -1,8 +1,13 @@
-// @ts-nocheck
+'use client';
+
+import { useSearchParams } from 'next/navigation';
 import { CorpusBrowser } from '@/components/corpus/CorpusBrowser';
 
 export default function CorpusPage() {
-  return <CorpusBrowser />;
+  const searchParams = useSearchParams();
+  const docId = searchParams.get('doc') || null;
+
+  return <CorpusBrowser initialDocId={docId} />;
 }
 
 export const metadata = {

@@ -17,7 +17,7 @@ const runEffect = <A, E>(effect: Effect.Effect<A, E, unknown>): Promise<A> => {
   return Effect.runPromise(pipe(effect, Effect.provide(layers)) as Effect.Effect<A, never, never>);
 };
 
-export function CorpusBrowser() {
+export function CorpusBrowser({ initialDocId }: { initialDocId?: string | null }) {
   const [browserState, setBrowserState] = useState<BrowserState>({ _tag: 'initial' });
   const [documentState, setDocumentState] = useState<DocumentViewState>({ _tag: 'no-selection' });
 
@@ -37,6 +37,27 @@ export function CorpusBrowser() {
       });
     });
   }, []);
+
+  // Auto-load document if initialDocId matches loaded corpus
+  useEffect(() => {
+    if (!initialDocId || browserState._tag !== 'loaded') return;
+
+    // Parse docId: "corpus-{corpusId}/{path}"
+    if (!initialDocId.startsWith('corpus-')) return;
+    if (initialDocId.startsWith('sample-')) return; // Samples don't go through corpus
+
+    const parts = initialDocId.replace('corpus-', '').split('/');
+    if (parts.length < 2) return;
+
+    const corpusId = parts[0] as CorpusId;
+    const docPath = parts.slice(1).join('/');
+
+    // Auto-load if corpus matches
+    if (browserState.metadata.id === corpusId) {
+      const docId: DocumentId = { corpus: corpusId, path: docPath };
+      loadDocument(docId);
+    }
+  }, [initialDocId, browserState]);
 
   const loadCorpus = async (corpus: CorpusId) => {
     const program = Effect.gen(function* (_) {
@@ -120,6 +141,7 @@ export function CorpusBrowser() {
           onLoadDocument={loadDocument}
           onChangePage={changePage}
           onGoBack={goBack}
+          initialDocId={initialDocId}
         />
       )}
 
