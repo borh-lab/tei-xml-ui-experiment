@@ -1,0 +1,89 @@
+[project]
+name = "speech-detection"
+version = "0.1.0"
+description = "Speech detection in TEI XML documents"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.0.0",
+    "pyyaml>=6.0",
+    "torch>=2.0.0",
+    "transformers>=5.0.0",
+    "accelerate>=1.1.0",
+    "scikit-learn",
+    "sklearn-crfsuite",
+    "spacy>=3.8.0",
+    "seqeval",
+    "lxml",
+    "tqdm",
+    "numpy",
+    "en-core-web-sm",
+]
+
+[project.optional-dependencies]
+rocm = [
+  "torch==2.10.0+rocm7.1; sys_platform == 'linux'",
+  "triton-rocm==3.6.0 ; sys_platform == 'linux'",
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-rocm", marker = "sys_platform == 'linux' and extra == 'rocm'" },
+]
+torchvision = [
+  { index = "pytorch-rocm", marker = "sys_platform == 'linux' and extra == 'rocm'" },
+]
+triton-rocm = [
+  { index = "pytorch-rocm", marker = "sys_platform == 'linux' and extra == 'rocm'" },
+]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm7.1"
+explicit = true
+
+[project.scripts]
+speech-detector = "speech_detection.cli:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/speech_detection"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "B"]
+ignore = [
+    "E501",  # Line length
+    "N803",  # Argument names should be lowercase (ML uses X/y convention)
+    "N806",  # Variables in function should be lowercase (ML uses X/y convention)
+]
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = false
+warn_unused_configs = false
+disable_error_code = ["import-untyped", "union-attr"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.15.0",
+    "types-lxml",
+    "types-PyYAML",
+    "types-tqdm",
+]

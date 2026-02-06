@@ -1,0 +1,40 @@
+{
+  "corpora": {
+    "novel-dialogism": {
+      "train": [
+        "MansfieldPark.tei.xml",
+        "WhereAngelsFearToTread.tei.xml",
+        "AHandfulOfDust.tei.xml",
+        "AnneOfGreenGables.tei.xml",
+        "TheAwakening.tei.xml",
+        "HowardsEnd.tei.xml",
+        "AlicesAdventuresInWonderland.tei.xml",
+        "NightAndDay.tei.xml",
+        "HardTimes.tei.xml",
+        "Emma.tei.xml",
+        "TheManWhoWasThursday.tei.xml",
+        "ARoomWithAView.tei.xml",
+        "SenseAndSensibility.tei.xml",
+        "TheMysteriousAffairAtStyles.tei.xml",
+        "TheGambler.tei.xml",
+        "NorthangerAbbey.tei.xml",
+        "DaisyMiller.tei.xml",
+        "OliverTwist.tei.xml",
+        "TheSunAlsoRises.tei.xml"
+      ],
+      "validation": [
+        "PrideAndPrejudice.tei.xml",
+        "APassageToIndia.tei.xml",
+        "TheSignOfTheFour.tei.xml",
+        "TheAgeOfInnocence.tei.xml"
+      ],
+      "test": [
+        "Persuasion.tei.xml",
+        "TheInvisibleMan.tei.xml",
+        "WinnieThePooh.tei.xml",
+        "ThePictureOfDorianGray.tei.xml",
+        "TheSportOfTheGods.tei.xml"
+      ]
+    }
+  }
+}

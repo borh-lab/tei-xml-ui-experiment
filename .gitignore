@@ -92,8 +92,6 @@ __tests__/
 # Pattern engine build artifacts
 pattern-engine/target/
 
-# Annotation ML (separate project)
-annotation-ml/
 
 # Plans (draft documents)
 .plans/
@@ -101,8 +99,9 @@ annotation-ml/
 # Generated corpus files
 corpora/novel-dialogism-converted/
 
-# ML-ready exported datasets
-datasets/
+# ML-ready exported datasets (except novel-dialogism which we track)
+datasets/*
+!datasets/novel-dialogism/
 
 # Pre-commit config (managed by Nix flakes)
 .pre-commit-config.yaml
