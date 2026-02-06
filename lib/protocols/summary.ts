@@ -18,7 +18,6 @@ import {
 } from '@/lib/values/ValidationSummary';
 import {
   PassageValidationCache,
-  getGlobalCache,
   type CacheKey,
 } from './cache';
 import type { ValidationResult } from '@/lib/validation/types';
@@ -48,8 +47,8 @@ export function summarizeValidation(
       );
     }
 
-    // Use provided cache or get global cache
-    const validationCache = cache ?? getGlobalCache();
+    // Use provided cache or create new instance
+    const validationCache = cache ?? new PassageValidationCache();
 
     const issues: ValidationIssue[] = [];
     const byTagType: Record<string, { total: number; invalid: number }> = {};
