@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useDocumentService } from '@/lib/effect/react/hooks';
+import { useDocumentV2 } from '@/hooks/useDocumentV2';
+import type { DocumentState } from '@/lib/values/DocumentState';
 
 interface Novel {
   title: string;
@@ -14,11 +15,12 @@ interface Novel {
 }
 
 interface CorpusBrowserProps {
+  initialState?: DocumentState;
   onLoadNovel?: (title: string) => void;
 }
 
-export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
-  const { loadDocument } = useDocumentService();
+export function CorpusBrowser({ initialState, onLoadNovel }: CorpusBrowserProps) {
+  const { operations } = useDocumentV2(initialState);
   const [novels, setNovels] = useState<Novel[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,7 +85,7 @@ export function CorpusBrowser({ onLoadNovel }: CorpusBrowserProps) {
       }
 
       // Load the document using the XML string
-      loadDocument(teiContent);
+      operations.loadDocument(teiContent);
       onLoadNovel?.(title);
     } catch (err) {
       console.error('Failed to load novel:', err);
