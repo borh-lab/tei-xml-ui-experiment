@@ -1,0 +1,42 @@
+# DistilBERT Model Configuration - Novel-Dialogism
+# Training on novel-dialogism with quote-based speech labels
+
+model:
+  # Model identifier
+  model_name: distilbert/distilbert-base-cased
+
+  # Model architecture
+  max_length: 512
+  num_labels: 5
+
+  # Training hyperparameters
+  batch_size: 32
+  epochs: 3
+  learning_rate: 2.0e-5
+  warmup_steps: 100
+  gradient_accumulation_steps: 1
+
+  # Precision
+  bf16: true
+
+data:
+  # Path to TEI XML corpus
+  corpus_dir: ../datasets/novel-dialogism
+
+  # Maximum documents to load (null = all)
+  max_docs: null
+
+  # Train/val/test split
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+training:
+  # Logging
+  logging_steps: 100
+
+output:
+  # Output directories
+  results_dir: results/distilbert_novel_dialogism
+  checkpoint_dir: checkpoints/distilbert_novel_dialogism
+  save_predictions: true

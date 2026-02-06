@@ -1,0 +1,41 @@
+# CRF Model Configuration - Minimal Test
+# Fast smoke test to verify all code paths
+
+model:
+  # CRF hyperparameters (minimal)
+  c1: 0.1  # L1 regularization
+  c2: 0.1  # L2 regularization
+  max_iterations: 10  # Very few iterations for speed
+
+  # Feature configuration
+  char_ngram_range: [2, 3]  # Smaller range
+  context_window: 1  # Minimal context
+  use_speech_verbs: true
+  use_orthographic: false  # Skip expensive features
+
+data:
+  # Path to TEI XML corpus (used when not using --use-splits)
+  # With --use-splits: corpora loaded from splits.json in ../datasets/
+  # Without --use-splits: loads from this directory (flat structure)
+  corpus_dir: ../datasets/wright-american-fiction
+
+  # Maximum documents to load (small for speed)
+  max_docs: 5
+
+  # Data split (not used for CV, but kept for compatibility)
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+training:
+  # Cross-validation settings (minimal)
+  n_folds: 2  # Minimal folds
+  n_bootstrap: 10  # Minimal bootstrap samples
+  n_jobs: 1  # Single job for simplicity
+  random_state: 42
+
+output:
+  # Output directory for results
+  results_dir: results/crf_test
+  save_predictions: true
+  save_model: true

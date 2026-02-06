@@ -1,0 +1,22 @@
+{
+  "quote_baseline": {
+    "f1": 0.02986707510530058,
+    "precision": 0.3071729957805907,
+    "recall": 0.015696646494846842,
+    "time_seconds": 0.7944278717041016
+  },
+  "crf": {
+    "f1": 0.9047446314567615,
+    "precision": 0.9133453442896691,
+    "recall": 0.896304388448878,
+    "time_seconds": 4.912964344024658,
+    "train_time_seconds": 53.487669944763184
+  },
+  "distilbert": {
+    "f1": null,
+    "precision": null,
+    "recall": null,
+    "time_seconds": null,
+    "note": "Skipped - requires GPU for fast training"
+  }
+}

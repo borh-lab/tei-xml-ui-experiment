@@ -1,0 +1,41 @@
+# CRF Model Configuration - Fast Baseline
+# Optimized for quick experimentation
+
+model:
+  # CRF hyperparameters
+  c1: 0.5  # L1 regularization
+  c2: 0.5  # L2 regularization
+  max_iterations: 100
+
+  # Feature configuration
+  char_ngram_range: [2, 5]
+  context_window: 2
+  use_speech_verbs: true
+  use_orthographic: true
+
+data:
+  # Path to TEI XML corpus (used when not using --use-splits)
+  # With --use-splits: corpora loaded from splits.json in ../datasets/
+  # Without --use-splits: loads from this directory (flat structure)
+  corpus_dir: ../datasets/wright-american-fiction
+
+  # Maximum documents to load (null = all)
+  max_docs: 30
+
+  # Data split (not used for CV, but kept for compatibility)
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+training:
+  # Cross-validation settings
+  n_folds: 5
+  n_bootstrap: 2000
+  n_jobs: 2  # Parallel fold evaluation
+  random_state: 42
+
+output:
+  # Output directory for results
+  results_dir: results/crf_fast
+  save_predictions: true
+  save_model: true

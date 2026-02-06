@@ -1,0 +1,40 @@
+# CRF Model Configuration - Novel-Dialogism
+# Training on novel-dialogism with quote-based speech labels
+
+model:
+  # CRF hyperparameters
+  c1: 0.5  # L1 regularization
+  c2: 0.5  # L2 regularization
+  max_iterations: 100
+
+  # Feature configuration
+  char_ngram_range: [2, 5]
+  context_window: 2
+  use_speech_verbs: true
+  use_orthographic: true
+
+data:
+  # Path to TEI XML corpus (used when not using --use-splits)
+  # With --use-splits: corpora loaded from splits.json
+  corpus_dir: ../datasets/novel-dialogism
+
+  # Maximum documents to load (null = all)
+  max_docs: null
+
+  # Data split (not used for CV, but kept for compatibility)
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+training:
+  # Cross-validation settings
+  n_folds: 5
+  n_bootstrap: 2000
+  n_jobs: 4  # Parallel fold evaluation
+  random_state: 42
+
+output:
+  # Output directory for results
+  results_dir: results/crf_novel_dialogism
+  save_predictions: true
+  save_model: true

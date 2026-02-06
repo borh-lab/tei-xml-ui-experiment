@@ -1,0 +1,42 @@
+# DistilBERT Model Configuration - Baseline
+# Fast transformer model for speech detection
+
+model:
+  # Model identifier
+  model_name: distilbert/distilbert-base-cased
+
+  # Model architecture
+  max_length: 512
+  num_labels: 5
+
+  # Training hyperparameters
+  batch_size: 32
+  epochs: 3
+  learning_rate: 2.0e-5
+  warmup_steps: 100
+  gradient_accumulation_steps: 1
+
+  # Precision
+  bf16: true
+
+data:
+  # Path to TEI XML corpus (transformers use flat structure, not splits)
+  corpus_dir: ../datasets/wright-american-fiction
+
+  # Maximum documents to load (null = all)
+  max_docs: null
+
+  # Train/val/test split
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+training:
+  # Logging
+  logging_steps: 100
+
+output:
+  # Output directories
+  results_dir: results/distilbert_baseline
+  checkpoint_dir: checkpoints/distilbert
+  save_predictions: true

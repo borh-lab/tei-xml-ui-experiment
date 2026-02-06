@@ -1,0 +1,43 @@
+# DistilBERT Model Configuration - Minimal Test
+# Fast smoke test to verify all code paths
+
+model:
+  # Model identifier
+  model_name: distilbert/distilbert-base-cased
+
+  # Model architecture
+  max_length: 128  # Shorter sequences for speed
+  num_labels: 5
+
+  # Training hyperparameters (minimal)
+  batch_size: 4  # Small batch
+  epochs: 1  # Single epoch
+  learning_rate: 2.0e-5
+  warmup_steps: 5
+  gradient_accumulation_steps: 1
+
+  # Precision
+  bf16: true
+
+data:
+  # Path to TEI XML corpus
+  # Note: Transformer models don't use splits system, need flat directory
+  corpus_dir: ../datasets/wright-american-fiction
+
+  # Maximum documents to load (small for speed)
+  max_docs: 5
+
+  # Train/val/test split
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+training:
+  # Logging
+  logging_steps: 10
+
+output:
+  # Output directories
+  results_dir: results/distilbert_test
+  checkpoint_dir: checkpoints/distilbert_test
+  save_predictions: true
