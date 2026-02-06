@@ -48,8 +48,10 @@ export interface DocumentContextType {
   lastSavedAt: Date | null;
   /** Error from last operation (null if no error) */
   error: Error | null;
+  /** Current document ID for URL synchronization */
+  readonly currentDocId: string | null;
   /** Load document from XML string */
-  loadDocument: (xml: string) => Promise<TEIDocument>;
+  loadDocument: (xml: string, docId?: string) => Promise<TEIDocument>;
   /** Load sample document by ID */
   loadSample: (sampleId: string) => Promise<void>;
   /** Update document from XML string (reloads document) */
@@ -131,13 +133,12 @@ export interface DocumentProviderProps {
 export function DocumentProvider({ children, initialState: injectedState }: DocumentProviderProps) {
   const { state, operations } = useDocumentV2(injectedState);
 
-  // Memoize context value to prevent unnecessary re-renders
-  // Map V2 state structure to V1-compatible interface
-  const contextValue: DocumentContextType = useMemo(() => {
-    // Map V2 status to V1 loading states
-    const loading = state.status === 'loading';
-    const loadingSample = state.status === 'loading'; // V2 doesn't track separately
+  // Map V2 status to V1 loading states
+  const loading = state.status === 'loading';
+  const loadingSample = state.status === 'loading'; // V2 doesn't track separately
 
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue: DocumentContextType = useMemo(() => {
     return {
       // State (mapped from V2)
       document: state.document,
@@ -149,15 +150,15 @@ export function DocumentProvider({ children, initialState: injectedState }: Docu
       lastSavedRevision: state.document?.state.revision || null,
       lastSavedAt: null, // V2 doesn't track save time
       error: state.error,
+      currentDocId: state.currentDocId,
 
       // Document operations
-      loadDocument: async (xml: string) => {
-        await operations.loadDocument(xml);
+      loadDocument: async (xml: string, docId?: string) => {
+        await operations.loadDocument(xml, docId);
         return state.document!; // Return the loaded document
       },
       loadSample: async (sampleId: string) => {
-        // V2 doesn't have loadSample, would need to implement
-        throw new Error('loadSample not implemented in V2 yet');
+        await operations.loadSample(sampleId);
       },
       updateDocument: async (xml: string) => {
         await operations.loadDocument(xml); // V2 uses loadDocument for updates
@@ -228,7 +229,7 @@ export function DocumentProvider({ children, initialState: injectedState }: Docu
       // Validation (V2 feature)
       validate: operations.validate,
     };
-  }, [state, operations]);
+  }, [state, operations, loading, loadingSample]);
 
   return (
     <DocumentContext.Provider value={contextValue}>

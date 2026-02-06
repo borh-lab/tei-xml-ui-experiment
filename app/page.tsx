@@ -2,12 +2,15 @@
 
 import { useEffect } from 'react';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
+import { useNavigation } from '@/lib/navigation/URLSyncProvider';
 import { EditorLayout } from '@/components/editor/EditorLayout';
 import { FileUpload } from '@/components/editor/FileUpload';
 import { SampleGallery } from '@/components/samples/SampleGallery';
+import DocumentLoadError from '@/components/navigation/DocumentLoadError';
 
 function HomeContent() {
   const documentService = useDocumentContext();
+  const { loadError } = useNavigation();
   const { document } = documentService;
 
   // Expose app state for E2E tests
@@ -32,6 +35,16 @@ function HomeContent() {
 
     (window as any).__TEI_EDITOR_STATE__ = state;
   }, [document]);
+
+  // Show error if document failed to load from URL
+  if (loadError) {
+    return (
+      <>
+        <FileUpload />
+        <DocumentLoadError error={loadError} />
+      </>
+    );
+  }
 
   // Show welcome screen with sample gallery when no document is loaded
   if (!document) {

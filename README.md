@@ -57,8 +57,21 @@ An AI-assisted tool for annotating dialogue in TEI XML documents.
 - Sample gallery with annotated examples
 - Quick search with regex support
 - Recent documents tracking
+- **Browser navigation** with back/forward button support
 
 For detailed feature documentation, see [FEATURES.md](./FEATURES.md).
+
+## Browser Navigation
+
+The editor supports browser back/forward button navigation. Each document load creates a history entry, and URLs are shareable links that preserve document state.
+
+**Key features:**
+- Direct links to documents: `/?doc=sample-dialogism-1`
+- Browser history navigation (back/forward buttons)
+- Shareable URLs for any document
+- Corpus context preservation when navigating to corpus browser
+
+For complete documentation, see [Browser Navigation Documentation](./docs/features/browser-navigation.md).
 
 ## Current Status
 

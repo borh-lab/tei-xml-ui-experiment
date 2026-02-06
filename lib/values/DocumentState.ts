@@ -43,6 +43,7 @@ export interface DocumentState {
   readonly status: DocumentStatus;
   readonly validation: ValidationSnapshot | null;
   readonly error: Error | null;
+  readonly currentDocId: string | null;
 }
 
 /**
@@ -53,6 +54,7 @@ export const initialState = (): DocumentState => ({
   status: 'idle',
   validation: null,
   error: null,
+  currentDocId: null,
 });
 
 /**

@@ -39,7 +39,8 @@ export interface UseDocumentV2Result {
   state: DocumentState;
   /** Document operations */
   operations: {
-    loadDocument: (xml: string) => Promise<void>;
+    loadDocument: (xml: string, docId?: string) => Promise<void>;
+    loadSample: (sampleId: string) => Promise<void>;
     addSaidTag: (passageId: PassageID, range: TextRange, speaker: CharacterID) => Promise<void>;
     addQTag: (passageId: PassageID, range: TextRange) => Promise<void>;
     addPersNameTag: (passageId: PassageID, range: TextRange, ref: string) => Promise<void>;
@@ -103,8 +104,21 @@ export function useDocumentV2(
 
   // Memoize operations (only recreate when state changes)
   const operations = useMemo(() => ({
-    loadDocument: (xml: string) =>
-      setStateFromEffect(protocol.loadDocument(state, xml)),
+    loadDocument: async (xml: string, docId?: string) => {
+      await setStateFromEffect(protocol.loadDocument(state, xml));
+      // Update currentDocId after document loads
+      if (docId) {
+        setState(prev => ({ ...prev, currentDocId: docId }));
+      }
+    },
+
+    loadSample: async (sampleId: string) => {
+      // Import sample loader dynamically
+      const { loadSample: loadSampleOp } = await import('@/lib/samples/sampleLoader');
+      const xml = await loadSampleOp(sampleId);
+      await setStateFromEffect(protocol.loadDocument(state, xml));
+      setState(prev => ({ ...prev, currentDocId: `sample-${sampleId}` }));
+    },
 
     addSaidTag: (passageId: PassageID, range: TextRange, speaker: CharacterID) =>
       setStateFromEffect(protocol.addSaidTag(state, passageId, range, speaker)),

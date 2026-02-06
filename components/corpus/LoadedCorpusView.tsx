@@ -26,6 +26,7 @@ interface LoadedCorpusViewProps {
   onLoadDocument: (docId: DocumentId) => void;
   onChangePage: (page: number) => void;
   onGoBack: () => void;
+  initialDocId?: string | null;
 }
 
 const PAGE_SIZE = 20;
@@ -37,10 +38,27 @@ export function LoadedCorpusView({
   onLoadDocument,
   onChangePage,
   onGoBack,
+  initialDocId,
 }: LoadedCorpusViewProps) {
   const [documents, setDocuments] = useState<readonly DocumentId[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if document is the initial one
+  const isInitialDoc = (docId: DocumentId): boolean => {
+    if (!initialDocId) return false;
+
+    if (initialDocId.startsWith('corpus-')) {
+      const parts = initialDocId.replace('corpus-', '').split('/');
+      if (parts.length >= 2) {
+        const corpusId = parts[0];
+        const docPath = parts.slice(1).join('/');
+        return docId.corpus === corpusId && docId.path === docPath;
+      }
+    }
+
+    return false;
+  };
 
   useEffect(() => {
     const loadDocuments = async () => {
@@ -159,14 +177,25 @@ export function LoadedCorpusView({
               ) : (
                 <>
                   <div className="space-y-2 mb-4">
-                    {documents.map((docId) => (
+                    {documents.map((docId) => {
+                      const isHighlighted = isInitialDoc(docId);
+                      return (
                       <div
                         key={`${docId.corpus}/${docId.path}`}
-                        className="flex items-center justify-between p-3 border rounded hover:bg-muted transition-colors"
+                        className={`flex items-center justify-between p-3 border rounded transition-colors ${
+                          isHighlighted
+                            ? 'bg-primary/10 border-primary'
+                            : 'hover:bg-muted'
+                        }`}
                       >
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium truncate">
                             {docId.path.split('/').pop()}
+                            {isHighlighted && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                Selected
+                              </Badge>
+                            )}
                           </div>
                           <div className="text-xs text-muted-foreground truncate">{docId.path}</div>
                         </div>
@@ -180,6 +209,8 @@ export function LoadedCorpusView({
                             ? 'Loading...'
                             : 'View'}
                         </Button>
+                      </div>
+                    );})}
                       </div>
                     ))}
                   </div>
