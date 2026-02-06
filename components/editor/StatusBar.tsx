@@ -74,31 +74,31 @@ export function StatusBar({
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-1.5 border-t bg-muted/30 text-xs text-muted-foreground select-none">
+    <div data-testid="statusbar" className="flex items-center justify-between px-4 py-1.5 border-t bg-muted/30 text-xs text-muted-foreground select-none">
       {/* Left side: Document info and AI mode */}
       <div className="flex items-center gap-4">
         {/* Document name */}
-        <div className="flex items-center gap-1.5 min-w-0 max-w-xs">
+        <div data-testid="statusbar-document-info" className="flex items-center gap-1.5 min-w-0 max-w-xs">
           <FileText className="h-3.5 w-3.5 flex-shrink-0" />
           <span className="truncate font-medium">
             {documentName || 'Untitled'}
           </span>
           {hasUnsavedChanges && (
-            <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+            <Badge data-testid="statusbar-unsaved-badge" variant="outline" className="text-xs px-1 py-0 h-4">
               Unsaved
             </Badge>
           )}
         </div>
 
         {/* AI mode */}
-        <div className="flex items-center gap-1.5">
+        <div data-testid="statusbar-ai-mode" className="flex items-center gap-1.5">
           <Brain className="h-3.5 w-3.5 flex-shrink-0" />
           <span>{getAIModeDisplay()}</span>
         </div>
 
         {/* Selection count */}
         {selectedPassagesCount > 0 && (
-          <div className="flex items-center gap-1.5">
+          <div data-testid="statusbar-selection-count" className="flex items-center gap-1.5">
             <span>{selectedPassagesCount} of {totalPassages} passages selected</span>
           </div>
         )}
@@ -108,14 +108,14 @@ export function StatusBar({
       <div className="flex items-center gap-4">
         {/* Entity count */}
         {entityCount !== undefined && entityCount > 0 && (
-          <div className="flex items-center gap-1">
+          <div data-testid="statusbar-entity-count" className="flex items-center gap-1">
             <span>{entityCount} entities</span>
           </div>
         )}
 
         {/* Validation status */}
         {(isValidating || (validationErrors !== undefined && validationErrors > 0) || (validationWarnings !== undefined && validationWarnings > 0)) && (
-          <div className="flex items-center gap-1.5">
+          <div data-testid="statusbar-validation" className="flex items-center gap-1.5">
             {isValidating ? (
               <span className="text-blue-600">Validating...</span>
             ) : (validationErrors !== undefined && validationErrors > 0) ? (
@@ -141,7 +141,7 @@ export function StatusBar({
         )}
 
         {/* Save status */}
-        <div className="flex items-center gap-1.5 min-w-0 max-w-xs">
+        <div data-testid="statusbar-save-status" className="flex items-center gap-1.5 min-w-0 max-w-xs">
           {hasUnsavedChanges ? (
             <span className="text-orange-600">Unsaved changes</span>
           ) : (
