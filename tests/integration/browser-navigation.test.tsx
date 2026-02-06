@@ -19,7 +19,7 @@ jest.mock('next/navigation');
 jest.mock('@/lib/context/DocumentContext');
 
 describe('Browser Navigation Integration', () => {
-  const mockPush = jest.fn();
+  const mockPush = jest.fn().mockResolvedValue(undefined);
   const mockReplace = jest.fn();
 
   beforeEach(() => {

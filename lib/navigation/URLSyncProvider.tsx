@@ -44,7 +44,7 @@ export default function URLSyncProvider({ children, searchParams }: URLSyncProvi
 
   // Load document from URL on mount
   useEffect(() => {
-    if (isSyncingRef.current) return;
+    let cancelled = false;
 
     const docId = parseDocId(searchParams);
     if (!docId) {
@@ -70,16 +70,26 @@ export default function URLSyncProvider({ children, searchParams }: URLSyncProvi
         } else {
           throw new Error(`Invalid document ID format: ${docId}`);
         }
-        setLoadError(null);
+        if (!cancelled) {
+          setLoadError(null);
+        }
       } catch (error) {
-        setLoadError(error as Error);
-        console.error('Failed to load document from URL:', error);
+        if (!cancelled) {
+          setLoadError(error as Error);
+          console.error('Failed to load document from URL:', error);
+        }
       } finally {
-        isSyncingRef.current = false;
+        if (!cancelled) {
+          isSyncingRef.current = false;
+        }
       }
     };
 
     loadFromUrl();
+
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams, loadSample, loadDocument]);
 
   // Update URL when document loads successfully
@@ -93,20 +103,24 @@ export default function URLSyncProvider({ children, searchParams }: URLSyncProvi
     isSyncingRef.current = true;
     lastDocIdRef.current = currentDocId;
 
-    router.push(buildDocUrl(currentDocId));
-    isSyncingRef.current = false;
+    router.push(buildDocUrl(currentDocId)).then(() => {
+      isSyncingRef.current = false;
+    }).catch((err) => {
+      console.error('Failed to update URL:', err);
+      isSyncingRef.current = false;
+    });
   }, [currentDocId, router]);
 
   // Handle browser back/forward
   useEffect(() => {
     const handlePopState = () => {
-      // On popstate, reload from URL (useEffect above will handle it)
-      // The router will update searchParams, triggering our mount effect
+      // Trigger a re-render to process new URL
+      router.refresh();
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [router]);
 
   const navigationValue = { loadError };
 
