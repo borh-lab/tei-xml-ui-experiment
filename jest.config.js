@@ -18,9 +18,13 @@ const customJestConfig = {
     '**/components/**/__tests__/**/*.[jt]s?(x)',
     '**/lib/**/__tests__/**/*.[jt]s?(x)',
   ],
-  testPathIgnorePatterns: ['<rootDir>/tests/e2e/', '<rootDir>/.worktrees/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/tests/e2e/',
+    '<rootDir>/.worktrees/',
+    '<rootDir>/tests/effect/services/EntityRepository.test.ts', // Server-only, uses Node.js FileSystem
+  ],
   transformIgnorePatterns: [
-    'node_modules/(?!(react-hotkeys-hook|@ax-llm|@radix-ui|effect|@effect)/)',
+    'node_modules/(?!(react-hotkeys-hook|@ax-llm|@radix-ui|@ax-llm/|@effect|@effect/platform)/)',
   ],
 };
 
