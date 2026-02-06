@@ -54,6 +54,7 @@ export const InlineSuggestions = React.memo(
         // Store patterns using Effect StorageService
         const patternKey = `learned-pattern-${suggestion.speaker || 'unknown'}`;
         const existingData = await storageService.get<{ patterns: string[]; timestamp: number }[]>(patternKey);
+        // eslint-disable-next-line react-hooks/purity -- Date.now() is called in async event handler, not during render
         const newData = [...(existingData || []), { patterns: Array.from(patterns.phrases), timestamp: Date.now() }];
         await storageService.set(patternKey, newData);
 
@@ -86,6 +87,7 @@ export const InlineSuggestions = React.memo(
           {
             text: suggestion.text,
             confidence: suggestion.confidence,
+            // eslint-disable-next-line react-hooks/purity -- Date.now() is called in async event handler, not during render
             timestamp: Date.now(),
             position,
           },
@@ -120,9 +122,6 @@ export const InlineSuggestions = React.memo(
 
     return (
       <div className="space-y-2" role="list" aria-label="AI suggestions">
-        <div className="flex items-center gap-2 mb-2">
-          <Badge variant="outline" className="text-xs">Effect Storage</Badge>
-        </div>
         {suggestions.map((suggestion, index) => (
           <div
             key={`${suggestion.start}-${suggestion.end}-${index}`}

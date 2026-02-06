@@ -90,9 +90,6 @@ export const StructuralTagPalette: React.FC<StructuralTagPaletteProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold">Structural Tags</h3>
-          <Badge variant="outline" className="text-xs">
-            Effect-Based
-          </Badge>
         </div>
         {isValidating && (
           <Badge variant="secondary" className="text-xs">

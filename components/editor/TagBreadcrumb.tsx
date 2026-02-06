@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
 import { useDocumentContext } from '@/lib/context/DocumentContext';
 import type { TagInfo } from '@/lib/selection/types';
 
@@ -28,9 +27,6 @@ export function TagBreadcrumb() {
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      <Badge variant="outline" className="text-xs">
-        Effect-Based
-      </Badge>
       <span className="text-muted-foreground">Tag:</span>
       <span className="font-mono">{selectedTag.type}</span>
       {selectedTag.attributes?.who && (

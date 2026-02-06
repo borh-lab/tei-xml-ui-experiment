@@ -102,7 +102,6 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
           <CardTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5" />
             AI Assistant
-            <Badge variant="secondary" className="text-xs">Effect</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -126,7 +125,6 @@ export function AIAssistant({ onApplySuggestion, onClose }: AIAssistantProps) {
           <CardTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5" />
             AI Assistant
-            <Badge variant="secondary" className="text-xs">Effect</Badge>
           </CardTitle>
           {onClose && (
             <Button size="sm" variant="ghost" onClick={onClose}>
